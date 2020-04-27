@@ -187,14 +187,14 @@ PRIMITIVES = {
         C_in, C_out, 6, stride, kernel=7, cdw=True, **kwargs
     ),
     #quantize
-    "quant_a1_w1": lambda C_in, C_out, a, w, stride, **kwargs: QConvBNRelu(
-            C_in, C_out, a, w, 3, stride, 3 // 2, 1, "relu", "bn", **kwargs
+    "quant_a1_w1": lambda C_in, C_out, a, w, stride, padding, maxpool, **kwargs: QConvBNRelu(
+            C_in, C_out, a, w, 3, stride, padding, maxpool, 0, "relu", "bn", **kwargs
     ),
-    "quant_a2_w2": lambda C_in, C_out, a, w, stride, **kwargs: QConvBNRelu(
-            C_in, C_out, a, w, 3, stride, 3 // 2, 1, "relu", "bn", **kwargs
+    "quant_a2_w2": lambda C_in, C_out, a, w, stride, padding, maxpool, **kwargs: QConvBNRelu(
+            C_in, C_out, a, w, 3, stride, padding, maxpool, 0, "relu", "bn", **kwargs
     ),
-    "quant_a3_w3": lambda C_in, C_out, a, w, stride, **kwargs: QConvBNRelu(
-            C_in, C_out, a, w, 3, stride, 3 // 2, 1, "relu", "bn", **kwargs
+    "quant_a3_w3": lambda C_in, C_out, a, w, stride, padding, maxpool, **kwargs: QConvBNRelu(
+            C_in, C_out, a, w, 3, stride, padding, maxpool, 0, "relu", "bn", **kwargs
     ),
 }
 
@@ -244,6 +244,7 @@ class QConvBNRelu(nn.Sequential):
         kernel,
         stride,
         pad,
+        use_maxpool,
         no_bias,
         use_relu,
         bn_type,
@@ -289,9 +290,10 @@ class QConvBNRelu(nn.Sequential):
             bn_op = FrozenBatchNorm2d(output_depth)
         if bn_type is not None:
             self.add_module("bn", bn_op)
-
         if use_relu == "relu":
             self.add_module("relu", nn.ReLU(inplace=True))
+        if use_maxpool:
+            self.add_module("maxpool", nn.MaxPool2d(2, 2, 0, 1))
 
 class CascadeConv3x3(nn.Sequential):
     def __init__(self, C_in, C_out, stride):

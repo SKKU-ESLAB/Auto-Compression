@@ -50,7 +50,7 @@ def train_supernet():
     model = FBNet_Stochastic_SuperNet(lookup_table, cnt_classes=10).cuda()
     model = model.apply(weights_init)
     model = nn.DataParallel(model, device_ids=[0])
-    
+    #model.load_state_dict(torch.load('supernet_functions/logs/best_model.pth'))
     #### Loss, Optimizer and Scheduler
     criterion = SupernetLoss().cuda()
 

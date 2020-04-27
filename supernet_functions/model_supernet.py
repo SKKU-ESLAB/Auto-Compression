@@ -14,6 +14,7 @@ class MixedOperation(nn.Module):
         ops_names = [op_name for op_name in proposed_operations]
         #self.ops = nn.ModuleList([proposed_operations[op_name](*layer_parameters)
         #                          for op_name in ops_names])
+        print(layer_parameters)
         self.ops = nn.ModuleList([proposed_operations[op_name](*layer_parameters[idx])
                                   for idx, op_name in enumerate(ops_names)])
         self.latency = [latency[op_name] for op_name in ops_names]
@@ -30,23 +31,18 @@ class FBNet_Stochastic_SuperNet(nn.Module):
     def __init__(self, lookup_table, cnt_classes=1000):
         super(FBNet_Stochastic_SuperNet, self).__init__()
         # self.first identical to 'add_first' in the fbnet_building_blocks/fbnet_builder.py
-        self.first = ConvBNRelu(input_depth=3, output_depth=16, kernel=3, stride=2,
-                                pad=3 // 2, no_bias=1, use_relu="relu", bn_type="bn")
-        print(lookup_table.layers_parameters[-1])
         self.stages_to_search = nn.ModuleList([MixedOperation(
                                                    lookup_table.layers_parameters[layer_id],
                                                    lookup_table.lookup_table_operations,
                                                    lookup_table.lookup_table_latency[layer_id])
                                                for layer_id in range(lookup_table.cnt_layers)])
         self.last_stages = nn.Sequential(OrderedDict([
-            ("conv_k1", nn.Conv2d(lookup_table.layers_parameters[-1][0][1], 1504, kernel_size = 1)),
-            #("avg_pool_k7", nn.AvgPool2d(kernel_size=7)),
             ("flatten", Flatten()),
-            ("fc", nn.Linear(in_features=1504, out_features=cnt_classes)),
+            ("fc", nn.Linear(in_features=1024, out_features=cnt_classes)),
         ]))
     
     def forward(self, x, temperature, latency_to_accumulate):       
-        y = self.first(x)
+        y = x
         for mixed_op in self.stages_to_search:
             y, latency_to_accumulate = mixed_op(y, temperature, latency_to_accumulate)
         y = self.last_stages(y)

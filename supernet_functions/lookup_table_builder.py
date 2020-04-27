@@ -12,7 +12,7 @@ from supernet_functions.config_for_supernet import CONFIG_SUPERNET
 #                    "ir_k3_e6", "ir_k5_e1", "ir_k5_s2",
 #                    "ir_k5_e3", "ir_k5_e6", "skip"]
 CANDIDATE_BLOCKS = ["quant_a1_w1", "quant_a2_w2", "quant_a3_w3"]
-
+'''
 SEARCH_SPACE = OrderedDict([
     #### table 1. input shapes of 22 searched layers (considering with strides)
     # Note: the second and third dimentions are recommended (will not be used in training) and written just for debagging
@@ -40,6 +40,23 @@ SEARCH_SPACE = OrderedDict([
                  2, 1, 1, 1,
                  1])
 ])
+'''
+SEARCH_SPACE = OrderedDict([
+    #### table 1. input shapes of 22 searched layers (considering with strides)
+    # Note: the second and third dimentions are recommended (will not be used in training) and written just for debagging
+    ("input_shape", [(3, 32, 32),
+                     (128, 32, 32), (128, 16, 16),  (256, 16, 16),  (256, 8, 8),
+                     (512, 8, 8),   (512, 4, 4)]),
+    # table 1. filter numbers over the 22 layers
+    ("channel_size", [128,
+                      128, 256,  256,  512, 512, 1024]),
+    # table 1. strides over the 22 layers
+    ("strides", [1,
+                 1, 1, 1, 1, 1,
+                 1]),
+    ("padding", [1, 1, 1, 1, 1, 1, 0]),
+    ("Maxpool", [0, 1, 0, 1, 0, 1, 1])
+])
 
 # **** to recalculate latency use command:
 # l_table = LookUpTable(calulate_latency=True, path_to_file='lookup_table.txt', cnt_of_runs=50)
@@ -63,6 +80,7 @@ class LookUpTable:
                                          write_to_file=CONFIG_SUPERNET['lookup_table']['path_to_lookup_table'])
         else:
             self._create_from_file(path_to_file=CONFIG_SUPERNET['lookup_table']['path_to_lookup_table'])
+        print(self.lookup_table_latency)
     
     def _generate_layers_parameters(self, search_space):
         # layers_parameters are : C_in, C_out, expansion, stride
@@ -80,17 +98,23 @@ class LookUpTable:
                               search_space["channel_size"][layer_id],
                               4,
                               4,
-                              search_space["strides"][layer_id]),
+                              search_space["strides"][layer_id],
+                              search_space["padding"][layer_id],
+                              search_space["Maxpool"][layer_id]),
                               (search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
                               5,
                               5,
-                              search_space["strides"][layer_id]),
+                              search_space["strides"][layer_id],
+                              search_space["padding"][layer_id],
+                              search_space["Maxpool"][layer_id]),
                               (search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
                               6,
                               6,
-                              search_space["strides"][layer_id]),
+                              search_space["strides"][layer_id],
+                              search_space["padding"][layer_id],
+                              search_space["Maxpool"][layer_id]),
                             ) for layer_id in range(self.cnt_layers)]
         '''
         layers_parameters = [(search_space["input_shape"][layer_id][0],
