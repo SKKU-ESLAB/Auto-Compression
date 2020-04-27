@@ -15,7 +15,7 @@ CONFIG_ARCH = {
     },
     'train_settings' : {
         'print_freq' : 50, # show logging information
-        'path_to_save_model' : './architecture_functions/logs/best_model.pth',
+        'path_to_save_model' : '/home/khs/data/arch_logs/best_model.pth',
         'cnt_epochs' : 140, #
         # YOU COULD USE 'CosineAnnealingLR' or 'MultiStepLR' scheduler
         'scheduler' : 'MultiStepLR',
