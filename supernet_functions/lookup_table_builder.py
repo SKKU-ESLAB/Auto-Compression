@@ -8,10 +8,10 @@ from supernet_functions.config_for_supernet import CONFIG_SUPERNET
 
 # the settings from the page 4 of https://arxiv.org/pdf/1812.03443.pdf
 #### table 2
-CANDIDATE_BLOCKS = ["ir_k3_e1", "ir_k3_s2", "ir_k3_e3",
-                    "ir_k3_e6", "ir_k5_e1", "ir_k5_s2",
-                    "ir_k5_e3", "ir_k5_e6", "skip"]
-#CANDIDATE_BLOCKS = ["quant_a1_w1", "quant_a2_w2", "quant_a3_w3"]
+#CANDIDATE_BLOCKS = ["ir_k3_e1", "ir_k3_s2", "ir_k3_e3",
+#                    "ir_k3_e6", "ir_k5_e1", "ir_k5_s2",
+#                    "ir_k5_e3", "ir_k5_e6", "skip"]
+CANDIDATE_BLOCKS = ["quant_a1_w1", "quant_a2_w2", "quant_a3_w3"]
 
 SEARCH_SPACE = OrderedDict([
     #### table 1. input shapes of 22 searched layers (considering with strides)
@@ -66,33 +66,40 @@ class LookUpTable:
     
     def _generate_layers_parameters(self, search_space):
         # layers_parameters are : C_in, C_out, expansion, stride
+        
         layers_parameters = [(search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
                               # expansion (set to -999) embedded into operation and will not be considered
                               # (look fbnet_building_blocks/fbnet_builder.py - this is facebookresearch code
                               # and I don't want to modify it)
-                              -999,
+                              #-999,
+                              3,
                               search_space["strides"][layer_id]
                              ) for layer_id in range(self.cnt_layers)]
         '''
         layers_parameters = [((search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
-                              1,
-                              1,
+                              4,
+                              4,
                               search_space["strides"][layer_id]),
                               (search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
-                              1,
-                              1,
+                              5,
+                              5,
                               search_space["strides"][layer_id]),
                               (search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
-                              1,
-                              1,
+                              6,
+                              6,
                               search_space["strides"][layer_id]),
                             ) for layer_id in range(self.cnt_layers)]
+        layers_parameters = [(search_space["input_shape"][layer_id][0],
+                              search_space["channel_size"][layer_id],
+                              10,
+                              10,
+                              search_space["strides"][layer_id]
+                             ) for layer_id in range(self.cnt_layers)]
         '''
-
         # layers_input_shapes are (C_in, input_w, input_h)
         layers_input_shapes = search_space["input_shape"]
         
