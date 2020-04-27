@@ -187,16 +187,15 @@ PRIMITIVES = {
         C_in, C_out, 6, stride, kernel=7, cdw=True, **kwargs
     ),
     #quantize
-    "quant_a1_w1": lambda C_in, C_out, num_bits, num_bits_weight, stride, **kwargs: QConv2d(
-            C_in, C_out, 8, 8, stride, **kwargs
+    "quant_a1_w1": lambda C_in, C_out, kernel, stride, **kwargs: QConvBNRelu(
+            C_in, C_out, 3, 3, kernel, stride, kernel // 2, 1, "relu", "bn", **kwargs
     ),
-    "quant_a2_w2": lambda C_in, C_out, num_bits, num_bits_weight, stride, **kwargs: QConv2d(
-            C_in, C_out, 10, 10, stride, **kwargs
+    "quant_a2_w2": lambda C_in, C_out, kernel, stride, **kwargs: QConvBNRelu(
+            C_in, C_out, 3, 3, kernel, stride, kernel // 2, 1, "relu", "bn", **kwargs
     ),
-    "quant_a3_w3": lambda C_in, C_out, num_bits, num_bits_weight, stride, **kwargs: QConv2d(
-            C_in, C_out, 11, 11, stride, **kwargs
+    "quant_a3_w3": lambda C_in, C_out, kernel, stride, **kwargs: QConvBNRelu(
+            C_in, C_out, 3, 3, kernel, stride, kernel // 2, 1, "relu", "bn", **kwargs
     ),
-
 }
 
 
@@ -235,6 +234,65 @@ class Identity(nn.Module):
             out = x
         return out
 
+class QConvBNRelu(nn.Sequential):
+    def __init__(
+        self,
+        input_depth,
+        output_depth,
+        num_bits,
+        num_bits_weight,
+        kernel,
+        stride,
+        pad,
+        no_bias,
+        use_relu,
+        bn_type,
+        group=1,
+        layer_num=-1,
+        multi=False,
+        index=[],
+        *args,
+        **kwargs
+    ):
+        super(QConvBNRelu, self).__init__()
+
+        assert use_relu in ["relu", None]
+        if isinstance(bn_type, (list, tuple)):
+            assert len(bn_type) == 2
+            assert bn_type[0] == "gn"
+            gn_group = bn_type[1]
+            bn_type = bn_type[0]
+        assert bn_type in ["bn", "af", "gn", None]
+        assert stride in [1, 2, 4]
+
+        op = QConv2d(
+            input_depth,
+            output_depth,
+            num_bits,
+            num_bits_weight,
+            kernel_size=kernel,
+            stride=stride,
+            padding=pad,
+            bias=not no_bias,
+            layer_num=layer_num,
+            multi=multi,
+            index=index,
+            *args,
+            **kwargs
+        )
+        self.add_module("qconv", op)
+        print("##########")
+        if bn_type == "bn":
+            bn_op = BatchNorm2d(output_depth)
+        elif bn_type == "gn":
+            bn_op = nn.GroupNorm(num_groups=gn_group, num_channels=output_depth)
+        elif bn_type == "af":
+            bn_op = FrozenBatchNorm2d(output_depth)
+        if bn_type is not None:
+            self.add_module("bn", bn_op)
+
+        if use_relu == "relu":
+            self.add_module("relu", nn.ReLU(inplace=True))
 
 class CascadeConv3x3(nn.Sequential):
     def __init__(self, C_in, C_out, stride):
@@ -394,7 +452,7 @@ class ConvBNRelu(nn.Sequential):
             *args,
             **kwargs
         )
-        nn.init.kaiming_normal_(op.weight, mode="fan_out", nonlinearity="relu")
+        #nn.init.kaiming_normal_(op.weight, mode="fan_out", nonlinearity="relu")
         if op.bias is not None:
             nn.init.constant_(op.bias, 0.0)
         self.add_module("conv", op)

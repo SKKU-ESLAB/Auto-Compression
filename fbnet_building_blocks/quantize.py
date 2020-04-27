@@ -76,7 +76,6 @@ class UniformQuantize(InplaceFunction):
             output = output.add_(-min_value).div_(scale).add_(qmin)
             output = output.clamp_(qmin, qmax).round_()  # quantize
             output = output.add_(-qmin).mul_(scale).add_(min_value)
-
         return output
 
     @staticmethod
@@ -118,7 +117,7 @@ class QuantMeasure(nn.Module):
 class QConv2d(nn.Conv2d):
     """docstring for QConv2d."""
 
-    def __init__(self, in_channels, out_channels, num_bits=8, num_bits_weight=None, stride=1, kernel_size=3,
+    def __init__(self, in_channels, out_channels, num_bits=8, num_bits_weight=None, kernel_size=3, stride=1,
                  padding=1, dilation=1, groups=1, bias=True, num_bits_grad=None, layer_num=-1, multi=False, index=[]):
         super(QConv2d, self).__init__(in_channels, out_channels, kernel_size,
                                       stride, padding, dilation, groups, bias)
