@@ -66,14 +66,13 @@ class LookUpTable:
     
     def _generate_layers_parameters(self, search_space):
         # layers_parameters are : C_in, C_out, expansion, stride
-        
+        '''
         layers_parameters = [(search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
                               # expansion (set to -999) embedded into operation and will not be considered
                               # (look fbnet_building_blocks/fbnet_builder.py - this is facebookresearch code
                               # and I don't want to modify it)
-                              #-999,
-                              3,
+                              -999,
                               search_space["strides"][layer_id]
                              ) for layer_id in range(self.cnt_layers)]
         '''
@@ -93,6 +92,7 @@ class LookUpTable:
                               6,
                               search_space["strides"][layer_id]),
                             ) for layer_id in range(self.cnt_layers)]
+        '''
         layers_parameters = [(search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
                               10,

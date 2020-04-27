@@ -187,14 +187,14 @@ PRIMITIVES = {
         C_in, C_out, 6, stride, kernel=7, cdw=True, **kwargs
     ),
     #quantize
-    "quant_a1_w1": lambda C_in, C_out, kernel, stride, **kwargs: QConvBNRelu(
-            C_in, C_out, 3, 3, kernel, stride, kernel // 2, 1, "relu", "bn", **kwargs
+    "quant_a1_w1": lambda C_in, C_out, a, w, stride, **kwargs: QConvBNRelu(
+            C_in, C_out, a, w, 3, stride, 3 // 2, 1, "relu", "bn", **kwargs
     ),
-    "quant_a2_w2": lambda C_in, C_out, kernel, stride, **kwargs: QConvBNRelu(
-            C_in, C_out, 3, 3, kernel, stride, kernel // 2, 1, "relu", "bn", **kwargs
+    "quant_a2_w2": lambda C_in, C_out, a, w, stride, **kwargs: QConvBNRelu(
+            C_in, C_out, a, w, 3, stride, 3 // 2, 1, "relu", "bn", **kwargs
     ),
-    "quant_a3_w3": lambda C_in, C_out, kernel, stride, **kwargs: QConvBNRelu(
-            C_in, C_out, 3, 3, kernel, stride, kernel // 2, 1, "relu", "bn", **kwargs
+    "quant_a3_w3": lambda C_in, C_out, a, w, stride, **kwargs: QConvBNRelu(
+            C_in, C_out, a, w, 3, stride, 3 // 2, 1, "relu", "bn", **kwargs
     ),
 }
 
@@ -281,7 +281,6 @@ class QConvBNRelu(nn.Sequential):
             **kwargs
         )
         self.add_module("qconv", op)
-        print("##########")
         if bn_type == "bn":
             bn_op = BatchNorm2d(output_depth)
         elif bn_type == "gn":

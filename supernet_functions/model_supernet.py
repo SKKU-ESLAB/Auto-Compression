@@ -12,10 +12,10 @@ class MixedOperation(nn.Module):
     def __init__(self, layer_parameters, proposed_operations, latency):
         super(MixedOperation, self).__init__()
         ops_names = [op_name for op_name in proposed_operations]
-        self.ops = nn.ModuleList([proposed_operations[op_name](*layer_parameters)
-                                  for op_name in ops_names])
-        #self.ops = nn.ModuleList([proposed_operations[op_name](*layer_parameters[idx])
-         #                         for idx, op_name in enumerate(ops_names)])
+        #self.ops = nn.ModuleList([proposed_operations[op_name](*layer_parameters)
+        #                          for op_name in ops_names])
+        self.ops = nn.ModuleList([proposed_operations[op_name](*layer_parameters[idx])
+                                  for idx, op_name in enumerate(ops_names)])
         self.latency = [latency[op_name] for op_name in ops_names]
         self.thetas = nn.Parameter(torch.Tensor([1.0 / len(ops_names) for i in range(len(ops_names))]))
     
@@ -32,13 +32,14 @@ class FBNet_Stochastic_SuperNet(nn.Module):
         # self.first identical to 'add_first' in the fbnet_building_blocks/fbnet_builder.py
         self.first = ConvBNRelu(input_depth=3, output_depth=16, kernel=3, stride=2,
                                 pad=3 // 2, no_bias=1, use_relu="relu", bn_type="bn")
+        print(lookup_table.layers_parameters[-1])
         self.stages_to_search = nn.ModuleList([MixedOperation(
                                                    lookup_table.layers_parameters[layer_id],
                                                    lookup_table.lookup_table_operations,
                                                    lookup_table.lookup_table_latency[layer_id])
                                                for layer_id in range(lookup_table.cnt_layers)])
         self.last_stages = nn.Sequential(OrderedDict([
-            ("conv_k1", nn.Conv2d(lookup_table.layers_parameters[-1][1], 1504, kernel_size = 1)),
+            ("conv_k1", nn.Conv2d(lookup_table.layers_parameters[-1][0][1], 1504, kernel_size = 1)),
             #("avg_pool_k7", nn.AvgPool2d(kernel_size=7)),
             ("flatten", Flatten()),
             ("fc", nn.Linear(in_features=1504, out_features=cnt_classes)),
