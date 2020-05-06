@@ -7,6 +7,8 @@ from general_functions.utils import add_text_to_file, clear_files_in_the_list
 from supernet_functions.config_for_supernet import CONFIG_SUPERNET
 import numpy as np
 import sys
+import math
+import copy
 
 np.set_printoptions(threshold=sys.maxsize)
 # the settings from the page 4 of https://arxiv.org/pdf/1812.03443.pdf
@@ -76,6 +78,7 @@ class LookUpTable:
         self.lookup_table_operations = {op_name : PRIMITIVES[op_name] for op_name in candidate_blocks}
         # arguments for the ops constructors. one set of arguments for all 9 constructors at each layer
         # input_shapes just for convinience
+        self.index = []
         self.layers_parameters, self.layers_input_shapes = self._generate_layers_parameters(search_space)
         
         # lookup_table
@@ -89,9 +92,13 @@ class LookUpTable:
 
     def _generate_layers_parameters(self, search_space):
         # layers_parameters are : C_in, C_out, expansion, stride
-        index_1 = self._generate_index(search_space["Weight"])
-        index_2 = self._generate_index(search_space["Weight"])
-        index_3 = self._generate_index(search_space["Weight"])
+        for i in range(3):
+            self.index.append(self._generate_index(search_space["Weight"]))
+        print(len(self.index))
+        print(len(self.index[0]))
+        print(len(self.index[0][0]))
+        print(len(self.index[0][0][5][0]))
+        #print(index_1[0][5][0])
         '''
         layers_parameters = [(search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
@@ -109,7 +116,7 @@ class LookUpTable:
                               search_space["strides"][layer_id],
                               search_space["padding"][layer_id],
                               search_space["Maxpool"][layer_id],
-                              index_1),
+                              self.index[0]),
                               (search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
                               search_space["Activation"][layer_id],
@@ -117,7 +124,7 @@ class LookUpTable:
                               search_space["strides"][layer_id],
                               search_space["padding"][layer_id],
                               search_space["Maxpool"][layer_id],
-                              index_2),
+                              self.index[1]),
                               (search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
                               search_space["Activation"][layer_id],
@@ -125,7 +132,7 @@ class LookUpTable:
                               search_space["strides"][layer_id],
                               search_space["padding"][layer_id],
                               search_space["Maxpool"][layer_id],
-                              index_3),
+                              self.index[2]),
                             ) for layer_id in range(self.cnt_layers)]
         # layers_input_shapes are (C_in, input_w, input_h)
         layers_input_shapes = search_space["input_shape"]
@@ -209,8 +216,19 @@ class LookUpTable:
         latences = [line.strip('\n') for line in open(path_to_file)]
         ops_names = latences[0].split(" ")
         latences = [list(map(float, layer.split(" "))) for layer in latences[1:]]
-        
-        lookup_table_latency = [{op_name : latences[i][op_id] 
+        latency = []
+        for i in range(self.cnt_layers):
+            latency.append([])
+            for j in range(3):
+                latency[i].append([])
+
+        for i in range(3):
+            for j in range(self.cnt_layers):
+                latency[j][i] = 0
+                for k in range(8):
+                    latency[j][i] += math.ceil(len(self.index[i][j][k][0])/8) * latences[k][i]
+            
+        lookup_table_latency = [{op_name : latency[i][op_id] 
                                       for op_id, op_name in enumerate(ops_names)
                                      } for i in range(self.cnt_layers)]
         print(lookup_table_latency)
