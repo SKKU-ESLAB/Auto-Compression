@@ -9,12 +9,16 @@ class MixedOperation(nn.Module):
     # Arguments:
     # proposed_operations is a dictionary {operation_name : op_constructor}
     # latency is a dictionary {operation_name : latency}
-    def __init__(self, layer_parameters, proposed_operations, latency):
+    def __init__(self, layer_parameters, proposed_operations, latency, layer_num):
         super(MixedOperation, self).__init__()
         ops_names = [op_name for op_name in proposed_operations]
         #self.ops = nn.ModuleList([proposed_operations[op_name](*layer_parameters)
         #                          for op_name in ops_names])
-        print(layer_parameters)
+        layer_parameters = list(layer_parameters)
+        for i in range(len(layer_parameters)):
+            layer_parameters[i] = list(layer_parameters[i])
+            layer_parameters[i].append(layer_num)
+
         self.ops = nn.ModuleList([proposed_operations[op_name](*layer_parameters[idx])
                                   for idx, op_name in enumerate(ops_names)])
         self.latency = [latency[op_name] for op_name in ops_names]
@@ -34,7 +38,8 @@ class FBNet_Stochastic_SuperNet(nn.Module):
         self.stages_to_search = nn.ModuleList([MixedOperation(
                                                    lookup_table.layers_parameters[layer_id],
                                                    lookup_table.lookup_table_operations,
-                                                   lookup_table.lookup_table_latency[layer_id])
+                                                   lookup_table.lookup_table_latency[layer_id],
+                                                   layer_id)
                                                for layer_id in range(lookup_table.cnt_layers)])
         self.last_stages = nn.Sequential(OrderedDict([
             ("flatten", Flatten()),
