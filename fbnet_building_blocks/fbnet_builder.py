@@ -187,14 +187,14 @@ PRIMITIVES = {
         C_in, C_out, 6, stride, kernel=7, cdw=True, **kwargs
     ),
     #quantize
-    "quant_a1_w1": lambda C_in, C_out, a, w, stride, padding, maxpool, **kwargs: QConvBNRelu(
-            C_in, C_out, a, w, 3, stride, padding, maxpool, 0, "relu", "bn", **kwargs
+    "quant_a1_w1": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvBNRelu(
+            C_in, C_out, a, w, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, **kwargs
     ),
-    "quant_a2_w2": lambda C_in, C_out, a, w, stride, padding, maxpool, **kwargs: QConvBNRelu(
-            C_in, C_out, a, w, 3, stride, padding, maxpool, 0, "relu", "bn", **kwargs
+    "quant_a2_w2": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvBNRelu(
+            C_in, C_out, a, w, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, **kwargs
     ),
-    "quant_a3_w3": lambda C_in, C_out, a, w, stride, padding, maxpool, **kwargs: QConvBNRelu(
-            C_in, C_out, a, w, 3, stride, padding, maxpool, 0, "relu", "bn", **kwargs
+    "quant_a3_w3": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvBNRelu(
+            C_in, C_out, a, w, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, **kwargs
     ),
 }
 
@@ -248,15 +248,14 @@ class QConvBNRelu(nn.Sequential):
         no_bias,
         use_relu,
         bn_type,
-        group=1,
-        layer_num=-1,
-        multi=False,
         index=[],
+        layer_num=-1,
+        group=1,
+        multi=False,
         *args,
         **kwargs
     ):
         super(QConvBNRelu, self).__init__()
-
         assert use_relu in ["relu", None]
         if isinstance(bn_type, (list, tuple)):
             assert len(bn_type) == 2
@@ -276,7 +275,7 @@ class QConvBNRelu(nn.Sequential):
             padding=pad,
             bias=not no_bias,
             layer_num=layer_num,
-            multi=multi,
+            multi=True,
             index=index,
             *args,
             **kwargs

@@ -49,18 +49,16 @@ class UniformQuantize(InplaceFunction):
         else:
             output = input.clone()
         if multi:
-            bit_min = 2
-            bit_max = num_bits
-            step = bit_max - bit_min + 1
-            for i in range(step):
-                if index[layer_num*step +i] == ['']:
+            bit_max = 8
+            for i in range(bit_max):
+                if len(index[layer_num][i][0]) == 0:
                     continue
                 else:
-                    idx = list(map(int, index[layer_num*step + i]))
+                    idx = index[layer_num][i][0].tolist()
                 min_value = output[idx].min()
                 max_value = output[idx].max()
                 qmin = 0.
-                qmax = 2.**(bit_min+i) - 1.
+                qmax = 2.**(1+i) - 1.
                 scale = (max_value - min_value) / (qmax - qmin)
                 scale = max(scale, 1e-8)
                 output[idx] = output[idx].add_(-min_value).div_(scale).add_(qmin)
