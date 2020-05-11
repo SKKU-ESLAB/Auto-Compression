@@ -13,7 +13,8 @@ from supernet_functions.model_supernet import FBNet_Stochastic_SuperNet, Superne
 from supernet_functions.training_functions_supernet import TrainerSupernet
 from supernet_functions.config_for_supernet import CONFIG_SUPERNET
 from fbnet_building_blocks.fbnet_modeldef import MODEL_ARCH
-    
+import copy
+
 parser = argparse.ArgumentParser("action")
 parser.add_argument('--train_or_sample', type=str, default='', \
                     help='train means training of the SuperNet, sample means sample from SuperNet\'s results')
@@ -46,24 +47,31 @@ def train_supernet():
     count = 0
     previous = []
     index = []
+    '''
     with open('index.txt', 'r') as f:
         lines = f.readlines()
         for line in lines:
-            index.append(line.rstrip('\n'))
+            index.append(list(line.rstrip('\n')))
         f.close()
-
+    '''
     while True:
         print(count, "th iterations")
-        lookup_table = LookUpTable(calulate_latency=CONFIG_SUPERNET['lookup_table']['create_from_scratch'])
-        lookup_table.index[0] = index
-
+        lookup_table = LookUpTable(calulate_latency=CONFIG_SUPERNET['lookup_table']['create_from_scratch'], count=count)
+        if count != 0:
+            lookup_table.index[0] = copy.deepcopy(index)
         ###MODEL
         model = FBNet_Stochastic_SuperNet(lookup_table, cnt_classes=10).cuda()
-        model = model.apply(weights_init)
         model = nn.DataParallel(model, device_ids=[0])
-        #model.load_state_dict(torch.load('/home/khs/data/sup_logs/pretrained.pth'))
+        if count == 0:
+            model.load_state_dict(torch.load('/home/khs/data/sup_logs/pretrained.pth'))
+        else:
+            model.load_state_dict(torch.load('/home/khs/data/sup_logs/best_model.pth'))
+        model = model.apply(weights_init)
         #### Loss, Optimizer and Scheduler
         criterion = SupernetLoss().cuda()
+
+        for layer in model.module.stages_to_search:
+            layer.thetas = nn.Parameter(torch.Tensor([1.0 / 3 for i in range(3)]).cuda())
 
         thetas_params = [param for name, param in model.named_parameters() if 'thetas' in name]
         params_except_thetas = [param for param in model.parameters() if not check_tensor_in_list(param, thetas_params)]
@@ -85,14 +93,13 @@ def train_supernet():
         trainer = TrainerSupernet(criterion, w_optimizer, theta_optimizer, w_scheduler, logger, writer)
         trainer.train_loop(train_w_loader, train_thetas_loader, test_loader, model)
         
-        index = []
+        del index[:]
         with open('index.txt', 'w') as f:
             for idx,layer in enumerate(model.module.stages_to_search):
                 ops = np.argmax(layer.thetas.detach().cpu().numpy())
                 tmp = lookup_table.index[ops][idx]
                 index.append(tmp)
                 f.write('%s\n' % tmp)
-                print(ops, end = " ")
             f.close()
         print()
         if previous == index:
@@ -100,7 +107,6 @@ def train_supernet():
 
         previous = index
         count += 1
-
 
 # Arguments:
 # hardsampling=True means get operations with the largest weights

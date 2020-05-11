@@ -72,12 +72,13 @@ SEARCH_SPACE = OrderedDict([
 # l_table = LookUpTable(calulate_latency=False, path_to_file='lookup_table.txt')
 class LookUpTable:
     def __init__(self, candidate_blocks=CANDIDATE_BLOCKS, search_space=SEARCH_SPACE,
-                 calulate_latency=False):
+                 calulate_latency=False, count=0):
         self.cnt_layers = len(search_space["input_shape"])
         # constructors for each operation
         self.lookup_table_operations = {op_name : PRIMITIVES[op_name] for op_name in candidate_blocks}
         # arguments for the ops constructors. one set of arguments for all 9 constructors at each layer
         # input_shapes just for convinience
+        self.count = count
         self.index = []
         for i in range(3):
             self.index.append(self._generate_index(search_space["Weight"]))
@@ -127,32 +128,68 @@ class LookUpTable:
         return layers_parameters, layers_input_shapes
     
     def _generate_index(self, bit):
-        m = torch.load('/home/khs/data/sup_logs/best-260.pth')
-        count = 0
-        index = []
-        for i in m.keys():
-            if 'weight' in i:
-                if count ==7:
-                    break
-                index.append([])
-                w = m[i]
-                w_numpy = w.cpu().numpy()
-                w_numpy = w_numpy.reshape(w_numpy.shape[0], -1)
-                budget = bit[count] * w_numpy.shape[0]
-                max_val = np.max(w_numpy, axis=1)
-                min_val = np.min(w_numpy, axis=1)
-                noise = np.random.normal(0, 0.1, w_numpy.shape[0])
-                inter = (max_val - min_val)**2
-                inter = inter + noise
-                b = np.ones(w_numpy.shape[0])
-                I = inter / (3**b)
-                while np.sum(b) < budget:
-                    idx = I.argmax()
-                    b[idx] += 1
+        if self.count==0:
+            m = torch.load('/home/khs/data/sup_logs/best-260.pth')
+            count = 0
+            index = []
+            for i in m.keys():
+                if 'weight' in i:
+                    if count ==7:
+                        break
+                    index.append([])
+                    w = m[i]
+                    w_numpy = w.cpu().numpy()
+                    w_numpy = w_numpy.reshape(w_numpy.shape[0], -1)
+                    budget = bit[count] * w_numpy.shape[0]
+                    max_val = np.max(w_numpy, axis=1)
+                    min_val = np.min(w_numpy, axis=1)
+                    noise = np.random.normal(0, 0.01, w_numpy.shape[0])
+                    inter = (max_val - min_val)**2
+                    inter = inter + noise
+                    b = np.ones(w_numpy.shape[0])
                     I = inter / (3**b)
-                for i in range(8):
-                    index[count].append(list(np.where(b==i+1)[0]))
-                count+=1
+                    while np.sum(b) < budget:
+                        idx = I.argmax()
+                        b[idx] += 1
+                        I = inter / (3**b)
+                    for i in range(8):
+                        index[count].append(list(np.where(b==i+1)[0]))
+                    count+=1
+        else:
+            m = torch.load('/home/khs/data/sup_logs/best_model.pth')
+            index = []
+            count = 0
+            tmp = []
+            for i in m.keys():
+                if 'thetas' in i and str(count) in i:
+                    tmp.append(np.argmax(m[i].cpu().numpy()))
+                    count+=1
+            count = 0
+            for i in m.keys():
+                if count == 7:
+                    break
+                if str(count) + '.ops.' + str(tmp[count]) in i and 'weight' in i:
+                    index.append([])
+                    w = m[i]
+                    w_numpy = w.cpu().numpy()
+                    w_numpy = w_numpy.reshape(w_numpy.shape[0], -1)
+                    budget = bit[count] * w_numpy.shape[0]
+                    max_val = np.max(w_numpy, axis=1)
+                    min_val = np.min(w_numpy, axis=1)
+                    sigma = 0.01 * ((0.5)**self.count)
+                    noise = np.random.normal(0, sigma, w_numpy.shape[0])
+                    inter = (max_val - min_val)**2
+                    inter = inter + noise
+                    b = np.ones(w_numpy.shape[0])
+                    I = inter / (3**b)
+                    while np.sum(b) < budget:
+                        idx = I.argmax()
+                        b[idx] += 1
+                        I = inter / (3**b)
+                    for i in range(8):
+                        index[count].append(list(np.where(b==i+1)[0]))
+                    count+=1
+                
         return index
 
     # CNT_OP_RUNS us number of times to check latency (we will take average)
