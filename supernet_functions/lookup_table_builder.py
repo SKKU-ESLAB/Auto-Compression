@@ -79,6 +79,9 @@ class LookUpTable:
         # arguments for the ops constructors. one set of arguments for all 9 constructors at each layer
         # input_shapes just for convinience
         self.index = []
+        for i in range(3):
+            self.index.append(self._generate_index(search_space["Weight"]))
+
         self.layers_parameters, self.layers_input_shapes = self._generate_layers_parameters(search_space)
         
         # lookup_table
@@ -92,23 +95,7 @@ class LookUpTable:
 
     def _generate_layers_parameters(self, search_space):
         # layers_parameters are : C_in, C_out, expansion, stride
-        for i in range(3):
-            self.index.append(self._generate_index(search_space["Weight"]))
-        print(len(self.index))
-        print(len(self.index[0]))
-        print(len(self.index[0][0]))
-        print(len(self.index[0][0][5][0]))
-        #print(index_1[0][5][0])
-        '''
-        layers_parameters = [(search_space["input_shape"][layer_id][0],
-                              search_space["channel_size"][layer_id],
-                              # expansion (set to -999) embedded into operation and will not be considered
-                              # (look fbnet_building_blocks/fbnet_builder.py - this is facebookresearch code
-                              # and I don't want to modify it)
-                              -999,
-                              search_space["strides"][layer_id]
-                             ) for layer_id in range(self.cnt_layers)]
-        '''
+
         layers_parameters = [((search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
                               search_space["Activation"][layer_id],
@@ -164,7 +151,7 @@ class LookUpTable:
                     b[idx] += 1
                     I = inter / (3**b)
                 for i in range(8):
-                    index[count].append(list(np.where(b==i+1)))
+                    index[count].append(list(np.where(b==i+1)[0]))
                 count+=1
         return index
 
@@ -226,10 +213,9 @@ class LookUpTable:
             for j in range(self.cnt_layers):
                 latency[j][i] = 0
                 for k in range(8):
-                    latency[j][i] += math.ceil(len(self.index[i][j][k][0])/8) * latences[k][i]
+                    latency[j][i] += math.ceil(len(self.index[i][j][k])/8) * latences[k][i]
             
         lookup_table_latency = [{op_name : latency[i][op_id] 
                                       for op_id, op_name in enumerate(ops_names)
                                      } for i in range(self.cnt_layers)]
-        print(lookup_table_latency)
         return lookup_table_latency

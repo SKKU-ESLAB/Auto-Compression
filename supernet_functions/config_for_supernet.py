@@ -32,7 +32,7 @@ CONFIG_SUPERNET = {
         'beta' : 0.6
     },
     'train_settings' : {
-        'cnt_epochs' : 60, # 90
+        'cnt_epochs' : 20, # 90
         'train_thetas_from_the_epoch' : 1,
         'print_freq' : 50,
         'path_to_save_model' : '/home/khs/data/sup_logs/best_model.pth',

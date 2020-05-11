@@ -35,9 +35,6 @@ def train_supernet():
     logger = get_logger(CONFIG_SUPERNET['logging']['path_to_log_file'])
     writer = SummaryWriter(log_dir=CONFIG_SUPERNET['logging']['path_to_tensorboard_logs'])
     
-    #### LookUp table consists all information about layers
-    lookup_table = LookUpTable(calulate_latency=CONFIG_SUPERNET['lookup_table']['create_from_scratch'])
-    
     #### DataLoading
     train_w_loader, train_thetas_loader = get_loaders(CONFIG_SUPERNET['dataloading']['w_share_in_train'],
                                                       CONFIG_SUPERNET['dataloading']['batch_size'],
@@ -46,34 +43,64 @@ def train_supernet():
     test_loader = get_test_loader(CONFIG_SUPERNET['dataloading']['batch_size'],
                                   CONFIG_SUPERNET['dataloading']['path_to_save_data'])
     
-    #### Model
-    model = FBNet_Stochastic_SuperNet(lookup_table, cnt_classes=10).cuda()
-    model = model.apply(weights_init)
-    model = nn.DataParallel(model, device_ids=[0])
-    #model.load_state_dict(torch.load('supernet_functions/logs/best_model.pth'))
-    #### Loss, Optimizer and Scheduler
-    criterion = SupernetLoss().cuda()
+    count = 0
+    previous = []
+    index = []
+    with open('index.txt', 'r') as f:
+        lines = f.readlines()
+        for line in lines:
+            index.append(line.rstrip('\n'))
+        f.close()
 
-    thetas_params = [param for name, param in model.named_parameters() if 'thetas' in name]
-    params_except_thetas = [param for param in model.parameters() if not check_tensor_in_list(param, thetas_params)]
+    while True:
+        print(count, "th iterations")
+        lookup_table = LookUpTable(calulate_latency=CONFIG_SUPERNET['lookup_table']['create_from_scratch'])
+        lookup_table.index[0] = index
 
-    w_optimizer = torch.optim.SGD(params=params_except_thetas,
-                                  lr=CONFIG_SUPERNET['optimizer']['w_lr'], 
-                                  momentum=CONFIG_SUPERNET['optimizer']['w_momentum'],
-                                  weight_decay=CONFIG_SUPERNET['optimizer']['w_weight_decay'])
-    
-    theta_optimizer = torch.optim.Adam(params=thetas_params,
-                                       lr=CONFIG_SUPERNET['optimizer']['thetas_lr'],
-                                       weight_decay=CONFIG_SUPERNET['optimizer']['thetas_weight_decay'])
+        ###MODEL
+        model = FBNet_Stochastic_SuperNet(lookup_table, cnt_classes=10).cuda()
+        model = model.apply(weights_init)
+        model = nn.DataParallel(model, device_ids=[0])
+        #model.load_state_dict(torch.load('/home/khs/data/sup_logs/pretrained.pth'))
+        #### Loss, Optimizer and Scheduler
+        criterion = SupernetLoss().cuda()
 
-    last_epoch = -1
-    w_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(w_optimizer,
-                                                             T_max=CONFIG_SUPERNET['train_settings']['cnt_epochs'],
-                                                             last_epoch=last_epoch)
-    
-    #### Training Loop
-    trainer = TrainerSupernet(criterion, w_optimizer, theta_optimizer, w_scheduler, logger, writer)
-    trainer.train_loop(train_w_loader, train_thetas_loader, test_loader, model)
+        thetas_params = [param for name, param in model.named_parameters() if 'thetas' in name]
+        params_except_thetas = [param for param in model.parameters() if not check_tensor_in_list(param, thetas_params)]
+
+        w_optimizer = torch.optim.SGD(params=params_except_thetas,
+                                      lr=CONFIG_SUPERNET['optimizer']['w_lr'], 
+                                      momentum=CONFIG_SUPERNET['optimizer']['w_momentum'],
+                                      weight_decay=CONFIG_SUPERNET['optimizer']['w_weight_decay'])
+        
+        theta_optimizer = torch.optim.Adam(params=thetas_params,
+                                           lr=CONFIG_SUPERNET['optimizer']['thetas_lr'],
+                                           weight_decay=CONFIG_SUPERNET['optimizer']['thetas_weight_decay'])
+
+        last_epoch = -1
+        w_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(w_optimizer,
+                                                                 T_max=CONFIG_SUPERNET['train_settings']['cnt_epochs'],
+                                                                 last_epoch=last_epoch)
+        #### Training Loop
+        trainer = TrainerSupernet(criterion, w_optimizer, theta_optimizer, w_scheduler, logger, writer)
+        trainer.train_loop(train_w_loader, train_thetas_loader, test_loader, model)
+        
+        index = []
+        with open('index.txt', 'w') as f:
+            for idx,layer in enumerate(model.module.stages_to_search):
+                ops = np.argmax(layer.thetas.detach().cpu().numpy())
+                tmp = lookup_table.index[ops][idx]
+                index.append(tmp)
+                f.write('%s\n' % tmp)
+                print(ops, end = " ")
+            f.close()
+        print()
+        if previous == index:
+            break
+
+        previous = index
+        count += 1
+
 
 # Arguments:
 # hardsampling=True means get operations with the largest weights
