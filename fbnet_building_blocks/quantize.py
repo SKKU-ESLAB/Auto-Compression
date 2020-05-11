@@ -51,7 +51,7 @@ class UniformQuantize(InplaceFunction):
         if multi:
             bit_max = 8
             for i in range(bit_max):
-                if len(index[layer_num][i][0]) == 0:
+                if len(index[layer_num][i]) == 0:
                     continue
                 else:
                     idx = index[layer_num][i][0].tolist()

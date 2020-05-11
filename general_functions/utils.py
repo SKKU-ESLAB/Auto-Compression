@@ -127,7 +127,6 @@ def check_tensor_in_list(atensor, alist):
 #              "ir_k5_e1", "ir_k5_e3", "ir_k5_e6", "ir_k5_e1", "ir_k5_e6", "ir_k5_e6", "ir_k3_e6"]
 # my_unique_name_for_ARCH = "my_unique_name_for_ARCH"
 def writh_new_ARCH_to_fbnet_modeldef(ops_names, my_unique_name_for_ARCH):
-    assert len(ops_names) == 22
     if my_unique_name_for_ARCH in MODEL_ARCH:
         print("The specification with the name", my_unique_name_for_ARCH, "already written \
               to the fbnet_building_blocks.fbnet_modeldef. Please, create a new name \
@@ -140,6 +139,7 @@ def writh_new_ARCH_to_fbnet_modeldef(ops_names, my_unique_name_for_ARCH):
             \"block_op_type\": [\n"
 
     ops = ["[\"" + str(op) + "\"], " for op in ops_names]
+    print(ops)
     ops_lines = [ops[0], ops[1:5], ops[5:9], ops[9:13], ops[13:17], ops[17:21], ops[21]]
     ops_lines = [''.join(line) for line in ops_lines]
     text_to_write += '            ' + '\n            '.join(ops_lines)
