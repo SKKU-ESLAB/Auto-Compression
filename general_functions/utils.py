@@ -32,6 +32,7 @@ class AverageMeter(object):
 def weights_init(m, deepth=0, max_depth=2):
     if deepth > max_depth:
         return
+    '''
     if isinstance(m, torch.nn.Conv2d):
         torch.nn.init.kaiming_uniform_(m.weight.data)
         if m.bias is not None:
@@ -40,17 +41,21 @@ def weights_init(m, deepth=0, max_depth=2):
         m.weight.data.normal_(0, 0.01)
         if m.bias is not None:
             m.bias.data.zero_()
-    elif isinstance(m, torch.nn.BatchNorm2d):
+    '''
+    if isinstance(m, torch.nn.BatchNorm2d):
+        torch.nn.init.constant_(m.weight, 1)
+        torch.nn.init.constant_(m.bias, 0)
         return
     elif isinstance(m, torch.nn.ReLU):
         return
+    '''
     elif isinstance(m, torch.nn.Module):
         deepth += 1
         for m_ in m.modules():
             weights_init(m_, deepth)
     else:
         raise ValueError("%s is unk" % m.__class__.__name__)
-
+    '''
 def get_logger(file_path):
     """ Make python logger """
     # [!] Since tensorboardX use default logger (e.g. logging.info()), we should use custom logger
