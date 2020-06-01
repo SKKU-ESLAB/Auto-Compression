@@ -269,7 +269,7 @@ class LookUpTable:
     
     def _generate_index(self, bit):
         if self.count==0:
-            m = torch.load('/home/khs/data/sup_logs/best-260.pth')
+            m = torch.load('/home/khs/data/sup_logs/cifar10/best-260.pth')
             count = 0
             index = []
             for i in m.keys():
@@ -296,7 +296,7 @@ class LookUpTable:
                         index[count].append(list(np.where(b==i+1)[0]))
                     count+=1
         else:
-            m = torch.load('/home/khs/data/sup_logs/best_model.pth')
+            m = torch.load('/home/khs/data/sup_logs/cifar10/best_model.pth')
             index = []
             count = 0
             tmp = []

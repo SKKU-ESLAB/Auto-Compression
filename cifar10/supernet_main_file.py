@@ -51,7 +51,7 @@ def train_supernet():
         model = FBNet_Stochastic_SuperNet(lookup_table, cnt_classes=10).cuda()
         model = model.apply(weights_init)
         model = nn.DataParallel(model, device_ids=[0])
-        model.load_state_dict(torch.load('/home/khs/data/sup_logs/pretrained_high.pth'))
+        model.load_state_dict(torch.load('/home/khs/data/sup_logs/cifar10/pretrained_high.pth'))
         #### Loss, Optimizer and Scheduler
         criterion = SupernetLoss().cuda()
 
@@ -77,6 +77,7 @@ def train_supernet():
         #### Training Loop
         trainer = TrainerSupernet(criterion, w_optimizer, theta_optimizer, w_scheduler, logger, writer, True)
         trainer.train_loop(train_w_loader, train_thetas_loader, test_loader, model)
+        ops_names = [op_name for op_name in lookup_table.lookup_table_operations]
         for layer in model.module.stages_to_search:
             print(ops_names[np.argmax(layer.thetas.detach().cpu().numpy())])
 
@@ -97,9 +98,9 @@ def train_supernet():
             model = FBNet_Stochastic_SuperNet(lookup_table, cnt_classes=10).cuda()
             model = nn.DataParallel(model, device_ids=[0])
             if count == 0:
-                model.load_state_dict(torch.load('/home/khs/data/sup_logs/pretrained.pth'))
+                model.load_state_dict(torch.load('/home/khs/data/sup_logs/cifar10/pretrained.pth'))
             else:
-                model.load_state_dict(torch.load('/home/khs/data/sup_logs/best_model.pth'))
+                model.load_state_dict(torch.load('/home/khs/data/sup_logs/cifar10/best_model.pth'))
             model = model.apply(weights_init)
             #### Loss, Optimizer and Scheduler
             criterion = SupernetLoss().cuda()

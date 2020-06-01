@@ -33,11 +33,11 @@ CONFIG_SUPERNET = {
         'beta' : 0.6
     },
     'train_settings' : {
-        'cnt_epochs' : 1, # 90
-        'train_thetas_from_the_epoch' : 60,
+        'cnt_epochs' : 100, # 90
+        'train_thetas_from_the_epoch' : 100,
         'print_freq' : 50,
-        'path_to_save_model' : '/home/khs/data/sup_logs/best_model.pth',
-        'path_to_save_model_high' : '/home/khs/data/sup_logs/best_model_high.pth',
+        'path_to_save_model' : '/home/khs/data/sup_logs/cifar10/best_model.pth',
+        'path_to_save_model_high' : '/home/khs/data/sup_logs/cifar10/best_model_high.pth',
         # for Gumbel Softmax
         'init_temperature' : 5.0,
         'exp_anneal_rate' : np.exp(-0.045)
