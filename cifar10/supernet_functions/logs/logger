@@ -14987,3 +14987,409 @@
 05/20 12:30:03 AM | Valid: [ 60/60] Step 039/039 Loss 0.455 Prec@(1,3) (88.6%, 99.5%), ce_loss 0.129, lat_loss 4.256
 05/20 12:30:03 AM | val: [ 60/60] Final Prec@1 88.6500% Time 8.63
 05/26 01:16:51 AM | Firstly, start to train weights for epoch 0
+05/26 04:00:46 PM | Firstly, start to train weights for epoch 0
+05/26 04:01:58 PM | Firstly, start to train weights for epoch 0
+05/26 04:02:39 PM | Train: [  1/1] Step 050/156 Loss 0.424 Prec@(1,3) (78.7%, 95.4%), ce_loss 0.682, lat_loss 3.109
+05/26 04:03:16 PM | Train: [  1/1] Step 100/156 Loss 0.287 Prec@(1,3) (85.6%, 97.6%), ce_loss 0.462, lat_loss 3.109
+05/26 04:03:54 PM | Train: [  1/1] Step 150/156 Loss 0.230 Prec@(1,3) (88.5%, 98.4%), ce_loss 0.371, lat_loss 3.110
+05/26 04:03:59 PM | Train: [  1/1] Step 156/156 Loss 0.227 Prec@(1,3) (88.6%, 98.4%), ce_loss 0.365, lat_loss 3.110
+05/26 04:03:59 PM | _w_step_train: [  1/1] Final Prec@1 88.6150% Time 121.19
+05/26 04:04:13 PM | Valid: [  1/1] Step 039/039 Loss 0.242 Prec@(1,3) (87.0%, 99.5%), ce_loss 0.370, lat_loss 3.110
+05/26 04:04:13 PM | val: [  1/1] Final Prec@1 86.9700% Time 13.59
+05/26 04:04:13 PM | Best top1 acc by now. Save model
+05/26 04:05:06 PM | Firstly, start to train weights for epoch 0
+05/26 04:05:47 PM | Train: [  1/1] Step 050/156 Loss 0.424 Prec@(1,3) (78.7%, 95.4%), ce_loss 0.682, lat_loss 3.109
+05/26 04:06:25 PM | Train: [  1/1] Step 100/156 Loss 0.287 Prec@(1,3) (85.6%, 97.6%), ce_loss 0.462, lat_loss 3.109
+05/26 04:07:03 PM | Train: [  1/1] Step 150/156 Loss 0.230 Prec@(1,3) (88.5%, 98.4%), ce_loss 0.371, lat_loss 3.110
+05/26 04:07:08 PM | Train: [  1/1] Step 156/156 Loss 0.227 Prec@(1,3) (88.6%, 98.4%), ce_loss 0.365, lat_loss 3.110
+05/26 04:07:08 PM | _w_step_train: [  1/1] Final Prec@1 88.6150% Time 122.02
+05/26 04:07:22 PM | Valid: [  1/1] Step 039/039 Loss 0.242 Prec@(1,3) (87.0%, 99.5%), ce_loss 0.370, lat_loss 3.110
+05/26 04:07:22 PM | val: [  1/1] Final Prec@1 86.9700% Time 13.59
+05/26 04:07:22 PM | Best top1 acc by now. Save model
+05/28 02:00:20 PM | Firstly, start to train weights for epoch 0
+05/28 02:00:53 PM | Firstly, start to train weights for epoch 0
+05/28 02:01:16 PM | Firstly, start to train weights for epoch 0
+05/28 02:01:34 PM | Train: [  1/1] Step 050/156 Loss 0.424 Prec@(1,3) (78.7%, 95.4%), ce_loss 0.682, lat_loss 3.109
+05/28 02:01:57 PM | Train: [  1/1] Step 050/156 Loss 0.424 Prec@(1,3) (78.7%, 95.4%), ce_loss 0.682, lat_loss 3.109
+05/28 02:02:12 PM | Train: [  1/1] Step 100/156 Loss 0.287 Prec@(1,3) (85.6%, 97.6%), ce_loss 0.462, lat_loss 3.109
+05/28 02:02:35 PM | Train: [  1/1] Step 100/156 Loss 0.287 Prec@(1,3) (85.6%, 97.6%), ce_loss 0.462, lat_loss 3.109
+05/28 02:02:50 PM | Train: [  1/1] Step 150/156 Loss 0.230 Prec@(1,3) (88.5%, 98.4%), ce_loss 0.371, lat_loss 3.110
+05/28 02:02:55 PM | Train: [  1/1] Step 156/156 Loss 0.227 Prec@(1,3) (88.6%, 98.4%), ce_loss 0.365, lat_loss 3.110
+05/28 02:02:55 PM | _w_step_train: [  1/1] Final Prec@1 88.6150% Time 122.17
+05/28 02:03:09 PM | Valid: [  1/1] Step 039/039 Loss 0.242 Prec@(1,3) (87.0%, 99.5%), ce_loss 0.370, lat_loss 3.110
+05/28 02:03:09 PM | val: [  1/1] Final Prec@1 86.9700% Time 13.50
+05/28 02:03:09 PM | Best top1 acc by now. Save model
+05/28 02:03:13 PM | Train: [  1/1] Step 150/156 Loss 0.230 Prec@(1,3) (88.5%, 98.4%), ce_loss 0.371, lat_loss 3.110
+05/28 02:03:19 PM | Train: [  1/1] Step 156/156 Loss 0.227 Prec@(1,3) (88.6%, 98.4%), ce_loss 0.365, lat_loss 3.110
+05/28 02:03:19 PM | _w_step_train: [  1/1] Final Prec@1 88.6150% Time 122.53
+05/28 02:03:33 PM | Valid: [  1/1] Step 039/039 Loss 0.242 Prec@(1,3) (87.0%, 99.5%), ce_loss 0.370, lat_loss 3.110
+05/28 02:03:33 PM | val: [  1/1] Final Prec@1 86.9700% Time 14.19
+05/28 02:03:33 PM | Best top1 acc by now. Save model
+05/28 02:06:45 PM | Firstly, start to train weights for epoch 0
+05/28 02:06:49 PM | Firstly, start to train weights for epoch 0
+05/28 02:07:26 PM | Train: [  1/100] Step 050/156 Loss 0.424 Prec@(1,3) (78.7%, 95.4%), ce_loss 0.682, lat_loss 3.109
+05/28 02:07:30 PM | Train: [  1/100] Step 050/156 Loss 0.424 Prec@(1,3) (78.7%, 95.4%), ce_loss 0.682, lat_loss 3.109
+05/28 02:08:04 PM | Train: [  1/100] Step 100/156 Loss 0.287 Prec@(1,3) (85.6%, 97.6%), ce_loss 0.462, lat_loss 3.109
+05/28 02:08:08 PM | Train: [  1/100] Step 100/156 Loss 0.287 Prec@(1,3) (85.6%, 97.6%), ce_loss 0.462, lat_loss 3.109
+05/28 02:08:42 PM | Train: [  1/100] Step 150/156 Loss 0.230 Prec@(1,3) (88.5%, 98.4%), ce_loss 0.371, lat_loss 3.110
+05/28 02:08:46 PM | Train: [  1/100] Step 150/156 Loss 0.230 Prec@(1,3) (88.5%, 98.4%), ce_loss 0.371, lat_loss 3.110
+05/28 02:08:47 PM | Train: [  1/100] Step 156/156 Loss 0.227 Prec@(1,3) (88.6%, 98.4%), ce_loss 0.365, lat_loss 3.110
+05/28 02:08:47 PM | _w_step_train: [  1/100] Final Prec@1 88.6150% Time 122.11
+05/28 02:08:51 PM | Train: [  1/100] Step 156/156 Loss 0.227 Prec@(1,3) (88.6%, 98.4%), ce_loss 0.365, lat_loss 3.110
+05/28 02:08:51 PM | _w_step_train: [  1/100] Final Prec@1 88.6150% Time 122.33
+05/28 02:09:00 PM | Valid: [  1/100] Step 039/039 Loss 0.242 Prec@(1,3) (87.0%, 99.5%), ce_loss 0.370, lat_loss 3.110
+05/28 02:09:00 PM | val: [  1/100] Final Prec@1 86.9700% Time 13.54
+05/28 02:09:00 PM | Best top1 acc by now. Save model
+05/28 02:09:01 PM | Firstly, start to train weights for epoch 1
+05/28 02:09:06 PM | Valid: [  1/100] Step 039/039 Loss 0.242 Prec@(1,3) (87.0%, 99.5%), ce_loss 0.370, lat_loss 3.110
+05/28 02:09:06 PM | val: [  1/100] Final Prec@1 86.9700% Time 14.44
+05/28 02:09:06 PM | Best top1 acc by now. Save model
+05/28 02:09:07 PM | Firstly, start to train weights for epoch 1
+05/28 02:09:41 PM | Train: [  2/100] Step 050/156 Loss 0.109 Prec@(1,3) (94.4%, 99.9%), ce_loss 0.329, lat_loss 3.109
+05/28 02:09:48 PM | Train: [  2/100] Step 050/156 Loss 0.109 Prec@(1,3) (94.4%, 99.9%), ce_loss 0.329, lat_loss 3.109
+05/28 02:10:18 PM | Train: [  2/100] Step 100/156 Loss 0.105 Prec@(1,3) (94.7%, 99.9%), ce_loss 0.301, lat_loss 3.109
+05/28 02:10:29 PM | Train: [  2/100] Step 100/156 Loss 0.105 Prec@(1,3) (94.7%, 99.9%), ce_loss 0.301, lat_loss 3.109
+05/28 02:10:56 PM | Train: [  2/100] Step 150/156 Loss 0.095 Prec@(1,3) (95.2%, 99.9%), ce_loss 0.275, lat_loss 3.110
+05/28 02:11:00 PM | Train: [  2/100] Step 156/156 Loss 0.095 Prec@(1,3) (95.3%, 99.9%), ce_loss 0.273, lat_loss 3.110
+05/28 02:11:00 PM | _w_step_train: [  2/100] Final Prec@1 95.2525% Time 119.17
+05/28 02:11:09 PM | Train: [  2/100] Step 150/156 Loss 0.095 Prec@(1,3) (95.2%, 99.9%), ce_loss 0.275, lat_loss 3.110
+05/28 02:11:13 PM | Train: [  2/100] Step 156/156 Loss 0.095 Prec@(1,3) (95.3%, 99.9%), ce_loss 0.273, lat_loss 3.110
+05/28 02:11:13 PM | _w_step_train: [  2/100] Final Prec@1 95.2525% Time 126.16
+05/28 02:11:14 PM | Valid: [  2/100] Step 039/039 Loss 0.232 Prec@(1,3) (87.8%, 99.5%), ce_loss 0.283, lat_loss 3.110
+05/28 02:11:14 PM | val: [  2/100] Final Prec@1 87.8200% Time 13.45
+05/28 02:11:14 PM | Best top1 acc by now. Save model
+05/28 02:11:15 PM | Firstly, start to train weights for epoch 2
+05/28 02:11:28 PM | Valid: [  2/100] Step 039/039 Loss 0.232 Prec@(1,3) (87.8%, 99.5%), ce_loss 0.283, lat_loss 3.110
+05/28 02:11:28 PM | val: [  2/100] Final Prec@1 87.8200% Time 14.59
+05/28 02:11:28 PM | Best top1 acc by now. Save model
+05/28 02:11:29 PM | Firstly, start to train weights for epoch 2
+05/28 02:11:54 PM | Train: [  3/100] Step 050/156 Loss 0.075 Prec@(1,3) (96.4%, 100.0%), ce_loss 0.264, lat_loss 3.110
+05/28 02:12:11 PM | Train: [  3/100] Step 050/156 Loss 0.075 Prec@(1,3) (96.4%, 100.0%), ce_loss 0.264, lat_loss 3.110
+05/28 02:12:32 PM | Train: [  3/100] Step 100/156 Loss 0.072 Prec@(1,3) (96.6%, 100.0%), ce_loss 0.249, lat_loss 3.110
+05/28 02:12:52 PM | Train: [  3/100] Step 100/156 Loss 0.072 Prec@(1,3) (96.5%, 100.0%), ce_loss 0.249, lat_loss 3.110
+05/28 02:13:10 PM | Train: [  3/100] Step 150/156 Loss 0.069 Prec@(1,3) (96.7%, 100.0%), ce_loss 0.235, lat_loss 3.110
+05/28 02:13:14 PM | Train: [  3/100] Step 156/156 Loss 0.069 Prec@(1,3) (96.7%, 100.0%), ce_loss 0.234, lat_loss 3.110
+05/28 02:13:14 PM | _w_step_train: [  3/100] Final Prec@1 96.7100% Time 119.35
+05/28 02:13:27 PM | Valid: [  3/100] Step 039/039 Loss 0.233 Prec@(1,3) (88.3%, 99.5%), ce_loss 0.243, lat_loss 3.110
+05/28 02:13:27 PM | val: [  3/100] Final Prec@1 88.3100% Time 13.37
+05/28 02:13:27 PM | Best top1 acc by now. Save model
+05/28 02:13:28 PM | Firstly, start to train weights for epoch 3
+05/28 02:13:33 PM | Train: [  3/100] Step 150/156 Loss 0.070 Prec@(1,3) (96.7%, 100.0%), ce_loss 0.235, lat_loss 3.110
+05/28 02:13:37 PM | Train: [  3/100] Step 156/156 Loss 0.069 Prec@(1,3) (96.7%, 100.0%), ce_loss 0.234, lat_loss 3.110
+05/28 02:13:37 PM | _w_step_train: [  3/100] Final Prec@1 96.7050% Time 128.14
+05/28 02:13:51 PM | Valid: [  3/100] Step 039/039 Loss 0.233 Prec@(1,3) (88.3%, 99.5%), ce_loss 0.243, lat_loss 3.110
+05/28 02:13:51 PM | val: [  3/100] Final Prec@1 88.3300% Time 14.43
+05/28 02:13:51 PM | Best top1 acc by now. Save model
+05/28 02:13:52 PM | Firstly, start to train weights for epoch 3
+05/28 02:14:08 PM | Train: [  4/100] Step 050/156 Loss 0.064 Prec@(1,3) (96.7%, 100.0%), ce_loss 0.232, lat_loss 3.110
+05/28 02:14:34 PM | Train: [  4/100] Step 050/156 Loss 0.063 Prec@(1,3) (96.8%, 100.0%), ce_loss 0.232, lat_loss 3.110
+05/28 02:14:45 PM | Train: [  4/100] Step 100/156 Loss 0.060 Prec@(1,3) (97.0%, 100.0%), ce_loss 0.222, lat_loss 3.110
+05/28 02:15:15 PM | Train: [  4/100] Step 100/156 Loss 0.060 Prec@(1,3) (97.1%, 100.0%), ce_loss 0.222, lat_loss 3.110
+05/28 02:15:23 PM | Train: [  4/100] Step 150/156 Loss 0.060 Prec@(1,3) (97.0%, 100.0%), ce_loss 0.213, lat_loss 3.110
+05/28 02:15:27 PM | Train: [  4/100] Step 156/156 Loss 0.059 Prec@(1,3) (97.0%, 100.0%), ce_loss 0.212, lat_loss 3.110
+05/28 02:15:27 PM | _w_step_train: [  4/100] Final Prec@1 97.0125% Time 119.43
+05/28 02:15:41 PM | Valid: [  4/100] Step 039/039 Loss 0.242 Prec@(1,3) (88.2%, 99.5%), ce_loss 0.221, lat_loss 3.110
+05/28 02:15:41 PM | val: [  4/100] Final Prec@1 88.1800% Time 13.35
+05/28 02:15:41 PM | Firstly, start to train weights for epoch 4
+05/28 02:15:56 PM | Train: [  4/100] Step 150/156 Loss 0.060 Prec@(1,3) (97.1%, 100.0%), ce_loss 0.213, lat_loss 3.110
+05/28 02:16:00 PM | Train: [  4/100] Step 156/156 Loss 0.059 Prec@(1,3) (97.1%, 100.0%), ce_loss 0.212, lat_loss 3.110
+05/28 02:16:00 PM | _w_step_train: [  4/100] Final Prec@1 97.0950% Time 127.89
+05/28 02:16:15 PM | Valid: [  4/100] Step 039/039 Loss 0.243 Prec@(1,3) (88.0%, 99.5%), ce_loss 0.221, lat_loss 3.110
+05/28 02:16:15 PM | val: [  4/100] Final Prec@1 87.9900% Time 14.83
+05/28 02:16:15 PM | Firstly, start to train weights for epoch 4
+05/28 02:16:20 PM | Train: [  5/100] Step 050/156 Loss 0.049 Prec@(1,3) (97.7%, 100.0%), ce_loss 0.212, lat_loss 3.110
+05/28 02:16:57 PM | Train: [  5/100] Step 050/156 Loss 0.048 Prec@(1,3) (97.7%, 100.0%), ce_loss 0.212, lat_loss 3.110
+05/28 02:16:58 PM | Train: [  5/100] Step 100/156 Loss 0.051 Prec@(1,3) (97.5%, 100.0%), ce_loss 0.205, lat_loss 3.110
+05/28 02:17:36 PM | Train: [  5/100] Step 150/156 Loss 0.050 Prec@(1,3) (97.5%, 100.0%), ce_loss 0.198, lat_loss 3.110
+05/28 02:17:38 PM | Train: [  5/100] Step 100/156 Loss 0.050 Prec@(1,3) (97.5%, 100.0%), ce_loss 0.205, lat_loss 3.110
+05/28 02:17:40 PM | Train: [  5/100] Step 156/156 Loss 0.050 Prec@(1,3) (97.5%, 100.0%), ce_loss 0.198, lat_loss 3.110
+05/28 02:17:40 PM | _w_step_train: [  5/100] Final Prec@1 97.5400% Time 119.50
+05/28 02:17:54 PM | Valid: [  5/100] Step 039/039 Loss 0.230 Prec@(1,3) (88.8%, 99.6%), ce_loss 0.204, lat_loss 3.110
+05/28 02:17:54 PM | val: [  5/100] Final Prec@1 88.8300% Time 13.38
+05/28 02:17:54 PM | Best top1 acc by now. Save model
+05/28 02:17:54 PM | Firstly, start to train weights for epoch 5
+05/28 02:18:19 PM | Train: [  5/100] Step 150/156 Loss 0.050 Prec@(1,3) (97.5%, 100.0%), ce_loss 0.198, lat_loss 3.110
+05/28 02:18:24 PM | Train: [  5/100] Step 156/156 Loss 0.050 Prec@(1,3) (97.5%, 100.0%), ce_loss 0.198, lat_loss 3.110
+05/28 02:18:24 PM | _w_step_train: [  5/100] Final Prec@1 97.5275% Time 128.77
+05/28 02:18:34 PM | Train: [  6/100] Step 050/156 Loss 0.042 Prec@(1,3) (98.1%, 100.0%), ce_loss 0.198, lat_loss 3.110
+05/28 02:18:39 PM | Valid: [  5/100] Step 039/039 Loss 0.231 Prec@(1,3) (88.8%, 99.6%), ce_loss 0.205, lat_loss 3.110
+05/28 02:18:39 PM | val: [  5/100] Final Prec@1 88.8500% Time 14.75
+05/28 02:18:39 PM | Best top1 acc by now. Save model
+05/28 02:18:39 PM | Firstly, start to train weights for epoch 5
+05/28 02:19:12 PM | Train: [  6/100] Step 100/156 Loss 0.042 Prec@(1,3) (98.1%, 100.0%), ce_loss 0.192, lat_loss 3.110
+05/28 02:19:22 PM | Train: [  6/100] Step 050/156 Loss 0.043 Prec@(1,3) (98.1%, 100.0%), ce_loss 0.198, lat_loss 3.110
+05/28 02:19:50 PM | Train: [  6/100] Step 150/156 Loss 0.044 Prec@(1,3) (97.9%, 100.0%), ce_loss 0.187, lat_loss 3.110
+05/28 02:19:54 PM | Train: [  6/100] Step 156/156 Loss 0.044 Prec@(1,3) (97.9%, 100.0%), ce_loss 0.186, lat_loss 3.110
+05/28 02:19:54 PM | _w_step_train: [  6/100] Final Prec@1 97.9075% Time 119.52
+05/28 02:20:03 PM | Train: [  6/100] Step 100/156 Loss 0.042 Prec@(1,3) (98.1%, 100.0%), ce_loss 0.192, lat_loss 3.110
+05/28 02:20:07 PM | Valid: [  6/100] Step 039/039 Loss 0.240 Prec@(1,3) (88.8%, 99.5%), ce_loss 0.193, lat_loss 3.110
+05/28 02:20:07 PM | val: [  6/100] Final Prec@1 88.8200% Time 13.35
+05/28 02:20:07 PM | Firstly, start to train weights for epoch 6
+05/28 02:20:44 PM | Train: [  6/100] Step 150/156 Loss 0.044 Prec@(1,3) (97.9%, 100.0%), ce_loss 0.187, lat_loss 3.110
+05/28 02:20:47 PM | Train: [  7/100] Step 050/156 Loss 0.042 Prec@(1,3) (97.9%, 100.0%), ce_loss 0.187, lat_loss 3.110
+05/28 02:20:48 PM | Train: [  6/100] Step 156/156 Loss 0.044 Prec@(1,3) (98.0%, 100.0%), ce_loss 0.186, lat_loss 3.110
+05/28 02:20:48 PM | _w_step_train: [  6/100] Final Prec@1 97.9575% Time 128.76
+05/28 02:21:03 PM | Valid: [  6/100] Step 039/039 Loss 0.240 Prec@(1,3) (88.5%, 99.5%), ce_loss 0.193, lat_loss 3.110
+05/28 02:21:03 PM | val: [  6/100] Final Prec@1 88.5300% Time 14.78
+05/28 02:21:03 PM | Firstly, start to train weights for epoch 6
+05/28 02:21:25 PM | Train: [  7/100] Step 100/156 Loss 0.041 Prec@(1,3) (98.0%, 100.0%), ce_loss 0.183, lat_loss 3.110
+05/28 02:21:45 PM | Train: [  7/100] Step 050/156 Loss 0.043 Prec@(1,3) (97.9%, 100.0%), ce_loss 0.188, lat_loss 3.110
+05/28 02:22:03 PM | Train: [  7/100] Step 150/156 Loss 0.041 Prec@(1,3) (98.0%, 100.0%), ce_loss 0.178, lat_loss 3.110
+05/28 02:22:07 PM | Train: [  7/100] Step 156/156 Loss 0.041 Prec@(1,3) (98.0%, 100.0%), ce_loss 0.178, lat_loss 3.110
+05/28 02:22:07 PM | _w_step_train: [  7/100] Final Prec@1 97.9800% Time 119.49
+05/28 02:22:20 PM | Valid: [  7/100] Step 039/039 Loss 0.243 Prec@(1,3) (88.7%, 99.6%), ce_loss 0.184, lat_loss 3.110
+05/28 02:22:20 PM | val: [  7/100] Final Prec@1 88.6800% Time 13.35
+05/28 02:22:20 PM | Firstly, start to train weights for epoch 7
+05/28 02:22:26 PM | Train: [  7/100] Step 100/156 Loss 0.041 Prec@(1,3) (98.0%, 100.0%), ce_loss 0.183, lat_loss 3.110
+05/28 02:23:00 PM | Train: [  8/100] Step 050/156 Loss 0.036 Prec@(1,3) (98.2%, 100.0%), ce_loss 0.179, lat_loss 3.110
+05/28 02:23:07 PM | Train: [  7/100] Step 150/156 Loss 0.041 Prec@(1,3) (98.0%, 100.0%), ce_loss 0.178, lat_loss 3.110
+05/28 02:23:11 PM | Train: [  7/100] Step 156/156 Loss 0.041 Prec@(1,3) (98.0%, 100.0%), ce_loss 0.178, lat_loss 3.110
+05/28 02:23:12 PM | _w_step_train: [  7/100] Final Prec@1 97.9975% Time 128.59
+05/28 02:23:26 PM | Valid: [  7/100] Step 039/039 Loss 0.244 Prec@(1,3) (88.8%, 99.5%), ce_loss 0.184, lat_loss 3.110
+05/28 02:23:26 PM | val: [  7/100] Final Prec@1 88.8200% Time 14.73
+05/28 02:23:26 PM | Firstly, start to train weights for epoch 7
+05/28 02:23:38 PM | Train: [  8/100] Step 100/156 Loss 0.034 Prec@(1,3) (98.3%, 100.0%), ce_loss 0.175, lat_loss 3.110
+05/28 02:24:09 PM | Train: [  8/100] Step 050/156 Loss 0.036 Prec@(1,3) (98.1%, 100.0%), ce_loss 0.179, lat_loss 3.110
+05/28 02:24:15 PM | Train: [  8/100] Step 150/156 Loss 0.035 Prec@(1,3) (98.3%, 100.0%), ce_loss 0.171, lat_loss 3.110
+05/28 02:24:20 PM | Train: [  8/100] Step 156/156 Loss 0.034 Prec@(1,3) (98.3%, 100.0%), ce_loss 0.171, lat_loss 3.110
+05/28 02:24:20 PM | _w_step_train: [  8/100] Final Prec@1 98.3400% Time 119.50
+05/28 02:24:33 PM | Valid: [  8/100] Step 039/039 Loss 0.243 Prec@(1,3) (88.8%, 99.5%), ce_loss 0.176, lat_loss 3.111
+05/28 02:24:33 PM | val: [  8/100] Final Prec@1 88.7500% Time 13.36
+05/28 02:24:33 PM | Firstly, start to train weights for epoch 8
+05/28 02:24:49 PM | Train: [  8/100] Step 100/156 Loss 0.034 Prec@(1,3) (98.3%, 100.0%), ce_loss 0.175, lat_loss 3.110
+05/28 02:25:13 PM | Train: [  9/100] Step 050/156 Loss 0.035 Prec@(1,3) (98.4%, 100.0%), ce_loss 0.172, lat_loss 3.111
+05/28 02:25:30 PM | Train: [  8/100] Step 150/156 Loss 0.034 Prec@(1,3) (98.3%, 100.0%), ce_loss 0.171, lat_loss 3.110
+05/28 02:25:34 PM | Train: [  8/100] Step 156/156 Loss 0.034 Prec@(1,3) (98.4%, 100.0%), ce_loss 0.171, lat_loss 3.110
+05/28 02:25:35 PM | _w_step_train: [  8/100] Final Prec@1 98.3575% Time 128.25
+05/28 02:25:49 PM | Valid: [  8/100] Step 039/039 Loss 0.241 Prec@(1,3) (89.1%, 99.5%), ce_loss 0.176, lat_loss 3.111
+05/28 02:25:49 PM | val: [  8/100] Final Prec@1 89.0800% Time 14.71
+05/28 02:25:49 PM | Best top1 acc by now. Save model
+05/28 02:25:50 PM | Firstly, start to train weights for epoch 8
+05/28 02:25:50 PM | Train: [  9/100] Step 100/156 Loss 0.033 Prec@(1,3) (98.4%, 100.0%), ce_loss 0.169, lat_loss 3.111
+05/28 02:26:28 PM | Train: [  9/100] Step 150/156 Loss 0.033 Prec@(1,3) (98.5%, 100.0%), ce_loss 0.165, lat_loss 3.111
+05/28 02:26:32 PM | Train: [  9/100] Step 156/156 Loss 0.033 Prec@(1,3) (98.5%, 100.0%), ce_loss 0.165, lat_loss 3.111
+05/28 02:26:32 PM | _w_step_train: [  9/100] Final Prec@1 98.4825% Time 119.34
+05/28 02:26:33 PM | Train: [  9/100] Step 050/156 Loss 0.035 Prec@(1,3) (98.2%, 100.0%), ce_loss 0.172, lat_loss 3.111
+05/28 02:26:46 PM | Valid: [  9/100] Step 039/039 Loss 0.243 Prec@(1,3) (88.9%, 99.5%), ce_loss 0.170, lat_loss 3.111
+05/28 02:26:46 PM | val: [  9/100] Final Prec@1 88.8800% Time 13.36
+05/28 02:26:46 PM | Best top1 acc by now. Save model
+05/28 02:26:46 PM | Firstly, start to train weights for epoch 9
+05/28 02:27:14 PM | Train: [  9/100] Step 100/156 Loss 0.034 Prec@(1,3) (98.3%, 100.0%), ce_loss 0.169, lat_loss 3.111
+05/28 02:27:26 PM | Train: [ 10/100] Step 050/156 Loss 0.029 Prec@(1,3) (98.6%, 100.0%), ce_loss 0.166, lat_loss 3.111
+05/28 02:27:55 PM | Train: [  9/100] Step 150/156 Loss 0.033 Prec@(1,3) (98.4%, 100.0%), ce_loss 0.165, lat_loss 3.111
+05/28 02:27:59 PM | Train: [  9/100] Step 156/156 Loss 0.033 Prec@(1,3) (98.4%, 100.0%), ce_loss 0.165, lat_loss 3.111
+05/28 02:27:59 PM | _w_step_train: [  9/100] Final Prec@1 98.4150% Time 129.02
+05/28 02:28:04 PM | Train: [ 10/100] Step 100/156 Loss 0.030 Prec@(1,3) (98.5%, 100.0%), ce_loss 0.163, lat_loss 3.111
+05/28 02:28:13 PM | Valid: [  9/100] Step 039/039 Loss 0.244 Prec@(1,3) (89.0%, 99.5%), ce_loss 0.170, lat_loss 3.111
+05/28 02:28:13 PM | val: [  9/100] Final Prec@1 88.9800% Time 14.21
+05/28 02:28:13 PM | Firstly, start to train weights for epoch 9
+05/28 02:28:42 PM | Train: [ 10/100] Step 150/156 Loss 0.030 Prec@(1,3) (98.6%, 100.0%), ce_loss 0.160, lat_loss 3.111
+05/28 02:28:46 PM | Train: [ 10/100] Step 156/156 Loss 0.030 Prec@(1,3) (98.6%, 100.0%), ce_loss 0.160, lat_loss 3.111
+05/28 02:28:46 PM | _w_step_train: [ 10/100] Final Prec@1 98.5800% Time 119.40
+05/28 02:28:56 PM | Train: [ 10/100] Step 050/156 Loss 0.028 Prec@(1,3) (98.8%, 100.0%), ce_loss 0.167, lat_loss 3.111
+05/28 02:28:59 PM | Valid: [ 10/100] Step 039/039 Loss 0.243 Prec@(1,3) (88.9%, 99.5%), ce_loss 0.165, lat_loss 3.111
+05/28 02:28:59 PM | val: [ 10/100] Final Prec@1 88.8600% Time 13.43
+05/28 02:28:59 PM | Firstly, start to train weights for epoch 10
+05/28 02:29:37 PM | Train: [ 10/100] Step 100/156 Loss 0.030 Prec@(1,3) (98.6%, 100.0%), ce_loss 0.163, lat_loss 3.111
+05/28 02:29:39 PM | Train: [ 11/100] Step 050/156 Loss 0.025 Prec@(1,3) (98.8%, 100.0%), ce_loss 0.161, lat_loss 3.111
+05/28 02:30:17 PM | Train: [ 11/100] Step 100/156 Loss 0.026 Prec@(1,3) (98.8%, 100.0%), ce_loss 0.159, lat_loss 3.111
+05/28 02:30:18 PM | Train: [ 10/100] Step 150/156 Loss 0.030 Prec@(1,3) (98.6%, 100.0%), ce_loss 0.160, lat_loss 3.111
+05/28 02:30:22 PM | Train: [ 10/100] Step 156/156 Loss 0.030 Prec@(1,3) (98.6%, 100.0%), ce_loss 0.160, lat_loss 3.111
+05/28 02:30:22 PM | _w_step_train: [ 10/100] Final Prec@1 98.6200% Time 128.99
+05/28 02:30:36 PM | Valid: [ 10/100] Step 039/039 Loss 0.245 Prec@(1,3) (88.9%, 99.5%), ce_loss 0.165, lat_loss 3.111
+05/28 02:30:37 PM | val: [ 10/100] Final Prec@1 88.9500% Time 14.18
+05/28 02:30:37 PM | Firstly, start to train weights for epoch 10
+05/28 02:30:55 PM | Train: [ 11/100] Step 150/156 Loss 0.026 Prec@(1,3) (98.8%, 100.0%), ce_loss 0.156, lat_loss 3.111
+05/28 02:30:59 PM | Train: [ 11/100] Step 156/156 Loss 0.028 Prec@(1,3) (98.8%, 100.0%), ce_loss 0.156, lat_loss 3.110
+05/28 02:30:59 PM | _w_step_train: [ 11/100] Final Prec@1 98.7750% Time 119.56
+05/28 02:31:12 PM | Valid: [ 11/100] Step 039/039 Loss 0.256 Prec@(1,3) (89.1%, 99.5%), ce_loss 0.160, lat_loss 3.110
+05/28 02:31:12 PM | val: [ 11/100] Final Prec@1 89.1500% Time 13.38
+05/28 02:31:12 PM | Best top1 acc by now. Save model
+05/28 02:31:13 PM | Firstly, start to train weights for epoch 11
+05/28 02:31:19 PM | Train: [ 11/100] Step 050/156 Loss 0.026 Prec@(1,3) (98.8%, 100.0%), ce_loss 0.162, lat_loss 3.111
+05/28 02:31:53 PM | Train: [ 12/100] Step 050/156 Loss 0.026 Prec@(1,3) (98.7%, 100.0%), ce_loss 0.158, lat_loss 3.111
+05/28 02:32:00 PM | Train: [ 11/100] Step 100/156 Loss 0.026 Prec@(1,3) (98.8%, 100.0%), ce_loss 0.159, lat_loss 3.111
+05/28 02:32:30 PM | Train: [ 12/100] Step 100/156 Loss 0.024 Prec@(1,3) (98.8%, 100.0%), ce_loss 0.155, lat_loss 3.111
+05/28 02:32:42 PM | Train: [ 11/100] Step 150/156 Loss 0.027 Prec@(1,3) (98.8%, 100.0%), ce_loss 0.156, lat_loss 3.111
+05/28 02:32:46 PM | Train: [ 11/100] Step 156/156 Loss 0.028 Prec@(1,3) (98.7%, 100.0%), ce_loss 0.156, lat_loss 3.110
+05/28 02:32:46 PM | _w_step_train: [ 11/100] Final Prec@1 98.7250% Time 129.58
+05/28 02:33:01 PM | Valid: [ 11/100] Step 039/039 Loss 0.255 Prec@(1,3) (89.0%, 99.5%), ce_loss 0.160, lat_loss 3.110
+05/28 02:33:01 PM | val: [ 11/100] Final Prec@1 89.0200% Time 14.78
+05/28 02:33:01 PM | Firstly, start to train weights for epoch 11
+05/28 02:33:08 PM | Train: [ 12/100] Step 150/156 Loss 0.024 Prec@(1,3) (98.9%, 100.0%), ce_loss 0.152, lat_loss 3.111
+05/28 02:33:12 PM | Train: [ 12/100] Step 156/156 Loss 0.024 Prec@(1,3) (98.9%, 100.0%), ce_loss 0.152, lat_loss 3.111
+05/28 02:33:12 PM | _w_step_train: [ 12/100] Final Prec@1 98.8725% Time 119.39
+05/28 02:33:26 PM | Valid: [ 12/100] Step 039/039 Loss 0.251 Prec@(1,3) (89.1%, 99.5%), ce_loss 0.156, lat_loss 3.111
+05/28 02:33:26 PM | val: [ 12/100] Final Prec@1 89.0600% Time 13.40
+05/28 02:33:26 PM | Firstly, start to train weights for epoch 12
+05/28 02:33:43 PM | Train: [ 12/100] Step 050/156 Loss 0.026 Prec@(1,3) (98.7%, 100.0%), ce_loss 0.158, lat_loss 3.111
+05/28 02:34:05 PM | Train: [ 13/100] Step 050/156 Loss 0.024 Prec@(1,3) (98.9%, 100.0%), ce_loss 0.154, lat_loss 3.111
+05/28 02:34:24 PM | Train: [ 12/100] Step 100/156 Loss 0.025 Prec@(1,3) (98.8%, 100.0%), ce_loss 0.155, lat_loss 3.111
+05/28 02:34:43 PM | Train: [ 13/100] Step 100/156 Loss 0.024 Prec@(1,3) (98.9%, 100.0%), ce_loss 0.151, lat_loss 3.111
+05/28 02:35:05 PM | Train: [ 12/100] Step 150/156 Loss 0.024 Prec@(1,3) (98.8%, 100.0%), ce_loss 0.153, lat_loss 3.111
+05/28 02:35:10 PM | Train: [ 12/100] Step 156/156 Loss 0.024 Prec@(1,3) (98.9%, 100.0%), ce_loss 0.152, lat_loss 3.111
+05/28 02:35:10 PM | _w_step_train: [ 12/100] Final Prec@1 98.8650% Time 128.73
+05/28 02:35:21 PM | Train: [ 13/100] Step 150/156 Loss 0.026 Prec@(1,3) (98.8%, 100.0%), ce_loss 0.149, lat_loss 3.111
+05/28 02:35:24 PM | Valid: [ 12/100] Step 039/039 Loss 0.250 Prec@(1,3) (89.0%, 99.6%), ce_loss 0.156, lat_loss 3.111
+05/28 02:35:24 PM | val: [ 12/100] Final Prec@1 89.0300% Time 14.83
+05/28 02:35:24 PM | Firstly, start to train weights for epoch 12
+05/28 02:35:25 PM | Train: [ 13/100] Step 156/156 Loss 0.026 Prec@(1,3) (98.8%, 100.0%), ce_loss 0.149, lat_loss 3.111
+05/28 02:35:25 PM | _w_step_train: [ 13/100] Final Prec@1 98.7700% Time 119.43
+05/28 02:35:39 PM | Valid: [ 13/100] Step 039/039 Loss 0.247 Prec@(1,3) (89.3%, 99.6%), ce_loss 0.153, lat_loss 3.111
+05/28 02:35:39 PM | val: [ 13/100] Final Prec@1 89.3100% Time 13.56
+05/28 02:35:39 PM | Best top1 acc by now. Save model
+05/28 02:35:40 PM | Firstly, start to train weights for epoch 13
+05/28 02:36:07 PM | Train: [ 13/100] Step 050/156 Loss 0.023 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.154, lat_loss 3.111
+05/28 02:36:20 PM | Train: [ 14/100] Step 050/156 Loss 0.022 Prec@(1,3) (99.1%, 100.0%), ce_loss 0.151, lat_loss 3.111
+05/28 02:36:48 PM | Train: [ 13/100] Step 100/156 Loss 0.023 Prec@(1,3) (98.9%, 100.0%), ce_loss 0.152, lat_loss 3.111
+05/28 02:36:58 PM | Train: [ 14/100] Step 100/156 Loss 0.023 Prec@(1,3) (98.9%, 100.0%), ce_loss 0.148, lat_loss 3.111
+05/28 02:37:29 PM | Train: [ 13/100] Step 150/156 Loss 0.026 Prec@(1,3) (98.8%, 100.0%), ce_loss 0.149, lat_loss 3.111
+05/28 02:37:34 PM | Train: [ 13/100] Step 156/156 Loss 0.026 Prec@(1,3) (98.8%, 100.0%), ce_loss 0.149, lat_loss 3.111
+05/28 02:37:34 PM | _w_step_train: [ 13/100] Final Prec@1 98.7600% Time 129.17
+05/28 02:37:36 PM | Train: [ 14/100] Step 150/156 Loss 0.022 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.146, lat_loss 3.111
+05/28 02:37:40 PM | Train: [ 14/100] Step 156/156 Loss 0.022 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.146, lat_loss 3.111
+05/28 02:37:40 PM | _w_step_train: [ 14/100] Final Prec@1 98.9925% Time 119.52
+05/28 02:37:49 PM | Valid: [ 13/100] Step 039/039 Loss 0.248 Prec@(1,3) (89.5%, 99.6%), ce_loss 0.153, lat_loss 3.111
+05/28 02:37:49 PM | val: [ 13/100] Final Prec@1 89.5400% Time 14.94
+05/28 02:37:49 PM | Best top1 acc by now. Save model
+05/28 02:37:49 PM | Firstly, start to train weights for epoch 13
+05/28 02:37:53 PM | Valid: [ 14/100] Step 039/039 Loss 0.240 Prec@(1,3) (89.5%, 99.6%), ce_loss 0.150, lat_loss 3.111
+05/28 02:37:53 PM | val: [ 14/100] Final Prec@1 89.5500% Time 13.47
+05/28 02:37:53 PM | Best top1 acc by now. Save model
+05/28 02:37:54 PM | Firstly, start to train weights for epoch 14
+05/28 02:38:32 PM | Train: [ 14/100] Step 050/156 Loss 0.022 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.151, lat_loss 3.111
+05/28 02:38:34 PM | Train: [ 15/100] Step 050/156 Loss 0.020 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.147, lat_loss 3.111
+05/28 02:39:12 PM | Train: [ 15/100] Step 100/156 Loss 0.020 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.145, lat_loss 3.111
+05/28 02:39:12 PM | Train: [ 14/100] Step 100/156 Loss 0.023 Prec@(1,3) (98.9%, 100.0%), ce_loss 0.149, lat_loss 3.111
+05/28 02:39:49 PM | Train: [ 15/100] Step 150/156 Loss 0.021 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.143, lat_loss 3.111
+05/28 02:39:53 PM | Train: [ 14/100] Step 150/156 Loss 0.022 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.146, lat_loss 3.111
+05/28 02:39:54 PM | Train: [ 15/100] Step 156/156 Loss 0.021 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.143, lat_loss 3.111
+05/28 02:39:54 PM | _w_step_train: [ 15/100] Final Prec@1 98.9825% Time 119.50
+05/28 02:39:58 PM | Train: [ 14/100] Step 156/156 Loss 0.022 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.146, lat_loss 3.111
+05/28 02:39:58 PM | _w_step_train: [ 14/100] Final Prec@1 99.0200% Time 128.43
+05/28 02:40:07 PM | Valid: [ 15/100] Step 039/039 Loss 0.247 Prec@(1,3) (89.6%, 99.6%), ce_loss 0.147, lat_loss 3.111
+05/28 02:40:07 PM | val: [ 15/100] Final Prec@1 89.6100% Time 13.36
+05/28 02:40:07 PM | Best top1 acc by now. Save model
+05/28 02:40:09 PM | Firstly, start to train weights for epoch 15
+05/28 02:40:13 PM | Valid: [ 14/100] Step 039/039 Loss 0.240 Prec@(1,3) (89.6%, 99.6%), ce_loss 0.150, lat_loss 3.111
+05/28 02:40:13 PM | val: [ 14/100] Final Prec@1 89.6500% Time 14.98
+05/28 02:40:13 PM | Best top1 acc by now. Save model
+05/28 02:40:13 PM | Firstly, start to train weights for epoch 14
+05/28 02:40:49 PM | Train: [ 16/100] Step 050/156 Loss 0.021 Prec@(1,3) (99.1%, 100.0%), ce_loss 0.145, lat_loss 3.111
+05/28 02:40:55 PM | Train: [ 15/100] Step 050/156 Loss 0.020 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.147, lat_loss 3.111
+05/28 02:41:27 PM | Train: [ 16/100] Step 100/156 Loss 0.020 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.143, lat_loss 3.111
+05/28 02:41:36 PM | Train: [ 15/100] Step 100/156 Loss 0.021 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.145, lat_loss 3.111
+05/28 02:42:04 PM | Train: [ 16/100] Step 150/156 Loss 0.020 Prec@(1,3) (99.1%, 100.0%), ce_loss 0.141, lat_loss 3.111
+05/28 02:42:08 PM | Train: [ 16/100] Step 156/156 Loss 0.020 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.141, lat_loss 3.111
+05/28 02:42:09 PM | _w_step_train: [ 16/100] Final Prec@1 99.0425% Time 119.45
+05/28 02:42:17 PM | Train: [ 15/100] Step 150/156 Loss 0.022 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.144, lat_loss 3.111
+05/28 02:42:22 PM | Train: [ 15/100] Step 156/156 Loss 0.022 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.143, lat_loss 3.111
+05/28 02:42:22 PM | _w_step_train: [ 15/100] Final Prec@1 98.9925% Time 128.43
+05/28 02:42:22 PM | Valid: [ 16/100] Step 039/039 Loss 0.251 Prec@(1,3) (89.7%, 99.5%), ce_loss 0.144, lat_loss 3.111
+05/28 02:42:22 PM | val: [ 16/100] Final Prec@1 89.7200% Time 13.39
+05/28 02:42:22 PM | Best top1 acc by now. Save model
+05/28 02:42:23 PM | Firstly, start to train weights for epoch 16
+05/28 02:42:37 PM | Valid: [ 15/100] Step 039/039 Loss 0.250 Prec@(1,3) (89.6%, 99.6%), ce_loss 0.147, lat_loss 3.111
+05/28 02:42:37 PM | val: [ 15/100] Final Prec@1 89.6500% Time 14.97
+05/28 02:42:37 PM | Firstly, start to train weights for epoch 15
+05/28 02:43:02 PM | Train: [ 17/100] Step 050/156 Loss 0.023 Prec@(1,3) (98.9%, 100.0%), ce_loss 0.142, lat_loss 3.111
+05/28 02:43:19 PM | Train: [ 16/100] Step 050/156 Loss 0.021 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.145, lat_loss 3.111
+05/28 02:43:40 PM | Train: [ 17/100] Step 100/156 Loss 0.022 Prec@(1,3) (98.9%, 100.0%), ce_loss 0.141, lat_loss 3.111
+05/28 02:44:00 PM | Train: [ 16/100] Step 100/156 Loss 0.021 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.143, lat_loss 3.111
+05/28 02:44:18 PM | Train: [ 17/100] Step 150/156 Loss 0.021 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.139, lat_loss 3.111
+05/28 02:44:22 PM | Train: [ 17/100] Step 156/156 Loss 0.020 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.139, lat_loss 3.111
+05/28 02:44:22 PM | _w_step_train: [ 17/100] Final Prec@1 99.0325% Time 119.48
+05/28 02:44:36 PM | Valid: [ 17/100] Step 039/039 Loss 0.247 Prec@(1,3) (89.6%, 99.6%), ce_loss 0.142, lat_loss 3.111
+05/28 02:44:36 PM | val: [ 17/100] Final Prec@1 89.6000% Time 13.39
+05/28 02:44:36 PM | Firstly, start to train weights for epoch 17
+05/28 02:44:41 PM | Train: [ 16/100] Step 150/156 Loss 0.020 Prec@(1,3) (99.1%, 100.0%), ce_loss 0.141, lat_loss 3.111
+05/28 02:44:45 PM | Train: [ 16/100] Step 156/156 Loss 0.021 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.141, lat_loss 3.111
+05/28 02:44:45 PM | _w_step_train: [ 16/100] Final Prec@1 99.0325% Time 128.57
+05/28 02:45:00 PM | Valid: [ 16/100] Step 039/039 Loss 0.248 Prec@(1,3) (89.7%, 99.5%), ce_loss 0.144, lat_loss 3.111
+05/28 02:45:00 PM | val: [ 16/100] Final Prec@1 89.7100% Time 14.90
+05/28 02:45:00 PM | Best top1 acc by now. Save model
+05/28 02:45:01 PM | Firstly, start to train weights for epoch 16
+05/28 02:45:15 PM | Train: [ 18/100] Step 050/156 Loss 0.021 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.140, lat_loss 3.111
+05/28 02:45:44 PM | Train: [ 17/100] Step 050/156 Loss 0.023 Prec@(1,3) (98.9%, 100.0%), ce_loss 0.143, lat_loss 3.111
+05/28 02:45:53 PM | Train: [ 18/100] Step 100/156 Loss 0.022 Prec@(1,3) (98.9%, 100.0%), ce_loss 0.139, lat_loss 3.111
+05/28 02:46:25 PM | Train: [ 17/100] Step 100/156 Loss 0.022 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.141, lat_loss 3.111
+05/28 02:46:31 PM | Train: [ 18/100] Step 150/156 Loss 0.020 Prec@(1,3) (99.1%, 100.0%), ce_loss 0.137, lat_loss 3.111
+05/28 02:46:35 PM | Train: [ 18/100] Step 156/156 Loss 0.020 Prec@(1,3) (99.1%, 100.0%), ce_loss 0.137, lat_loss 3.111
+05/28 02:46:35 PM | _w_step_train: [ 18/100] Final Prec@1 99.0525% Time 119.53
+05/28 02:46:49 PM | Valid: [ 18/100] Step 039/039 Loss 0.250 Prec@(1,3) (89.7%, 99.6%), ce_loss 0.140, lat_loss 3.111
+05/28 02:46:49 PM | val: [ 18/100] Final Prec@1 89.6900% Time 13.36
+05/28 02:46:49 PM | Firstly, start to train weights for epoch 18
+05/28 02:47:06 PM | Train: [ 17/100] Step 150/156 Loss 0.020 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.139, lat_loss 3.111
+05/28 02:47:10 PM | Train: [ 17/100] Step 156/156 Loss 0.020 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.139, lat_loss 3.111
+05/28 02:47:10 PM | _w_step_train: [ 17/100] Final Prec@1 99.0350% Time 128.82
+05/28 02:47:25 PM | Valid: [ 17/100] Step 039/039 Loss 0.245 Prec@(1,3) (89.8%, 99.6%), ce_loss 0.142, lat_loss 3.111
+05/28 02:47:25 PM | val: [ 17/100] Final Prec@1 89.8100% Time 14.85
+05/28 02:47:25 PM | Best top1 acc by now. Save model
+05/28 02:47:26 PM | Firstly, start to train weights for epoch 17
+05/28 02:47:28 PM | Train: [ 19/100] Step 050/156 Loss 0.016 Prec@(1,3) (99.3%, 100.0%), ce_loss 0.138, lat_loss 3.111
+05/28 02:48:06 PM | Train: [ 19/100] Step 100/156 Loss 0.016 Prec@(1,3) (99.3%, 100.0%), ce_loss 0.137, lat_loss 3.111
+05/28 02:48:09 PM | Train: [ 18/100] Step 050/156 Loss 0.021 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.140, lat_loss 3.111
+05/28 02:48:44 PM | Train: [ 19/100] Step 150/156 Loss 0.016 Prec@(1,3) (99.3%, 100.0%), ce_loss 0.135, lat_loss 3.111
+05/28 02:48:48 PM | Train: [ 19/100] Step 156/156 Loss 0.017 Prec@(1,3) (99.3%, 100.0%), ce_loss 0.135, lat_loss 3.111
+05/28 02:48:48 PM | _w_step_train: [ 19/100] Final Prec@1 99.2600% Time 119.61
+05/28 02:48:49 PM | Train: [ 18/100] Step 100/156 Loss 0.021 Prec@(1,3) (99.0%, 100.0%), ce_loss 0.139, lat_loss 3.111
+05/28 02:49:02 PM | Valid: [ 19/100] Step 039/039 Loss 0.242 Prec@(1,3) (90.0%, 99.6%), ce_loss 0.138, lat_loss 3.111
+05/28 02:49:02 PM | val: [ 19/100] Final Prec@1 89.9500% Time 13.36
+05/28 02:49:02 PM | Best top1 acc by now. Save model
+05/28 02:49:02 PM | Firstly, start to train weights for epoch 19
+05/28 02:49:31 PM | Train: [ 18/100] Step 150/156 Loss 0.020 Prec@(1,3) (99.1%, 100.0%), ce_loss 0.137, lat_loss 3.111
+05/28 02:49:35 PM | Train: [ 18/100] Step 156/156 Loss 0.020 Prec@(1,3) (99.1%, 100.0%), ce_loss 0.137, lat_loss 3.111
+05/28 02:49:35 PM | _w_step_train: [ 18/100] Final Prec@1 99.0750% Time 129.24
+05/28 02:49:42 PM | Train: [ 20/100] Step 050/156 Loss 0.016 Prec@(1,3) (99.2%, 100.0%), ce_loss 0.136, lat_loss 3.111
+05/28 02:49:50 PM | Valid: [ 18/100] Step 039/039 Loss 0.248 Prec@(1,3) (89.9%, 99.6%), ce_loss 0.140, lat_loss 3.111
+05/28 02:49:50 PM | val: [ 18/100] Final Prec@1 89.8600% Time 14.80
+05/28 02:49:50 PM | Best top1 acc by now. Save model
+05/28 02:49:51 PM | Firstly, start to train weights for epoch 18
+05/28 02:50:20 PM | Train: [ 20/100] Step 100/156 Loss 0.017 Prec@(1,3) (99.2%, 100.0%), ce_loss 0.135, lat_loss 3.111
+05/28 02:50:33 PM | Train: [ 19/100] Step 050/156 Loss 0.017 Prec@(1,3) (99.4%, 100.0%), ce_loss 0.138, lat_loss 3.111
+05/28 02:50:58 PM | Train: [ 20/100] Step 150/156 Loss 0.018 Prec@(1,3) (99.1%, 100.0%), ce_loss 0.133, lat_loss 3.111
+05/28 02:51:02 PM | Train: [ 20/100] Step 156/156 Loss 0.018 Prec@(1,3) (99.1%, 100.0%), ce_loss 0.133, lat_loss 3.111
+05/28 02:51:02 PM | _w_step_train: [ 20/100] Final Prec@1 99.1425% Time 119.61
+05/28 02:51:14 PM | Train: [ 19/100] Step 100/156 Loss 0.016 Prec@(1,3) (99.4%, 100.0%), ce_loss 0.137, lat_loss 3.111
+05/28 02:51:15 PM | Valid: [ 20/100] Step 039/039 Loss 0.256 Prec@(1,3) (89.5%, 99.6%), ce_loss 0.136, lat_loss 3.111
+05/28 02:51:15 PM | val: [ 20/100] Final Prec@1 89.5500% Time 13.37
+05/28 02:51:15 PM | Firstly, start to train weights for epoch 20
+05/28 02:51:55 PM | Train: [ 21/100] Step 050/156 Loss 0.015 Prec@(1,3) (99.4%, 100.0%), ce_loss 0.135, lat_loss 3.111
+05/28 02:51:55 PM | Train: [ 19/100] Step 150/156 Loss 0.016 Prec@(1,3) (99.3%, 100.0%), ce_loss 0.135, lat_loss 3.111
+05/28 02:52:00 PM | Train: [ 19/100] Step 156/156 Loss 0.016 Prec@(1,3) (99.3%, 100.0%), ce_loss 0.135, lat_loss 3.111
+05/28 02:52:00 PM | _w_step_train: [ 19/100] Final Prec@1 99.3350% Time 129.18
+05/28 02:52:15 PM | Valid: [ 19/100] Step 039/039 Loss 0.246 Prec@(1,3) (89.9%, 99.7%), ce_loss 0.138, lat_loss 3.111
+05/28 02:52:15 PM | val: [ 19/100] Final Prec@1 89.9100% Time 14.89
+05/28 02:52:15 PM | Best top1 acc by now. Save model
+05/28 02:52:15 PM | Firstly, start to train weights for epoch 19
+05/28 02:52:33 PM | Train: [ 21/100] Step 100/156 Loss 0.019 Prec@(1,3) (99.1%, 100.0%), ce_loss 0.133, lat_loss 3.111
+05/28 02:52:58 PM | Train: [ 20/100] Step 050/156 Loss 0.016 Prec@(1,3) (99.3%, 100.0%), ce_loss 0.136, lat_loss 3.111
+05/28 02:53:11 PM | Train: [ 21/100] Step 150/156 Loss 0.018 Prec@(1,3) (99.1%, 100.0%), ce_loss 0.132, lat_loss 3.111
+05/28 02:53:15 PM | Train: [ 21/100] Step 156/156 Loss 0.018 Prec@(1,3) (99.1%, 100.0%), ce_loss 0.132, lat_loss 3.111
+05/28 02:53:15 PM | _w_step_train: [ 21/100] Final Prec@1 99.1250% Time 119.46
+05/28 02:53:28 PM | Valid: [ 21/100] Step 039/039 Loss 0.253 Prec@(1,3) (89.7%, 99.6%), ce_loss 0.135, lat_loss 3.111
+05/28 02:53:28 PM | val: [ 21/100] Final Prec@1 89.7300% Time 13.41
+05/28 02:53:28 PM | Firstly, start to train weights for epoch 21
+05/28 02:53:39 PM | Train: [ 20/100] Step 100/156 Loss 0.016 Prec@(1,3) (99.3%, 100.0%), ce_loss 0.135, lat_loss 3.111
+05/28 02:54:08 PM | Train: [ 22/100] Step 050/156 Loss 0.017 Prec@(1,3) (99.2%, 100.0%), ce_loss 0.133, lat_loss 3.111
+05/28 02:54:20 PM | Train: [ 20/100] Step 150/156 Loss 0.018 Prec@(1,3) (99.2%, 100.0%), ce_loss 0.134, lat_loss 3.111
+05/28 02:54:24 PM | Train: [ 20/100] Step 156/156 Loss 0.018 Prec@(1,3) (99.2%, 100.0%), ce_loss 0.133, lat_loss 3.111
+05/28 02:54:24 PM | _w_step_train: [ 20/100] Final Prec@1 99.1775% Time 129.07
+05/28 02:54:39 PM | Valid: [ 20/100] Step 039/039 Loss 0.258 Prec@(1,3) (89.6%, 99.6%), ce_loss 0.136, lat_loss 3.111
+05/28 02:54:39 PM | val: [ 20/100] Final Prec@1 89.5900% Time 14.87
+05/28 02:54:39 PM | Firstly, start to train weights for epoch 20
+05/28 02:54:46 PM | Train: [ 22/100] Step 100/156 Loss 0.015 Prec@(1,3) (99.3%, 100.0%), ce_loss 0.132, lat_loss 3.111
+05/28 02:55:22 PM | Train: [ 21/100] Step 050/156 Loss 0.015 Prec@(1,3) (99.4%, 100.0%), ce_loss 0.135, lat_loss 3.111
+05/28 02:55:23 PM | Train: [ 22/100] Step 150/156 Loss 0.015 Prec@(1,3) (99.3%, 100.0%), ce_loss 0.131, lat_loss 3.111
+05/28 02:55:27 PM | Train: [ 22/100] Step 156/156 Loss 0.015 Prec@(1,3) (99.3%, 100.0%), ce_loss 0.131, lat_loss 3.111
+05/28 02:55:28 PM | _w_step_train: [ 22/100] Final Prec@1 99.3050% Time 119.47
+05/28 02:55:41 PM | Valid: [ 22/100] Step 039/039 Loss 0.247 Prec@(1,3) (89.9%, 99.6%), ce_loss 0.133, lat_loss 3.111
+05/28 02:55:41 PM | val: [ 22/100] Final Prec@1 89.9100% Time 13.38
+05/28 02:55:41 PM | Firstly, start to train weights for epoch 22
+05/28 02:56:02 PM | Train: [ 21/100] Step 100/156 Loss 0.019 Prec@(1,3) (99.1%, 100.0%), ce_loss 0.134, lat_loss 3.111
+05/30 05:43:29 PM | Firstly, start to train weights for epoch 0
+05/30 05:44:38 PM | Firstly, start to train weights for epoch 0
+05/30 05:44:56 PM | Firstly, start to train weights for epoch 0
+05/30 05:45:43 PM | Firstly, start to train weights for epoch 0
+05/30 06:07:19 PM | Firstly, start to train weights for epoch 0
+05/30 06:07:46 PM | Firstly, start to train weights for epoch 0
