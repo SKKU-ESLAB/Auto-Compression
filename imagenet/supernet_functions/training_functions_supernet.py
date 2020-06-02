@@ -102,8 +102,9 @@ class TrainerSupernet:
                 X, y = X.cuda(), y.cuda()
                 N = X.shape[0]
                 
-                latency_to_accumulate = torch.Tensor([[0.0]]).cuda()
-                outs, latency_to_accumulate = model(X, self.temperature, latency_to_accumulate)
+                #latency_to_accumulate = torch.Tensor([[0.0]]).cuda()
+                #outs, latency_to_accumulate = model(X, self.temperature, latency_to_accumulate)
+                outs, latency_to_accumulate = model(X, self.temperature)
                 loss = self.criterion(outs, y, latency_to_accumulate, self.losses_ce, self.losses_lat, N)
 
                 self._intermediate_stats_logging(outs, y, loss, step, epoch, N, len_loader=len(loader), val_or_train="Valid")
