@@ -5,8 +5,8 @@ import torchvision.transforms as transforms
 from torch.utils.data.sampler import SubsetRandomSampler
 import os
 
-normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225])
+normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                 std=[0.5, 0.5, 0.5])
 
 def get_loaders(train_portion, batch_size, path_to_save_data, logger):
     traindir = os.path.join('/data/imagenet', 'train')

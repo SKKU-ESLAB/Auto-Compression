@@ -41,18 +41,15 @@ class FBNet_Stochastic_SuperNet(nn.Module):
                                                    lookup_table.lookup_table_latency[layer_id],
                                                    layer_id)
                                                for layer_id in range(lookup_table.cnt_layers)])
-        self.last_stages = nn.Sequential(OrderedDict([
-            ("Avg_pool", nn.AvgPool2d(7)),
-            ("flatten", Flatten()),
-            ("fc", nn.Linear(in_features=1024, out_features=cnt_classes)),
-        ]))
+        self.classifier = nn.Linear(1280, cnt_classes)
     
     def forward(self, x, temperature, latency_to_accumulate=None):       
         latency_to_accumulate = torch.autograd.Variable(torch.Tensor([[0.0]]), requires_grad=True).cuda()
         y = x
         for mixed_op in self.stages_to_search:
             y, latency_to_accumulate = mixed_op(y, temperature, latency_to_accumulate)
-        y = self.last_stages(y)
+        y = y.mean(3).mean(2)
+        y = self.classifier(y)
         return y, latency_to_accumulate
     
 class SupernetLoss(nn.Module):

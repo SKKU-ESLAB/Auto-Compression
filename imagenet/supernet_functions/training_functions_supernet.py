@@ -7,7 +7,7 @@ from supernet_functions.config_for_supernet import CONFIG_SUPERNET
 class TrainerSupernet:
     def __init__(self, criterion, w_optimizer, theta_optimizer, w_scheduler, logger, writer, high):
         self.top1       = AverageMeter()
-        self.top3       = AverageMeter()
+        self.top5       = AverageMeter()
         self.losses     = AverageMeter()
         self.losses_lat = AverageMeter()
         self.losses_ce  = AverageMeter()
@@ -40,7 +40,7 @@ class TrainerSupernet:
             self.writer.add_scalar('learning_rate/weights', self.w_optimizer.param_groups[0]['lr'], epoch)
             
             self.logger.info("Firstly, start to train weights for epoch %d" % (epoch))
-            self._training_step(model, train_w_loader, self.w_optimizer, epoch, info_for_logger="_w_step_")
+            #self._training_step(model, train_w_loader, self.w_optimizer, epoch, info_for_logger="_w_step_")
             self.w_scheduler.step()
 
             top1_avg = self._validate(model, test_loader, epoch)
@@ -90,7 +90,7 @@ class TrainerSupernet:
             self._intermediate_stats_logging(outs, y, loss, step, epoch, N, len_loader=len(loader), val_or_train="Train")
         
         self._epoch_stats_logging(start_time=start_time, epoch=epoch, info_for_logger=info_for_logger, val_or_train='train')
-        for avg in [self.top1, self.top3, self.losses]:
+        for avg in [self.top1, self.top5, self.losses]:
             avg.reset()
         
     def _validate(self, model, loader, epoch):
@@ -105,20 +105,21 @@ class TrainerSupernet:
                 #latency_to_accumulate = torch.Tensor([[0.0]]).cuda()
                 #outs, latency_to_accumulate = model(X, self.temperature, latency_to_accumulate)
                 outs, latency_to_accumulate = model(X, self.temperature)
+                latency_to_accumulate = torch.sum(latency_to_accumulate)
                 loss = self.criterion(outs, y, latency_to_accumulate, self.losses_ce, self.losses_lat, N)
 
                 self._intermediate_stats_logging(outs, y, loss, step, epoch, N, len_loader=len(loader), val_or_train="Valid")
                 
         top1_avg = self.top1.get_avg()
         self._epoch_stats_logging(start_time=start_time, epoch=epoch, val_or_train='val')
-        for avg in [self.top1, self.top3, self.losses]:
+        for avg in [self.top1, self.top5, self.losses]:
             avg.reset()
         return top1_avg
     
     def _epoch_stats_logging(self, start_time, epoch, val_or_train, info_for_logger=''):
         self.writer.add_scalar('train_vs_val/'+val_or_train+'_loss'+info_for_logger, self.losses.get_avg(), epoch)
         self.writer.add_scalar('train_vs_val/'+val_or_train+'_top1'+info_for_logger, self.top1.get_avg(), epoch)
-        self.writer.add_scalar('train_vs_val/'+val_or_train+'_top3'+info_for_logger, self.top3.get_avg(), epoch)
+        self.writer.add_scalar('train_vs_val/'+val_or_train+'_top5'+info_for_logger, self.top5.get_avg(), epoch)
         self.writer.add_scalar('train_vs_val/'+val_or_train+'_losses_lat'+info_for_logger, self.losses_lat.get_avg(), epoch)
         self.writer.add_scalar('train_vs_val/'+val_or_train+'_losses_ce'+info_for_logger, self.losses_ce.get_avg(), epoch)
         
@@ -127,15 +128,15 @@ class TrainerSupernet:
             epoch+1, self.cnt_epochs, top1_avg, time.time() - start_time))
         
     def _intermediate_stats_logging(self, outs, y, loss, step, epoch, N, len_loader, val_or_train):
-        prec1, prec3 = accuracy(outs, y, topk=(1, 5))
+        prec1, prec5 = accuracy(outs, y, topk=(1, 5))
         self.losses.update(loss.item(), N)
         self.top1.update(prec1.item(), N)
-        self.top3.update(prec3.item(), N)
+        self.top5.update(prec5.item(), N)
         
         if (step > 1 and step % self.print_freq == 0) or step == len_loader - 1:
             self.logger.info(val_or_train+
                ": [{:3d}/{}] Step {:03d}/{:03d} Loss {:.3f} "
-               "Prec@(1,3) ({:.1%}, {:.1%}), ce_loss {:.3f}, lat_loss {:.3f}".format(
+               "Prec@(1,5) ({:.1%}, {:.1%}), ce_loss {:.3f}, lat_loss {:.3f}".format(
                    epoch + 1, self.cnt_epochs, step, len_loader - 1, self.losses.get_avg(),
-                   self.top1.get_avg(), self.top3.get_avg(), self.losses_ce.get_avg(), self.losses_lat.get_avg()))
+                   self.top1.get_avg(), self.top5.get_avg(), self.losses_ce.get_avg(), self.losses_lat.get_avg()))
         
