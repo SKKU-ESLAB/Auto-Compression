@@ -196,29 +196,29 @@ PRIMITIVES = {
     "quant_a3_w3": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvBNRelu(
             C_in, C_out, a, w, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, True, **kwargs
     ),
-    "A1_W1": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvDW(
-            C_in, C_out, 1, w, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, False, **kwargs
+    "A1_W1": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, 1, w, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
-    "A2_W1": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvDW(
-            C_in, C_out, 2, w, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, False, **kwargs
+    "A2_W1": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, 2, w, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
-    "A3_W1": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvDW(
-            C_in, C_out, 3, w, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, False, **kwargs
+    "A3_W1": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, 3, w, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
-    "A4_W1": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvDW(
-            C_in, C_out, 4, w, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, False, **kwargs
+    "A4_W1": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, 4, w, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
-    "A1_W2": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvDW(
-            C_in, C_out, 1, w+1, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, False, **kwargs
+    "A1_W2": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, 1, w+1, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
-    "A2_W2": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvDW(
-            C_in, C_out, 2, w+1, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, False, **kwargs
+    "A2_W2": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, 2, w+1, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
-    "A3_W2": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvDW(
-            C_in, C_out, 3, w+1, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, False, **kwargs
+    "A3_W2": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, 3, w+1, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
-    "A4_W2": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvDW(
-            C_in, C_out, 4, w+1, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, False, **kwargs
+    "A4_W2": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, 4, w+1, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
 }
 
@@ -257,6 +257,106 @@ class Identity(nn.Module):
         else:
             out = x
         return out
+
+class QConvIR(nn.Module):
+    def __init__(
+        self,
+        input_depth,
+        output_depth,
+        num_bits,
+        num_bits_weight,
+        kernel,
+        stride,
+        expand_ratio,
+        index=[],
+        layer_num=-1,
+        multi=False,
+        group=1,
+        *args,
+        **kwargs
+    ):
+        super(QConvIR, self).__init__()
+        assert stride in [1, 2, 4]
+        hidden_depth = int(input_depth * expand_ratio)
+        self.use_res_connect = stride == 1 and input_depth == output_depth
+
+        if input_depth==3:
+            self.conv = nn.Sequential(
+                QConv2d(
+                input_depth,
+                output_depth,
+                num_bits,
+                num_bits_weight,
+                kernel_size=3,
+                stride=stride,
+                padding=1,
+                bias=False,
+                layer_num=layer_num,
+                multi=multi,
+                index=index,
+                *args,
+                **kwargs
+                ),
+                nn.BatchNorm2d(output_depth),
+                nn.ReLU6(inplace=True),)
+        elif input_depth==320:
+            self.conv = nn.Sequential(
+                QConv2d(input_depth, output_depth, num_bits, num_bits_weight,
+                kernel_size=1, stride=1, padding=0, bias=False,
+                layer_num=layer_num, multi=multi, index=index,
+                *args, **kwargs
+                ),
+                nn.BatchNorm2d(output_depth),
+                nn.ReLU6(inplace=True),
+                )
+        elif expand_ratio==1:
+            self.conv = nn.Sequential(
+                QConv2d(hidden_depth,  hidden_depth, num_bits, num_bits_weight,
+                kernel_size=3, stride=stride, padding=1, bias=False,
+                layer_num=layer_num, multi=multi, index=index,
+                groups=hidden_depth,
+                *args, **kwargs
+                ),
+                nn.BatchNorm2d(hidden_depth),
+                nn.ReLU6(inplace=True),
+                QConv2d(hidden_depth,  output_depth, num_bits, num_bits_weight,
+                kernel_size=3, stride=stride, padding=1, bias=False,
+                layer_num=layer_num, multi=multi, index=index,
+                *args, **kwargs
+                ),
+                nn.BatchNorm2d(output_depth),
+                )
+        else:
+            self.conv = nn.Sequential(
+                QConv2d(input_depth,  hidden_depth, num_bits, num_bits_weight,
+                kernel_size=1, stride=1, padding=0, bias=False,
+                layer_num=layer_num, multi=multi, index=index,
+                *args, **kwargs
+                ),
+                nn.BatchNorm2d(hidden_depth),
+                nn.ReLU6(inplace=True),
+                QConv2d(hidden_depth,  hidden_depth, num_bits, num_bits_weight,
+                kernel_size=3, stride=stride, padding=1, bias=False,
+                layer_num=layer_num, multi=multi, index=index,
+                groups=hidden_depth,
+                *args, **kwargs
+                ),
+                nn.BatchNorm2d(hidden_depth),
+                nn.ReLU6(inplace=True),
+                QConv2d(hidden_depth, output_depth, num_bits, num_bits_weight,
+                kernel_size=1, stride=1, padding=0, bias=False,
+                layer_num=layer_num, multi=multi, index=index,
+                *args, **kwargs
+                ),
+                nn.BatchNorm2d(output_depth),
+                )
+
+    def forward(self, x):
+        if self.use_res_connect:
+            return x + self.conv(x)
+        else:
+            return self.conv(x)
+
 
 class QConvDW(nn.Sequential):
     def __init__(
@@ -307,7 +407,7 @@ class QConvDW(nn.Sequential):
             self.add_module("qconv", op)
             bn_op = BatchNorm2d(output_depth)
             self.add_module("bn", bn_op)
-            self.add_module("relu", nn.ReLU(inplace=True))
+            self.add_module("relu", nn.ReLU6(inplace=True))
 
         else:
             op = QConv2d(
@@ -329,7 +429,7 @@ class QConvDW(nn.Sequential):
             self.add_module("qconv_dw", op)
             bn_op = BatchNorm2d(input_depth)
             self.add_module("bn1", bn_op)
-            self.add_module("relu", nn.ReLU(inplace=True))
+            self.add_module("relu1", nn.ReLU6(inplace=True))
 
             op = QConv2d(
                 input_depth,
@@ -349,7 +449,7 @@ class QConvDW(nn.Sequential):
             self.add_module("qconv_point", op)
             bn_op = BatchNorm2d(output_depth)
             self.add_module("bn2", bn_op)
-            self.add_module("relu", nn.ReLU(inplace=True))
+            self.add_module("relu2", nn.ReLU6(inplace=True))
 
 
 class QConvBNRelu(nn.Sequential):
