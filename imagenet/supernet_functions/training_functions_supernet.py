@@ -41,7 +41,7 @@ class TrainerSupernet:
             
             self.logger.info("Firstly, start to train weights for epoch %d" % (epoch))
             #self._training_step(model, train_w_loader, self.w_optimizer, epoch, info_for_logger="_w_step_")
-            self.w_scheduler.step()
+            #self.w_scheduler.step()
 
             top1_avg = self._validate(model, test_loader, epoch)
             if best_top1 < top1_avg:
