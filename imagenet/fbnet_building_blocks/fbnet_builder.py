@@ -276,7 +276,7 @@ class QConvIR(nn.Module):
         **kwargs
     ):
         super(QConvIR, self).__init__()
-        assert stride in [1, 2, 4]
+        assert stride in [1, 2]
         hidden_depth = int(input_depth * expand_ratio)
         self.use_res_connect = stride == 1 and input_depth == output_depth
 
@@ -320,7 +320,7 @@ class QConvIR(nn.Module):
                 nn.BatchNorm2d(hidden_depth),
                 nn.ReLU6(inplace=True),
                 QConv2d(hidden_depth,  output_depth, num_bits, num_bits_weight,
-                kernel_size=1, stride=stride, padding=1, bias=False,
+                kernel_size=1, stride=1, padding=0, bias=False,
                 layer_num=layer_num, multi=multi, index=index,
                 *args, **kwargs
                 ),
