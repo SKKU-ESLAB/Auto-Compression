@@ -129,6 +129,7 @@ class QConv2d(nn.Conv2d):
         self.multi = multi
         self.index = index
     def forward(self, input):
+        self.quantize=False
         if self.quantize:
             qinput = self.quantize_input(input)
             #qinput = input
