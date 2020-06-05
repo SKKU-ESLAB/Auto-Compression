@@ -16062,3 +16062,35 @@
 06/05 02:29:37 AM | Valid: [  1/1] Step 1041/1041 Loss 5.325 Prec@(1,5) (0.1%, 0.5%), ce_loss 6.908, lat_loss 3.854
 06/05 02:29:37 AM | val: [  1/1] Final Prec@1 0.1000% Time 485.85
 06/05 02:29:37 AM | Best top1 acc by now. Save model
+06/05 08:29:20 PM | Firstly, start to train weights for epoch 0
+06/05 08:29:52 PM | Valid: [  1/1] Step 050/1041 Loss 7.025 Prec@(1,5) (0.0%, 0.6%), ce_loss 9.113, lat_loss 3.854
+06/05 08:30:15 PM | Valid: [  1/1] Step 100/1041 Loss 7.033 Prec@(1,5) (0.0%, 0.4%), ce_loss 9.124, lat_loss 3.854
+06/05 08:30:38 PM | Valid: [  1/1] Step 150/1041 Loss 7.017 Prec@(1,5) (0.0%, 0.5%), ce_loss 9.103, lat_loss 3.854
+06/05 08:31:00 PM | Valid: [  1/1] Step 200/1041 Loss 7.010 Prec@(1,5) (0.0%, 0.5%), ce_loss 9.094, lat_loss 3.854
+06/05 08:31:23 PM | Valid: [  1/1] Step 250/1041 Loss 7.009 Prec@(1,5) (0.0%, 0.5%), ce_loss 9.092, lat_loss 3.854
+06/05 08:31:46 PM | Valid: [  1/1] Step 300/1041 Loss 7.016 Prec@(1,5) (0.0%, 0.5%), ce_loss 9.101, lat_loss 3.854
+06/05 08:32:09 PM | Valid: [  1/1] Step 350/1041 Loss 7.022 Prec@(1,5) (0.0%, 0.5%), ce_loss 9.109, lat_loss 3.854
+06/05 08:32:32 PM | Valid: [  1/1] Step 400/1041 Loss 7.025 Prec@(1,5) (0.0%, 0.5%), ce_loss 9.113, lat_loss 3.854
+06/05 08:32:55 PM | Valid: [  1/1] Step 450/1041 Loss 7.022 Prec@(1,5) (0.0%, 0.5%), ce_loss 9.110, lat_loss 3.854
+06/05 08:33:18 PM | Valid: [  1/1] Step 500/1041 Loss 7.018 Prec@(1,5) (0.1%, 0.5%), ce_loss 9.104, lat_loss 3.854
+06/05 08:33:41 PM | Valid: [  1/1] Step 550/1041 Loss 7.013 Prec@(1,5) (0.1%, 0.5%), ce_loss 9.098, lat_loss 3.854
+06/05 08:34:04 PM | Valid: [  1/1] Step 600/1041 Loss 7.016 Prec@(1,5) (0.1%, 0.5%), ce_loss 9.101, lat_loss 3.854
+06/05 08:34:27 PM | Valid: [  1/1] Step 650/1041 Loss 7.020 Prec@(1,5) (0.1%, 0.5%), ce_loss 9.107, lat_loss 3.854
+06/05 08:34:50 PM | Valid: [  1/1] Step 700/1041 Loss 7.016 Prec@(1,5) (0.1%, 0.5%), ce_loss 9.102, lat_loss 3.854
+06/05 08:35:13 PM | Valid: [  1/1] Step 750/1041 Loss 7.017 Prec@(1,5) (0.1%, 0.5%), ce_loss 9.103, lat_loss 3.854
+06/05 08:35:35 PM | Valid: [  1/1] Step 800/1041 Loss 7.022 Prec@(1,5) (0.1%, 0.5%), ce_loss 9.109, lat_loss 3.854
+06/05 08:35:58 PM | Valid: [  1/1] Step 850/1041 Loss 7.020 Prec@(1,5) (0.1%, 0.5%), ce_loss 9.107, lat_loss 3.854
+06/05 08:36:21 PM | Valid: [  1/1] Step 900/1041 Loss 7.019 Prec@(1,5) (0.1%, 0.5%), ce_loss 9.105, lat_loss 3.854
+06/05 08:36:44 PM | Valid: [  1/1] Step 950/1041 Loss 7.019 Prec@(1,5) (0.1%, 0.5%), ce_loss 9.105, lat_loss 3.854
+06/05 08:37:07 PM | Valid: [  1/1] Step 1000/1041 Loss 7.019 Prec@(1,5) (0.1%, 0.5%), ce_loss 9.105, lat_loss 3.854
+06/05 08:37:25 PM | Valid: [  1/1] Step 1041/1041 Loss 7.022 Prec@(1,5) (0.1%, 0.5%), ce_loss 9.109, lat_loss 3.854
+06/05 08:37:25 PM | val: [  1/1] Final Prec@1 0.0900% Time 485.29
+06/05 08:37:25 PM | Best top1 acc by now. Save model
+06/05 09:02:41 PM | Firstly, start to train weights for epoch 0
+06/05 09:03:13 PM | Valid: [  1/1] Step 050/1041 Loss 7.025 Prec@(1,5) (0.0%, 0.6%), ce_loss 9.113, lat_loss 3.854
+06/05 09:03:35 PM | Valid: [  1/1] Step 100/1041 Loss 7.033 Prec@(1,5) (0.0%, 0.4%), ce_loss 9.124, lat_loss 3.854
+06/05 09:04:55 PM | Firstly, start to train weights for epoch 0
+06/05 09:05:27 PM | Valid: [  1/1] Step 050/1041 Loss 5.325 Prec@(1,5) (0.1%, 0.4%), ce_loss 6.907, lat_loss 3.854
+06/05 09:05:59 PM | Firstly, start to train weights for epoch 0
+06/05 09:06:31 PM | Valid: [  1/1] Step 050/1041 Loss 7.025 Prec@(1,5) (0.0%, 0.6%), ce_loss 9.113, lat_loss 3.854
+06/05 09:51:49 PM | Firstly, start to train weights for epoch 0

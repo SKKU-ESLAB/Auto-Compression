@@ -320,7 +320,7 @@ class QConvIR(nn.Module):
                 nn.BatchNorm2d(hidden_depth),
                 nn.ReLU6(inplace=True),
                 QConv2d(hidden_depth,  output_depth, num_bits, num_bits_weight,
-                kernel_size=3, stride=stride, padding=1, bias=False,
+                kernel_size=1, stride=stride, padding=1, bias=False,
                 layer_num=layer_num, multi=multi, index=index,
                 *args, **kwargs
                 ),

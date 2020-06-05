@@ -51,7 +51,7 @@ def train_supernet():
         model = FBNet_Stochastic_SuperNet(lookup_table, cnt_classes=1000)
         model = model.apply(weights_init)
         model = nn.DataParallel(model).cuda()
-        #model.load_state_dict(torch.load('/home/khs/data/sup_logs/cifar10/pretrained_high.pth'))
+        #model.load_state_dict(torch.load('/home/khs/data/sup_logs/imagenet/pretrained_high.pth'))
         #### Loss, Optimizer and Scheduler
         criterion = SupernetLoss().cuda()
 
@@ -98,9 +98,9 @@ def train_supernet():
             model = FBNet_Stochastic_SuperNet(lookup_table, cnt_classes=10).cuda()
             model = nn.DataParallel(model)
             if count == 0:
-                model.load_state_dict(torch.load('/home/khs/data/sup_logs/cifar10/pretrained.pth'))
+                model.load_state_dict(torch.load('/home/khs/data/sup_logs/imagenet/pretrained.pth'))
             else:
-                model.load_state_dict(torch.load('/home/khs/data/sup_logs/cifar10/best_model.pth'))
+                model.load_state_dict(torch.load('/home/khs/data/sup_logs/imagenet/best_model.pth'))
             model = model.apply(weights_init)
             #### Loss, Optimizer and Scheduler
             criterion = SupernetLoss().cuda()
