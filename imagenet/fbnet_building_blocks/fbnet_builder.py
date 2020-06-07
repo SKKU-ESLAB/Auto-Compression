@@ -200,25 +200,25 @@ PRIMITIVES = {
             C_in, C_out, 1, w, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
     "A2_W1": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
-            C_in, C_out, 2, w, 3, stride, expansion, index, layer_num, False, **kwargs
+            C_in, C_out, 6, 6, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
     "A3_W1": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
-            C_in, C_out, 3, w, 3, stride, expansion, index, layer_num, False, **kwargs
+            C_in, C_out, 4, 4, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
     "A4_W1": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
-            C_in, C_out, 4, w, 3, stride, expansion, index, layer_num, False, **kwargs
+            C_in, C_out, 4, 4, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
     "A1_W2": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
-            C_in, C_out, 1, w+1, 3, stride, expansion, index, layer_num, False, **kwargs
+            C_in, C_out, 4, 4, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
     "A2_W2": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
-            C_in, C_out, 2, w+1, 3, stride, expansion, index, layer_num, False, **kwargs
+            C_in, C_out, 4, 4, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
     "A3_W2": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
-            C_in, C_out, 3, w+1, 3, stride, expansion, index, layer_num, False, **kwargs
+            C_in, C_out, 4, 4, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
     "A4_W2": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
-            C_in, C_out, 4, w+1, 3, stride, expansion, index, layer_num, False, **kwargs
+            C_in, C_out, 4, 4, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
 }
 

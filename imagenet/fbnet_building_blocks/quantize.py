@@ -122,14 +122,13 @@ class QConv2d(nn.Conv2d):
         self.num_bits = num_bits
         self.num_bits_weight = num_bits_weight or num_bits
         self.num_bits_grad = num_bits_grad
-        self.quantize_input = QuantMeasure(self.num_bits, quantize=False)
+        self.quantize_input = QuantMeasure(self.num_bits, quantize=True)
         if num_bits_weight != None:
             self.quantize = True
         self.layer_num = layer_num
         self.multi = multi
         self.index = index
     def forward(self, input):
-        self.quantize=False
         if self.quantize:
             qinput = self.quantize_input(input)
             #qinput = input

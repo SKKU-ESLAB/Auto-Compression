@@ -15,13 +15,13 @@ CONFIG_SUPERNET = {
         'path_to_tensorboard_logs' : './supernet_functions/logs/tb'
     },
     'dataloading' : {
-        'batch_size' : 48,
+        'batch_size' : 40,
         'w_share_in_train' : 0.8,
         'path_to_save_data' : '/home/khs/data/sup_logs/imagenet'
     },
     'optimizer' : {
         # SGD parameters for w
-        'w_lr' : 0.01,
+        'w_lr' : 0.005,
         'w_momentum' : 0.9,
         'w_weight_decay' : 1e-5, #1e-4
         # Adam parameters for thetas
@@ -33,8 +33,8 @@ CONFIG_SUPERNET = {
         'beta' : 0.6
     },
     'train_settings' : {
-        'cnt_epochs' : 1, # 90
-        'train_thetas_from_the_epoch' : 1,
+        'cnt_epochs' : 2, # 90
+        'train_thetas_from_the_epoch' : 2,
         'print_freq' : 50,
         'path_to_save_model' : '/home/khs/data/sup_logs/imagenet/best_model.pth',
         'path_to_save_model_high' : '/home/khs/data/sup_logs/imagenet/best_model_high.pth',
