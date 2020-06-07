@@ -16,8 +16,7 @@ np.set_printoptions(threshold=sys.maxsize)
 #CANDIDATE_BLOCKS = ["ir_k3_e1", "ir_k3_s2", "ir_k3_e3",
 #                    "ir_k3_e6", "ir_k5_e1", "ir_k5_s2",
 #                    "ir_k5_e3", "ir_k5_e6", "skip"]
-CANDIDATE_HIGH = ["A2_W1", "A3_W1", "A4_W1",
-                  "A2_W2", "A3_W2", "A4_W2"]
+CANDIDATE_HIGH = ["A2_W1"]
 
 CANDIDATE_BLOCKS = ["quant_a1_w1", "quant_a2_w2", "quant_a3_w3"]
 '''
