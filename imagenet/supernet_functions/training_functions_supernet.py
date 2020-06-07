@@ -38,6 +38,9 @@ class TrainerSupernet:
         # firstly, train weights only
         for epoch in range(self.train_thetas_from_the_epoch):
             self.writer.add_scalar('learning_rate/weights', self.w_optimizer.param_groups[0]['lr'], epoch)
+
+            if epoch == 5:
+                self.optimizer.param_groups[0]['lr'] *= 0.2
             
             self.logger.info("Firstly, start to train weights for epoch %d" % (epoch))
             self._training_step(model, train_w_loader, self.w_optimizer, epoch, info_for_logger="_w_step_")
