@@ -16,7 +16,7 @@ np.set_printoptions(threshold=sys.maxsize)
 #CANDIDATE_BLOCKS = ["ir_k3_e1", "ir_k3_s2", "ir_k3_e3",
 #                    "ir_k3_e6", "ir_k5_e1", "ir_k5_s2",
 #                    "ir_k5_e3", "ir_k5_e6", "skip"]
-CANDIDATE_HIGH = ["A2_W1"]
+CANDIDATE_HIGH = ["A4_W4", "A4_W5", "A4_W6", "A6_W4", "A6_W5", "A6_W6"]
 
 CANDIDATE_BLOCKS = ["quant_a1_w1", "quant_a2_w2", "quant_a3_w3"]
 '''
@@ -160,7 +160,6 @@ class LookUpTable_HIGH:
                                            globals=globals(), number=cnt_of_runs)
                 # measured in micro-second
                 latency_table_layer_by_ops[layer_id][op_name] = total_time / cnt_of_runs / LATENCY_BATCH_SIZE * 1e6
-                
         return latency_table_layer_by_ops
     
     def _write_lookup_table_to_file(self, path_to_file):
@@ -190,6 +189,7 @@ class LookUpTable_HIGH:
         lookup_table_latency = [{op_name : latences[i][op_id] 
                                       for op_id, op_name in enumerate(ops_names)
                                      } for i in range(self.cnt_layers)]
+        print(lookup_table_latency)
         return lookup_table_latency
 # **** to recalculate latency use command:
 # l_table = LookUpTable(calulate_latency=True, path_to_file='lookup_table.txt', cnt_of_runs=50)

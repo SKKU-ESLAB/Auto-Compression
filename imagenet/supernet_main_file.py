@@ -56,7 +56,7 @@ def train_supernet():
         criterion = SupernetLoss().cuda()
 
         for layer in model.module.stages_to_search:
-            layer.thetas = nn.Parameter(torch.Tensor([1.0 / 1 for i in range(1)]).cuda())
+            layer.thetas = nn.Parameter(torch.Tensor([1.0 / 6 for i in range(6)]).cuda())
 
         thetas_params = [param for name, param in model.named_parameters() if 'thetas' in name]
         params_except_thetas = [param for param in model.parameters() if not check_tensor_in_list(param, thetas_params)]

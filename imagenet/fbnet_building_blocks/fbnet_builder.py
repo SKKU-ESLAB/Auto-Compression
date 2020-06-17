@@ -196,29 +196,23 @@ PRIMITIVES = {
     "quant_a3_w3": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvBNRelu(
             C_in, C_out, a, w, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, True, **kwargs
     ),
-    "A1_W1": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
-            C_in, C_out, 1, w, 3, stride, expansion, index, layer_num, False, **kwargs
+    "A4_W4": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, 4, 4, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
-    "A2_W1": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+    "A4_W5": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, 4, 5, 3, stride, expansion, index, layer_num, False, **kwargs
+    ),
+    "A4_W6": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, 4, 6, 3, stride, expansion, index, layer_num, False, **kwargs
+    ),
+    "A6_W4": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, 6, 4, 3, stride, expansion, index, layer_num, False, **kwargs
+    ),
+    "A6_W5": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, 6, 5, 3, stride, expansion, index, layer_num, False, **kwargs
+    ),
+    "A6_W6": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
             C_in, C_out, 6, 6, 3, stride, expansion, index, layer_num, False, **kwargs
-    ),
-    "A3_W1": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
-            C_in, C_out, 4, 4, 3, stride, expansion, index, layer_num, False, **kwargs
-    ),
-    "A4_W1": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
-            C_in, C_out, 4, 4, 3, stride, expansion, index, layer_num, False, **kwargs
-    ),
-    "A1_W2": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
-            C_in, C_out, 4, 4, 3, stride, expansion, index, layer_num, False, **kwargs
-    ),
-    "A2_W2": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
-            C_in, C_out, 4, 4, 3, stride, expansion, index, layer_num, False, **kwargs
-    ),
-    "A3_W2": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
-            C_in, C_out, 4, 4, 3, stride, expansion, index, layer_num, False, **kwargs
-    ),
-    "A4_W2": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
-            C_in, C_out, 4, 4, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
 }
 

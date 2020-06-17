@@ -1,0 +1,475 @@
+05/01 06:35:52 AM | Train: [  1/360] Step 049/049 Loss 2.206 Prec@(1,3) (21.5%, 52.2%)
+05/01 06:35:52 AM | train: [  1/360] Final Prec@1 21.4560% Time 10.39
+05/01 06:35:53 AM | Valid: [  1/360] Step 009/009 Loss 2.598 Prec@(1,3) (24.7%, 59.9%)
+05/01 06:35:53 AM | val: [  1/360] Final Prec@1 24.6800% Time 1.04
+05/01 06:35:53 AM | Best top1 accuracy by now. Save model
+05/01 06:36:00 AM | Train: [  2/360] Step 049/049 Loss 1.795 Prec@(1,3) (33.6%, 69.6%)
+05/01 06:36:00 AM | train: [  2/360] Final Prec@1 33.6020% Time 7.45
+05/01 06:36:02 AM | Valid: [  2/360] Step 009/009 Loss 1.657 Prec@(1,3) (38.3%, 74.3%)
+05/01 06:36:02 AM | val: [  2/360] Final Prec@1 38.2700% Time 1.14
+05/01 06:36:02 AM | Best top1 accuracy by now. Save model
+05/01 06:36:09 AM | Train: [  3/360] Step 049/049 Loss 1.646 Prec@(1,3) (39.3%, 74.3%)
+05/01 06:36:09 AM | train: [  3/360] Final Prec@1 39.2580% Time 7.40
+05/01 06:36:10 AM | Valid: [  3/360] Step 009/009 Loss 1.545 Prec@(1,3) (42.7%, 77.9%)
+05/01 06:36:10 AM | val: [  3/360] Final Prec@1 42.6900% Time 1.15
+05/01 06:36:10 AM | Best top1 accuracy by now. Save model
+05/01 06:36:18 AM | Train: [  4/360] Step 049/049 Loss 1.564 Prec@(1,3) (42.6%, 77.0%)
+05/01 06:36:18 AM | train: [  4/360] Final Prec@1 42.6400% Time 7.51
+05/01 06:36:19 AM | Valid: [  4/360] Step 009/009 Loss 1.518 Prec@(1,3) (45.1%, 79.0%)
+05/01 06:36:19 AM | val: [  4/360] Final Prec@1 45.0800% Time 1.23
+05/01 06:36:19 AM | Best top1 accuracy by now. Save model
+05/01 06:36:26 AM | Train: [  5/360] Step 049/049 Loss 1.500 Prec@(1,3) (44.9%, 79.1%)
+05/01 06:36:26 AM | train: [  5/360] Final Prec@1 44.9000% Time 7.40
+05/01 06:36:27 AM | Valid: [  5/360] Step 009/009 Loss 1.588 Prec@(1,3) (43.1%, 77.1%)
+05/01 06:36:28 AM | val: [  5/360] Final Prec@1 43.0600% Time 1.17
+05/01 06:36:36 AM | Train: [  6/360] Step 049/049 Loss 1.460 Prec@(1,3) (46.6%, 80.3%)
+05/01 06:36:36 AM | train: [  6/360] Final Prec@1 46.5800% Time 8.19
+05/01 06:36:37 AM | Valid: [  6/360] Step 009/009 Loss 1.424 Prec@(1,3) (48.3%, 81.3%)
+05/01 06:36:37 AM | val: [  6/360] Final Prec@1 48.2600% Time 1.23
+05/01 06:36:37 AM | Best top1 accuracy by now. Save model
+05/01 06:36:45 AM | Train: [  7/360] Step 049/049 Loss 1.402 Prec@(1,3) (48.8%, 81.7%)
+05/01 06:36:45 AM | train: [  7/360] Final Prec@1 48.7580% Time 8.02
+05/01 06:36:46 AM | Valid: [  7/360] Step 009/009 Loss 1.357 Prec@(1,3) (51.0%, 82.8%)
+05/01 06:36:46 AM | val: [  7/360] Final Prec@1 50.9700% Time 1.27
+05/01 06:36:46 AM | Best top1 accuracy by now. Save model
+05/01 06:36:55 AM | Train: [  8/360] Step 049/049 Loss 1.372 Prec@(1,3) (49.9%, 82.7%)
+05/01 06:36:55 AM | train: [  8/360] Final Prec@1 49.8840% Time 8.48
+05/01 06:36:56 AM | Valid: [  8/360] Step 009/009 Loss 1.334 Prec@(1,3) (52.1%, 83.7%)
+05/01 06:36:56 AM | val: [  8/360] Final Prec@1 52.0500% Time 1.26
+05/01 06:36:56 AM | Best top1 accuracy by now. Save model
+05/01 06:37:04 AM | Train: [  9/360] Step 049/049 Loss 1.328 Prec@(1,3) (51.8%, 83.5%)
+05/01 06:37:05 AM | train: [  9/360] Final Prec@1 51.8280% Time 8.48
+05/01 06:37:06 AM | Valid: [  9/360] Step 009/009 Loss 1.263 Prec@(1,3) (54.4%, 85.1%)
+05/01 06:37:06 AM | val: [  9/360] Final Prec@1 54.3600% Time 1.15
+05/01 06:37:06 AM | Best top1 accuracy by now. Save model
+05/01 06:37:14 AM | Train: [ 10/360] Step 049/049 Loss 1.290 Prec@(1,3) (53.0%, 84.3%)
+05/01 06:37:14 AM | train: [ 10/360] Final Prec@1 53.0360% Time 8.35
+05/01 06:37:15 AM | Valid: [ 10/360] Step 009/009 Loss 1.282 Prec@(1,3) (54.2%, 85.4%)
+05/01 06:37:15 AM | val: [ 10/360] Final Prec@1 54.1800% Time 1.20
+05/01 06:37:23 AM | Train: [ 11/360] Step 049/049 Loss 1.252 Prec@(1,3) (54.6%, 85.2%)
+05/01 06:37:24 AM | train: [ 11/360] Final Prec@1 54.6000% Time 8.21
+05/01 06:37:25 AM | Valid: [ 11/360] Step 009/009 Loss 1.259 Prec@(1,3) (55.3%, 84.8%)
+05/01 06:37:25 AM | val: [ 11/360] Final Prec@1 55.2900% Time 1.20
+05/01 06:37:25 AM | Best top1 accuracy by now. Save model
+05/01 06:37:33 AM | Train: [ 12/360] Step 049/049 Loss 1.224 Prec@(1,3) (56.0%, 86.0%)
+05/01 06:37:33 AM | train: [ 12/360] Final Prec@1 55.9940% Time 8.44
+05/01 06:37:34 AM | Valid: [ 12/360] Step 009/009 Loss 1.366 Prec@(1,3) (55.1%, 85.8%)
+05/01 06:37:34 AM | val: [ 12/360] Final Prec@1 55.0900% Time 1.13
+05/01 06:37:43 AM | Train: [ 13/360] Step 049/049 Loss 1.188 Prec@(1,3) (57.2%, 86.5%)
+05/01 06:37:43 AM | train: [ 13/360] Final Prec@1 57.2080% Time 8.67
+05/01 06:37:44 AM | Valid: [ 13/360] Step 009/009 Loss 1.191 Prec@(1,3) (57.1%, 86.8%)
+05/01 06:37:44 AM | val: [ 13/360] Final Prec@1 57.1300% Time 1.10
+05/01 06:37:44 AM | Best top1 accuracy by now. Save model
+05/01 06:37:52 AM | Train: [ 14/360] Step 049/049 Loss 1.166 Prec@(1,3) (57.9%, 87.0%)
+05/01 06:37:52 AM | train: [ 14/360] Final Prec@1 57.9240% Time 8.33
+05/01 06:37:54 AM | Valid: [ 14/360] Step 009/009 Loss 1.223 Prec@(1,3) (56.5%, 85.8%)
+05/01 06:37:54 AM | val: [ 14/360] Final Prec@1 56.5300% Time 1.26
+05/01 06:38:02 AM | Train: [ 15/360] Step 049/049 Loss 1.127 Prec@(1,3) (59.3%, 87.7%)
+05/01 06:38:02 AM | train: [ 15/360] Final Prec@1 59.2700% Time 8.45
+05/01 06:38:03 AM | Valid: [ 15/360] Step 009/009 Loss 1.122 Prec@(1,3) (60.0%, 88.0%)
+05/01 06:38:03 AM | val: [ 15/360] Final Prec@1 60.0300% Time 1.31
+05/01 06:38:03 AM | Best top1 accuracy by now. Save model
+05/01 06:38:12 AM | Train: [ 16/360] Step 049/049 Loss 1.108 Prec@(1,3) (60.1%, 88.2%)
+05/01 06:38:12 AM | train: [ 16/360] Final Prec@1 60.1440% Time 8.36
+05/01 06:38:13 AM | Valid: [ 16/360] Step 009/009 Loss 1.096 Prec@(1,3) (61.2%, 88.7%)
+05/01 06:38:13 AM | val: [ 16/360] Final Prec@1 61.2000% Time 1.16
+05/01 06:38:13 AM | Best top1 accuracy by now. Save model
+05/01 06:38:21 AM | Train: [ 17/360] Step 049/049 Loss 1.102 Prec@(1,3) (60.3%, 88.2%)
+05/01 06:38:21 AM | train: [ 17/360] Final Prec@1 60.3260% Time 8.40
+05/01 06:38:23 AM | Valid: [ 17/360] Step 009/009 Loss 1.182 Prec@(1,3) (58.4%, 86.3%)
+05/01 06:38:23 AM | val: [ 17/360] Final Prec@1 58.3600% Time 1.17
+05/01 06:38:31 AM | Train: [ 18/360] Step 049/049 Loss 1.068 Prec@(1,3) (61.6%, 88.8%)
+05/01 06:38:31 AM | train: [ 18/360] Final Prec@1 61.5900% Time 8.40
+05/01 06:38:32 AM | Valid: [ 18/360] Step 009/009 Loss 1.152 Prec@(1,3) (59.0%, 88.1%)
+05/01 06:38:32 AM | val: [ 18/360] Final Prec@1 59.0000% Time 1.13
+05/01 06:38:41 AM | Train: [ 19/360] Step 049/049 Loss 1.052 Prec@(1,3) (62.3%, 89.2%)
+05/01 06:38:41 AM | train: [ 19/360] Final Prec@1 62.2800% Time 8.55
+05/01 06:38:42 AM | Valid: [ 19/360] Step 009/009 Loss 1.065 Prec@(1,3) (62.1%, 89.6%)
+05/01 06:38:42 AM | val: [ 19/360] Final Prec@1 62.0800% Time 1.16
+05/01 06:38:42 AM | Best top1 accuracy by now. Save model
+05/01 06:38:50 AM | Train: [ 20/360] Step 049/049 Loss 1.028 Prec@(1,3) (63.1%, 89.6%)
+05/01 06:38:50 AM | train: [ 20/360] Final Prec@1 63.1420% Time 8.54
+05/01 06:38:52 AM | Valid: [ 20/360] Step 009/009 Loss 1.119 Prec@(1,3) (60.8%, 88.1%)
+05/01 06:38:52 AM | val: [ 20/360] Final Prec@1 60.7500% Time 1.18
+05/01 06:39:00 AM | Train: [ 21/360] Step 049/049 Loss 1.006 Prec@(1,3) (63.9%, 89.9%)
+05/01 06:39:00 AM | train: [ 21/360] Final Prec@1 63.9260% Time 8.36
+05/01 06:39:01 AM | Valid: [ 21/360] Step 009/009 Loss 1.018 Prec@(1,3) (64.3%, 89.7%)
+05/01 06:39:01 AM | val: [ 21/360] Final Prec@1 64.3400% Time 1.16
+05/01 06:39:01 AM | Best top1 accuracy by now. Save model
+05/01 06:39:09 AM | Train: [ 22/360] Step 049/049 Loss 0.999 Prec@(1,3) (64.2%, 90.1%)
+05/01 06:39:10 AM | train: [ 22/360] Final Prec@1 64.1720% Time 8.36
+05/01 06:39:11 AM | Valid: [ 22/360] Step 009/009 Loss 1.056 Prec@(1,3) (63.2%, 89.7%)
+05/01 06:39:11 AM | val: [ 22/360] Final Prec@1 63.2400% Time 1.22
+05/01 06:39:19 AM | Train: [ 23/360] Step 049/049 Loss 0.971 Prec@(1,3) (65.1%, 90.7%)
+05/01 06:39:19 AM | train: [ 23/360] Final Prec@1 65.0740% Time 8.61
+05/01 06:39:21 AM | Valid: [ 23/360] Step 009/009 Loss 1.043 Prec@(1,3) (63.9%, 90.0%)
+05/01 06:39:21 AM | val: [ 23/360] Final Prec@1 63.8900% Time 1.24
+05/01 06:39:29 AM | Train: [ 24/360] Step 049/049 Loss 0.961 Prec@(1,3) (65.5%, 90.7%)
+05/01 06:39:29 AM | train: [ 24/360] Final Prec@1 65.5360% Time 8.31
+05/01 06:39:30 AM | Valid: [ 24/360] Step 009/009 Loss 0.980 Prec@(1,3) (65.2%, 90.6%)
+05/01 06:39:30 AM | val: [ 24/360] Final Prec@1 65.1900% Time 1.26
+05/01 06:39:30 AM | Best top1 accuracy by now. Save model
+05/01 06:39:39 AM | Train: [ 25/360] Step 049/049 Loss 0.942 Prec@(1,3) (66.3%, 91.2%)
+05/01 06:39:39 AM | train: [ 25/360] Final Prec@1 66.2760% Time 8.56
+05/01 06:39:40 AM | Valid: [ 25/360] Step 009/009 Loss 0.950 Prec@(1,3) (66.0%, 91.5%)
+05/01 06:39:40 AM | val: [ 25/360] Final Prec@1 65.9800% Time 1.20
+05/01 06:39:40 AM | Best top1 accuracy by now. Save model
+05/01 06:39:49 AM | Train: [ 26/360] Step 049/049 Loss 0.928 Prec@(1,3) (66.8%, 91.3%)
+05/01 06:39:49 AM | train: [ 26/360] Final Prec@1 66.8340% Time 8.69
+05/01 06:39:50 AM | Valid: [ 26/360] Step 009/009 Loss 0.993 Prec@(1,3) (65.7%, 90.2%)
+05/01 06:39:50 AM | val: [ 26/360] Final Prec@1 65.6600% Time 1.24
+05/01 06:39:58 AM | Train: [ 27/360] Step 049/049 Loss 0.913 Prec@(1,3) (67.5%, 91.6%)
+05/01 06:39:58 AM | train: [ 27/360] Final Prec@1 67.4520% Time 8.36
+05/01 06:39:59 AM | Valid: [ 27/360] Step 009/009 Loss 0.999 Prec@(1,3) (64.7%, 90.2%)
+05/01 06:39:59 AM | val: [ 27/360] Final Prec@1 64.6700% Time 1.16
+05/01 06:40:08 AM | Train: [ 28/360] Step 049/049 Loss 0.908 Prec@(1,3) (67.5%, 91.5%)
+05/01 06:40:08 AM | train: [ 28/360] Final Prec@1 67.4880% Time 8.32
+05/01 06:40:09 AM | Valid: [ 28/360] Step 009/009 Loss 0.933 Prec@(1,3) (67.5%, 91.1%)
+05/01 06:40:09 AM | val: [ 28/360] Final Prec@1 67.5400% Time 1.18
+05/01 06:40:09 AM | Best top1 accuracy by now. Save model
+05/01 06:40:17 AM | Train: [ 29/360] Step 049/049 Loss 0.896 Prec@(1,3) (67.9%, 91.8%)
+05/01 06:40:17 AM | train: [ 29/360] Final Prec@1 67.9200% Time 8.33
+05/01 06:40:19 AM | Valid: [ 29/360] Step 009/009 Loss 0.896 Prec@(1,3) (68.1%, 92.0%)
+05/01 06:40:19 AM | val: [ 29/360] Final Prec@1 68.1400% Time 1.23
+05/01 06:40:19 AM | Best top1 accuracy by now. Save model
+05/01 06:40:27 AM | Train: [ 30/360] Step 049/049 Loss 0.886 Prec@(1,3) (68.3%, 92.0%)
+05/01 06:40:27 AM | train: [ 30/360] Final Prec@1 68.2720% Time 8.50
+05/01 06:40:28 AM | Valid: [ 30/360] Step 009/009 Loss 0.985 Prec@(1,3) (65.7%, 90.3%)
+05/01 06:40:28 AM | val: [ 30/360] Final Prec@1 65.6700% Time 1.24
+05/01 06:40:37 AM | Train: [ 31/360] Step 049/049 Loss 0.869 Prec@(1,3) (68.9%, 92.3%)
+05/01 06:40:37 AM | train: [ 31/360] Final Prec@1 68.8960% Time 8.38
+05/01 06:40:38 AM | Valid: [ 31/360] Step 009/009 Loss 0.896 Prec@(1,3) (68.5%, 91.9%)
+05/01 06:40:38 AM | val: [ 31/360] Final Prec@1 68.5000% Time 1.26
+05/01 06:40:38 AM | Best top1 accuracy by now. Save model
+05/01 06:40:46 AM | Train: [ 32/360] Step 049/049 Loss 0.859 Prec@(1,3) (69.5%, 92.5%)
+05/01 06:40:46 AM | train: [ 32/360] Final Prec@1 69.4820% Time 8.48
+05/01 06:40:48 AM | Valid: [ 32/360] Step 009/009 Loss 0.867 Prec@(1,3) (69.1%, 92.4%)
+05/01 06:40:48 AM | val: [ 32/360] Final Prec@1 69.1100% Time 1.24
+05/01 06:40:48 AM | Best top1 accuracy by now. Save model
+05/01 06:40:56 AM | Train: [ 33/360] Step 049/049 Loss 0.847 Prec@(1,3) (69.9%, 92.6%)
+05/01 06:40:56 AM | train: [ 33/360] Final Prec@1 69.8560% Time 8.36
+05/01 06:40:57 AM | Valid: [ 33/360] Step 009/009 Loss 0.894 Prec@(1,3) (68.3%, 91.8%)
+05/01 06:40:57 AM | val: [ 33/360] Final Prec@1 68.3000% Time 1.19
+05/01 06:41:06 AM | Train: [ 34/360] Step 049/049 Loss 0.840 Prec@(1,3) (69.9%, 92.6%)
+05/01 06:41:06 AM | train: [ 34/360] Final Prec@1 69.9340% Time 8.47
+05/01 06:41:07 AM | Valid: [ 34/360] Step 009/009 Loss 0.839 Prec@(1,3) (70.3%, 92.6%)
+05/01 06:41:07 AM | val: [ 34/360] Final Prec@1 70.3200% Time 1.18
+05/01 06:41:07 AM | Best top1 accuracy by now. Save model
+05/01 06:41:15 AM | Train: [ 35/360] Step 049/049 Loss 0.825 Prec@(1,3) (70.5%, 92.9%)
+05/01 06:41:16 AM | train: [ 35/360] Final Prec@1 70.4840% Time 8.52
+05/01 06:41:17 AM | Valid: [ 35/360] Step 009/009 Loss 0.926 Prec@(1,3) (67.3%, 91.9%)
+05/01 06:41:17 AM | val: [ 35/360] Final Prec@1 67.3100% Time 1.17
+05/01 06:41:25 AM | Train: [ 36/360] Step 049/049 Loss 0.817 Prec@(1,3) (70.8%, 93.1%)
+05/01 06:41:25 AM | train: [ 36/360] Final Prec@1 70.8080% Time 8.31
+05/01 06:41:26 AM | Valid: [ 36/360] Step 009/009 Loss 0.859 Prec@(1,3) (69.8%, 92.2%)
+05/01 06:41:26 AM | val: [ 36/360] Final Prec@1 69.7700% Time 1.21
+05/01 06:41:35 AM | Train: [ 37/360] Step 049/049 Loss 0.810 Prec@(1,3) (71.0%, 93.1%)
+05/01 06:41:35 AM | train: [ 37/360] Final Prec@1 70.9860% Time 8.50
+05/01 06:41:36 AM | Valid: [ 37/360] Step 009/009 Loss 0.888 Prec@(1,3) (68.8%, 92.2%)
+05/01 06:41:36 AM | val: [ 37/360] Final Prec@1 68.8400% Time 1.28
+05/01 06:41:44 AM | Train: [ 38/360] Step 049/049 Loss 0.794 Prec@(1,3) (71.7%, 93.3%)
+05/01 06:41:44 AM | train: [ 38/360] Final Prec@1 71.6940% Time 8.41
+05/01 06:41:46 AM | Valid: [ 38/360] Step 009/009 Loss 0.836 Prec@(1,3) (70.7%, 92.7%)
+05/01 06:41:46 AM | val: [ 38/360] Final Prec@1 70.6600% Time 1.20
+05/01 06:41:46 AM | Best top1 accuracy by now. Save model
+05/01 06:41:54 AM | Train: [ 39/360] Step 049/049 Loss 0.782 Prec@(1,3) (72.3%, 93.5%)
+05/01 06:41:54 AM | train: [ 39/360] Final Prec@1 72.3280% Time 8.47
+05/01 06:41:55 AM | Valid: [ 39/360] Step 009/009 Loss 0.814 Prec@(1,3) (71.2%, 93.0%)
+05/01 06:41:55 AM | val: [ 39/360] Final Prec@1 71.2100% Time 1.24
+05/01 06:41:55 AM | Best top1 accuracy by now. Save model
+05/01 06:42:04 AM | Train: [ 40/360] Step 049/049 Loss 0.781 Prec@(1,3) (72.3%, 93.7%)
+05/01 06:42:04 AM | train: [ 40/360] Final Prec@1 72.2620% Time 8.46
+05/01 06:42:05 AM | Valid: [ 40/360] Step 009/009 Loss 0.851 Prec@(1,3) (70.5%, 92.4%)
+05/01 06:42:05 AM | val: [ 40/360] Final Prec@1 70.5200% Time 1.21
+05/01 06:42:13 AM | Train: [ 41/360] Step 049/049 Loss 0.771 Prec@(1,3) (72.6%, 93.8%)
+05/01 06:42:14 AM | train: [ 41/360] Final Prec@1 72.5640% Time 8.47
+05/01 06:42:15 AM | Valid: [ 41/360] Step 009/009 Loss 0.922 Prec@(1,3) (67.9%, 91.6%)
+05/01 06:42:15 AM | val: [ 41/360] Final Prec@1 67.9400% Time 1.16
+05/01 06:42:23 AM | Train: [ 42/360] Step 049/049 Loss 0.762 Prec@(1,3) (72.7%, 93.8%)
+05/01 06:42:23 AM | train: [ 42/360] Final Prec@1 72.7420% Time 8.33
+05/01 06:42:24 AM | Valid: [ 42/360] Step 009/009 Loss 0.855 Prec@(1,3) (70.2%, 92.6%)
+05/01 06:42:24 AM | val: [ 42/360] Final Prec@1 70.2100% Time 1.11
+05/01 06:42:32 AM | Train: [ 43/360] Step 049/049 Loss 0.751 Prec@(1,3) (73.5%, 93.9%)
+05/01 06:42:32 AM | train: [ 43/360] Final Prec@1 73.4780% Time 8.36
+05/01 06:42:34 AM | Valid: [ 43/360] Step 009/009 Loss 0.823 Prec@(1,3) (71.4%, 92.8%)
+05/01 06:42:34 AM | val: [ 43/360] Final Prec@1 71.4200% Time 1.09
+05/01 06:42:34 AM | Best top1 accuracy by now. Save model
+05/01 06:42:42 AM | Train: [ 44/360] Step 049/049 Loss 0.747 Prec@(1,3) (73.5%, 94.1%)
+05/01 06:42:42 AM | train: [ 44/360] Final Prec@1 73.4840% Time 8.37
+05/01 06:42:43 AM | Valid: [ 44/360] Step 009/009 Loss 0.795 Prec@(1,3) (72.2%, 93.4%)
+05/01 06:42:43 AM | val: [ 44/360] Final Prec@1 72.1500% Time 1.23
+05/01 06:42:43 AM | Best top1 accuracy by now. Save model
+05/01 06:42:52 AM | Train: [ 45/360] Step 049/049 Loss 0.731 Prec@(1,3) (74.0%, 94.4%)
+05/01 06:42:52 AM | train: [ 45/360] Final Prec@1 73.9800% Time 8.43
+05/01 06:42:53 AM | Valid: [ 45/360] Step 009/009 Loss 0.806 Prec@(1,3) (71.7%, 93.0%)
+05/01 06:42:53 AM | val: [ 45/360] Final Prec@1 71.7200% Time 1.11
+05/01 06:43:01 AM | Train: [ 46/360] Step 049/049 Loss 0.723 Prec@(1,3) (74.2%, 94.3%)
+05/01 06:43:01 AM | train: [ 46/360] Final Prec@1 74.2300% Time 8.22
+05/01 06:43:02 AM | Valid: [ 46/360] Step 009/009 Loss 0.847 Prec@(1,3) (70.9%, 92.8%)
+05/01 06:43:02 AM | val: [ 46/360] Final Prec@1 70.8800% Time 1.11
+05/01 06:43:10 AM | Train: [ 47/360] Step 049/049 Loss 0.713 Prec@(1,3) (74.6%, 94.5%)
+05/01 06:43:10 AM | train: [ 47/360] Final Prec@1 74.6320% Time 8.29
+05/01 06:43:12 AM | Valid: [ 47/360] Step 009/009 Loss 0.783 Prec@(1,3) (73.0%, 93.3%)
+05/01 06:43:12 AM | val: [ 47/360] Final Prec@1 72.9600% Time 1.25
+05/01 06:43:12 AM | Best top1 accuracy by now. Save model
+05/01 06:43:20 AM | Train: [ 48/360] Step 049/049 Loss 0.702 Prec@(1,3) (75.0%, 94.7%)
+05/01 06:43:20 AM | train: [ 48/360] Final Prec@1 74.9600% Time 8.56
+05/01 06:43:21 AM | Valid: [ 48/360] Step 009/009 Loss 0.810 Prec@(1,3) (72.1%, 93.0%)
+05/01 06:43:21 AM | val: [ 48/360] Final Prec@1 72.0800% Time 1.18
+05/01 06:43:30 AM | Train: [ 49/360] Step 049/049 Loss 0.696 Prec@(1,3) (75.2%, 94.7%)
+05/01 06:43:30 AM | train: [ 49/360] Final Prec@1 75.2480% Time 8.48
+05/01 06:43:31 AM | Valid: [ 49/360] Step 009/009 Loss 0.789 Prec@(1,3) (72.8%, 93.3%)
+05/01 06:43:31 AM | val: [ 49/360] Final Prec@1 72.7600% Time 1.26
+05/01 06:43:40 AM | Train: [ 50/360] Step 049/049 Loss 0.682 Prec@(1,3) (75.6%, 95.0%)
+05/01 06:43:40 AM | train: [ 50/360] Final Prec@1 75.5620% Time 8.41
+05/01 06:43:41 AM | Valid: [ 50/360] Step 009/009 Loss 0.818 Prec@(1,3) (71.8%, 93.2%)
+05/01 06:43:41 AM | val: [ 50/360] Final Prec@1 71.7500% Time 1.13
+05/01 06:43:49 AM | Train: [ 51/360] Step 049/049 Loss 0.680 Prec@(1,3) (75.9%, 94.9%)
+05/01 06:43:49 AM | train: [ 51/360] Final Prec@1 75.9400% Time 8.45
+05/01 06:43:50 AM | Valid: [ 51/360] Step 009/009 Loss 0.782 Prec@(1,3) (73.3%, 94.0%)
+05/01 06:43:50 AM | val: [ 51/360] Final Prec@1 73.3000% Time 1.22
+05/01 06:43:50 AM | Best top1 accuracy by now. Save model
+05/01 06:43:59 AM | Train: [ 52/360] Step 049/049 Loss 0.673 Prec@(1,3) (75.9%, 95.1%)
+05/01 06:43:59 AM | train: [ 52/360] Final Prec@1 75.9060% Time 8.49
+05/01 06:44:00 AM | Valid: [ 52/360] Step 009/009 Loss 0.809 Prec@(1,3) (72.8%, 93.4%)
+05/01 06:44:00 AM | val: [ 52/360] Final Prec@1 72.8000% Time 1.08
+05/01 06:44:08 AM | Train: [ 53/360] Step 049/049 Loss 0.664 Prec@(1,3) (76.3%, 95.0%)
+05/01 06:44:08 AM | train: [ 53/360] Final Prec@1 76.2700% Time 8.33
+05/01 06:44:09 AM | Valid: [ 53/360] Step 009/009 Loss 0.744 Prec@(1,3) (74.4%, 93.7%)
+05/01 06:44:09 AM | val: [ 53/360] Final Prec@1 74.3700% Time 1.11
+05/01 06:44:09 AM | Best top1 accuracy by now. Save model
+05/01 06:44:18 AM | Train: [ 54/360] Step 049/049 Loss 0.655 Prec@(1,3) (76.4%, 95.3%)
+05/01 06:44:18 AM | train: [ 54/360] Final Prec@1 76.4020% Time 8.40
+05/01 06:44:19 AM | Valid: [ 54/360] Step 009/009 Loss 0.842 Prec@(1,3) (71.0%, 92.6%)
+05/01 06:44:19 AM | val: [ 54/360] Final Prec@1 71.0100% Time 1.17
+05/01 06:44:27 AM | Train: [ 55/360] Step 049/049 Loss 0.648 Prec@(1,3) (76.8%, 95.4%)
+05/01 06:44:28 AM | train: [ 55/360] Final Prec@1 76.8300% Time 8.44
+05/01 06:44:29 AM | Valid: [ 55/360] Step 009/009 Loss 0.789 Prec@(1,3) (72.9%, 93.5%)
+05/01 06:44:29 AM | val: [ 55/360] Final Prec@1 72.8800% Time 1.28
+05/01 06:44:37 AM | Train: [ 56/360] Step 049/049 Loss 0.635 Prec@(1,3) (77.4%, 95.6%)
+05/01 06:44:37 AM | train: [ 56/360] Final Prec@1 77.4240% Time 8.42
+05/01 06:44:38 AM | Valid: [ 56/360] Step 009/009 Loss 0.709 Prec@(1,3) (75.3%, 94.6%)
+05/01 06:44:38 AM | val: [ 56/360] Final Prec@1 75.2500% Time 1.18
+05/01 06:44:38 AM | Best top1 accuracy by now. Save model
+05/01 06:44:47 AM | Train: [ 57/360] Step 049/049 Loss 0.631 Prec@(1,3) (77.6%, 95.6%)
+05/01 06:44:47 AM | train: [ 57/360] Final Prec@1 77.5660% Time 8.60
+05/01 06:44:48 AM | Valid: [ 57/360] Step 009/009 Loss 0.810 Prec@(1,3) (72.9%, 93.5%)
+05/01 06:44:48 AM | val: [ 57/360] Final Prec@1 72.9000% Time 1.12
+05/01 06:44:57 AM | Train: [ 58/360] Step 049/049 Loss 0.627 Prec@(1,3) (77.8%, 95.7%)
+05/01 06:44:57 AM | train: [ 58/360] Final Prec@1 77.8320% Time 8.55
+05/01 06:44:58 AM | Valid: [ 58/360] Step 009/009 Loss 0.765 Prec@(1,3) (73.9%, 93.7%)
+05/01 06:44:58 AM | val: [ 58/360] Final Prec@1 73.8700% Time 1.13
+05/01 06:45:06 AM | Train: [ 59/360] Step 049/049 Loss 0.618 Prec@(1,3) (78.0%, 95.7%)
+05/01 06:45:06 AM | train: [ 59/360] Final Prec@1 78.0300% Time 8.61
+05/01 06:45:08 AM | Valid: [ 59/360] Step 009/009 Loss 0.764 Prec@(1,3) (74.1%, 93.9%)
+05/01 06:45:08 AM | val: [ 59/360] Final Prec@1 74.1000% Time 1.16
+05/01 06:45:16 AM | Train: [ 60/360] Step 049/049 Loss 0.613 Prec@(1,3) (78.2%, 95.7%)
+05/01 06:45:16 AM | train: [ 60/360] Final Prec@1 78.2020% Time 8.32
+05/01 06:45:17 AM | Valid: [ 60/360] Step 009/009 Loss 0.732 Prec@(1,3) (74.7%, 94.3%)
+05/01 06:45:17 AM | val: [ 60/360] Final Prec@1 74.6600% Time 1.25
+05/01 06:45:26 AM | Train: [ 61/360] Step 049/049 Loss 0.605 Prec@(1,3) (78.4%, 96.0%)
+05/01 06:45:26 AM | train: [ 61/360] Final Prec@1 78.3560% Time 8.70
+05/01 06:45:27 AM | Valid: [ 61/360] Step 009/009 Loss 0.747 Prec@(1,3) (74.3%, 93.7%)
+05/01 06:45:27 AM | val: [ 61/360] Final Prec@1 74.2800% Time 1.12
+05/01 06:45:35 AM | Train: [ 62/360] Step 049/049 Loss 0.604 Prec@(1,3) (78.6%, 96.0%)
+05/01 06:45:36 AM | train: [ 62/360] Final Prec@1 78.6120% Time 8.52
+05/01 06:45:37 AM | Valid: [ 62/360] Step 009/009 Loss 0.735 Prec@(1,3) (74.7%, 94.1%)
+05/01 06:45:37 AM | val: [ 62/360] Final Prec@1 74.7000% Time 1.29
+05/01 06:45:45 AM | Train: [ 63/360] Step 049/049 Loss 0.593 Prec@(1,3) (78.8%, 96.1%)
+05/01 06:45:45 AM | train: [ 63/360] Final Prec@1 78.7540% Time 8.39
+05/01 06:45:46 AM | Valid: [ 63/360] Step 009/009 Loss 0.690 Prec@(1,3) (76.5%, 94.5%)
+05/01 06:45:46 AM | val: [ 63/360] Final Prec@1 76.5100% Time 1.14
+05/01 06:45:46 AM | Best top1 accuracy by now. Save model
+05/01 06:45:55 AM | Train: [ 64/360] Step 049/049 Loss 0.582 Prec@(1,3) (79.3%, 96.2%)
+05/01 06:45:55 AM | train: [ 64/360] Final Prec@1 79.2540% Time 8.60
+05/01 06:45:56 AM | Valid: [ 64/360] Step 009/009 Loss 0.767 Prec@(1,3) (74.4%, 93.6%)
+05/01 06:45:56 AM | val: [ 64/360] Final Prec@1 74.3500% Time 1.16
+05/01 06:46:05 AM | Train: [ 65/360] Step 049/049 Loss 0.579 Prec@(1,3) (79.5%, 96.2%)
+05/01 06:46:05 AM | train: [ 65/360] Final Prec@1 79.5460% Time 8.42
+05/01 06:46:06 AM | Valid: [ 65/360] Step 009/009 Loss 0.740 Prec@(1,3) (74.7%, 94.4%)
+05/01 06:46:06 AM | val: [ 65/360] Final Prec@1 74.6500% Time 1.16
+05/01 06:46:14 AM | Train: [ 66/360] Step 049/049 Loss 0.567 Prec@(1,3) (79.8%, 96.3%)
+05/01 06:46:14 AM | train: [ 66/360] Final Prec@1 79.8160% Time 8.46
+05/01 06:46:15 AM | Valid: [ 66/360] Step 009/009 Loss 0.767 Prec@(1,3) (74.4%, 94.7%)
+05/01 06:46:15 AM | val: [ 66/360] Final Prec@1 74.3500% Time 1.18
+05/01 06:46:24 AM | Train: [ 67/360] Step 049/049 Loss 0.574 Prec@(1,3) (79.5%, 96.3%)
+05/01 06:46:24 AM | train: [ 67/360] Final Prec@1 79.4840% Time 8.39
+05/01 06:46:25 AM | Valid: [ 67/360] Step 009/009 Loss 0.700 Prec@(1,3) (76.0%, 94.8%)
+05/01 06:46:25 AM | val: [ 67/360] Final Prec@1 75.9900% Time 1.29
+05/01 06:46:33 AM | Train: [ 68/360] Step 049/049 Loss 0.564 Prec@(1,3) (79.9%, 96.4%)
+05/01 06:46:33 AM | train: [ 68/360] Final Prec@1 79.8880% Time 8.36
+05/01 06:46:35 AM | Valid: [ 68/360] Step 009/009 Loss 0.706 Prec@(1,3) (75.6%, 94.4%)
+05/01 06:46:35 AM | val: [ 68/360] Final Prec@1 75.5900% Time 1.15
+05/01 06:46:43 AM | Train: [ 69/360] Step 049/049 Loss 0.556 Prec@(1,3) (80.2%, 96.5%)
+05/01 06:46:43 AM | train: [ 69/360] Final Prec@1 80.2300% Time 8.49
+05/01 06:46:44 AM | Valid: [ 69/360] Step 009/009 Loss 0.717 Prec@(1,3) (76.0%, 94.5%)
+05/01 06:46:44 AM | val: [ 69/360] Final Prec@1 76.0400% Time 1.20
+05/01 06:46:53 AM | Train: [ 70/360] Step 049/049 Loss 0.550 Prec@(1,3) (80.4%, 96.6%)
+05/01 06:46:53 AM | train: [ 70/360] Final Prec@1 80.3960% Time 8.48
+05/01 06:46:54 AM | Valid: [ 70/360] Step 009/009 Loss 0.727 Prec@(1,3) (75.5%, 94.5%)
+05/01 06:46:54 AM | val: [ 70/360] Final Prec@1 75.5000% Time 1.30
+05/01 06:47:02 AM | Train: [ 71/360] Step 049/049 Loss 0.546 Prec@(1,3) (80.5%, 96.7%)
+05/01 06:47:02 AM | train: [ 71/360] Final Prec@1 80.5100% Time 8.37
+05/01 06:47:04 AM | Valid: [ 71/360] Step 009/009 Loss 0.709 Prec@(1,3) (76.2%, 94.6%)
+05/01 06:47:04 AM | val: [ 71/360] Final Prec@1 76.2300% Time 1.18
+05/01 06:47:12 AM | Train: [ 72/360] Step 049/049 Loss 0.535 Prec@(1,3) (81.0%, 96.7%)
+05/01 06:47:12 AM | train: [ 72/360] Final Prec@1 80.9720% Time 8.64
+05/01 06:47:13 AM | Valid: [ 72/360] Step 009/009 Loss 0.765 Prec@(1,3) (75.0%, 94.2%)
+05/01 06:47:13 AM | val: [ 72/360] Final Prec@1 74.9600% Time 1.21
+05/01 06:47:22 AM | Train: [ 73/360] Step 049/049 Loss 0.534 Prec@(1,3) (80.7%, 96.8%)
+05/01 06:47:22 AM | train: [ 73/360] Final Prec@1 80.7260% Time 8.15
+05/01 06:47:23 AM | Valid: [ 73/360] Step 009/009 Loss 0.721 Prec@(1,3) (75.7%, 94.6%)
+05/01 06:47:23 AM | val: [ 73/360] Final Prec@1 75.7200% Time 1.14
+05/01 06:47:31 AM | Train: [ 74/360] Step 049/049 Loss 0.527 Prec@(1,3) (81.1%, 96.8%)
+05/01 06:47:31 AM | train: [ 74/360] Final Prec@1 81.1000% Time 8.44
+05/01 06:47:32 AM | Valid: [ 74/360] Step 009/009 Loss 0.762 Prec@(1,3) (75.1%, 94.0%)
+05/01 06:47:32 AM | val: [ 74/360] Final Prec@1 75.0600% Time 1.23
+05/01 06:47:41 AM | Train: [ 75/360] Step 049/049 Loss 0.532 Prec@(1,3) (81.0%, 96.8%)
+05/01 06:47:41 AM | train: [ 75/360] Final Prec@1 80.9920% Time 8.28
+05/01 06:47:42 AM | Valid: [ 75/360] Step 009/009 Loss 0.719 Prec@(1,3) (75.9%, 94.7%)
+05/01 06:47:42 AM | val: [ 75/360] Final Prec@1 75.8700% Time 1.13
+05/01 06:47:50 AM | Train: [ 76/360] Step 049/049 Loss 0.521 Prec@(1,3) (81.2%, 97.0%)
+05/01 06:47:50 AM | train: [ 76/360] Final Prec@1 81.2440% Time 8.27
+05/01 06:47:51 AM | Valid: [ 76/360] Step 009/009 Loss 0.752 Prec@(1,3) (75.6%, 94.2%)
+05/01 06:47:51 AM | val: [ 76/360] Final Prec@1 75.5900% Time 1.12
+05/01 06:48:00 AM | Train: [ 77/360] Step 049/049 Loss 0.519 Prec@(1,3) (81.4%, 97.0%)
+05/01 06:48:00 AM | train: [ 77/360] Final Prec@1 81.4260% Time 8.59
+05/01 06:48:01 AM | Valid: [ 77/360] Step 009/009 Loss 0.721 Prec@(1,3) (76.3%, 94.9%)
+05/01 06:48:01 AM | val: [ 77/360] Final Prec@1 76.3000% Time 1.24
+05/01 06:48:10 AM | Train: [ 78/360] Step 049/049 Loss 0.507 Prec@(1,3) (81.8%, 97.1%)
+05/01 06:48:10 AM | train: [ 78/360] Final Prec@1 81.8180% Time 8.52
+05/01 06:48:11 AM | Valid: [ 78/360] Step 009/009 Loss 0.732 Prec@(1,3) (76.8%, 94.4%)
+05/01 06:48:11 AM | val: [ 78/360] Final Prec@1 76.7900% Time 1.21
+05/01 06:48:11 AM | Best top1 accuracy by now. Save model
+05/01 06:48:19 AM | Train: [ 79/360] Step 049/049 Loss 0.504 Prec@(1,3) (82.0%, 97.1%)
+05/01 06:48:19 AM | train: [ 79/360] Final Prec@1 81.9660% Time 8.24
+05/01 06:48:20 AM | Valid: [ 79/360] Step 009/009 Loss 0.691 Prec@(1,3) (77.0%, 94.8%)
+05/01 06:48:20 AM | val: [ 79/360] Final Prec@1 77.0200% Time 1.12
+05/01 06:48:20 AM | Best top1 accuracy by now. Save model
+05/01 06:48:28 AM | Train: [ 80/360] Step 049/049 Loss 0.499 Prec@(1,3) (82.0%, 97.1%)
+05/01 06:48:28 AM | train: [ 80/360] Final Prec@1 81.9700% Time 8.21
+05/01 06:48:30 AM | Valid: [ 80/360] Step 009/009 Loss 0.705 Prec@(1,3) (76.2%, 94.7%)
+05/01 06:48:30 AM | val: [ 80/360] Final Prec@1 76.1800% Time 1.31
+05/01 06:48:38 AM | Train: [ 81/360] Step 049/049 Loss 0.493 Prec@(1,3) (82.4%, 97.3%)
+05/01 06:48:38 AM | train: [ 81/360] Final Prec@1 82.3900% Time 8.38
+05/01 06:48:39 AM | Valid: [ 81/360] Step 009/009 Loss 0.737 Prec@(1,3) (75.8%, 94.6%)
+05/01 06:48:39 AM | val: [ 81/360] Final Prec@1 75.8200% Time 1.15
+05/01 06:48:48 AM | Train: [ 82/360] Step 049/049 Loss 0.495 Prec@(1,3) (82.4%, 97.2%)
+05/01 06:48:48 AM | train: [ 82/360] Final Prec@1 82.4260% Time 8.52
+05/01 06:48:49 AM | Valid: [ 82/360] Step 009/009 Loss 0.708 Prec@(1,3) (76.3%, 94.7%)
+05/01 06:48:49 AM | val: [ 82/360] Final Prec@1 76.3100% Time 1.16
+05/01 06:48:58 AM | Train: [ 83/360] Step 049/049 Loss 0.487 Prec@(1,3) (82.4%, 97.3%)
+05/01 06:48:58 AM | train: [ 83/360] Final Prec@1 82.3600% Time 8.64
+05/01 06:48:59 AM | Valid: [ 83/360] Step 009/009 Loss 0.693 Prec@(1,3) (77.3%, 94.9%)
+05/01 06:48:59 AM | val: [ 83/360] Final Prec@1 77.2600% Time 1.20
+05/01 06:48:59 AM | Best top1 accuracy by now. Save model
+05/01 06:49:07 AM | Train: [ 84/360] Step 049/049 Loss 0.482 Prec@(1,3) (82.7%, 97.4%)
+05/01 06:49:07 AM | train: [ 84/360] Final Prec@1 82.7400% Time 8.25
+05/01 06:49:08 AM | Valid: [ 84/360] Step 009/009 Loss 0.709 Prec@(1,3) (76.4%, 95.0%)
+05/01 06:49:08 AM | val: [ 84/360] Final Prec@1 76.4400% Time 1.21
+05/01 06:49:17 AM | Train: [ 85/360] Step 049/049 Loss 0.474 Prec@(1,3) (82.8%, 97.5%)
+05/01 06:49:17 AM | train: [ 85/360] Final Prec@1 82.7720% Time 8.25
+05/01 06:49:18 AM | Valid: [ 85/360] Step 009/009 Loss 0.756 Prec@(1,3) (75.3%, 94.1%)
+05/01 06:49:18 AM | val: [ 85/360] Final Prec@1 75.3100% Time 1.12
+05/01 06:49:26 AM | Train: [ 86/360] Step 049/049 Loss 0.473 Prec@(1,3) (83.0%, 97.5%)
+05/01 06:49:26 AM | train: [ 86/360] Final Prec@1 82.9760% Time 8.37
+05/01 06:49:27 AM | Valid: [ 86/360] Step 009/009 Loss 0.704 Prec@(1,3) (77.0%, 94.9%)
+05/01 06:49:27 AM | val: [ 86/360] Final Prec@1 76.9900% Time 1.11
+05/01 06:49:36 AM | Train: [ 87/360] Step 049/049 Loss 0.461 Prec@(1,3) (83.5%, 97.6%)
+05/01 06:49:36 AM | train: [ 87/360] Final Prec@1 83.4760% Time 8.50
+05/01 06:49:37 AM | Valid: [ 87/360] Step 009/009 Loss 0.749 Prec@(1,3) (75.9%, 94.8%)
+05/01 06:49:37 AM | val: [ 87/360] Final Prec@1 75.9100% Time 1.27
+05/01 06:49:45 AM | Train: [ 88/360] Step 049/049 Loss 0.464 Prec@(1,3) (83.1%, 97.5%)
+05/01 06:49:46 AM | train: [ 88/360] Final Prec@1 83.1420% Time 8.58
+05/01 06:49:47 AM | Valid: [ 88/360] Step 009/009 Loss 0.734 Prec@(1,3) (75.8%, 94.4%)
+05/01 06:49:47 AM | val: [ 88/360] Final Prec@1 75.8100% Time 1.22
+05/01 06:49:55 AM | Train: [ 89/360] Step 049/049 Loss 0.457 Prec@(1,3) (83.7%, 97.6%)
+05/01 06:49:55 AM | train: [ 89/360] Final Prec@1 83.7460% Time 8.39
+05/01 06:49:56 AM | Valid: [ 89/360] Step 009/009 Loss 0.772 Prec@(1,3) (75.0%, 94.4%)
+05/01 06:49:56 AM | val: [ 89/360] Final Prec@1 75.0200% Time 1.28
+05/01 06:50:05 AM | Train: [ 90/360] Step 049/049 Loss 0.458 Prec@(1,3) (83.4%, 97.6%)
+05/01 06:50:05 AM | train: [ 90/360] Final Prec@1 83.3940% Time 8.61
+05/01 06:50:06 AM | Valid: [ 90/360] Step 009/009 Loss 0.730 Prec@(1,3) (76.6%, 94.8%)
+05/01 06:50:06 AM | val: [ 90/360] Final Prec@1 76.6200% Time 1.30
+05/01 06:50:15 AM | Train: [ 91/360] Step 049/049 Loss 0.449 Prec@(1,3) (83.8%, 97.6%)
+05/01 06:50:15 AM | train: [ 91/360] Final Prec@1 83.8260% Time 8.59
+05/01 06:50:16 AM | Valid: [ 91/360] Step 009/009 Loss 0.727 Prec@(1,3) (76.9%, 94.6%)
+05/01 06:50:16 AM | val: [ 91/360] Final Prec@1 76.9100% Time 1.15
+05/01 06:50:24 AM | Train: [ 92/360] Step 049/049 Loss 0.380 Prec@(1,3) (86.4%, 98.4%)
+05/01 06:50:24 AM | train: [ 92/360] Final Prec@1 86.3660% Time 8.31
+05/01 06:50:25 AM | Valid: [ 92/360] Step 009/009 Loss 0.633 Prec@(1,3) (79.6%, 95.7%)
+05/01 06:50:26 AM | val: [ 92/360] Final Prec@1 79.6100% Time 1.12
+05/01 06:50:26 AM | Best top1 accuracy by now. Save model
+05/01 06:50:34 AM | Train: [ 93/360] Step 049/049 Loss 0.338 Prec@(1,3) (87.8%, 98.7%)
+05/01 06:50:34 AM | train: [ 93/360] Final Prec@1 87.7920% Time 8.50
+05/01 06:50:35 AM | Valid: [ 93/360] Step 009/009 Loss 0.663 Prec@(1,3) (79.7%, 95.7%)
+05/01 06:50:35 AM | val: [ 93/360] Final Prec@1 79.6500% Time 1.25
+05/01 06:50:35 AM | Best top1 accuracy by now. Save model
+05/01 06:50:44 AM | Train: [ 94/360] Step 049/049 Loss 0.326 Prec@(1,3) (88.4%, 98.8%)
+05/01 06:50:44 AM | train: [ 94/360] Final Prec@1 88.3840% Time 8.33
+05/01 06:50:45 AM | Valid: [ 94/360] Step 009/009 Loss 0.666 Prec@(1,3) (79.4%, 95.8%)
+05/01 06:50:45 AM | val: [ 94/360] Final Prec@1 79.4100% Time 1.20
+05/01 06:50:53 AM | Train: [ 95/360] Step 049/049 Loss 0.318 Prec@(1,3) (88.6%, 98.8%)
+05/01 06:50:53 AM | train: [ 95/360] Final Prec@1 88.6060% Time 8.43
+05/01 06:50:54 AM | Valid: [ 95/360] Step 009/009 Loss 0.669 Prec@(1,3) (79.6%, 95.8%)
+05/01 06:50:54 AM | val: [ 95/360] Final Prec@1 79.5500% Time 1.15
+05/01 06:51:03 AM | Train: [ 96/360] Step 049/049 Loss 0.313 Prec@(1,3) (88.7%, 98.8%)
+05/01 06:51:03 AM | train: [ 96/360] Final Prec@1 88.7220% Time 8.47
+05/01 06:51:04 AM | Valid: [ 96/360] Step 009/009 Loss 0.682 Prec@(1,3) (79.6%, 95.7%)
+05/01 06:51:04 AM | val: [ 96/360] Final Prec@1 79.5600% Time 1.20
+05/01 06:51:13 AM | Train: [ 97/360] Step 049/049 Loss 0.308 Prec@(1,3) (88.9%, 98.8%)
+05/01 06:51:13 AM | train: [ 97/360] Final Prec@1 88.8600% Time 8.47
+05/01 06:51:14 AM | Valid: [ 97/360] Step 009/009 Loss 0.690 Prec@(1,3) (79.2%, 95.8%)
+05/01 06:51:14 AM | val: [ 97/360] Final Prec@1 79.2100% Time 1.23
+05/01 06:51:22 AM | Train: [ 98/360] Step 049/049 Loss 0.306 Prec@(1,3) (88.9%, 98.9%)
+05/01 06:51:22 AM | train: [ 98/360] Final Prec@1 88.8740% Time 8.48
+05/01 06:51:23 AM | Valid: [ 98/360] Step 009/009 Loss 0.692 Prec@(1,3) (79.3%, 95.8%)
+05/01 06:51:24 AM | val: [ 98/360] Final Prec@1 79.3200% Time 1.16
+05/01 06:51:32 AM | Train: [ 99/360] Step 049/049 Loss 0.297 Prec@(1,3) (89.2%, 98.9%)
+05/01 06:51:32 AM | train: [ 99/360] Final Prec@1 89.2400% Time 8.29
+05/01 06:51:33 AM | Valid: [ 99/360] Step 009/009 Loss 0.708 Prec@(1,3) (79.4%, 95.7%)
+05/01 06:51:33 AM | val: [ 99/360] Final Prec@1 79.3500% Time 1.30
+05/01 06:51:41 AM | Train: [100/360] Step 049/049 Loss 0.297 Prec@(1,3) (89.3%, 98.9%)
+05/01 06:51:41 AM | train: [100/360] Final Prec@1 89.2620% Time 8.29
+05/01 06:51:42 AM | Valid: [100/360] Step 009/009 Loss 0.708 Prec@(1,3) (79.4%, 95.6%)
+05/01 06:51:42 AM | val: [100/360] Final Prec@1 79.4300% Time 1.07
+05/01 06:51:51 AM | Train: [101/360] Step 049/049 Loss 0.295 Prec@(1,3) (89.3%, 98.9%)
+05/01 06:51:51 AM | train: [101/360] Final Prec@1 89.3160% Time 8.49
+05/01 06:51:52 AM | Valid: [101/360] Step 009/009 Loss 0.707 Prec@(1,3) (79.4%, 95.8%)
+05/01 06:51:52 AM | val: [101/360] Final Prec@1 79.3800% Time 1.26
+05/01 06:52:00 AM | Train: [102/360] Step 049/049 Loss 0.293 Prec@(1,3) (89.5%, 98.9%)
+05/01 06:52:00 AM | train: [102/360] Final Prec@1 89.5160% Time 8.22
+05/01 06:52:02 AM | Valid: [102/360] Step 009/009 Loss 0.708 Prec@(1,3) (79.2%, 95.7%)
+05/01 06:52:02 AM | val: [102/360] Final Prec@1 79.1900% Time 1.19
+05/01 06:52:10 AM | Train: [103/360] Step 049/049 Loss 0.282 Prec@(1,3) (89.8%, 99.1%)
+05/01 06:52:10 AM | train: [103/360] Final Prec@1 89.8260% Time 8.33
+05/01 06:52:11 AM | Valid: [103/360] Step 009/009 Loss 0.724 Prec@(1,3) (79.3%, 95.5%)
+05/01 06:52:11 AM | val: [103/360] Final Prec@1 79.3200% Time 1.18
+05/01 06:52:19 AM | Train: [104/360] Step 049/049 Loss 0.282 Prec@(1,3) (89.9%, 99.0%)
+05/01 06:52:19 AM | train: [104/360] Final Prec@1 89.8520% Time 8.33
+05/01 06:52:21 AM | Valid: [104/360] Step 009/009 Loss 0.731 Prec@(1,3) (79.2%, 95.6%)
+05/01 06:52:21 AM | val: [104/360] Final Prec@1 79.2100% Time 1.17
+05/01 06:52:29 AM | Train: [105/360] Step 049/049 Loss 0.281 Prec@(1,3) (89.8%, 99.0%)
+05/01 06:52:29 AM | train: [105/360] Final Prec@1 89.8340% Time 8.42
+05/01 06:52:30 AM | Valid: [105/360] Step 009/009 Loss 0.733 Prec@(1,3) (79.3%, 95.5%)
+05/01 06:52:30 AM | val: [105/360] Final Prec@1 79.3100% Time 1.18
+05/01 06:52:39 AM | Train: [106/360] Step 049/049 Loss 0.278 Prec@(1,3) (89.9%, 99.1%)
+05/01 06:52:39 AM | train: [106/360] Final Prec@1 89.8540% Time 8.52
+05/01 06:52:40 AM | Valid: [106/360] Step 009/009 Loss 0.749 Prec@(1,3) (78.7%, 95.5%)
+05/01 06:52:40 AM | val: [106/360] Final Prec@1 78.7300% Time 1.23
+05/01 06:52:49 AM | Train: [107/360] Step 049/049 Loss 0.275 Prec@(1,3) (90.1%, 99.0%)
+05/01 06:52:49 AM | train: [107/360] Final Prec@1 90.0500% Time 8.71
+05/01 06:52:50 AM | Valid: [107/360] Step 009/009 Loss 0.743 Prec@(1,3) (79.5%, 95.5%)
+05/01 06:52:50 AM | val: [107/360] Final Prec@1 79.4500% Time 1.28
+05/01 06:52:58 AM | Train: [108/360] Step 049/049 Loss 0.274 Prec@(1,3) (90.0%, 99.1%)
+05/01 06:52:58 AM | train: [108/360] Final Prec@1 90.0420% Time 8.26
+05/01 06:52:59 AM | Valid: [108/360] Step 009/009 Loss 0.760 Prec@(1,3) (78.6%, 95.4%)
+05/01 06:52:59 AM | val: [108/360] Final Prec@1 78.6100% Time 1.14
+05/01 06:53:08 AM | Train: [109/360] Step 049/049 Loss 0.270 Prec@(1,3) (90.2%, 99.1%)
+05/01 06:53:08 AM | train: [109/360] Final Prec@1 90.2440% Time 8.50
+05/01 06:53:09 AM | Valid: [109/360] Step 009/009 Loss 0.752 Prec@(1,3) (79.1%, 95.5%)
+05/01 06:53:09 AM | val: [109/360] Final Prec@1 79.1100% Time 1.08
+05/01 06:53:17 AM | Train: [110/360] Step 049/049 Loss 0.267 Prec@(1,3) (90.3%, 99.1%)
+05/01 06:53:17 AM | train: [110/360] Final Prec@1 90.3200% Time 8.40
+05/01 06:53:18 AM | Valid: [110/360] Step 009/009 Loss 0.776 Prec@(1,3) (78.6%, 95.4%)
+05/01 06:53:18 AM | val: [110/360] Final Prec@1 78.6300% Time 1.09
