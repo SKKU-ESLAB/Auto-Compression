@@ -19316,3 +19316,7 @@
 06/18 07:16:43 AM | Valid: [  1/10] Step 100/1249 Loss 14.826 Prec@(1,5) (0.1%, 0.6%), ce_loss 10.903, lat_loss 6.800
 06/18 07:17:38 AM | Firstly, start to train weights for epoch 0
 06/18 07:18:12 AM | Valid: [  1/10] Step 050/1249 Loss 1.582 Prec@(1,5) (71.8%, 89.8%), ce_loss 1.164, lat_loss 6.799
+06/18 07:58:32 AM | Firstly, start to train weights for epoch 0
+06/18 08:00:55 AM | Train: [  1/10] Step 050/32029 Loss 5.591 Prec@(1,5) (22.1%, 43.1%), ce_loss 4.112, lat_loss 6.799
+06/18 08:03:05 AM | Train: [  1/10] Step 100/32029 Loss 5.420 Prec@(1,5) (23.2%, 44.9%), ce_loss 3.986, lat_loss 6.800
+06/18 08:05:14 AM | Train: [  1/10] Step 150/32029 Loss 5.138 Prec@(1,5) (25.9%, 48.6%), ce_loss 3.778, lat_loss 6.800
