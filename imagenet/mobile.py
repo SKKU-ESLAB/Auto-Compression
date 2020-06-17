@@ -145,5 +145,6 @@ def mobilenet_v2(pretrained=True):
 
 if __name__ == '__main__':
     net = mobilenet_v2(True)
+    print(net)
     test_input = torch.Tensor(1, 3, 224, 224)
     out = net(test_input)

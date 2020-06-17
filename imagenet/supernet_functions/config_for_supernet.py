@@ -21,7 +21,7 @@ CONFIG_SUPERNET = {
     },
     'optimizer' : {
         # SGD parameters for w
-        'w_lr' : 0.005,
+        'w_lr' : 0.0005,
         'w_momentum' : 0.9,
         'w_weight_decay' : 1e-5, #1e-4
         # Adam parameters for thetas
