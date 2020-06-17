@@ -44,6 +44,7 @@ class TrainerSupernet:
             self.w_scheduler.step()
 
             top1_avg = self._validate(model, test_loader, epoch)
+
             if best_top1 < top1_avg:
                 best_top1 = top1_avg
                 self.logger.info("Best top1 acc by now. Save model")
@@ -62,6 +63,7 @@ class TrainerSupernet:
             self._training_step(model, train_thetas_loader, self.theta_optimizer, epoch, info_for_logger="_theta_step_")
             
             top1_avg = self._validate(model, test_loader, epoch)
+
             if best_top1 < top1_avg:
                 best_top1 = top1_avg
                 self.logger.info("Best top1 acc by now. Save model")

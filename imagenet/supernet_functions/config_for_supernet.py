@@ -21,7 +21,7 @@ CONFIG_SUPERNET = {
     },
     'optimizer' : {
         # SGD parameters for w
-        'w_lr' : 0.0005,
+        'w_lr' : 0.001,
         'w_momentum' : 0.9,
         'w_weight_decay' : 1e-5, #1e-4
         # Adam parameters for thetas
@@ -33,7 +33,7 @@ CONFIG_SUPERNET = {
         'beta' : 0.6
     },
     'train_settings' : {
-        'cnt_epochs' : 10, # 90
+        'cnt_epochs' : 4, # 90
         'train_thetas_from_the_epoch' : 2,
         'print_freq' : 50,
         'path_to_save_model' : '/home/khs/data/sup_logs/imagenet/best_model.pth',
