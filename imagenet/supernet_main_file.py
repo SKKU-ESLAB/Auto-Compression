@@ -141,6 +141,7 @@ def train_supernet():
 
             previous = index
             count += 1
+            break
 
 # Arguments:
 # hardsampling=True means get operations with the largest weights

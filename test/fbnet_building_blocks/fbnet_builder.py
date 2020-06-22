@@ -200,7 +200,7 @@ PRIMITIVES = {
             C_in, C_out, 1, w, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
     "A2_W1": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
-            C_in, C_out, 3, 3, 3, stride, expansion, index, layer_num, False, **kwargs
+            C_in, C_out, a, w, 3, stride, expansion, index, layer_num, False, **kwargs
     ),
     "A3_W1": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
             C_in, C_out, 4, 4, 3, stride, expansion, index, layer_num, False, **kwargs
