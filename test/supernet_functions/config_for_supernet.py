@@ -37,7 +37,7 @@ CONFIG_SUPERNET = {
         'train_thetas_from_the_epoch' : 10,
         'print_freq' : 50,
         'path_to_save_model' : '/home/khs/data/sup_logs/imagenet/best_model.pth',
-        'path_to_save_model_high' : '/home/khs/data/sup_logs/imagenet/best_model_high.pth',
+        'path_to_save_model_high' : '/home/khs/data/sup_logs/imagenet/best_model_retrained.pth',
         # for Gumbel Softmax
         'init_temperature' : 5.0,
         'exp_anneal_rate' : np.exp(-0.045)

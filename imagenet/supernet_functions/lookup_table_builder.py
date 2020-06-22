@@ -189,7 +189,6 @@ class LookUpTable_HIGH:
         lookup_table_latency = [{op_name : latences[i][op_id] 
                                       for op_id, op_name in enumerate(ops_names)
                                      } for i in range(self.cnt_layers)]
-        print(lookup_table_latency)
         return lookup_table_latency
 # **** to recalculate latency use command:
 # l_table = LookUpTable(calulate_latency=True, path_to_file='lookup_table.txt', cnt_of_runs=50)
@@ -235,24 +234,21 @@ class LookUpTable:
                               search_space["Activation"][layer_id],
                               search_space["Weight"][layer_id],
                               search_space["strides"][layer_id],
-                              search_space["padding"][layer_id],
-                              search_space["Maxpool"][layer_id],
+                              search_space["expansion"][layer_id],
                               self.index[0]),
                               (search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
                               search_space["Activation"][layer_id],
                               search_space["Weight"][layer_id],
                               search_space["strides"][layer_id],
-                              search_space["padding"][layer_id],
-                              search_space["Maxpool"][layer_id],
+                              search_space["expansion"][layer_id],
                               self.index[1]),
                               (search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
                               search_space["Activation"][layer_id],
                               search_space["Weight"][layer_id],
                               search_space["strides"][layer_id],
-                              search_space["padding"][layer_id],
-                              search_space["Maxpool"][layer_id],
+                              search_space["expansion"][layer_id],
                               self.index[2]),
                             ) for layer_id in range(self.cnt_layers)]
         # layers_input_shapes are (C_in, input_w, input_h)
@@ -262,7 +258,7 @@ class LookUpTable:
     
     def _generate_index(self, bit):
         if self.count==0:
-            m = torch.load('/home/khs/data/sup_logs/cifar10/best-260.pth')
+            m = torch.load('/home/khs/data/sup_logs/imagenet/mobilenet_v2.pth.tar')
             count = 0
             index = []
             for i in m.keys():
