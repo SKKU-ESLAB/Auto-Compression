@@ -20,35 +20,6 @@ CANDIDATE_HIGH = ["A2_W1", "A3_W1", "A4_W1",
                   "A2_W2", "A3_W2", "A4_W2"]
 
 CANDIDATE_BLOCKS = ["quant_a1_w1", "quant_a2_w2", "quant_a3_w3"]
-'''
-SEARCH_SPACE = OrderedDict([
-    #### table 1. input shapes of 22 searched layers (considering with strides)
-    # Note: the second and third dimentions are recommended (will not be used in training) and written just for debagging
-    ("input_shape", [(16, 112, 112),
-                     (16, 112, 112), (24, 56, 56),  (24, 56, 56),  (24, 56, 56),
-                     (24, 56, 56),   (32, 28, 28),  (32, 28, 28),  (32, 28, 28),
-                     (32, 28, 28),   (64, 14, 14),  (64, 14, 14),  (64, 14, 14),
-                     (64, 14, 14),   (112, 14, 14), (112, 14, 14), (112, 14, 14),
-                     (112, 14, 14),  (184, 7, 7),   (184, 7, 7),   (184, 7, 7),
-                     (184, 7, 7)]),
-    # table 1. filter numbers over the 22 layers
-    ("channel_size", [16,
-                      24,  24,  24,  24,
-                      32,  32,  32,  32,
-                      64,  64,  64,  64,
-                      112, 112, 112, 112,
-                      184, 184, 184, 184,
-                      352]),
-    # table 1. strides over the 22 layers
-    ("strides", [1,
-                 2, 1, 1, 1,
-                 2, 1, 1, 1,
-                 2, 1, 1, 1,
-                 1, 1, 1, 1,
-                 2, 1, 1, 1,
-                 1])
-])
-'''
 SEARCH_SPACE = OrderedDict([
     #### table 1. input shapes of 22 searched layers (considering with strides)
     # Note: the second and third dimentions are recommended (will not be used in training) and written just for debagging
@@ -223,7 +194,6 @@ class LookUpTable:
         self.index = []
         for i in range(3):
             self.index.append(self._generate_index(search_space["Weight"]))
-
         self.layers_parameters, self.layers_input_shapes = self._generate_layers_parameters(search_space)
         
         # lookup_table
@@ -329,7 +299,6 @@ class LookUpTable:
                     for i in range(8):
                         index[count].append(list(np.where(b==i+1)[0]))
                     count+=1
-                
         return index
 
     # CNT_OP_RUNS us number of times to check latency (we will take average)
@@ -381,17 +350,16 @@ class LookUpTable:
         ops_names = latences[0].split(" ")
         latences = [list(map(float, layer.split(" "))) for layer in latences[1:]]
         latency = []
-        for i in range(self.cnt_layers):
+        for layer in range(self.cnt_layers):
             latency.append([])
-            for j in range(3):
-                latency[i].append([])
+            for op in range(3):
+                latency[layer].append([])
 
-        for i in range(3):
-            for j in range(self.cnt_layers):
-                latency[j][i] = 0
-                for k in range(8):
-                    latency[j][i] += math.ceil(len(self.index[i][j][k])/8) * latences[k][i]
-            
+        for op in range(3):
+            for layer in range(self.cnt_layers):
+                latency[layer][op] = 0
+                for bit in range(8):
+                    latency[layer][op] += math.ceil(len(self.index[op][layer][bit])/8)*8 * latences[bit][op]
         lookup_table_latency = [{op_name : latency[i][op_id] 
                                       for op_id, op_name in enumerate(ops_names)
                                      } for i in range(self.cnt_layers)]

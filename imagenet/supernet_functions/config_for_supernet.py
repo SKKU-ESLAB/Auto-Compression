@@ -30,11 +30,11 @@ CONFIG_SUPERNET = {
     },
     'loss' : {
         'alpha' : 0.2,
-        'beta' : 0.6
+        'beta' : 3
     },
     'train_settings' : {
-        'cnt_epochs' : 1, # 90
-        'train_thetas_from_the_epoch' : 0,
+        'cnt_epochs' : 10, # 90
+        'train_thetas_from_the_epoch' : 20,
         'print_freq' : 50,
         'path_to_save_model' : '/home/khs/data/sup_logs/imagenet/best_model.pth',
         'path_to_save_model_high' : '/home/khs/data/sup_logs/imagenet/best_model_high.pth',

@@ -187,14 +187,14 @@ PRIMITIVES = {
         C_in, C_out, 6, stride, kernel=7, cdw=True, **kwargs
     ),
     #quantize
-    "quant_a1_w1": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvBNRelu(
-            C_in, C_out, a, w, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, True, **kwargs
+    "quant_a1_w1": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, a, w, 3, stride, expansion, index, layer_num, True, **kwargs
     ),
-    "quant_a2_w2": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvBNRelu(
-            C_in, C_out, a, w, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, True, **kwargs
+    "quant_a2_w2": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, a, w, 3, stride, expansion, index, layer_num, True, **kwargs
     ),
-    "quant_a3_w3": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvBNRelu(
-            C_in, C_out, a, w, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, True, **kwargs
+    "quant_a3_w3": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
+            C_in, C_out, a, w, 3, stride, expansion, index, layer_num, True, **kwargs
     ),
     "A4_W4": lambda C_in, C_out, a, w, stride, expansion, index, layer_num, **kwargs: QConvIR(
             C_in, C_out, 4, 4, 3, stride, expansion, index, layer_num, False, **kwargs

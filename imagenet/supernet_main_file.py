@@ -92,16 +92,17 @@ def train_supernet():
             lookup_table = LookUpTable(calulate_latency=CONFIG_SUPERNET['lookup_table']['create_from_scratch'], count=count, act_update=act_update, weight_update=weight_update)
             for i in range(len(weight_update)):
                 weight_update[i] = 0
-            if count != 0:
-                lookup_table.index[0] = copy.deepcopy(index)
+            #if count != 0:
+            #    lookup_table.index[0] = copy.deepcopy(index)
             ###MODEL
             model = FBNet_Stochastic_SuperNet(lookup_table, cnt_classes=10).cuda()
             model = nn.DataParallel(model)
-            if count == 0:
-                model.load_state_dict(torch.load('/home/khs/data/sup_logs/imagenet/pretrained.pth'))
-            else:
-                model.load_state_dict(torch.load('/home/khs/data/sup_logs/imagenet/best_model.pth'))
-            model = model.apply(weights_init)
+            #if count == 0:
+            #    model.load_state_dict(torch.load('/home/khs/data/sup_logs/imagenet/pretrained.pth'))
+            #else:
+                #model.load_state_dict(torch.load('/home/khs/data/sup_logs/imagenet/best_model.pth'))
+            model.load_state_dict(torch.load('/home/khs/data/sup_logs/imagenet/best_model.pth'))
+            #model = model.apply(weights_init)
             #### Loss, Optimizer and Scheduler
             criterion = SupernetLoss().cuda()
 
@@ -115,7 +116,6 @@ def train_supernet():
                                           lr=CONFIG_SUPERNET['optimizer']['w_lr'], 
                                           momentum=CONFIG_SUPERNET['optimizer']['w_momentum'],
                                           weight_decay=CONFIG_SUPERNET['optimizer']['w_weight_decay'])
-            
             theta_optimizer = torch.optim.Adam(params=thetas_params,
                                                lr=CONFIG_SUPERNET['optimizer']['thetas_lr'],
                                                weight_decay=CONFIG_SUPERNET['optimizer']['thetas_weight_decay'])
@@ -127,7 +127,6 @@ def train_supernet():
             #### Training Loop
             trainer = TrainerSupernet(criterion, w_optimizer, theta_optimizer, w_scheduler, logger, writer, False)
             trainer.train_loop(train_w_loader, train_thetas_loader, test_loader, model)
-            
             del index[:]
             with open('index.txt', 'w') as f:
                 for idx,layer in enumerate(model.module.stages_to_search):
@@ -136,12 +135,16 @@ def train_supernet():
                     index.append(tmp)
                     f.write('%s\n' % tmp)
                 f.close()
-            if previous == index:
-                break
-
-            previous = index
+            same = 1
+            if count != 0:
+                for i in range(len(previous)):
+                    for j in range(len(previous[i])):
+                        if previous[i][j] not in index[i]:
+                            same = 0
+                if same == 1:
+                    break
+            previous = copy.deepcopy(index)
             count += 1
-            break
 
 # Arguments:
 # hardsampling=True means get operations with the largest weights
