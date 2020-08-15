@@ -14,10 +14,10 @@ class MixedOperation(nn.Module):
         ops_names = [op_name for op_name in proposed_operations]
         #self.ops = nn.ModuleList([proposed_operations[op_name](*layer_parameters)
         #                          for op_name in ops_names])
-        layer_parameters = list(layer_parameters)
-        for i in range(len(layer_parameters)):
-            layer_parameters[i] = list(layer_parameters[i])
-            layer_parameters[i].append(layer_num)
+        #layer_parameters = list(layer_parameters)
+        #for i in range(len(layer_parameters)):
+        #    layer_parameters[i] = list(layer_parameters[i])
+        #    layer_parameters[i].append(layer_num)
 
         self.ops = nn.ModuleList([proposed_operations[op_name](*layer_parameters[idx])
                                   for idx, op_name in enumerate(ops_names)])

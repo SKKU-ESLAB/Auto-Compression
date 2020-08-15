@@ -19,35 +19,6 @@ np.set_printoptions(threshold=sys.maxsize)
 CANDIDATE_HIGH = ["A4_W4", "A4_W5", "A4_W6", "A6_W4", "A6_W5", "A6_W6"]
 
 CANDIDATE_BLOCKS = ["quant_a1_w1", "quant_a2_w2", "quant_a3_w3"]
-'''
-SEARCH_SPACE = OrderedDict([
-    #### table 1. input shapes of 22 searched layers (considering with strides)
-    # Note: the second and third dimentions are recommended (will not be used in training) and written just for debagging
-    ("input_shape", [(16, 112, 112),
-                     (16, 112, 112), (24, 56, 56),  (24, 56, 56),  (24, 56, 56),
-                     (24, 56, 56),   (32, 28, 28),  (32, 28, 28),  (32, 28, 28),
-                     (32, 28, 28),   (64, 14, 14),  (64, 14, 14),  (64, 14, 14),
-                     (64, 14, 14),   (112, 14, 14), (112, 14, 14), (112, 14, 14),
-                     (112, 14, 14),  (184, 7, 7),   (184, 7, 7),   (184, 7, 7),
-                     (184, 7, 7)]),
-    # table 1. filter numbers over the 22 layers
-    ("channel_size", [16,
-                      24,  24,  24,  24,
-                      32,  32,  32,  32,
-                      64,  64,  64,  64,
-                      112, 112, 112, 112,
-                      184, 184, 184, 184,
-                      352]),
-    # table 1. strides over the 22 layers
-    ("strides", [1,
-                 2, 1, 1, 1,
-                 2, 1, 1, 1,
-                 2, 1, 1, 1,
-                 1, 1, 1, 1,
-                 2, 1, 1, 1,
-                 1])
-])
-'''
 SEARCH_SPACE = OrderedDict([
     #### table 1. input shapes of 22 searched layers (considering with strides)
     # Note: the second and third dimentions are recommended (will not be used in training) and written just for debagging
@@ -235,21 +206,21 @@ class LookUpTable:
                               search_space["Weight"][layer_id],
                               search_space["strides"][layer_id],
                               search_space["expansion"][layer_id],
-                              self.index[0]),
+                              self.index[0], layer_id),
                               (search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
                               search_space["Activation"][layer_id],
                               search_space["Weight"][layer_id],
                               search_space["strides"][layer_id],
                               search_space["expansion"][layer_id],
-                              self.index[1]),
+                              self.index[1], layer_id),
                               (search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
                               search_space["Activation"][layer_id],
                               search_space["Weight"][layer_id],
                               search_space["strides"][layer_id],
                               search_space["expansion"][layer_id],
-                              self.index[2]),
+                              self.index[2], layer_id),
                             ) for layer_id in range(self.cnt_layers)]
         # layers_input_shapes are (C_in, input_w, input_h)
         layers_input_shapes = search_space["input_shape"]
@@ -257,7 +228,8 @@ class LookUpTable:
         return layers_parameters, layers_input_shapes
     
     def _generate_index(self, bit):
-        if self.count==0:
+        '''
+        if self.count==5:
             m = torch.load('/home/khs/data/sup_logs/imagenet/mobilenet_v2.pth.tar')
             count = 0
             index = []
@@ -284,8 +256,9 @@ class LookUpTable:
                     for i in range(8):
                         index[count].append(list(np.where(b==i+1)[0]))
                     count+=1
-        else:
-            m = torch.load('/home/khs/data/sup_logs/cifar10/best_model.pth')
+        '''
+        if True:
+            m = torch.load('/home/khs/data/sup_logs/imagenet/best_model.pth')
             index = []
             count = 0
             tmp = []
@@ -295,7 +268,7 @@ class LookUpTable:
                     count+=1
             count = 0
             for i in m.keys():
-                if count == 7:
+                if count==19:
                     break
                 if str(count) + '.ops.' + str(tmp[count]) in i and 'weight' in i:
                     index.append([])
@@ -318,7 +291,6 @@ class LookUpTable:
                     for i in range(8):
                         index[count].append(list(np.where(b==i+1)[0]))
                     count+=1
-                
         return index
 
     # CNT_OP_RUNS us number of times to check latency (we will take average)
@@ -370,17 +342,15 @@ class LookUpTable:
         ops_names = latences[0].split(" ")
         latences = [list(map(float, layer.split(" "))) for layer in latences[1:]]
         latency = []
-        for i in range(self.cnt_layers):
+        for layer in range(self.cnt_layers):
             latency.append([])
-            for j in range(3):
-                latency[i].append([])
-
-        for i in range(3):
-            for j in range(self.cnt_layers):
-                latency[j][i] = 0
-                for k in range(8):
-                    latency[j][i] += math.ceil(len(self.index[i][j][k])/8) * latences[k][i]
-            
+            for op in range(3):
+                latency[layer].append([])
+        for op in range(3):
+            for layer in range(self.cnt_layers):
+                latency[layer][op] = 0
+                for bit in range(8):
+                    latency[layer][op] += math.ceil(len(self.index[op][layer][bit])/8)*8 * latences[bit][op]
         lookup_table_latency = [{op_name : latency[i][op_id] 
                                       for op_id, op_name in enumerate(ops_names)
                                      } for i in range(self.cnt_layers)]

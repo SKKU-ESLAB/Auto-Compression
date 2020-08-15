@@ -78,8 +78,11 @@ def train_supernet():
         trainer = TrainerSupernet(criterion, w_optimizer, theta_optimizer, w_scheduler, logger, writer, True)
         trainer.train_loop(train_w_loader, train_thetas_loader, test_loader, model)
         ops_names = [op_name for op_name in lookup_table.lookup_table_operations]
-        for layer in model.module.stages_to_search:
-            print(ops_names[np.argmax(layer.thetas.detach().cpu().numpy())])
+        f = open('result.txt', 'w')
+        for i, layer in enumerate(model.module.stages_to_search):
+            print(ops_names[np.argmax(layer.thetas.detach().cpu().numpy())], end=" ")
+            f.write('Layer {}: '.format(i) + ops_names[np.argmax(layer.thetas.detach().cpu().numpy())])
+        f.close()
 
     else:
         count = 0
@@ -92,16 +95,17 @@ def train_supernet():
             lookup_table = LookUpTable(calulate_latency=CONFIG_SUPERNET['lookup_table']['create_from_scratch'], count=count, act_update=act_update, weight_update=weight_update)
             for i in range(len(weight_update)):
                 weight_update[i] = 0
-            if count != 0:
-                lookup_table.index[0] = copy.deepcopy(index)
+            #if count != 0:
+            #    lookup_table.index[0] = copy.deepcopy(index)
             ###MODEL
             model = FBNet_Stochastic_SuperNet(lookup_table, cnt_classes=10).cuda()
             model = nn.DataParallel(model, device_ids=[0])
-            if count == 0:
-                model.load_state_dict(torch.load('/home/khs/data/sup_logs/cifar10/pretrained.pth'))
-            else:
-                model.load_state_dict(torch.load('/home/khs/data/sup_logs/cifar10/best_model.pth'))
-            model = model.apply(weights_init)
+            #if count == 0:
+            #    model.load_state_dict(torch.load('/home/khs/data/sup_logs/cifar10/pretrained.pth'))
+            #else:
+                #model.load_state_dict(torch.load('/home/khs/data/sup_logs/cifar10/best_model.pth'))
+            model.load_state_dict(torch.load('/home/khs/data/sup_logs/cifar10/best_model.pth'))
+            #model = model.apply(weights_init)
             #### Loss, Optimizer and Scheduler
             criterion = SupernetLoss().cuda()
 
@@ -127,7 +131,6 @@ def train_supernet():
             #### Training Loop
             trainer = TrainerSupernet(criterion, w_optimizer, theta_optimizer, w_scheduler, logger, writer, False)
             trainer.train_loop(train_w_loader, train_thetas_loader, test_loader, model)
-            
             del index[:]
             with open('index.txt', 'w') as f:
                 for idx,layer in enumerate(model.module.stages_to_search):
@@ -136,10 +139,15 @@ def train_supernet():
                     index.append(tmp)
                     f.write('%s\n' % tmp)
                 f.close()
-            if previous == index:
-                break
-
-            previous = index
+            same = 1
+            if count != 0:
+                for i in range(len(previous)):
+                    for j in range(len(previous[i])):
+                        if previous[i][j] not in index[i]:
+                            same = 0
+                if same == 1:
+                    break
+            previous = copy.deepcopy(index)
             count += 1
 
 # Arguments:
