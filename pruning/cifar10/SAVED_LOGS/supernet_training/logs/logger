@@ -1,0 +1,1435 @@
+04/30 08:03:19 PM | Firstly, start to train weights for epoch 0
+04/30 08:04:03 PM | Train: [  1/180] Step 039/039 Loss 3.026 Prec@(1,3) (14.1%, 58.5%), ce_loss 2.273, lat_loss 6.658
+04/30 08:04:03 PM | _w_step_train: [  1/180] Final Prec@1 14.0550% Time 43.50
+04/30 08:04:03 PM | Firstly, start to train weights for epoch 1
+04/30 08:04:44 PM | Train: [  2/180] Step 039/039 Loss 2.670 Prec@(1,3) (24.1%, 78.3%), ce_loss 2.139, lat_loss 6.658
+04/30 08:04:44 PM | _w_step_train: [  2/180] Final Prec@1 24.0575% Time 41.34
+04/30 08:04:44 PM | Firstly, start to train weights for epoch 2
+04/30 08:05:26 PM | Train: [  3/180] Step 039/039 Loss 2.432 Prec@(1,3) (31.7%, 84.4%), ce_loss 2.035, lat_loss 6.658
+04/30 08:05:26 PM | _w_step_train: [  3/180] Final Prec@1 31.7325% Time 41.27
+04/30 08:05:26 PM | Firstly, start to train weights for epoch 3
+04/30 08:06:07 PM | Train: [  4/180] Step 039/039 Loss 2.277 Prec@(1,3) (36.1%, 87.8%), ce_loss 1.953, lat_loss 6.658
+04/30 08:06:07 PM | _w_step_train: [  4/180] Final Prec@1 36.0925% Time 41.20
+04/30 08:06:07 PM | Firstly, start to train weights for epoch 4
+04/30 08:06:48 PM | Train: [  5/180] Step 039/039 Loss 2.169 Prec@(1,3) (39.1%, 89.3%), ce_loss 1.889, lat_loss 6.657
+04/30 08:06:48 PM | _w_step_train: [  5/180] Final Prec@1 39.1200% Time 41.62
+04/30 08:06:48 PM | Firstly, start to train weights for epoch 5
+04/30 08:07:30 PM | Train: [  6/180] Step 039/039 Loss 2.072 Prec@(1,3) (41.8%, 90.9%), ce_loss 1.833, lat_loss 6.658
+04/30 08:07:30 PM | _w_step_train: [  6/180] Final Prec@1 41.8275% Time 41.34
+04/30 08:07:30 PM | Firstly, start to train weights for epoch 6
+04/30 08:08:12 PM | Train: [  7/180] Step 039/039 Loss 2.033 Prec@(1,3) (43.3%, 91.4%), ce_loss 1.789, lat_loss 6.658
+04/30 08:08:12 PM | _w_step_train: [  7/180] Final Prec@1 43.3450% Time 41.87
+04/30 08:08:12 PM | Firstly, start to train weights for epoch 7
+04/30 08:08:54 PM | Train: [  8/180] Step 039/039 Loss 1.947 Prec@(1,3) (45.7%, 92.2%), ce_loss 1.749, lat_loss 6.658
+04/30 08:08:54 PM | _w_step_train: [  8/180] Final Prec@1 45.6625% Time 42.14
+04/30 08:08:54 PM | Firstly, start to train weights for epoch 8
+04/30 08:09:36 PM | Train: [  9/180] Step 039/039 Loss 1.903 Prec@(1,3) (47.0%, 92.5%), ce_loss 1.713, lat_loss 6.658
+04/30 08:09:36 PM | _w_step_train: [  9/180] Final Prec@1 46.9625% Time 41.84
+04/30 08:09:36 PM | Firstly, start to train weights for epoch 9
+04/30 08:10:17 PM | Train: [ 10/180] Step 039/039 Loss 1.836 Prec@(1,3) (49.3%, 93.2%), ce_loss 1.680, lat_loss 6.658
+04/30 08:10:18 PM | _w_step_train: [ 10/180] Final Prec@1 49.2550% Time 41.77
+04/30 08:10:18 PM | Start to train weights for epoch 10
+04/30 08:10:59 PM | Train: [ 11/180] Step 039/039 Loss 1.810 Prec@(1,3) (49.9%, 93.5%), ce_loss 1.651, lat_loss 6.658
+04/30 08:10:59 PM | _w_step_train: [ 11/180] Final Prec@1 49.9100% Time 41.88
+04/30 08:10:59 PM | Start to train theta for epoch 10
+04/30 08:11:36 PM | Train: [ 11/180] Step 039/039 Loss 1.779 Prec@(1,3) (51.0%, 93.8%), ce_loss 1.624, lat_loss 6.657
+04/30 08:11:36 PM | _theta_step_train: [ 11/180] Final Prec@1 50.9700% Time 36.51
+04/30 08:11:40 PM | Valid: [ 11/180] Step 009/009 Loss 1.800 Prec@(1,3) (50.9%, 93.6%), ce_loss 1.619, lat_loss 6.657
+04/30 08:11:40 PM | val: [ 11/180] Final Prec@1 50.9000% Time 3.70
+04/30 08:11:40 PM | Best top1 acc by now. Save model
+04/30 08:11:40 PM | Start to train weights for epoch 11
+04/30 08:12:21 PM | Train: [ 12/180] Step 039/039 Loss 1.764 Prec@(1,3) (51.2%, 93.9%), ce_loss 1.597, lat_loss 6.657
+04/30 08:12:21 PM | _w_step_train: [ 12/180] Final Prec@1 51.2325% Time 41.11
+04/30 08:12:21 PM | Start to train theta for epoch 11
+04/30 08:12:57 PM | Train: [ 12/180] Step 039/039 Loss 1.732 Prec@(1,3) (52.3%, 94.2%), ce_loss 1.576, lat_loss 6.657
+04/30 08:12:57 PM | _theta_step_train: [ 12/180] Final Prec@1 52.2525% Time 35.93
+04/30 08:13:01 PM | Valid: [ 12/180] Step 009/009 Loss 1.767 Prec@(1,3) (52.0%, 94.4%), ce_loss 1.572, lat_loss 6.657
+04/30 08:13:01 PM | val: [ 12/180] Final Prec@1 51.9600% Time 3.78
+04/30 08:13:01 PM | Best top1 acc by now. Save model
+04/30 08:13:01 PM | Start to train weights for epoch 12
+04/30 08:13:42 PM | Train: [ 13/180] Step 039/039 Loss 1.753 Prec@(1,3) (51.7%, 94.0%), ce_loss 1.555, lat_loss 6.657
+04/30 08:13:42 PM | _w_step_train: [ 13/180] Final Prec@1 51.6850% Time 40.56
+04/30 08:13:42 PM | Start to train theta for epoch 12
+04/30 08:14:17 PM | Train: [ 13/180] Step 039/039 Loss 1.718 Prec@(1,3) (52.8%, 94.4%), ce_loss 1.539, lat_loss 6.657
+04/30 08:14:17 PM | _theta_step_train: [ 13/180] Final Prec@1 52.7725% Time 35.31
+04/30 08:14:21 PM | Valid: [ 13/180] Step 009/009 Loss 1.750 Prec@(1,3) (52.3%, 94.0%), ce_loss 1.536, lat_loss 6.657
+04/30 08:14:21 PM | val: [ 13/180] Final Prec@1 52.2600% Time 3.98
+04/30 08:14:21 PM | Best top1 acc by now. Save model
+04/30 08:14:21 PM | Start to train weights for epoch 13
+04/30 08:15:02 PM | Train: [ 14/180] Step 039/039 Loss 1.707 Prec@(1,3) (53.2%, 94.4%), ce_loss 1.522, lat_loss 6.656
+04/30 08:15:02 PM | _w_step_train: [ 14/180] Final Prec@1 53.1525% Time 41.00
+04/30 08:15:02 PM | Start to train theta for epoch 13
+04/30 08:15:38 PM | Train: [ 14/180] Step 039/039 Loss 1.690 Prec@(1,3) (53.8%, 94.5%), ce_loss 1.508, lat_loss 6.656
+04/30 08:15:38 PM | _theta_step_train: [ 14/180] Final Prec@1 53.8300% Time 35.48
+04/30 08:15:41 PM | Valid: [ 14/180] Step 009/009 Loss 1.697 Prec@(1,3) (53.2%, 94.7%), ce_loss 1.505, lat_loss 6.656
+04/30 08:15:41 PM | val: [ 14/180] Final Prec@1 53.2200% Time 3.79
+04/30 08:15:41 PM | Best top1 acc by now. Save model
+04/30 08:15:42 PM | Start to train weights for epoch 14
+04/30 08:16:23 PM | Train: [ 15/180] Step 039/039 Loss 1.701 Prec@(1,3) (53.4%, 94.5%), ce_loss 1.494, lat_loss 6.656
+04/30 08:16:23 PM | _w_step_train: [ 15/180] Final Prec@1 53.3525% Time 41.05
+04/30 08:16:23 PM | Start to train theta for epoch 14
+04/30 08:16:58 PM | Train: [ 15/180] Step 039/039 Loss 1.664 Prec@(1,3) (54.3%, 94.7%), ce_loss 1.482, lat_loss 6.656
+04/30 08:16:58 PM | _theta_step_train: [ 15/180] Final Prec@1 54.3400% Time 35.51
+04/30 08:17:02 PM | Valid: [ 15/180] Step 009/009 Loss 1.662 Prec@(1,3) (54.3%, 94.9%), ce_loss 1.479, lat_loss 6.656
+04/30 08:17:02 PM | val: [ 15/180] Final Prec@1 54.3300% Time 3.77
+04/30 08:17:02 PM | Best top1 acc by now. Save model
+04/30 08:17:02 PM | Start to train weights for epoch 15
+04/30 08:17:43 PM | Train: [ 16/180] Step 039/039 Loss 1.663 Prec@(1,3) (54.4%, 94.8%), ce_loss 1.469, lat_loss 6.656
+04/30 08:17:43 PM | _w_step_train: [ 16/180] Final Prec@1 54.3875% Time 40.62
+04/30 08:17:43 PM | Start to train theta for epoch 15
+04/30 08:18:19 PM | Train: [ 16/180] Step 039/039 Loss 1.627 Prec@(1,3) (55.3%, 95.1%), ce_loss 1.459, lat_loss 6.656
+04/30 08:18:19 PM | _theta_step_train: [ 16/180] Final Prec@1 55.2600% Time 36.30
+04/30 08:18:23 PM | Valid: [ 16/180] Step 009/009 Loss 1.651 Prec@(1,3) (55.6%, 94.9%), ce_loss 1.456, lat_loss 6.656
+04/30 08:18:23 PM | val: [ 16/180] Final Prec@1 55.5800% Time 3.90
+04/30 08:18:23 PM | Best top1 acc by now. Save model
+04/30 08:18:24 PM | Start to train weights for epoch 16
+04/30 08:19:06 PM | Train: [ 17/180] Step 039/039 Loss 1.636 Prec@(1,3) (55.2%, 94.9%), ce_loss 1.447, lat_loss 6.655
+04/30 08:19:06 PM | _w_step_train: [ 17/180] Final Prec@1 55.1800% Time 42.32
+04/30 08:19:06 PM | Start to train theta for epoch 16
+04/30 08:19:42 PM | Train: [ 17/180] Step 039/039 Loss 1.627 Prec@(1,3) (55.7%, 95.1%), ce_loss 1.438, lat_loss 6.655
+04/30 08:19:42 PM | _theta_step_train: [ 17/180] Final Prec@1 55.7000% Time 36.17
+04/30 08:19:46 PM | Valid: [ 17/180] Step 009/009 Loss 1.658 Prec@(1,3) (54.8%, 94.6%), ce_loss 1.436, lat_loss 6.655
+04/30 08:19:46 PM | val: [ 17/180] Final Prec@1 54.8000% Time 3.63
+04/30 08:19:46 PM | Start to train weights for epoch 17
+04/30 08:20:27 PM | Train: [ 18/180] Step 039/039 Loss 1.606 Prec@(1,3) (56.0%, 95.0%), ce_loss 1.428, lat_loss 6.655
+04/30 08:20:27 PM | _w_step_train: [ 18/180] Final Prec@1 56.0175% Time 41.65
+04/30 08:20:27 PM | Start to train theta for epoch 17
+04/30 08:21:04 PM | Train: [ 18/180] Step 039/039 Loss 1.596 Prec@(1,3) (56.3%, 95.2%), ce_loss 1.420, lat_loss 6.655
+04/30 08:21:04 PM | _theta_step_train: [ 18/180] Final Prec@1 56.2775% Time 36.37
+04/30 08:21:08 PM | Valid: [ 18/180] Step 009/009 Loss 1.624 Prec@(1,3) (55.5%, 95.2%), ce_loss 1.418, lat_loss 6.655
+04/30 08:21:08 PM | val: [ 18/180] Final Prec@1 55.4500% Time 3.89
+04/30 08:21:08 PM | Start to train weights for epoch 18
+04/30 08:21:50 PM | Train: [ 19/180] Step 039/039 Loss 1.597 Prec@(1,3) (56.3%, 95.2%), ce_loss 1.410, lat_loss 6.655
+04/30 08:21:50 PM | _w_step_train: [ 19/180] Final Prec@1 56.3300% Time 42.70
+04/30 08:21:50 PM | Start to train theta for epoch 18
+04/30 08:22:27 PM | Train: [ 19/180] Step 039/039 Loss 1.597 Prec@(1,3) (56.7%, 95.2%), ce_loss 1.403, lat_loss 6.655
+04/30 08:22:27 PM | _theta_step_train: [ 19/180] Final Prec@1 56.7325% Time 36.46
+04/30 08:22:31 PM | Valid: [ 19/180] Step 009/009 Loss 1.602 Prec@(1,3) (56.4%, 95.4%), ce_loss 1.402, lat_loss 6.654
+04/30 08:22:31 PM | val: [ 19/180] Final Prec@1 56.4200% Time 3.85
+04/30 08:22:31 PM | Best top1 acc by now. Save model
+04/30 08:22:31 PM | Start to train weights for epoch 19
+04/30 08:23:12 PM | Train: [ 20/180] Step 039/039 Loss 1.583 Prec@(1,3) (56.7%, 95.3%), ce_loss 1.395, lat_loss 6.654
+04/30 08:23:12 PM | _w_step_train: [ 20/180] Final Prec@1 56.6650% Time 41.11
+04/30 08:23:12 PM | Start to train theta for epoch 19
+04/30 08:23:48 PM | Train: [ 20/180] Step 039/039 Loss 1.560 Prec@(1,3) (57.6%, 95.4%), ce_loss 1.388, lat_loss 6.654
+04/30 08:23:48 PM | _theta_step_train: [ 20/180] Final Prec@1 57.6000% Time 36.26
+04/30 08:23:52 PM | Valid: [ 20/180] Step 009/009 Loss 1.644 Prec@(1,3) (55.2%, 94.9%), ce_loss 1.387, lat_loss 6.654
+04/30 08:23:52 PM | val: [ 20/180] Final Prec@1 55.2000% Time 4.00
+04/30 08:23:52 PM | Start to train weights for epoch 20
+04/30 08:24:34 PM | Train: [ 21/180] Step 039/039 Loss 1.594 Prec@(1,3) (56.6%, 95.3%), ce_loss 1.381, lat_loss 6.654
+04/30 08:24:34 PM | _w_step_train: [ 21/180] Final Prec@1 56.6050% Time 41.88
+04/30 08:24:34 PM | Start to train theta for epoch 20
+04/30 08:25:10 PM | Train: [ 21/180] Step 039/039 Loss 1.536 Prec@(1,3) (58.3%, 95.6%), ce_loss 1.375, lat_loss 6.654
+04/30 08:25:10 PM | _theta_step_train: [ 21/180] Final Prec@1 58.2500% Time 35.83
+04/30 08:25:14 PM | Valid: [ 21/180] Step 009/009 Loss 1.632 Prec@(1,3) (56.3%, 95.2%), ce_loss 1.374, lat_loss 6.654
+04/30 08:25:14 PM | val: [ 21/180] Final Prec@1 56.3400% Time 3.83
+04/30 08:25:14 PM | Start to train weights for epoch 21
+04/30 08:25:56 PM | Train: [ 22/180] Step 039/039 Loss 1.544 Prec@(1,3) (57.8%, 95.6%), ce_loss 1.368, lat_loss 6.654
+04/30 08:25:56 PM | _w_step_train: [ 22/180] Final Prec@1 57.8125% Time 42.06
+04/30 08:25:56 PM | Start to train theta for epoch 21
+04/30 08:26:32 PM | Train: [ 22/180] Step 039/039 Loss 1.526 Prec@(1,3) (58.3%, 95.6%), ce_loss 1.362, lat_loss 6.654
+04/30 08:26:33 PM | _theta_step_train: [ 22/180] Final Prec@1 58.3300% Time 36.41
+04/30 08:26:36 PM | Valid: [ 22/180] Step 009/009 Loss 1.619 Prec@(1,3) (56.1%, 95.3%), ce_loss 1.361, lat_loss 6.654
+04/30 08:26:36 PM | val: [ 22/180] Final Prec@1 56.1000% Time 3.93
+04/30 08:26:36 PM | Start to train weights for epoch 22
+04/30 08:27:18 PM | Train: [ 23/180] Step 039/039 Loss 1.552 Prec@(1,3) (57.8%, 95.6%), ce_loss 1.356, lat_loss 6.654
+04/30 08:27:18 PM | _w_step_train: [ 23/180] Final Prec@1 57.8025% Time 41.76
+04/30 08:27:18 PM | Start to train theta for epoch 22
+04/30 08:27:55 PM | Train: [ 23/180] Step 039/039 Loss 1.522 Prec@(1,3) (58.9%, 95.8%), ce_loss 1.350, lat_loss 6.653
+04/30 08:27:55 PM | _theta_step_train: [ 23/180] Final Prec@1 58.8650% Time 36.32
+04/30 08:27:58 PM | Valid: [ 23/180] Step 009/009 Loss 1.629 Prec@(1,3) (56.8%, 95.2%), ce_loss 1.349, lat_loss 6.653
+04/30 08:27:59 PM | val: [ 23/180] Final Prec@1 56.7600% Time 3.96
+04/30 08:27:59 PM | Best top1 acc by now. Save model
+04/30 08:27:59 PM | Start to train weights for epoch 23
+04/30 08:28:41 PM | Train: [ 24/180] Step 039/039 Loss 1.552 Prec@(1,3) (58.1%, 95.5%), ce_loss 1.345, lat_loss 6.653
+04/30 08:28:41 PM | _w_step_train: [ 24/180] Final Prec@1 58.1125% Time 42.28
+04/30 08:28:41 PM | Start to train theta for epoch 23
+04/30 08:29:18 PM | Train: [ 24/180] Step 039/039 Loss 1.540 Prec@(1,3) (58.1%, 95.6%), ce_loss 1.340, lat_loss 6.653
+04/30 08:29:18 PM | _theta_step_train: [ 24/180] Final Prec@1 58.1400% Time 36.54
+04/30 08:29:22 PM | Valid: [ 24/180] Step 009/009 Loss 1.799 Prec@(1,3) (55.2%, 95.2%), ce_loss 1.340, lat_loss 6.653
+04/30 08:29:22 PM | val: [ 24/180] Final Prec@1 55.2000% Time 4.04
+04/30 08:29:22 PM | Start to train weights for epoch 24
+04/30 08:30:03 PM | Train: [ 25/180] Step 039/039 Loss 1.523 Prec@(1,3) (58.8%, 95.8%), ce_loss 1.336, lat_loss 6.653
+04/30 08:30:03 PM | _w_step_train: [ 25/180] Final Prec@1 58.8350% Time 41.11
+04/30 08:30:03 PM | Start to train theta for epoch 24
+04/30 08:30:40 PM | Train: [ 25/180] Step 039/039 Loss 1.484 Prec@(1,3) (59.6%, 96.0%), ce_loss 1.331, lat_loss 6.653
+04/30 08:30:40 PM | _theta_step_train: [ 25/180] Final Prec@1 59.6150% Time 36.59
+04/30 08:30:43 PM | Valid: [ 25/180] Step 009/009 Loss 1.638 Prec@(1,3) (56.5%, 95.3%), ce_loss 1.330, lat_loss 6.653
+04/30 08:30:43 PM | val: [ 25/180] Final Prec@1 56.5000% Time 3.64
+04/30 08:30:43 PM | Start to train weights for epoch 25
+04/30 08:31:26 PM | Train: [ 26/180] Step 039/039 Loss 1.522 Prec@(1,3) (58.5%, 95.7%), ce_loss 1.326, lat_loss 6.653
+04/30 08:31:26 PM | _w_step_train: [ 26/180] Final Prec@1 58.5250% Time 42.42
+04/30 08:31:26 PM | Start to train theta for epoch 25
+04/30 08:32:02 PM | Train: [ 26/180] Step 039/039 Loss 1.496 Prec@(1,3) (59.2%, 95.9%), ce_loss 1.322, lat_loss 6.653
+04/30 08:32:02 PM | _theta_step_train: [ 26/180] Final Prec@1 59.1750% Time 36.50
+04/30 08:32:06 PM | Valid: [ 26/180] Step 009/009 Loss 1.660 Prec@(1,3) (55.6%, 95.0%), ce_loss 1.321, lat_loss 6.653
+04/30 08:32:06 PM | val: [ 26/180] Final Prec@1 55.6200% Time 3.96
+04/30 08:32:06 PM | Start to train weights for epoch 26
+04/30 08:32:47 PM | Train: [ 27/180] Step 039/039 Loss 1.542 Prec@(1,3) (58.1%, 95.6%), ce_loss 1.318, lat_loss 6.653
+04/30 08:32:47 PM | _w_step_train: [ 27/180] Final Prec@1 58.1275% Time 41.00
+04/30 08:32:47 PM | Start to train theta for epoch 26
+04/30 08:33:23 PM | Train: [ 27/180] Step 039/039 Loss 1.527 Prec@(1,3) (58.3%, 96.0%), ce_loss 1.314, lat_loss 6.653
+04/30 08:33:23 PM | _theta_step_train: [ 27/180] Final Prec@1 58.3325% Time 36.10
+04/30 08:33:27 PM | Valid: [ 27/180] Step 009/009 Loss 1.634 Prec@(1,3) (56.9%, 95.4%), ce_loss 1.314, lat_loss 6.653
+04/30 08:33:27 PM | val: [ 27/180] Final Prec@1 56.9100% Time 3.93
+04/30 08:33:27 PM | Best top1 acc by now. Save model
+04/30 08:33:28 PM | Start to train weights for epoch 27
+04/30 08:34:09 PM | Train: [ 28/180] Step 039/039 Loss 1.514 Prec@(1,3) (58.8%, 95.9%), ce_loss 1.310, lat_loss 6.653
+04/30 08:34:09 PM | _w_step_train: [ 28/180] Final Prec@1 58.8400% Time 41.74
+04/30 08:34:09 PM | Start to train theta for epoch 27
+04/30 08:34:46 PM | Train: [ 28/180] Step 039/039 Loss 1.516 Prec@(1,3) (59.2%, 95.8%), ce_loss 1.307, lat_loss 6.652
+04/30 08:34:46 PM | _theta_step_train: [ 28/180] Final Prec@1 59.2200% Time 36.52
+04/30 08:34:50 PM | Valid: [ 28/180] Step 009/009 Loss 1.772 Prec@(1,3) (52.2%, 93.9%), ce_loss 1.307, lat_loss 6.652
+04/30 08:34:50 PM | val: [ 28/180] Final Prec@1 52.1900% Time 3.73
+04/30 08:34:50 PM | Start to train weights for epoch 28
+04/30 08:35:31 PM | Train: [ 29/180] Step 039/039 Loss 1.542 Prec@(1,3) (58.0%, 95.5%), ce_loss 1.304, lat_loss 6.652
+04/30 08:35:31 PM | _w_step_train: [ 29/180] Final Prec@1 57.9675% Time 41.80
+04/30 08:35:31 PM | Start to train theta for epoch 28
+04/30 08:36:08 PM | Train: [ 29/180] Step 039/039 Loss 1.519 Prec@(1,3) (59.1%, 95.8%), ce_loss 1.301, lat_loss 6.652
+04/30 08:36:08 PM | _theta_step_train: [ 29/180] Final Prec@1 59.0700% Time 36.73
+04/30 08:36:12 PM | Valid: [ 29/180] Step 009/009 Loss 1.746 Prec@(1,3) (54.8%, 94.5%), ce_loss 1.301, lat_loss 6.652
+04/30 08:36:12 PM | val: [ 29/180] Final Prec@1 54.8100% Time 4.00
+04/30 08:36:12 PM | Start to train weights for epoch 29
+04/30 08:36:54 PM | Train: [ 30/180] Step 039/039 Loss 1.526 Prec@(1,3) (58.8%, 95.6%), ce_loss 1.298, lat_loss 6.652
+04/30 08:36:54 PM | _w_step_train: [ 30/180] Final Prec@1 58.7500% Time 42.11
+04/30 08:36:54 PM | Start to train theta for epoch 29
+04/30 08:37:31 PM | Train: [ 30/180] Step 039/039 Loss 1.493 Prec@(1,3) (59.5%, 96.0%), ce_loss 1.295, lat_loss 6.652
+04/30 08:37:31 PM | _theta_step_train: [ 30/180] Final Prec@1 59.5075% Time 36.76
+04/30 08:37:35 PM | Valid: [ 30/180] Step 009/009 Loss 1.816 Prec@(1,3) (55.0%, 94.6%), ce_loss 1.295, lat_loss 6.652
+04/30 08:37:35 PM | val: [ 30/180] Final Prec@1 55.0400% Time 3.79
+04/30 08:37:35 PM | Start to train weights for epoch 30
+04/30 08:38:17 PM | Train: [ 31/180] Step 039/039 Loss 1.525 Prec@(1,3) (58.8%, 95.7%), ce_loss 1.293, lat_loss 6.652
+04/30 08:38:17 PM | _w_step_train: [ 31/180] Final Prec@1 58.8250% Time 41.99
+04/30 08:38:17 PM | Start to train theta for epoch 30
+04/30 08:38:53 PM | Train: [ 31/180] Step 039/039 Loss 1.540 Prec@(1,3) (58.0%, 95.6%), ce_loss 1.290, lat_loss 6.652
+04/30 08:38:53 PM | _theta_step_train: [ 31/180] Final Prec@1 57.9875% Time 36.53
+04/30 08:38:57 PM | Valid: [ 31/180] Step 009/009 Loss 1.929 Prec@(1,3) (53.4%, 93.6%), ce_loss 1.291, lat_loss 6.652
+04/30 08:38:57 PM | val: [ 31/180] Final Prec@1 53.4400% Time 3.97
+04/30 08:38:57 PM | Start to train weights for epoch 31
+04/30 08:39:39 PM | Train: [ 32/180] Step 039/039 Loss 1.496 Prec@(1,3) (59.4%, 95.8%), ce_loss 1.288, lat_loss 6.651
+04/30 08:39:39 PM | _w_step_train: [ 32/180] Final Prec@1 59.3575% Time 41.56
+04/30 08:39:39 PM | Start to train theta for epoch 31
+04/30 08:40:15 PM | Train: [ 32/180] Step 039/039 Loss 1.514 Prec@(1,3) (59.2%, 95.6%), ce_loss 1.286, lat_loss 6.651
+04/30 08:40:15 PM | _theta_step_train: [ 32/180] Final Prec@1 59.1800% Time 35.99
+04/30 08:40:19 PM | Valid: [ 32/180] Step 009/009 Loss 1.827 Prec@(1,3) (55.1%, 94.9%), ce_loss 1.286, lat_loss 6.651
+04/30 08:40:19 PM | val: [ 32/180] Final Prec@1 55.1300% Time 3.76
+04/30 08:40:19 PM | Start to train weights for epoch 32
+04/30 08:41:00 PM | Train: [ 33/180] Step 039/039 Loss 1.567 Prec@(1,3) (57.8%, 95.2%), ce_loss 1.284, lat_loss 6.651
+04/30 08:41:00 PM | _w_step_train: [ 33/180] Final Prec@1 57.8275% Time 41.56
+04/30 08:41:00 PM | Start to train theta for epoch 32
+04/30 08:41:36 PM | Train: [ 33/180] Step 039/039 Loss 1.543 Prec@(1,3) (58.3%, 95.6%), ce_loss 1.282, lat_loss 6.651
+04/30 08:41:36 PM | _theta_step_train: [ 33/180] Final Prec@1 58.3300% Time 35.91
+04/30 08:41:40 PM | Valid: [ 33/180] Step 009/009 Loss 1.732 Prec@(1,3) (55.0%, 94.4%), ce_loss 1.282, lat_loss 6.651
+04/30 08:41:40 PM | val: [ 33/180] Final Prec@1 54.9600% Time 3.68
+04/30 08:41:40 PM | Start to train weights for epoch 33
+04/30 08:42:22 PM | Train: [ 34/180] Step 039/039 Loss 1.590 Prec@(1,3) (57.5%, 95.3%), ce_loss 1.281, lat_loss 6.651
+04/30 08:42:22 PM | _w_step_train: [ 34/180] Final Prec@1 57.5350% Time 42.38
+04/30 08:42:22 PM | Start to train theta for epoch 33
+04/30 08:42:59 PM | Train: [ 34/180] Step 039/039 Loss 1.598 Prec@(1,3) (57.2%, 95.6%), ce_loss 1.280, lat_loss 6.651
+04/30 08:42:59 PM | _theta_step_train: [ 34/180] Final Prec@1 57.1950% Time 36.62
+04/30 08:43:03 PM | Valid: [ 34/180] Step 009/009 Loss 2.146 Prec@(1,3) (51.1%, 94.3%), ce_loss 1.281, lat_loss 6.651
+04/30 08:43:03 PM | val: [ 34/180] Final Prec@1 51.1400% Time 3.93
+04/30 08:43:03 PM | Start to train weights for epoch 34
+04/30 08:43:44 PM | Train: [ 35/180] Step 039/039 Loss 1.688 Prec@(1,3) (56.2%, 94.8%), ce_loss 1.281, lat_loss 6.651
+04/30 08:43:44 PM | _w_step_train: [ 35/180] Final Prec@1 56.1850% Time 41.42
+04/30 08:43:44 PM | Start to train theta for epoch 34
+04/30 08:44:20 PM | Train: [ 35/180] Step 039/039 Loss 1.615 Prec@(1,3) (57.4%, 95.2%), ce_loss 1.280, lat_loss 6.651
+04/30 08:44:20 PM | _theta_step_train: [ 35/180] Final Prec@1 57.3600% Time 35.95
+04/30 08:44:24 PM | Valid: [ 35/180] Step 009/009 Loss 1.788 Prec@(1,3) (51.9%, 93.2%), ce_loss 1.280, lat_loss 6.651
+04/30 08:44:24 PM | val: [ 35/180] Final Prec@1 51.9300% Time 3.67
+04/30 08:44:24 PM | Start to train weights for epoch 35
+04/30 08:45:05 PM | Train: [ 36/180] Step 039/039 Loss 1.647 Prec@(1,3) (56.3%, 94.8%), ce_loss 1.280, lat_loss 6.651
+04/30 08:45:05 PM | _w_step_train: [ 36/180] Final Prec@1 56.3225% Time 40.69
+04/30 08:45:05 PM | Start to train theta for epoch 35
+04/30 08:45:41 PM | Train: [ 36/180] Step 039/039 Loss 1.583 Prec@(1,3) (57.9%, 95.3%), ce_loss 1.278, lat_loss 6.651
+04/30 08:45:41 PM | _theta_step_train: [ 36/180] Final Prec@1 57.9275% Time 36.32
+04/30 08:45:45 PM | Valid: [ 36/180] Step 009/009 Loss 1.989 Prec@(1,3) (52.0%, 93.9%), ce_loss 1.279, lat_loss 6.651
+04/30 08:45:45 PM | val: [ 36/180] Final Prec@1 51.9800% Time 4.02
+04/30 08:45:45 PM | Start to train weights for epoch 36
+04/30 08:46:26 PM | Train: [ 37/180] Step 039/039 Loss 1.671 Prec@(1,3) (55.3%, 94.8%), ce_loss 1.279, lat_loss 6.651
+04/30 08:46:26 PM | _w_step_train: [ 37/180] Final Prec@1 55.3300% Time 41.23
+04/30 08:46:26 PM | Start to train theta for epoch 36
+04/30 08:47:02 PM | Train: [ 37/180] Step 039/039 Loss 1.548 Prec@(1,3) (58.7%, 95.4%), ce_loss 1.277, lat_loss 6.651
+04/30 08:47:02 PM | _theta_step_train: [ 37/180] Final Prec@1 58.7450% Time 35.78
+04/30 08:47:06 PM | Valid: [ 37/180] Step 009/009 Loss 1.931 Prec@(1,3) (50.4%, 92.4%), ce_loss 1.278, lat_loss 6.651
+04/30 08:47:06 PM | val: [ 37/180] Final Prec@1 50.3800% Time 3.93
+04/30 08:47:06 PM | Start to train weights for epoch 37
+04/30 08:47:48 PM | Train: [ 38/180] Step 039/039 Loss 1.639 Prec@(1,3) (56.3%, 94.9%), ce_loss 1.277, lat_loss 6.651
+04/30 08:47:48 PM | _w_step_train: [ 38/180] Final Prec@1 56.3425% Time 41.55
+04/30 08:47:48 PM | Start to train theta for epoch 37
+04/30 08:48:24 PM | Train: [ 38/180] Step 039/039 Loss 1.590 Prec@(1,3) (57.6%, 95.4%), ce_loss 1.276, lat_loss 6.651
+04/30 08:48:24 PM | _theta_step_train: [ 38/180] Final Prec@1 57.6000% Time 36.80
+04/30 08:48:28 PM | Valid: [ 38/180] Step 009/009 Loss 1.865 Prec@(1,3) (50.9%, 93.3%), ce_loss 1.276, lat_loss 6.651
+04/30 08:48:28 PM | val: [ 38/180] Final Prec@1 50.8600% Time 3.94
+04/30 08:48:28 PM | Start to train weights for epoch 38
+04/30 08:49:10 PM | Train: [ 39/180] Step 039/039 Loss 1.657 Prec@(1,3) (56.1%, 94.7%), ce_loss 1.276, lat_loss 6.651
+04/30 08:49:10 PM | _w_step_train: [ 39/180] Final Prec@1 56.1100% Time 41.26
+04/30 08:49:10 PM | Start to train theta for epoch 38
+04/30 08:49:46 PM | Train: [ 39/180] Step 039/039 Loss 1.583 Prec@(1,3) (57.7%, 95.0%), ce_loss 1.275, lat_loss 6.651
+04/30 08:49:46 PM | _theta_step_train: [ 39/180] Final Prec@1 57.6925% Time 36.61
+04/30 08:49:50 PM | Valid: [ 39/180] Step 009/009 Loss 1.762 Prec@(1,3) (54.0%, 94.2%), ce_loss 1.275, lat_loss 6.651
+04/30 08:49:50 PM | val: [ 39/180] Final Prec@1 54.0300% Time 4.02
+04/30 08:49:50 PM | Start to train weights for epoch 39
+04/30 08:50:32 PM | Train: [ 40/180] Step 039/039 Loss 1.584 Prec@(1,3) (57.4%, 95.2%), ce_loss 1.274, lat_loss 6.650
+04/30 08:50:32 PM | _w_step_train: [ 40/180] Final Prec@1 57.3550% Time 41.73
+04/30 08:50:32 PM | Start to train theta for epoch 39
+04/30 08:51:08 PM | Train: [ 40/180] Step 039/039 Loss 1.583 Prec@(1,3) (57.8%, 95.1%), ce_loss 1.273, lat_loss 6.650
+04/30 08:51:08 PM | _theta_step_train: [ 40/180] Final Prec@1 57.8175% Time 35.99
+04/30 08:51:12 PM | Valid: [ 40/180] Step 009/009 Loss 1.929 Prec@(1,3) (49.7%, 92.7%), ce_loss 1.273, lat_loss 6.650
+04/30 08:51:12 PM | val: [ 40/180] Final Prec@1 49.7100% Time 3.87
+04/30 08:51:12 PM | Start to train weights for epoch 40
+04/30 08:51:55 PM | Train: [ 41/180] Step 039/039 Loss 1.616 Prec@(1,3) (57.2%, 95.1%), ce_loss 1.273, lat_loss 6.650
+04/30 08:51:55 PM | _w_step_train: [ 41/180] Final Prec@1 57.2050% Time 42.56
+04/30 08:51:55 PM | Start to train theta for epoch 40
+04/30 08:52:31 PM | Train: [ 41/180] Step 039/039 Loss 1.522 Prec@(1,3) (59.4%, 95.6%), ce_loss 1.271, lat_loss 6.650
+04/30 08:52:31 PM | _theta_step_train: [ 41/180] Final Prec@1 59.4350% Time 36.14
+04/30 08:52:35 PM | Valid: [ 41/180] Step 009/009 Loss 1.983 Prec@(1,3) (50.0%, 92.6%), ce_loss 1.272, lat_loss 6.650
+04/30 08:52:35 PM | val: [ 41/180] Final Prec@1 49.9800% Time 3.87
+04/30 08:52:35 PM | Start to train weights for epoch 41
+04/30 08:53:16 PM | Train: [ 42/180] Step 039/039 Loss 1.629 Prec@(1,3) (56.8%, 94.9%), ce_loss 1.271, lat_loss 6.650
+04/30 08:53:16 PM | _w_step_train: [ 42/180] Final Prec@1 56.8150% Time 41.47
+04/30 08:53:16 PM | Start to train theta for epoch 41
+04/30 08:53:53 PM | Train: [ 42/180] Step 039/039 Loss 1.589 Prec@(1,3) (57.5%, 95.1%), ce_loss 1.270, lat_loss 6.650
+04/30 08:53:53 PM | _theta_step_train: [ 42/180] Final Prec@1 57.4650% Time 36.59
+04/30 08:53:57 PM | Valid: [ 42/180] Step 009/009 Loss 2.218 Prec@(1,3) (48.3%, 90.4%), ce_loss 1.272, lat_loss 6.650
+04/30 08:53:57 PM | val: [ 42/180] Final Prec@1 48.3200% Time 3.82
+04/30 08:53:57 PM | Start to train weights for epoch 42
+04/30 08:54:38 PM | Train: [ 43/180] Step 039/039 Loss 1.549 Prec@(1,3) (58.6%, 95.5%), ce_loss 1.270, lat_loss 6.650
+04/30 08:54:38 PM | _w_step_train: [ 43/180] Final Prec@1 58.6250% Time 41.62
+04/30 08:54:38 PM | Start to train theta for epoch 42
+04/30 08:55:15 PM | Train: [ 43/180] Step 039/039 Loss 1.561 Prec@(1,3) (58.1%, 95.4%), ce_loss 1.269, lat_loss 6.650
+04/30 08:55:15 PM | _theta_step_train: [ 43/180] Final Prec@1 58.1275% Time 36.44
+04/30 08:55:19 PM | Valid: [ 43/180] Step 009/009 Loss 1.798 Prec@(1,3) (53.6%, 93.7%), ce_loss 1.269, lat_loss 6.650
+04/30 08:55:19 PM | val: [ 43/180] Final Prec@1 53.5900% Time 3.85
+04/30 08:55:19 PM | Start to train weights for epoch 43
+04/30 08:56:02 PM | Train: [ 44/180] Step 039/039 Loss 1.555 Prec@(1,3) (58.3%, 95.3%), ce_loss 1.268, lat_loss 6.649
+04/30 08:56:02 PM | _w_step_train: [ 44/180] Final Prec@1 58.2850% Time 43.30
+04/30 08:56:02 PM | Start to train theta for epoch 43
+04/30 08:56:38 PM | Train: [ 44/180] Step 039/039 Loss 1.537 Prec@(1,3) (58.7%, 95.6%), ce_loss 1.267, lat_loss 6.649
+04/30 08:56:38 PM | _theta_step_train: [ 44/180] Final Prec@1 58.6550% Time 36.24
+04/30 08:56:42 PM | Valid: [ 44/180] Step 009/009 Loss 2.074 Prec@(1,3) (49.6%, 91.8%), ce_loss 1.268, lat_loss 6.649
+04/30 08:56:42 PM | val: [ 44/180] Final Prec@1 49.5500% Time 3.70
+04/30 08:56:42 PM | Start to train weights for epoch 44
+04/30 08:57:24 PM | Train: [ 45/180] Step 039/039 Loss 1.647 Prec@(1,3) (56.3%, 95.0%), ce_loss 1.268, lat_loss 6.649
+04/30 08:57:24 PM | _w_step_train: [ 45/180] Final Prec@1 56.2650% Time 41.66
+04/30 08:57:24 PM | Start to train theta for epoch 44
+04/30 08:58:00 PM | Train: [ 45/180] Step 039/039 Loss 1.600 Prec@(1,3) (57.3%, 94.9%), ce_loss 1.267, lat_loss 6.649
+04/30 08:58:00 PM | _theta_step_train: [ 45/180] Final Prec@1 57.3050% Time 36.88
+04/30 08:58:04 PM | Valid: [ 45/180] Step 009/009 Loss 1.778 Prec@(1,3) (53.4%, 93.6%), ce_loss 1.267, lat_loss 6.649
+04/30 08:58:04 PM | val: [ 45/180] Final Prec@1 53.4000% Time 3.70
+04/30 08:58:04 PM | Start to train weights for epoch 45
+04/30 08:58:45 PM | Train: [ 46/180] Step 039/039 Loss 1.570 Prec@(1,3) (57.8%, 95.1%), ce_loss 1.266, lat_loss 6.648
+04/30 08:58:46 PM | _w_step_train: [ 46/180] Final Prec@1 57.8400% Time 41.32
+04/30 08:58:46 PM | Start to train theta for epoch 45
+04/30 08:59:21 PM | Train: [ 46/180] Step 039/039 Loss 1.581 Prec@(1,3) (57.6%, 95.0%), ce_loss 1.265, lat_loss 6.648
+04/30 08:59:21 PM | _theta_step_train: [ 46/180] Final Prec@1 57.5900% Time 35.93
+04/30 08:59:25 PM | Valid: [ 46/180] Step 009/009 Loss 2.178 Prec@(1,3) (46.9%, 89.8%), ce_loss 1.266, lat_loss 6.648
+04/30 08:59:25 PM | val: [ 46/180] Final Prec@1 46.8800% Time 3.97
+04/30 08:59:25 PM | Start to train weights for epoch 46
+04/30 09:00:07 PM | Train: [ 47/180] Step 039/039 Loss 1.564 Prec@(1,3) (58.3%, 95.1%), ce_loss 1.266, lat_loss 6.648
+04/30 09:00:07 PM | _w_step_train: [ 47/180] Final Prec@1 58.3250% Time 41.95
+04/30 09:00:07 PM | Start to train theta for epoch 46
+04/30 09:00:44 PM | Train: [ 47/180] Step 039/039 Loss 1.476 Prec@(1,3) (60.5%, 95.8%), ce_loss 1.264, lat_loss 6.648
+04/30 09:00:44 PM | _theta_step_train: [ 47/180] Final Prec@1 60.5150% Time 36.14
+04/30 09:00:47 PM | Valid: [ 47/180] Step 009/009 Loss 2.288 Prec@(1,3) (54.1%, 93.8%), ce_loss 1.265, lat_loss 6.648
+04/30 09:00:47 PM | val: [ 47/180] Final Prec@1 54.1000% Time 3.80
+04/30 09:00:47 PM | Start to train weights for epoch 47
+04/30 09:01:28 PM | Train: [ 48/180] Step 039/039 Loss 1.521 Prec@(1,3) (59.5%, 95.4%), ce_loss 1.264, lat_loss 6.647
+04/30 09:01:28 PM | _w_step_train: [ 48/180] Final Prec@1 59.5225% Time 40.87
+04/30 09:01:28 PM | Start to train theta for epoch 47
+04/30 09:02:04 PM | Train: [ 48/180] Step 039/039 Loss 1.534 Prec@(1,3) (59.4%, 95.6%), ce_loss 1.263, lat_loss 6.647
+04/30 09:02:04 PM | _theta_step_train: [ 48/180] Final Prec@1 59.4200% Time 35.97
+04/30 09:02:08 PM | Valid: [ 48/180] Step 009/009 Loss 1.943 Prec@(1,3) (53.1%, 93.9%), ce_loss 1.263, lat_loss 6.647
+04/30 09:02:08 PM | val: [ 48/180] Final Prec@1 53.0600% Time 3.97
+04/30 09:02:08 PM | Start to train weights for epoch 48
+04/30 09:02:50 PM | Train: [ 49/180] Step 039/039 Loss 1.549 Prec@(1,3) (58.6%, 95.4%), ce_loss 1.262, lat_loss 6.647
+04/30 09:02:50 PM | _w_step_train: [ 49/180] Final Prec@1 58.6150% Time 41.60
+04/30 09:02:50 PM | Start to train theta for epoch 48
+04/30 09:03:27 PM | Train: [ 49/180] Step 039/039 Loss 1.535 Prec@(1,3) (59.4%, 95.5%), ce_loss 1.261, lat_loss 6.646
+04/30 09:03:27 PM | _theta_step_train: [ 49/180] Final Prec@1 59.4175% Time 37.10
+04/30 09:03:31 PM | Valid: [ 49/180] Step 009/009 Loss 2.006 Prec@(1,3) (52.9%, 93.4%), ce_loss 1.262, lat_loss 6.646
+04/30 09:03:31 PM | val: [ 49/180] Final Prec@1 52.9000% Time 3.89
+04/30 09:03:31 PM | Start to train weights for epoch 49
+04/30 09:04:14 PM | Train: [ 50/180] Step 039/039 Loss 1.527 Prec@(1,3) (59.5%, 95.5%), ce_loss 1.261, lat_loss 6.646
+04/30 09:04:14 PM | _w_step_train: [ 50/180] Final Prec@1 59.4750% Time 42.82
+04/30 09:04:14 PM | Start to train theta for epoch 49
+04/30 09:04:50 PM | Train: [ 50/180] Step 039/039 Loss 1.453 Prec@(1,3) (61.0%, 96.0%), ce_loss 1.259, lat_loss 6.646
+04/30 09:04:50 PM | _theta_step_train: [ 50/180] Final Prec@1 61.0025% Time 36.68
+04/30 09:04:54 PM | Valid: [ 50/180] Step 009/009 Loss 1.867 Prec@(1,3) (55.9%, 95.0%), ce_loss 1.260, lat_loss 6.646
+04/30 09:04:54 PM | val: [ 50/180] Final Prec@1 55.9100% Time 3.70
+04/30 09:04:54 PM | Start to train weights for epoch 50
+04/30 09:05:35 PM | Train: [ 51/180] Step 039/039 Loss 1.495 Prec@(1,3) (59.9%, 95.7%), ce_loss 1.258, lat_loss 6.646
+04/30 09:05:35 PM | _w_step_train: [ 51/180] Final Prec@1 59.8550% Time 40.85
+04/30 09:05:35 PM | Start to train theta for epoch 50
+04/30 09:06:11 PM | Train: [ 51/180] Step 039/039 Loss 1.533 Prec@(1,3) (59.5%, 95.3%), ce_loss 1.257, lat_loss 6.646
+04/30 09:06:11 PM | _theta_step_train: [ 51/180] Final Prec@1 59.4650% Time 35.86
+04/30 09:06:15 PM | Valid: [ 51/180] Step 009/009 Loss 1.761 Prec@(1,3) (57.6%, 95.4%), ce_loss 1.257, lat_loss 6.646
+04/30 09:06:15 PM | val: [ 51/180] Final Prec@1 57.5900% Time 3.73
+04/30 09:06:15 PM | Best top1 acc by now. Save model
+04/30 09:06:15 PM | Start to train weights for epoch 51
+04/30 09:06:56 PM | Train: [ 52/180] Step 039/039 Loss 1.455 Prec@(1,3) (60.9%, 95.9%), ce_loss 1.256, lat_loss 6.645
+04/30 09:06:56 PM | _w_step_train: [ 52/180] Final Prec@1 60.8975% Time 41.07
+04/30 09:06:56 PM | Start to train theta for epoch 51
+04/30 09:07:32 PM | Train: [ 52/180] Step 039/039 Loss 1.421 Prec@(1,3) (61.7%, 96.1%), ce_loss 1.254, lat_loss 6.645
+04/30 09:07:32 PM | _theta_step_train: [ 52/180] Final Prec@1 61.7275% Time 35.68
+04/30 09:07:36 PM | Valid: [ 52/180] Step 009/009 Loss 1.947 Prec@(1,3) (53.5%, 92.7%), ce_loss 1.255, lat_loss 6.645
+04/30 09:07:36 PM | val: [ 52/180] Final Prec@1 53.4800% Time 3.89
+04/30 09:07:36 PM | Start to train weights for epoch 52
+04/30 09:08:17 PM | Train: [ 53/180] Step 039/039 Loss 1.442 Prec@(1,3) (61.5%, 95.8%), ce_loss 1.253, lat_loss 6.645
+04/30 09:08:17 PM | _w_step_train: [ 53/180] Final Prec@1 61.4825% Time 41.76
+04/30 09:08:17 PM | Start to train theta for epoch 52
+04/30 09:08:53 PM | Train: [ 53/180] Step 039/039 Loss 1.416 Prec@(1,3) (62.0%, 96.2%), ce_loss 1.251, lat_loss 6.644
+04/30 09:08:53 PM | _theta_step_train: [ 53/180] Final Prec@1 62.0250% Time 35.59
+04/30 09:08:57 PM | Valid: [ 53/180] Step 009/009 Loss 1.827 Prec@(1,3) (52.7%, 93.9%), ce_loss 1.252, lat_loss 6.644
+04/30 09:08:57 PM | val: [ 53/180] Final Prec@1 52.7100% Time 3.98
+04/30 09:08:57 PM | Start to train weights for epoch 53
+04/30 09:09:38 PM | Train: [ 54/180] Step 039/039 Loss 1.433 Prec@(1,3) (61.5%, 95.9%), ce_loss 1.250, lat_loss 6.644
+04/30 09:09:38 PM | _w_step_train: [ 54/180] Final Prec@1 61.4800% Time 40.73
+04/30 09:09:38 PM | Start to train theta for epoch 53
+04/30 09:10:13 PM | Train: [ 54/180] Step 039/039 Loss 1.408 Prec@(1,3) (62.2%, 96.1%), ce_loss 1.248, lat_loss 6.644
+04/30 09:10:13 PM | _theta_step_train: [ 54/180] Final Prec@1 62.2000% Time 35.44
+04/30 09:10:17 PM | Valid: [ 54/180] Step 009/009 Loss 1.562 Prec@(1,3) (60.3%, 96.1%), ce_loss 1.248, lat_loss 6.644
+04/30 09:10:17 PM | val: [ 54/180] Final Prec@1 60.2900% Time 3.94
+04/30 09:10:17 PM | Best top1 acc by now. Save model
+04/30 09:10:17 PM | Start to train weights for epoch 54
+04/30 09:10:58 PM | Train: [ 55/180] Step 039/039 Loss 1.380 Prec@(1,3) (62.7%, 96.4%), ce_loss 1.246, lat_loss 6.644
+04/30 09:10:58 PM | _w_step_train: [ 55/180] Final Prec@1 62.7325% Time 40.79
+04/30 09:10:58 PM | Start to train theta for epoch 54
+04/30 09:11:33 PM | Train: [ 55/180] Step 039/039 Loss 1.347 Prec@(1,3) (63.9%, 96.6%), ce_loss 1.244, lat_loss 6.643
+04/30 09:11:33 PM | _theta_step_train: [ 55/180] Final Prec@1 63.8675% Time 35.19
+04/30 09:11:37 PM | Valid: [ 55/180] Step 009/009 Loss 1.675 Prec@(1,3) (57.7%, 95.0%), ce_loss 1.244, lat_loss 6.643
+04/30 09:11:37 PM | val: [ 55/180] Final Prec@1 57.6700% Time 3.86
+04/30 09:11:37 PM | Start to train weights for epoch 55
+04/30 09:12:18 PM | Train: [ 56/180] Step 039/039 Loss 1.359 Prec@(1,3) (63.7%, 96.4%), ce_loss 1.242, lat_loss 6.643
+04/30 09:12:18 PM | _w_step_train: [ 56/180] Final Prec@1 63.7275% Time 40.68
+04/30 09:12:18 PM | Start to train theta for epoch 55
+04/30 09:12:54 PM | Train: [ 56/180] Step 039/039 Loss 1.337 Prec@(1,3) (64.0%, 96.6%), ce_loss 1.240, lat_loss 6.643
+04/30 09:12:54 PM | _theta_step_train: [ 56/180] Final Prec@1 64.0100% Time 35.83
+04/30 09:12:58 PM | Valid: [ 56/180] Step 009/009 Loss 1.764 Prec@(1,3) (53.2%, 93.6%), ce_loss 1.241, lat_loss 6.643
+04/30 09:12:58 PM | val: [ 56/180] Final Prec@1 53.2300% Time 3.89
+04/30 09:12:58 PM | Start to train weights for epoch 56
+04/30 09:13:39 PM | Train: [ 57/180] Step 039/039 Loss 1.386 Prec@(1,3) (62.9%, 96.4%), ce_loss 1.239, lat_loss 6.642
+04/30 09:13:39 PM | _w_step_train: [ 57/180] Final Prec@1 62.8875% Time 41.70
+04/30 09:13:39 PM | Start to train theta for epoch 56
+04/30 09:14:15 PM | Train: [ 57/180] Step 039/039 Loss 1.403 Prec@(1,3) (62.3%, 96.2%), ce_loss 1.237, lat_loss 6.642
+04/30 09:14:15 PM | _theta_step_train: [ 57/180] Final Prec@1 62.2650% Time 35.40
+04/30 09:14:19 PM | Valid: [ 57/180] Step 009/009 Loss 1.642 Prec@(1,3) (58.7%, 95.5%), ce_loss 1.237, lat_loss 6.642
+04/30 09:14:19 PM | val: [ 57/180] Final Prec@1 58.6900% Time 3.88
+04/30 09:14:19 PM | Start to train weights for epoch 57
+04/30 09:15:00 PM | Train: [ 58/180] Step 039/039 Loss 1.439 Prec@(1,3) (62.2%, 95.8%), ce_loss 1.236, lat_loss 6.642
+04/30 09:15:00 PM | _w_step_train: [ 58/180] Final Prec@1 62.1950% Time 40.85
+04/30 09:15:00 PM | Start to train theta for epoch 57
+04/30 09:15:35 PM | Train: [ 58/180] Step 039/039 Loss 1.344 Prec@(1,3) (64.0%, 96.6%), ce_loss 1.234, lat_loss 6.641
+04/30 09:15:35 PM | _theta_step_train: [ 58/180] Final Prec@1 63.9975% Time 35.48
+04/30 09:15:39 PM | Valid: [ 58/180] Step 009/009 Loss 1.930 Prec@(1,3) (53.7%, 92.5%), ce_loss 1.235, lat_loss 6.641
+04/30 09:15:39 PM | val: [ 58/180] Final Prec@1 53.7200% Time 3.81
+04/30 09:15:39 PM | Start to train weights for epoch 58
+04/30 09:16:20 PM | Train: [ 59/180] Step 039/039 Loss 1.361 Prec@(1,3) (63.7%, 96.4%), ce_loss 1.233, lat_loss 6.641
+04/30 09:16:20 PM | _w_step_train: [ 59/180] Final Prec@1 63.7125% Time 40.74
+04/30 09:16:20 PM | Start to train theta for epoch 58
+04/30 09:16:55 PM | Train: [ 59/180] Step 039/039 Loss 1.352 Prec@(1,3) (63.9%, 96.5%), ce_loss 1.231, lat_loss 6.641
+04/30 09:16:55 PM | _theta_step_train: [ 59/180] Final Prec@1 63.8675% Time 35.73
+04/30 09:16:59 PM | Valid: [ 59/180] Step 009/009 Loss 1.486 Prec@(1,3) (61.5%, 95.8%), ce_loss 1.231, lat_loss 6.640
+04/30 09:16:59 PM | val: [ 59/180] Final Prec@1 61.5100% Time 3.73
+04/30 09:16:59 PM | Best top1 acc by now. Save model
+04/30 09:16:59 PM | Start to train weights for epoch 59
+04/30 09:17:41 PM | Train: [ 60/180] Step 039/039 Loss 1.299 Prec@(1,3) (65.3%, 96.7%), ce_loss 1.229, lat_loss 6.640
+04/30 09:17:41 PM | _w_step_train: [ 60/180] Final Prec@1 65.3275% Time 41.25
+04/30 09:17:41 PM | Start to train theta for epoch 59
+04/30 09:18:17 PM | Train: [ 60/180] Step 039/039 Loss 1.307 Prec@(1,3) (65.1%, 96.6%), ce_loss 1.227, lat_loss 6.640
+04/30 09:18:17 PM | _theta_step_train: [ 60/180] Final Prec@1 65.0625% Time 36.47
+04/30 09:18:21 PM | Valid: [ 60/180] Step 009/009 Loss 1.861 Prec@(1,3) (55.1%, 92.2%), ce_loss 1.227, lat_loss 6.640
+04/30 09:18:21 PM | val: [ 60/180] Final Prec@1 55.1300% Time 3.69
+04/30 09:18:21 PM | Start to train weights for epoch 60
+04/30 09:19:02 PM | Train: [ 61/180] Step 039/039 Loss 1.295 Prec@(1,3) (65.0%, 96.7%), ce_loss 1.225, lat_loss 6.640
+04/30 09:19:02 PM | _w_step_train: [ 61/180] Final Prec@1 64.9825% Time 41.01
+04/30 09:19:02 PM | Start to train theta for epoch 60
+04/30 09:19:38 PM | Train: [ 61/180] Step 039/039 Loss 1.271 Prec@(1,3) (66.0%, 96.8%), ce_loss 1.223, lat_loss 6.639
+04/30 09:19:38 PM | _theta_step_train: [ 61/180] Final Prec@1 66.0100% Time 35.72
+04/30 09:19:41 PM | Valid: [ 61/180] Step 009/009 Loss 1.510 Prec@(1,3) (62.6%, 96.4%), ce_loss 1.223, lat_loss 6.639
+04/30 09:19:41 PM | val: [ 61/180] Final Prec@1 62.6400% Time 3.71
+04/30 09:19:41 PM | Best top1 acc by now. Save model
+04/30 09:19:42 PM | Start to train weights for epoch 61
+04/30 09:20:22 PM | Train: [ 62/180] Step 039/039 Loss 1.264 Prec@(1,3) (65.8%, 97.0%), ce_loss 1.221, lat_loss 6.639
+04/30 09:20:22 PM | _w_step_train: [ 62/180] Final Prec@1 65.8150% Time 40.73
+04/30 09:20:22 PM | Start to train theta for epoch 61
+04/30 09:20:58 PM | Train: [ 62/180] Step 039/039 Loss 1.275 Prec@(1,3) (65.8%, 96.7%), ce_loss 1.219, lat_loss 6.638
+04/30 09:20:58 PM | _theta_step_train: [ 62/180] Final Prec@1 65.8150% Time 35.50
+04/30 09:21:02 PM | Valid: [ 62/180] Step 009/009 Loss 1.497 Prec@(1,3) (61.5%, 95.6%), ce_loss 1.219, lat_loss 6.638
+04/30 09:21:02 PM | val: [ 62/180] Final Prec@1 61.5300% Time 3.94
+04/30 09:21:02 PM | Start to train weights for epoch 62
+04/30 09:21:43 PM | Train: [ 63/180] Step 039/039 Loss 1.217 Prec@(1,3) (67.3%, 97.2%), ce_loss 1.217, lat_loss 6.638
+04/30 09:21:43 PM | _w_step_train: [ 63/180] Final Prec@1 67.3475% Time 41.07
+04/30 09:21:43 PM | Start to train theta for epoch 62
+04/30 09:22:19 PM | Train: [ 63/180] Step 039/039 Loss 1.209 Prec@(1,3) (67.3%, 97.2%), ce_loss 1.214, lat_loss 6.638
+04/30 09:22:19 PM | _theta_step_train: [ 63/180] Final Prec@1 67.2900% Time 36.08
+04/30 09:22:23 PM | Valid: [ 63/180] Step 009/009 Loss 1.513 Prec@(1,3) (65.3%, 96.9%), ce_loss 1.214, lat_loss 6.637
+04/30 09:22:23 PM | val: [ 63/180] Final Prec@1 65.3300% Time 3.62
+04/30 09:22:23 PM | Best top1 acc by now. Save model
+04/30 09:22:23 PM | Start to train weights for epoch 63
+04/30 09:23:04 PM | Train: [ 64/180] Step 039/039 Loss 1.232 Prec@(1,3) (66.7%, 97.0%), ce_loss 1.212, lat_loss 6.637
+04/30 09:23:04 PM | _w_step_train: [ 64/180] Final Prec@1 66.7475% Time 41.45
+04/30 09:23:04 PM | Start to train theta for epoch 63
+04/30 09:23:40 PM | Train: [ 64/180] Step 039/039 Loss 1.192 Prec@(1,3) (67.8%, 97.4%), ce_loss 1.210, lat_loss 6.637
+04/30 09:23:40 PM | _theta_step_train: [ 64/180] Final Prec@1 67.7650% Time 36.08
+04/30 09:23:44 PM | Valid: [ 64/180] Step 009/009 Loss 1.388 Prec@(1,3) (65.0%, 96.6%), ce_loss 1.209, lat_loss 6.636
+04/30 09:23:44 PM | val: [ 64/180] Final Prec@1 65.0200% Time 3.85
+04/30 09:23:44 PM | Start to train weights for epoch 64
+04/30 09:24:25 PM | Train: [ 65/180] Step 039/039 Loss 1.243 Prec@(1,3) (67.0%, 97.0%), ce_loss 1.207, lat_loss 6.636
+04/30 09:24:25 PM | _w_step_train: [ 65/180] Final Prec@1 66.9500% Time 40.65
+04/30 09:24:25 PM | Start to train theta for epoch 64
+04/30 09:25:00 PM | Train: [ 65/180] Step 039/039 Loss 1.157 Prec@(1,3) (69.0%, 97.5%), ce_loss 1.205, lat_loss 6.636
+04/30 09:25:00 PM | _theta_step_train: [ 65/180] Final Prec@1 68.9800% Time 35.33
+04/30 09:25:04 PM | Valid: [ 65/180] Step 009/009 Loss 1.626 Prec@(1,3) (61.5%, 95.7%), ce_loss 1.205, lat_loss 6.636
+04/30 09:25:04 PM | val: [ 65/180] Final Prec@1 61.4800% Time 3.79
+04/30 09:25:04 PM | Start to train weights for epoch 65
+04/30 09:25:45 PM | Train: [ 66/180] Step 039/039 Loss 1.162 Prec@(1,3) (68.7%, 97.4%), ce_loss 1.203, lat_loss 6.635
+04/30 09:25:45 PM | _w_step_train: [ 66/180] Final Prec@1 68.7325% Time 40.56
+04/30 09:25:45 PM | Start to train theta for epoch 65
+04/30 09:26:20 PM | Train: [ 66/180] Step 039/039 Loss 1.162 Prec@(1,3) (68.7%, 97.5%), ce_loss 1.200, lat_loss 6.635
+04/30 09:26:20 PM | _theta_step_train: [ 66/180] Final Prec@1 68.6825% Time 35.30
+04/30 09:26:24 PM | Valid: [ 66/180] Step 009/009 Loss 1.554 Prec@(1,3) (62.3%, 96.3%), ce_loss 1.200, lat_loss 6.635
+04/30 09:26:24 PM | val: [ 66/180] Final Prec@1 62.3100% Time 3.86
+04/30 09:26:24 PM | Start to train weights for epoch 66
+04/30 09:27:04 PM | Train: [ 67/180] Step 039/039 Loss 1.149 Prec@(1,3) (68.8%, 97.4%), ce_loss 1.198, lat_loss 6.634
+04/30 09:27:04 PM | _w_step_train: [ 67/180] Final Prec@1 68.8250% Time 40.17
+04/30 09:27:04 PM | Start to train theta for epoch 66
+04/30 09:27:38 PM | Train: [ 67/180] Step 039/039 Loss 1.193 Prec@(1,3) (68.3%, 97.2%), ce_loss 1.196, lat_loss 6.634
+04/30 09:27:38 PM | _theta_step_train: [ 67/180] Final Prec@1 68.2925% Time 34.33
+04/30 09:27:42 PM | Valid: [ 67/180] Step 009/009 Loss 1.493 Prec@(1,3) (65.0%, 96.6%), ce_loss 1.196, lat_loss 6.634
+04/30 09:27:42 PM | val: [ 67/180] Final Prec@1 64.9600% Time 3.88
+04/30 09:27:42 PM | Start to train weights for epoch 67
+04/30 09:28:22 PM | Train: [ 68/180] Step 039/039 Loss 1.196 Prec@(1,3) (68.2%, 97.2%), ce_loss 1.194, lat_loss 6.633
+04/30 09:28:23 PM | _w_step_train: [ 68/180] Final Prec@1 68.2275% Time 40.10
+04/30 09:28:23 PM | Start to train theta for epoch 67
+04/30 09:28:57 PM | Train: [ 68/180] Step 039/039 Loss 1.128 Prec@(1,3) (69.6%, 97.6%), ce_loss 1.191, lat_loss 6.633
+04/30 09:28:57 PM | _theta_step_train: [ 68/180] Final Prec@1 69.6325% Time 34.60
+04/30 09:29:01 PM | Valid: [ 68/180] Step 009/009 Loss 1.406 Prec@(1,3) (66.8%, 96.9%), ce_loss 1.191, lat_loss 6.633
+04/30 09:29:01 PM | val: [ 68/180] Final Prec@1 66.7600% Time 3.89
+04/30 09:29:01 PM | Best top1 acc by now. Save model
+04/30 09:29:01 PM | Start to train weights for epoch 68
+04/30 09:29:42 PM | Train: [ 69/180] Step 039/039 Loss 1.111 Prec@(1,3) (70.0%, 97.7%), ce_loss 1.188, lat_loss 6.633
+04/30 09:29:42 PM | _w_step_train: [ 69/180] Final Prec@1 69.9725% Time 40.44
+04/30 09:29:42 PM | Start to train theta for epoch 68
+04/30 09:30:17 PM | Train: [ 69/180] Step 039/039 Loss 1.109 Prec@(1,3) (70.2%, 97.7%), ce_loss 1.186, lat_loss 6.632
+04/30 09:30:17 PM | _theta_step_train: [ 69/180] Final Prec@1 70.2400% Time 34.90
+04/30 09:30:20 PM | Valid: [ 69/180] Step 009/009 Loss 1.367 Prec@(1,3) (63.7%, 97.2%), ce_loss 1.186, lat_loss 6.632
+04/30 09:30:20 PM | val: [ 69/180] Final Prec@1 63.7400% Time 3.69
+04/30 09:30:20 PM | Start to train weights for epoch 69
+04/30 09:31:01 PM | Train: [ 70/180] Step 039/039 Loss 1.118 Prec@(1,3) (70.0%, 97.7%), ce_loss 1.183, lat_loss 6.632
+04/30 09:31:01 PM | _w_step_train: [ 70/180] Final Prec@1 70.0350% Time 40.78
+04/30 09:31:01 PM | Start to train theta for epoch 69
+04/30 09:31:36 PM | Train: [ 70/180] Step 039/039 Loss 1.093 Prec@(1,3) (70.6%, 97.7%), ce_loss 1.181, lat_loss 6.631
+04/30 09:31:36 PM | _theta_step_train: [ 70/180] Final Prec@1 70.6300% Time 34.97
+04/30 09:31:40 PM | Valid: [ 70/180] Step 009/009 Loss 1.249 Prec@(1,3) (69.6%, 97.6%), ce_loss 1.181, lat_loss 6.631
+04/30 09:31:40 PM | val: [ 70/180] Final Prec@1 69.6100% Time 3.82
+04/30 09:31:40 PM | Best top1 acc by now. Save model
+04/30 09:31:40 PM | Start to train weights for epoch 70
+04/30 09:32:20 PM | Train: [ 71/180] Step 039/039 Loss 1.079 Prec@(1,3) (71.1%, 97.8%), ce_loss 1.178, lat_loss 6.631
+04/30 09:32:20 PM | _w_step_train: [ 71/180] Final Prec@1 71.0650% Time 40.24
+04/30 09:32:20 PM | Start to train theta for epoch 70
+04/30 09:32:56 PM | Train: [ 71/180] Step 039/039 Loss 1.049 Prec@(1,3) (71.7%, 97.9%), ce_loss 1.176, lat_loss 6.630
+04/30 09:32:56 PM | _theta_step_train: [ 71/180] Final Prec@1 71.6650% Time 35.28
+04/30 09:33:00 PM | Valid: [ 71/180] Step 009/009 Loss 1.313 Prec@(1,3) (69.3%, 97.4%), ce_loss 1.175, lat_loss 6.630
+04/30 09:33:00 PM | val: [ 71/180] Final Prec@1 69.2600% Time 3.84
+04/30 09:33:00 PM | Start to train weights for epoch 71
+04/30 09:33:41 PM | Train: [ 72/180] Step 039/039 Loss 1.079 Prec@(1,3) (70.9%, 97.8%), ce_loss 1.173, lat_loss 6.630
+04/30 09:33:41 PM | _w_step_train: [ 72/180] Final Prec@1 70.9175% Time 41.13
+04/30 09:33:41 PM | Start to train theta for epoch 71
+04/30 09:34:16 PM | Train: [ 72/180] Step 039/039 Loss 1.031 Prec@(1,3) (72.4%, 98.0%), ce_loss 1.170, lat_loss 6.630
+04/30 09:34:16 PM | _theta_step_train: [ 72/180] Final Prec@1 72.3525% Time 34.85
+04/30 09:34:19 PM | Valid: [ 72/180] Step 009/009 Loss 1.297 Prec@(1,3) (67.3%, 97.2%), ce_loss 1.170, lat_loss 6.630
+04/30 09:34:20 PM | val: [ 72/180] Final Prec@1 67.3000% Time 3.94
+04/30 09:34:20 PM | Start to train weights for epoch 72
+04/30 09:35:00 PM | Train: [ 73/180] Step 039/039 Loss 1.074 Prec@(1,3) (71.2%, 97.9%), ce_loss 1.168, lat_loss 6.629
+04/30 09:35:00 PM | _w_step_train: [ 73/180] Final Prec@1 71.2250% Time 40.60
+04/30 09:35:00 PM | Start to train theta for epoch 72
+04/30 09:35:36 PM | Train: [ 73/180] Step 039/039 Loss 1.032 Prec@(1,3) (72.5%, 98.0%), ce_loss 1.165, lat_loss 6.629
+04/30 09:35:36 PM | _theta_step_train: [ 73/180] Final Prec@1 72.4550% Time 35.58
+04/30 09:35:39 PM | Valid: [ 73/180] Step 009/009 Loss 1.150 Prec@(1,3) (72.0%, 98.0%), ce_loss 1.165, lat_loss 6.629
+04/30 09:35:39 PM | val: [ 73/180] Final Prec@1 72.0000% Time 3.63
+04/30 09:35:39 PM | Best top1 acc by now. Save model
+04/30 09:35:40 PM | Start to train weights for epoch 73
+04/30 09:36:20 PM | Train: [ 74/180] Step 039/039 Loss 1.064 Prec@(1,3) (71.3%, 97.9%), ce_loss 1.162, lat_loss 6.628
+04/30 09:36:20 PM | _w_step_train: [ 74/180] Final Prec@1 71.2900% Time 40.78
+04/30 09:36:20 PM | Start to train theta for epoch 73
+04/30 09:36:56 PM | Train: [ 74/180] Step 039/039 Loss 1.004 Prec@(1,3) (73.0%, 98.2%), ce_loss 1.160, lat_loss 6.628
+04/30 09:36:56 PM | _theta_step_train: [ 74/180] Final Prec@1 73.0150% Time 35.53
+04/30 09:37:00 PM | Valid: [ 74/180] Step 009/009 Loss 1.626 Prec@(1,3) (62.8%, 94.2%), ce_loss 1.160, lat_loss 6.628
+04/30 09:37:00 PM | val: [ 74/180] Final Prec@1 62.8000% Time 3.72
+04/30 09:37:00 PM | Start to train weights for epoch 74
+04/30 09:37:42 PM | Train: [ 75/180] Step 039/039 Loss 1.017 Prec@(1,3) (72.7%, 98.1%), ce_loss 1.157, lat_loss 6.627
+04/30 09:37:42 PM | _w_step_train: [ 75/180] Final Prec@1 72.6675% Time 42.03
+04/30 09:37:42 PM | Start to train theta for epoch 74
+04/30 09:38:17 PM | Train: [ 75/180] Step 039/039 Loss 0.989 Prec@(1,3) (73.5%, 98.2%), ce_loss 1.155, lat_loss 6.627
+04/30 09:38:17 PM | _theta_step_train: [ 75/180] Final Prec@1 73.5425% Time 35.51
+04/30 09:38:21 PM | Valid: [ 75/180] Step 009/009 Loss 1.461 Prec@(1,3) (62.9%, 94.7%), ce_loss 1.155, lat_loss 6.627
+04/30 09:38:21 PM | val: [ 75/180] Final Prec@1 62.9300% Time 3.83
+04/30 09:38:21 PM | Start to train weights for epoch 75
+04/30 09:39:02 PM | Train: [ 76/180] Step 039/039 Loss 1.130 Prec@(1,3) (70.1%, 97.6%), ce_loss 1.153, lat_loss 6.627
+04/30 09:39:02 PM | _w_step_train: [ 76/180] Final Prec@1 70.0775% Time 41.09
+04/30 09:39:02 PM | Start to train theta for epoch 75
+04/30 09:39:37 PM | Train: [ 76/180] Step 039/039 Loss 1.000 Prec@(1,3) (73.2%, 98.3%), ce_loss 1.150, lat_loss 6.626
+04/30 09:39:37 PM | _theta_step_train: [ 76/180] Final Prec@1 73.2300% Time 34.43
+04/30 09:39:41 PM | Valid: [ 76/180] Step 009/009 Loss 1.546 Prec@(1,3) (64.1%, 94.4%), ce_loss 1.150, lat_loss 6.626
+04/30 09:39:41 PM | val: [ 76/180] Final Prec@1 64.0800% Time 3.89
+04/30 09:39:41 PM | Start to train weights for epoch 76
+04/30 09:40:21 PM | Train: [ 77/180] Step 039/039 Loss 1.016 Prec@(1,3) (72.8%, 98.0%), ce_loss 1.148, lat_loss 6.626
+04/30 09:40:21 PM | _w_step_train: [ 77/180] Final Prec@1 72.8025% Time 40.12
+04/30 09:40:21 PM | Start to train theta for epoch 76
+04/30 09:40:56 PM | Train: [ 77/180] Step 039/039 Loss 0.989 Prec@(1,3) (73.6%, 98.3%), ce_loss 1.146, lat_loss 6.625
+04/30 09:40:56 PM | _theta_step_train: [ 77/180] Final Prec@1 73.5725% Time 35.21
+04/30 09:41:00 PM | Valid: [ 77/180] Step 009/009 Loss 1.113 Prec@(1,3) (71.8%, 97.8%), ce_loss 1.145, lat_loss 6.625
+04/30 09:41:00 PM | val: [ 77/180] Final Prec@1 71.8100% Time 3.88
+04/30 09:41:00 PM | Start to train weights for epoch 77
+04/30 09:41:40 PM | Train: [ 78/180] Step 039/039 Loss 1.066 Prec@(1,3) (71.8%, 97.8%), ce_loss 1.143, lat_loss 6.625
+04/30 09:41:40 PM | _w_step_train: [ 78/180] Final Prec@1 71.7825% Time 40.03
+04/30 09:41:40 PM | Start to train theta for epoch 77
+04/30 09:42:15 PM | Train: [ 78/180] Step 039/039 Loss 1.009 Prec@(1,3) (73.1%, 98.2%), ce_loss 1.141, lat_loss 6.624
+04/30 09:42:15 PM | _theta_step_train: [ 78/180] Final Prec@1 73.1025% Time 35.30
+04/30 09:42:19 PM | Valid: [ 78/180] Step 009/009 Loss 1.183 Prec@(1,3) (70.1%, 97.7%), ce_loss 1.140, lat_loss 6.624
+04/30 09:42:19 PM | val: [ 78/180] Final Prec@1 70.0600% Time 3.90
+04/30 09:42:19 PM | Start to train weights for epoch 78
+04/30 09:43:00 PM | Train: [ 79/180] Step 039/039 Loss 1.012 Prec@(1,3) (72.9%, 98.1%), ce_loss 1.138, lat_loss 6.623
+04/30 09:43:00 PM | _w_step_train: [ 79/180] Final Prec@1 72.9050% Time 40.60
+04/30 09:43:00 PM | Start to train theta for epoch 78
+04/30 09:43:34 PM | Train: [ 79/180] Step 039/039 Loss 0.980 Prec@(1,3) (73.8%, 98.1%), ce_loss 1.136, lat_loss 6.623
+04/30 09:43:34 PM | _theta_step_train: [ 79/180] Final Prec@1 73.7500% Time 34.48
+04/30 09:43:38 PM | Valid: [ 79/180] Step 009/009 Loss 1.038 Prec@(1,3) (73.2%, 98.2%), ce_loss 1.135, lat_loss 6.623
+04/30 09:43:38 PM | val: [ 79/180] Final Prec@1 73.2400% Time 3.79
+04/30 09:43:38 PM | Best top1 acc by now. Save model
+04/30 09:43:38 PM | Start to train weights for epoch 79
+04/30 09:44:20 PM | Train: [ 80/180] Step 039/039 Loss 0.950 Prec@(1,3) (74.5%, 98.3%), ce_loss 1.133, lat_loss 6.622
+04/30 09:44:20 PM | _w_step_train: [ 80/180] Final Prec@1 74.5000% Time 41.42
+04/30 09:44:20 PM | Start to train theta for epoch 79
+04/30 09:44:55 PM | Train: [ 80/180] Step 039/039 Loss 0.945 Prec@(1,3) (74.8%, 98.3%), ce_loss 1.130, lat_loss 6.622
+04/30 09:44:55 PM | _theta_step_train: [ 80/180] Final Prec@1 74.8425% Time 34.98
+04/30 09:44:58 PM | Valid: [ 80/180] Step 009/009 Loss 1.067 Prec@(1,3) (72.4%, 97.8%), ce_loss 1.130, lat_loss 6.622
+04/30 09:44:58 PM | val: [ 80/180] Final Prec@1 72.3600% Time 3.71
+04/30 09:44:58 PM | Start to train weights for epoch 80
+04/30 09:45:39 PM | Train: [ 81/180] Step 039/039 Loss 0.939 Prec@(1,3) (74.9%, 98.4%), ce_loss 1.127, lat_loss 6.622
+04/30 09:45:39 PM | _w_step_train: [ 81/180] Final Prec@1 74.8550% Time 40.18
+04/30 09:45:39 PM | Start to train theta for epoch 80
+04/30 09:46:14 PM | Train: [ 81/180] Step 039/039 Loss 0.904 Prec@(1,3) (75.6%, 98.5%), ce_loss 1.125, lat_loss 6.621
+04/30 09:46:14 PM | _theta_step_train: [ 81/180] Final Prec@1 75.5875% Time 34.95
+04/30 09:46:17 PM | Valid: [ 81/180] Step 009/009 Loss 1.010 Prec@(1,3) (73.4%, 98.1%), ce_loss 1.124, lat_loss 6.621
+04/30 09:46:17 PM | val: [ 81/180] Final Prec@1 73.4100% Time 3.52
+04/30 09:46:17 PM | Best top1 acc by now. Save model
+04/30 09:46:17 PM | Start to train weights for epoch 81
+04/30 09:46:58 PM | Train: [ 82/180] Step 039/039 Loss 0.944 Prec@(1,3) (74.4%, 98.4%), ce_loss 1.122, lat_loss 6.621
+04/30 09:46:58 PM | _w_step_train: [ 82/180] Final Prec@1 74.4100% Time 40.68
+04/30 09:46:58 PM | Start to train theta for epoch 81
+04/30 09:47:33 PM | Train: [ 82/180] Step 039/039 Loss 0.921 Prec@(1,3) (75.5%, 98.4%), ce_loss 1.120, lat_loss 6.620
+04/30 09:47:33 PM | _theta_step_train: [ 82/180] Final Prec@1 75.4700% Time 35.35
+04/30 09:47:37 PM | Valid: [ 82/180] Step 009/009 Loss 1.084 Prec@(1,3) (72.8%, 98.1%), ce_loss 1.119, lat_loss 6.620
+04/30 09:47:37 PM | val: [ 82/180] Final Prec@1 72.8200% Time 3.71
+04/30 09:47:37 PM | Start to train weights for epoch 82
+04/30 09:48:18 PM | Train: [ 83/180] Step 039/039 Loss 0.915 Prec@(1,3) (75.2%, 98.4%), ce_loss 1.117, lat_loss 6.620
+04/30 09:48:18 PM | _w_step_train: [ 83/180] Final Prec@1 75.2100% Time 40.92
+04/30 09:48:18 PM | Start to train theta for epoch 82
+04/30 09:48:54 PM | Train: [ 83/180] Step 039/039 Loss 0.913 Prec@(1,3) (75.8%, 98.4%), ce_loss 1.114, lat_loss 6.619
+04/30 09:48:54 PM | _theta_step_train: [ 83/180] Final Prec@1 75.7975% Time 35.52
+04/30 09:48:57 PM | Valid: [ 83/180] Step 009/009 Loss 1.080 Prec@(1,3) (72.4%, 97.8%), ce_loss 1.114, lat_loss 6.619
+04/30 09:48:57 PM | val: [ 83/180] Final Prec@1 72.3900% Time 3.79
+04/30 09:48:57 PM | Start to train weights for epoch 83
+04/30 09:49:38 PM | Train: [ 84/180] Step 039/039 Loss 0.889 Prec@(1,3) (76.2%, 98.5%), ce_loss 1.111, lat_loss 6.619
+04/30 09:49:38 PM | _w_step_train: [ 84/180] Final Prec@1 76.2350% Time 40.90
+04/30 09:49:38 PM | Start to train theta for epoch 83
+04/30 09:50:13 PM | Train: [ 84/180] Step 039/039 Loss 0.902 Prec@(1,3) (75.7%, 98.4%), ce_loss 1.109, lat_loss 6.618
+04/30 09:50:13 PM | _theta_step_train: [ 84/180] Final Prec@1 75.7050% Time 35.12
+04/30 09:50:17 PM | Valid: [ 84/180] Step 009/009 Loss 0.981 Prec@(1,3) (75.3%, 98.4%), ce_loss 1.109, lat_loss 6.618
+04/30 09:50:17 PM | val: [ 84/180] Final Prec@1 75.2600% Time 3.73
+04/30 09:50:17 PM | Best top1 acc by now. Save model
+04/30 09:50:17 PM | Start to train weights for epoch 84
+04/30 09:50:58 PM | Train: [ 85/180] Step 039/039 Loss 0.896 Prec@(1,3) (75.7%, 98.6%), ce_loss 1.106, lat_loss 6.618
+04/30 09:50:58 PM | _w_step_train: [ 85/180] Final Prec@1 75.7325% Time 40.17
+04/30 09:50:58 PM | Start to train theta for epoch 84
+04/30 09:51:32 PM | Train: [ 85/180] Step 039/039 Loss 0.865 Prec@(1,3) (76.8%, 98.6%), ce_loss 1.104, lat_loss 6.617
+04/30 09:51:32 PM | _theta_step_train: [ 85/180] Final Prec@1 76.7700% Time 34.53
+04/30 09:51:36 PM | Valid: [ 85/180] Step 009/009 Loss 1.082 Prec@(1,3) (73.4%, 98.0%), ce_loss 1.103, lat_loss 6.617
+04/30 09:51:36 PM | val: [ 85/180] Final Prec@1 73.4000% Time 3.81
+04/30 09:51:36 PM | Start to train weights for epoch 85
+04/30 09:52:16 PM | Train: [ 86/180] Step 039/039 Loss 0.937 Prec@(1,3) (75.3%, 98.3%), ce_loss 1.101, lat_loss 6.617
+04/30 09:52:16 PM | _w_step_train: [ 86/180] Final Prec@1 75.2650% Time 40.28
+04/30 09:52:16 PM | Start to train theta for epoch 85
+04/30 09:52:52 PM | Train: [ 86/180] Step 039/039 Loss 0.843 Prec@(1,3) (77.2%, 98.7%), ce_loss 1.099, lat_loss 6.616
+04/30 09:52:52 PM | _theta_step_train: [ 86/180] Final Prec@1 77.1900% Time 36.07
+04/30 09:52:56 PM | Valid: [ 86/180] Step 009/009 Loss 0.977 Prec@(1,3) (75.4%, 98.4%), ce_loss 1.098, lat_loss 6.616
+04/30 09:52:56 PM | val: [ 86/180] Final Prec@1 75.4000% Time 3.79
+04/30 09:52:56 PM | Best top1 acc by now. Save model
+04/30 09:52:56 PM | Start to train weights for epoch 86
+04/30 09:53:36 PM | Train: [ 87/180] Step 039/039 Loss 0.890 Prec@(1,3) (76.2%, 98.6%), ce_loss 1.096, lat_loss 6.616
+04/30 09:53:37 PM | _w_step_train: [ 87/180] Final Prec@1 76.2275% Time 40.15
+04/30 09:53:37 PM | Start to train theta for epoch 86
+04/30 09:54:13 PM | Train: [ 87/180] Step 039/039 Loss 0.846 Prec@(1,3) (77.4%, 98.7%), ce_loss 1.093, lat_loss 6.615
+04/30 09:54:13 PM | _theta_step_train: [ 87/180] Final Prec@1 77.3600% Time 36.04
+04/30 09:54:16 PM | Valid: [ 87/180] Step 009/009 Loss 0.976 Prec@(1,3) (75.7%, 98.3%), ce_loss 1.093, lat_loss 6.615
+04/30 09:54:16 PM | val: [ 87/180] Final Prec@1 75.7200% Time 3.51
+04/30 09:54:16 PM | Best top1 acc by now. Save model
+04/30 09:54:16 PM | Start to train weights for epoch 87
+04/30 09:54:57 PM | Train: [ 88/180] Step 039/039 Loss 0.858 Prec@(1,3) (76.7%, 98.6%), ce_loss 1.090, lat_loss 6.615
+04/30 09:54:57 PM | _w_step_train: [ 88/180] Final Prec@1 76.7200% Time 40.25
+04/30 09:54:57 PM | Start to train theta for epoch 87
+04/30 09:55:32 PM | Train: [ 88/180] Step 039/039 Loss 0.875 Prec@(1,3) (76.6%, 98.6%), ce_loss 1.088, lat_loss 6.615
+04/30 09:55:32 PM | _theta_step_train: [ 88/180] Final Prec@1 76.6250% Time 35.33
+04/30 09:55:36 PM | Valid: [ 88/180] Step 009/009 Loss 1.027 Prec@(1,3) (75.2%, 98.3%), ce_loss 1.088, lat_loss 6.614
+04/30 09:55:36 PM | val: [ 88/180] Final Prec@1 75.2100% Time 3.85
+04/30 09:55:36 PM | Start to train weights for epoch 88
+04/30 09:56:17 PM | Train: [ 89/180] Step 039/039 Loss 0.836 Prec@(1,3) (77.7%, 98.7%), ce_loss 1.085, lat_loss 6.614
+04/30 09:56:17 PM | _w_step_train: [ 89/180] Final Prec@1 77.6825% Time 41.50
+04/30 09:56:17 PM | Start to train theta for epoch 88
+04/30 09:56:52 PM | Train: [ 89/180] Step 039/039 Loss 0.894 Prec@(1,3) (76.4%, 98.6%), ce_loss 1.083, lat_loss 6.614
+04/30 09:56:53 PM | _theta_step_train: [ 89/180] Final Prec@1 76.3625% Time 35.17
+04/30 09:56:56 PM | Valid: [ 89/180] Step 009/009 Loss 1.060 Prec@(1,3) (74.2%, 98.2%), ce_loss 1.083, lat_loss 6.614
+04/30 09:56:56 PM | val: [ 89/180] Final Prec@1 74.2300% Time 3.67
+04/30 09:56:56 PM | Start to train weights for epoch 89
+04/30 09:57:37 PM | Train: [ 90/180] Step 039/039 Loss 0.802 Prec@(1,3) (78.4%, 98.8%), ce_loss 1.080, lat_loss 6.613
+04/30 09:57:37 PM | _w_step_train: [ 90/180] Final Prec@1 78.4100% Time 40.97
+04/30 09:57:37 PM | Start to train theta for epoch 89
+04/30 09:58:13 PM | Train: [ 90/180] Step 039/039 Loss 0.965 Prec@(1,3) (75.3%, 98.2%), ce_loss 1.079, lat_loss 6.613
+04/30 09:58:13 PM | _theta_step_train: [ 90/180] Final Prec@1 75.3025% Time 35.76
+04/30 09:58:17 PM | Valid: [ 90/180] Step 009/009 Loss 1.062 Prec@(1,3) (74.5%, 98.5%), ce_loss 1.078, lat_loss 6.613
+04/30 09:58:17 PM | val: [ 90/180] Final Prec@1 74.4800% Time 3.82
+04/30 09:58:17 PM | Start to train weights for epoch 90
+04/30 09:58:58 PM | Train: [ 91/180] Step 039/039 Loss 0.840 Prec@(1,3) (77.4%, 98.7%), ce_loss 1.076, lat_loss 6.613
+04/30 09:58:58 PM | _w_step_train: [ 91/180] Final Prec@1 77.4125% Time 41.07
+04/30 09:58:58 PM | Start to train theta for epoch 90
+04/30 09:59:33 PM | Train: [ 91/180] Step 039/039 Loss 0.801 Prec@(1,3) (78.5%, 98.8%), ce_loss 1.074, lat_loss 6.612
+04/30 09:59:33 PM | _theta_step_train: [ 91/180] Final Prec@1 78.5375% Time 35.09
+04/30 09:59:37 PM | Valid: [ 91/180] Step 009/009 Loss 0.942 Prec@(1,3) (76.9%, 98.5%), ce_loss 1.073, lat_loss 6.612
+04/30 09:59:37 PM | val: [ 91/180] Final Prec@1 76.8500% Time 4.18
+04/30 09:59:37 PM | Best top1 acc by now. Save model
+04/30 09:59:37 PM | Start to train weights for epoch 91
+04/30 10:00:18 PM | Train: [ 92/180] Step 039/039 Loss 0.844 Prec@(1,3) (77.6%, 98.8%), ce_loss 1.071, lat_loss 6.612
+04/30 10:00:18 PM | _w_step_train: [ 92/180] Final Prec@1 77.5600% Time 40.51
+04/30 10:00:18 PM | Start to train theta for epoch 91
+04/30 10:00:53 PM | Train: [ 92/180] Step 039/039 Loss 0.843 Prec@(1,3) (77.5%, 98.7%), ce_loss 1.069, lat_loss 6.611
+04/30 10:00:53 PM | _theta_step_train: [ 92/180] Final Prec@1 77.5350% Time 35.38
+04/30 10:00:57 PM | Valid: [ 92/180] Step 009/009 Loss 1.008 Prec@(1,3) (76.5%, 98.6%), ce_loss 1.068, lat_loss 6.611
+04/30 10:00:57 PM | val: [ 92/180] Final Prec@1 76.5400% Time 3.64
+04/30 10:00:57 PM | Start to train weights for epoch 92
+04/30 10:01:40 PM | Train: [ 93/180] Step 039/039 Loss 0.836 Prec@(1,3) (77.9%, 98.7%), ce_loss 1.066, lat_loss 6.611
+04/30 10:01:40 PM | _w_step_train: [ 93/180] Final Prec@1 77.8675% Time 42.59
+04/30 10:01:40 PM | Start to train theta for epoch 92
+04/30 10:02:17 PM | Train: [ 93/180] Step 039/039 Loss 0.821 Prec@(1,3) (77.9%, 98.9%), ce_loss 1.064, lat_loss 6.611
+04/30 10:02:17 PM | _theta_step_train: [ 93/180] Final Prec@1 77.8925% Time 37.07
+04/30 10:02:20 PM | Valid: [ 93/180] Step 009/009 Loss 0.958 Prec@(1,3) (75.8%, 98.3%), ce_loss 1.063, lat_loss 6.611
+04/30 10:02:21 PM | val: [ 93/180] Final Prec@1 75.8000% Time 3.84
+04/30 10:02:21 PM | Start to train weights for epoch 93
+04/30 10:03:01 PM | Train: [ 94/180] Step 039/039 Loss 0.813 Prec@(1,3) (78.2%, 98.8%), ce_loss 1.061, lat_loss 6.610
+04/30 10:03:01 PM | _w_step_train: [ 94/180] Final Prec@1 78.2425% Time 40.26
+04/30 10:03:01 PM | Start to train theta for epoch 93
+04/30 10:03:36 PM | Train: [ 94/180] Step 039/039 Loss 0.824 Prec@(1,3) (77.9%, 98.8%), ce_loss 1.059, lat_loss 6.610
+04/30 10:03:36 PM | _theta_step_train: [ 94/180] Final Prec@1 77.9225% Time 35.55
+04/30 10:03:40 PM | Valid: [ 94/180] Step 009/009 Loss 0.967 Prec@(1,3) (76.8%, 98.5%), ce_loss 1.059, lat_loss 6.610
+04/30 10:03:40 PM | val: [ 94/180] Final Prec@1 76.7600% Time 4.04
+04/30 10:03:40 PM | Start to train weights for epoch 94
+04/30 10:04:21 PM | Train: [ 95/180] Step 039/039 Loss 0.878 Prec@(1,3) (77.1%, 98.5%), ce_loss 1.057, lat_loss 6.609
+04/30 10:04:21 PM | _w_step_train: [ 95/180] Final Prec@1 77.1475% Time 40.75
+04/30 10:04:21 PM | Start to train theta for epoch 94
+04/30 10:04:57 PM | Train: [ 95/180] Step 039/039 Loss 0.825 Prec@(1,3) (77.8%, 98.7%), ce_loss 1.055, lat_loss 6.609
+04/30 10:04:57 PM | _theta_step_train: [ 95/180] Final Prec@1 77.8475% Time 36.05
+04/30 10:05:01 PM | Valid: [ 95/180] Step 009/009 Loss 1.016 Prec@(1,3) (75.6%, 98.5%), ce_loss 1.054, lat_loss 6.609
+04/30 10:05:01 PM | val: [ 95/180] Final Prec@1 75.6300% Time 3.67
+04/30 10:05:01 PM | Start to train weights for epoch 95
+04/30 10:05:42 PM | Train: [ 96/180] Step 039/039 Loss 0.804 Prec@(1,3) (78.6%, 98.9%), ce_loss 1.052, lat_loss 6.609
+04/30 10:05:42 PM | _w_step_train: [ 96/180] Final Prec@1 78.6125% Time 41.06
+04/30 10:05:42 PM | Start to train theta for epoch 95
+04/30 10:06:17 PM | Train: [ 96/180] Step 039/039 Loss 0.774 Prec@(1,3) (79.2%, 98.9%), ce_loss 1.050, lat_loss 6.608
+04/30 10:06:17 PM | _theta_step_train: [ 96/180] Final Prec@1 79.2100% Time 35.15
+04/30 10:06:21 PM | Valid: [ 96/180] Step 009/009 Loss 0.999 Prec@(1,3) (74.1%, 98.3%), ce_loss 1.049, lat_loss 6.608
+04/30 10:06:21 PM | val: [ 96/180] Final Prec@1 74.0900% Time 3.85
+04/30 10:06:21 PM | Start to train weights for epoch 96
+04/30 10:07:02 PM | Train: [ 97/180] Step 039/039 Loss 0.777 Prec@(1,3) (79.4%, 98.9%), ce_loss 1.047, lat_loss 6.608
+04/30 10:07:02 PM | _w_step_train: [ 97/180] Final Prec@1 79.3600% Time 40.82
+04/30 10:07:02 PM | Start to train theta for epoch 96
+04/30 10:07:37 PM | Train: [ 97/180] Step 039/039 Loss 0.806 Prec@(1,3) (78.4%, 98.8%), ce_loss 1.045, lat_loss 6.607
+04/30 10:07:37 PM | _theta_step_train: [ 97/180] Final Prec@1 78.4100% Time 35.51
+04/30 10:07:41 PM | Valid: [ 97/180] Step 009/009 Loss 0.923 Prec@(1,3) (77.9%, 98.7%), ce_loss 1.045, lat_loss 6.607
+04/30 10:07:41 PM | val: [ 97/180] Final Prec@1 77.8500% Time 3.70
+04/30 10:07:41 PM | Best top1 acc by now. Save model
+04/30 10:07:41 PM | Start to train weights for epoch 97
+04/30 10:08:22 PM | Train: [ 98/180] Step 039/039 Loss 0.761 Prec@(1,3) (79.5%, 99.0%), ce_loss 1.042, lat_loss 6.607
+04/30 10:08:22 PM | _w_step_train: [ 98/180] Final Prec@1 79.4625% Time 40.79
+04/30 10:08:22 PM | Start to train theta for epoch 97
+04/30 10:08:58 PM | Train: [ 98/180] Step 039/039 Loss 0.859 Prec@(1,3) (77.5%, 98.6%), ce_loss 1.041, lat_loss 6.607
+04/30 10:08:58 PM | _theta_step_train: [ 98/180] Final Prec@1 77.4675% Time 35.82
+04/30 10:09:02 PM | Valid: [ 98/180] Step 009/009 Loss 1.060 Prec@(1,3) (75.2%, 98.3%), ce_loss 1.040, lat_loss 6.607
+04/30 10:09:02 PM | val: [ 98/180] Final Prec@1 75.1500% Time 3.81
+04/30 10:09:02 PM | Start to train weights for epoch 98
+04/30 10:09:43 PM | Train: [ 99/180] Step 039/039 Loss 0.750 Prec@(1,3) (79.9%, 99.0%), ce_loss 1.038, lat_loss 6.606
+04/30 10:09:43 PM | _w_step_train: [ 99/180] Final Prec@1 79.9025% Time 40.97
+04/30 10:09:43 PM | Start to train theta for epoch 98
+04/30 10:10:18 PM | Train: [ 99/180] Step 039/039 Loss 0.726 Prec@(1,3) (80.6%, 99.1%), ce_loss 1.036, lat_loss 6.606
+04/30 10:10:18 PM | _theta_step_train: [ 99/180] Final Prec@1 80.5500% Time 34.96
+04/30 10:10:22 PM | Valid: [ 99/180] Step 009/009 Loss 0.916 Prec@(1,3) (76.4%, 98.3%), ce_loss 1.035, lat_loss 6.606
+04/30 10:10:22 PM | val: [ 99/180] Final Prec@1 76.4000% Time 3.82
+04/30 10:10:22 PM | Start to train weights for epoch 99
+04/30 10:11:03 PM | Train: [100/180] Step 039/039 Loss 0.776 Prec@(1,3) (79.2%, 98.9%), ce_loss 1.033, lat_loss 6.605
+04/30 10:11:03 PM | _w_step_train: [100/180] Final Prec@1 79.2125% Time 40.92
+04/30 10:11:03 PM | Start to train theta for epoch 99
+04/30 10:11:38 PM | Train: [100/180] Step 039/039 Loss 0.754 Prec@(1,3) (79.8%, 98.9%), ce_loss 1.031, lat_loss 6.605
+04/30 10:11:38 PM | _theta_step_train: [100/180] Final Prec@1 79.7550% Time 35.06
+04/30 10:11:42 PM | Valid: [100/180] Step 009/009 Loss 0.948 Prec@(1,3) (76.7%, 98.6%), ce_loss 1.031, lat_loss 6.605
+04/30 10:11:42 PM | val: [100/180] Final Prec@1 76.7200% Time 3.93
+04/30 10:11:42 PM | Start to train weights for epoch 100
+04/30 10:12:22 PM | Train: [101/180] Step 039/039 Loss 0.748 Prec@(1,3) (80.0%, 99.0%), ce_loss 1.029, lat_loss 6.605
+04/30 10:12:22 PM | _w_step_train: [101/180] Final Prec@1 80.0050% Time 40.58
+04/30 10:12:22 PM | Start to train theta for epoch 100
+04/30 10:12:58 PM | Train: [101/180] Step 039/039 Loss 0.786 Prec@(1,3) (78.8%, 98.9%), ce_loss 1.027, lat_loss 6.604
+04/30 10:12:58 PM | _theta_step_train: [101/180] Final Prec@1 78.7900% Time 35.54
+04/30 10:13:02 PM | Valid: [101/180] Step 009/009 Loss 0.927 Prec@(1,3) (76.7%, 98.6%), ce_loss 1.026, lat_loss 6.604
+04/30 10:13:02 PM | val: [101/180] Final Prec@1 76.7300% Time 3.83
+04/30 10:13:02 PM | Start to train weights for epoch 101
+04/30 10:13:42 PM | Train: [102/180] Step 039/039 Loss 0.779 Prec@(1,3) (79.1%, 98.9%), ce_loss 1.024, lat_loss 6.604
+04/30 10:13:42 PM | _w_step_train: [102/180] Final Prec@1 79.0900% Time 40.65
+04/30 10:13:42 PM | Start to train theta for epoch 101
+04/30 10:14:19 PM | Train: [102/180] Step 039/039 Loss 0.758 Prec@(1,3) (79.6%, 99.0%), ce_loss 1.022, lat_loss 6.604
+04/30 10:14:19 PM | _theta_step_train: [102/180] Final Prec@1 79.5925% Time 36.30
+04/30 10:14:22 PM | Valid: [102/180] Step 009/009 Loss 0.980 Prec@(1,3) (77.0%, 98.6%), ce_loss 1.022, lat_loss 6.604
+04/30 10:14:22 PM | val: [102/180] Final Prec@1 76.9800% Time 3.65
+04/30 10:14:22 PM | Start to train weights for epoch 102
+04/30 10:15:04 PM | Train: [103/180] Step 039/039 Loss 0.731 Prec@(1,3) (80.4%, 99.0%), ce_loss 1.020, lat_loss 6.603
+04/30 10:15:04 PM | _w_step_train: [103/180] Final Prec@1 80.4275% Time 41.31
+04/30 10:15:04 PM | Start to train theta for epoch 102
+04/30 10:15:38 PM | Train: [103/180] Step 039/039 Loss 0.709 Prec@(1,3) (80.7%, 99.1%), ce_loss 1.018, lat_loss 6.603
+04/30 10:15:38 PM | _theta_step_train: [103/180] Final Prec@1 80.7000% Time 34.72
+04/30 10:15:42 PM | Valid: [103/180] Step 009/009 Loss 1.205 Prec@(1,3) (68.1%, 96.8%), ce_loss 1.018, lat_loss 6.603
+04/30 10:15:42 PM | val: [103/180] Final Prec@1 68.1100% Time 3.86
+04/30 10:15:42 PM | Start to train weights for epoch 103
+04/30 10:16:24 PM | Train: [104/180] Step 039/039 Loss 0.745 Prec@(1,3) (79.9%, 99.0%), ce_loss 1.015, lat_loss 6.602
+04/30 10:16:24 PM | _w_step_train: [104/180] Final Prec@1 79.9350% Time 41.39
+04/30 10:16:24 PM | Start to train theta for epoch 103
+04/30 10:16:59 PM | Train: [104/180] Step 039/039 Loss 0.787 Prec@(1,3) (79.8%, 98.7%), ce_loss 1.014, lat_loss 6.602
+04/30 10:16:59 PM | _theta_step_train: [104/180] Final Prec@1 79.7850% Time 35.34
+04/30 10:17:03 PM | Valid: [104/180] Step 009/009 Loss 0.839 Prec@(1,3) (79.2%, 98.9%), ce_loss 1.013, lat_loss 6.602
+04/30 10:17:03 PM | val: [104/180] Final Prec@1 79.1600% Time 3.88
+04/30 10:17:03 PM | Best top1 acc by now. Save model
+04/30 10:17:03 PM | Start to train weights for epoch 104
+04/30 10:17:44 PM | Train: [105/180] Step 039/039 Loss 0.738 Prec@(1,3) (80.0%, 99.0%), ce_loss 1.011, lat_loss 6.602
+04/30 10:17:44 PM | _w_step_train: [105/180] Final Prec@1 80.0075% Time 40.51
+04/30 10:17:44 PM | Start to train theta for epoch 104
+04/30 10:18:19 PM | Train: [105/180] Step 039/039 Loss 0.724 Prec@(1,3) (80.6%, 99.0%), ce_loss 1.009, lat_loss 6.601
+04/30 10:18:19 PM | _theta_step_train: [105/180] Final Prec@1 80.5950% Time 35.45
+04/30 10:18:23 PM | Valid: [105/180] Step 009/009 Loss 0.844 Prec@(1,3) (77.9%, 98.7%), ce_loss 1.009, lat_loss 6.601
+04/30 10:18:23 PM | val: [105/180] Final Prec@1 77.9200% Time 3.68
+04/30 10:18:23 PM | Start to train weights for epoch 105
+04/30 10:19:03 PM | Train: [106/180] Step 039/039 Loss 0.828 Prec@(1,3) (79.2%, 98.6%), ce_loss 1.007, lat_loss 6.601
+04/30 10:19:03 PM | _w_step_train: [106/180] Final Prec@1 79.1675% Time 40.31
+04/30 10:19:03 PM | Start to train theta for epoch 105
+04/30 10:19:39 PM | Train: [106/180] Step 039/039 Loss 0.740 Prec@(1,3) (80.2%, 99.0%), ce_loss 1.005, lat_loss 6.601
+04/30 10:19:39 PM | _theta_step_train: [106/180] Final Prec@1 80.1750% Time 35.43
+04/30 10:19:42 PM | Valid: [106/180] Step 009/009 Loss 0.921 Prec@(1,3) (76.6%, 98.5%), ce_loss 1.005, lat_loss 6.601
+04/30 10:19:42 PM | val: [106/180] Final Prec@1 76.5900% Time 3.66
+04/30 10:19:42 PM | Start to train weights for epoch 106
+04/30 10:20:23 PM | Train: [107/180] Step 039/039 Loss 0.744 Prec@(1,3) (80.1%, 99.0%), ce_loss 1.003, lat_loss 6.600
+04/30 10:20:23 PM | _w_step_train: [107/180] Final Prec@1 80.0975% Time 40.50
+04/30 10:20:23 PM | Start to train theta for epoch 106
+04/30 10:20:58 PM | Train: [107/180] Step 039/039 Loss 0.768 Prec@(1,3) (79.6%, 98.9%), ce_loss 1.001, lat_loss 6.600
+04/30 10:20:58 PM | _theta_step_train: [107/180] Final Prec@1 79.5575% Time 35.59
+04/30 10:21:02 PM | Valid: [107/180] Step 009/009 Loss 0.819 Prec@(1,3) (78.6%, 98.8%), ce_loss 1.001, lat_loss 6.600
+04/30 10:21:02 PM | val: [107/180] Final Prec@1 78.6400% Time 3.88
+04/30 10:21:02 PM | Start to train weights for epoch 107
+04/30 10:21:43 PM | Train: [108/180] Step 039/039 Loss 0.761 Prec@(1,3) (79.7%, 99.0%), ce_loss 0.999, lat_loss 6.600
+04/30 10:21:43 PM | _w_step_train: [108/180] Final Prec@1 79.6550% Time 40.71
+04/30 10:21:43 PM | Start to train theta for epoch 107
+04/30 10:22:19 PM | Train: [108/180] Step 039/039 Loss 0.770 Prec@(1,3) (80.1%, 98.8%), ce_loss 0.997, lat_loss 6.599
+04/30 10:22:19 PM | _theta_step_train: [108/180] Final Prec@1 80.0600% Time 35.88
+04/30 10:22:23 PM | Valid: [108/180] Step 009/009 Loss 1.043 Prec@(1,3) (76.6%, 98.4%), ce_loss 0.997, lat_loss 6.599
+04/30 10:22:23 PM | val: [108/180] Final Prec@1 76.6100% Time 3.85
+04/30 10:22:23 PM | Start to train weights for epoch 108
+04/30 10:23:05 PM | Train: [109/180] Step 039/039 Loss 0.714 Prec@(1,3) (80.9%, 99.1%), ce_loss 0.995, lat_loss 6.599
+04/30 10:23:05 PM | _w_step_train: [109/180] Final Prec@1 80.8950% Time 41.81
+04/30 10:23:05 PM | Start to train theta for epoch 108
+04/30 10:23:39 PM | Train: [109/180] Step 039/039 Loss 0.707 Prec@(1,3) (81.0%, 99.1%), ce_loss 0.993, lat_loss 6.599
+04/30 10:23:39 PM | _theta_step_train: [109/180] Final Prec@1 81.0250% Time 34.60
+04/30 10:23:43 PM | Valid: [109/180] Step 009/009 Loss 0.887 Prec@(1,3) (78.3%, 98.5%), ce_loss 0.993, lat_loss 6.599
+04/30 10:23:43 PM | val: [109/180] Final Prec@1 78.3300% Time 3.80
+04/30 10:23:43 PM | Start to train weights for epoch 109
+04/30 10:24:24 PM | Train: [110/180] Step 039/039 Loss 0.733 Prec@(1,3) (80.3%, 99.0%), ce_loss 0.991, lat_loss 6.598
+04/30 10:24:24 PM | _w_step_train: [110/180] Final Prec@1 80.3050% Time 40.53
+04/30 10:24:24 PM | Start to train theta for epoch 109
+04/30 10:24:58 PM | Train: [110/180] Step 039/039 Loss 0.816 Prec@(1,3) (79.3%, 98.5%), ce_loss 0.989, lat_loss 6.598
+04/30 10:24:58 PM | _theta_step_train: [110/180] Final Prec@1 79.2775% Time 34.17
+04/30 10:25:01 PM | Valid: [110/180] Step 009/009 Loss 0.879 Prec@(1,3) (78.6%, 98.7%), ce_loss 0.989, lat_loss 6.598
+04/30 10:25:01 PM | val: [110/180] Final Prec@1 78.6400% Time 3.71
+04/30 10:25:01 PM | Start to train weights for epoch 110
+04/30 10:25:42 PM | Train: [111/180] Step 039/039 Loss 0.716 Prec@(1,3) (80.7%, 99.1%), ce_loss 0.987, lat_loss 6.598
+04/30 10:25:42 PM | _w_step_train: [111/180] Final Prec@1 80.6600% Time 40.30
+04/30 10:25:42 PM | Start to train theta for epoch 110
+04/30 10:26:18 PM | Train: [111/180] Step 039/039 Loss 0.691 Prec@(1,3) (81.3%, 99.1%), ce_loss 0.985, lat_loss 6.597
+04/30 10:26:18 PM | _theta_step_train: [111/180] Final Prec@1 81.3150% Time 36.58
+04/30 10:26:22 PM | Valid: [111/180] Step 009/009 Loss 0.984 Prec@(1,3) (76.0%, 98.5%), ce_loss 0.985, lat_loss 6.597
+04/30 10:26:22 PM | val: [111/180] Final Prec@1 75.9500% Time 3.71
+04/30 10:26:22 PM | Start to train weights for epoch 111
+04/30 10:27:02 PM | Train: [112/180] Step 039/039 Loss 0.772 Prec@(1,3) (79.6%, 98.9%), ce_loss 0.983, lat_loss 6.597
+04/30 10:27:02 PM | _w_step_train: [112/180] Final Prec@1 79.6025% Time 39.86
+04/30 10:27:02 PM | Start to train theta for epoch 111
+04/30 10:27:37 PM | Train: [112/180] Step 039/039 Loss 0.791 Prec@(1,3) (80.0%, 98.4%), ce_loss 0.982, lat_loss 6.597
+04/30 10:27:37 PM | _theta_step_train: [112/180] Final Prec@1 79.9550% Time 34.97
+04/30 10:27:41 PM | Valid: [112/180] Step 009/009 Loss 0.926 Prec@(1,3) (75.9%, 98.5%), ce_loss 0.981, lat_loss 6.597
+04/30 10:27:41 PM | val: [112/180] Final Prec@1 75.8800% Time 3.73
+04/30 10:27:41 PM | Start to train weights for epoch 112
+04/30 10:28:21 PM | Train: [113/180] Step 039/039 Loss 0.714 Prec@(1,3) (80.9%, 99.1%), ce_loss 0.979, lat_loss 6.596
+04/30 10:28:21 PM | _w_step_train: [113/180] Final Prec@1 80.8850% Time 40.21
+04/30 10:28:21 PM | Start to train theta for epoch 112
+04/30 10:28:56 PM | Train: [113/180] Step 039/039 Loss 0.720 Prec@(1,3) (80.5%, 99.0%), ce_loss 0.978, lat_loss 6.596
+04/30 10:28:56 PM | _theta_step_train: [113/180] Final Prec@1 80.5425% Time 35.01
+04/30 10:29:00 PM | Valid: [113/180] Step 009/009 Loss 1.312 Prec@(1,3) (66.6%, 97.3%), ce_loss 0.978, lat_loss 6.596
+04/30 10:29:00 PM | val: [113/180] Final Prec@1 66.5500% Time 3.85
+04/30 10:29:00 PM | Start to train weights for epoch 113
+04/30 10:29:40 PM | Train: [114/180] Step 039/039 Loss 0.850 Prec@(1,3) (78.8%, 98.4%), ce_loss 0.976, lat_loss 6.596
+04/30 10:29:41 PM | _w_step_train: [114/180] Final Prec@1 78.7875% Time 40.62
+04/30 10:29:41 PM | Start to train theta for epoch 113
+04/30 10:30:16 PM | Train: [114/180] Step 039/039 Loss 0.727 Prec@(1,3) (80.9%, 99.1%), ce_loss 0.975, lat_loss 6.595
+04/30 10:30:16 PM | _theta_step_train: [114/180] Final Prec@1 80.8800% Time 35.14
+04/30 10:30:19 PM | Valid: [114/180] Step 009/009 Loss 0.879 Prec@(1,3) (77.1%, 98.8%), ce_loss 0.974, lat_loss 6.595
+04/30 10:30:19 PM | val: [114/180] Final Prec@1 77.1300% Time 3.64
+04/30 10:30:19 PM | Start to train weights for epoch 114
+04/30 10:31:01 PM | Train: [115/180] Step 039/039 Loss 0.717 Prec@(1,3) (80.9%, 99.0%), ce_loss 0.973, lat_loss 6.595
+04/30 10:31:01 PM | _w_step_train: [115/180] Final Prec@1 80.9025% Time 41.89
+04/30 10:31:01 PM | Start to train theta for epoch 114
+04/30 10:31:36 PM | Train: [115/180] Step 039/039 Loss 0.674 Prec@(1,3) (82.0%, 99.2%), ce_loss 0.971, lat_loss 6.595
+04/30 10:31:36 PM | _theta_step_train: [115/180] Final Prec@1 82.0100% Time 34.70
+04/30 10:31:40 PM | Valid: [115/180] Step 009/009 Loss 0.873 Prec@(1,3) (79.2%, 98.7%), ce_loss 0.970, lat_loss 6.595
+04/30 10:31:40 PM | val: [115/180] Final Prec@1 79.1500% Time 3.68
+04/30 10:31:40 PM | Start to train weights for epoch 115
+04/30 10:32:20 PM | Train: [116/180] Step 039/039 Loss 0.712 Prec@(1,3) (81.1%, 99.1%), ce_loss 0.969, lat_loss 6.594
+04/30 10:32:20 PM | _w_step_train: [116/180] Final Prec@1 81.1250% Time 39.94
+04/30 10:32:20 PM | Start to train theta for epoch 115
+04/30 10:32:54 PM | Train: [116/180] Step 039/039 Loss 0.677 Prec@(1,3) (81.8%, 99.2%), ce_loss 0.967, lat_loss 6.594
+04/30 10:32:54 PM | _theta_step_train: [116/180] Final Prec@1 81.8350% Time 34.76
+04/30 10:32:58 PM | Valid: [116/180] Step 009/009 Loss 1.470 Prec@(1,3) (71.0%, 95.7%), ce_loss 0.967, lat_loss 6.594
+04/30 10:32:58 PM | val: [116/180] Final Prec@1 70.9800% Time 3.75
+04/30 10:32:58 PM | Start to train weights for epoch 116
+04/30 10:33:38 PM | Train: [117/180] Step 039/039 Loss 0.668 Prec@(1,3) (82.2%, 99.2%), ce_loss 0.965, lat_loss 6.594
+04/30 10:33:38 PM | _w_step_train: [117/180] Final Prec@1 82.2375% Time 40.00
+04/30 10:33:38 PM | Start to train theta for epoch 116
+04/30 10:34:13 PM | Train: [117/180] Step 039/039 Loss 0.663 Prec@(1,3) (82.1%, 99.2%), ce_loss 0.963, lat_loss 6.594
+04/30 10:34:13 PM | _theta_step_train: [117/180] Final Prec@1 82.1075% Time 35.11
+04/30 10:34:17 PM | Valid: [117/180] Step 009/009 Loss 1.160 Prec@(1,3) (71.2%, 98.0%), ce_loss 0.963, lat_loss 6.594
+04/30 10:34:17 PM | val: [117/180] Final Prec@1 71.1800% Time 3.86
+04/30 10:34:17 PM | Start to train weights for epoch 117
+04/30 10:34:57 PM | Train: [118/180] Step 039/039 Loss 0.657 Prec@(1,3) (82.1%, 99.2%), ce_loss 0.962, lat_loss 6.593
+04/30 10:34:58 PM | _w_step_train: [118/180] Final Prec@1 82.1175% Time 40.30
+04/30 10:34:58 PM | Start to train theta for epoch 117
+04/30 10:35:32 PM | Train: [118/180] Step 039/039 Loss 0.714 Prec@(1,3) (81.5%, 98.9%), ce_loss 0.960, lat_loss 6.593
+04/30 10:35:32 PM | _theta_step_train: [118/180] Final Prec@1 81.5150% Time 34.84
+04/30 10:35:36 PM | Valid: [118/180] Step 009/009 Loss 0.919 Prec@(1,3) (78.7%, 98.7%), ce_loss 0.960, lat_loss 6.593
+04/30 10:35:36 PM | val: [118/180] Final Prec@1 78.6700% Time 3.74
+04/30 10:35:36 PM | Start to train weights for epoch 118
+04/30 10:36:18 PM | Train: [119/180] Step 039/039 Loss 0.676 Prec@(1,3) (82.0%, 99.2%), ce_loss 0.958, lat_loss 6.593
+04/30 10:36:18 PM | _w_step_train: [119/180] Final Prec@1 82.0450% Time 41.85
+04/30 10:36:18 PM | Start to train theta for epoch 118
+04/30 10:36:53 PM | Train: [119/180] Step 039/039 Loss 0.654 Prec@(1,3) (82.5%, 99.2%), ce_loss 0.956, lat_loss 6.593
+04/30 10:36:53 PM | _theta_step_train: [119/180] Final Prec@1 82.4650% Time 35.25
+04/30 10:36:57 PM | Valid: [119/180] Step 009/009 Loss 0.828 Prec@(1,3) (79.7%, 98.8%), ce_loss 0.956, lat_loss 6.592
+04/30 10:36:57 PM | val: [119/180] Final Prec@1 79.7400% Time 3.68
+04/30 10:36:57 PM | Best top1 acc by now. Save model
+04/30 10:36:57 PM | Start to train weights for epoch 119
+04/30 10:37:39 PM | Train: [120/180] Step 039/039 Loss 0.662 Prec@(1,3) (82.2%, 99.2%), ce_loss 0.954, lat_loss 6.592
+04/30 10:37:39 PM | _w_step_train: [120/180] Final Prec@1 82.2100% Time 41.54
+04/30 10:37:39 PM | Start to train theta for epoch 119
+04/30 10:38:14 PM | Train: [120/180] Step 039/039 Loss 0.690 Prec@(1,3) (81.7%, 99.1%), ce_loss 0.952, lat_loss 6.592
+04/30 10:38:14 PM | _theta_step_train: [120/180] Final Prec@1 81.7275% Time 35.33
+04/30 10:38:18 PM | Valid: [120/180] Step 009/009 Loss 0.861 Prec@(1,3) (78.2%, 98.6%), ce_loss 0.952, lat_loss 6.592
+04/30 10:38:18 PM | val: [120/180] Final Prec@1 78.1600% Time 3.80
+04/30 10:38:18 PM | Start to train weights for epoch 120
+04/30 10:38:59 PM | Train: [121/180] Step 039/039 Loss 0.650 Prec@(1,3) (82.8%, 99.3%), ce_loss 0.950, lat_loss 6.592
+04/30 10:38:59 PM | _w_step_train: [121/180] Final Prec@1 82.7750% Time 40.98
+04/30 10:38:59 PM | Start to train theta for epoch 120
+04/30 10:39:34 PM | Train: [121/180] Step 039/039 Loss 0.660 Prec@(1,3) (82.1%, 99.2%), ce_loss 0.949, lat_loss 6.591
+04/30 10:39:34 PM | _theta_step_train: [121/180] Final Prec@1 82.0700% Time 35.19
+04/30 10:39:38 PM | Valid: [121/180] Step 009/009 Loss 0.832 Prec@(1,3) (80.1%, 98.8%), ce_loss 0.948, lat_loss 6.591
+04/30 10:39:38 PM | val: [121/180] Final Prec@1 80.0600% Time 3.78
+04/30 10:39:38 PM | Best top1 acc by now. Save model
+04/30 10:39:38 PM | Start to train weights for epoch 121
+04/30 10:40:19 PM | Train: [122/180] Step 039/039 Loss 0.640 Prec@(1,3) (82.8%, 99.3%), ce_loss 0.947, lat_loss 6.591
+04/30 10:40:19 PM | _w_step_train: [122/180] Final Prec@1 82.7850% Time 41.05
+04/30 10:40:19 PM | Start to train theta for epoch 121
+04/30 10:40:54 PM | Train: [122/180] Step 039/039 Loss 0.670 Prec@(1,3) (82.1%, 99.2%), ce_loss 0.945, lat_loss 6.591
+04/30 10:40:54 PM | _theta_step_train: [122/180] Final Prec@1 82.1050% Time 35.15
+04/30 10:40:58 PM | Valid: [122/180] Step 009/009 Loss 0.866 Prec@(1,3) (79.1%, 98.7%), ce_loss 0.945, lat_loss 6.591
+04/30 10:40:58 PM | val: [122/180] Final Prec@1 79.1200% Time 3.99
+04/30 10:40:58 PM | Start to train weights for epoch 122
+04/30 10:41:39 PM | Train: [123/180] Step 039/039 Loss 0.687 Prec@(1,3) (81.7%, 99.1%), ce_loss 0.943, lat_loss 6.591
+04/30 10:41:39 PM | _w_step_train: [123/180] Final Prec@1 81.7400% Time 40.72
+04/30 10:41:39 PM | Start to train theta for epoch 122
+04/30 10:42:15 PM | Train: [123/180] Step 039/039 Loss 0.653 Prec@(1,3) (82.4%, 99.2%), ce_loss 0.941, lat_loss 6.590
+04/30 10:42:15 PM | _theta_step_train: [123/180] Final Prec@1 82.4275% Time 35.44
+04/30 10:42:18 PM | Valid: [123/180] Step 009/009 Loss 0.774 Prec@(1,3) (80.5%, 98.9%), ce_loss 0.941, lat_loss 6.590
+04/30 10:42:19 PM | val: [123/180] Final Prec@1 80.4500% Time 3.91
+04/30 10:42:19 PM | Best top1 acc by now. Save model
+04/30 10:42:19 PM | Start to train weights for epoch 123
+04/30 10:42:59 PM | Train: [124/180] Step 039/039 Loss 0.652 Prec@(1,3) (82.6%, 99.2%), ce_loss 0.939, lat_loss 6.590
+04/30 10:42:59 PM | _w_step_train: [124/180] Final Prec@1 82.6025% Time 40.70
+04/30 10:42:59 PM | Start to train theta for epoch 123
+04/30 10:43:34 PM | Train: [124/180] Step 039/039 Loss 0.640 Prec@(1,3) (82.9%, 99.3%), ce_loss 0.938, lat_loss 6.590
+04/30 10:43:34 PM | _theta_step_train: [124/180] Final Prec@1 82.9375% Time 34.77
+04/30 10:43:38 PM | Valid: [124/180] Step 009/009 Loss 0.847 Prec@(1,3) (79.9%, 98.7%), ce_loss 0.937, lat_loss 6.590
+04/30 10:43:38 PM | val: [124/180] Final Prec@1 79.8600% Time 3.70
+04/30 10:43:38 PM | Start to train weights for epoch 124
+04/30 10:44:19 PM | Train: [125/180] Step 039/039 Loss 0.637 Prec@(1,3) (83.0%, 99.3%), ce_loss 0.936, lat_loss 6.590
+04/30 10:44:19 PM | _w_step_train: [125/180] Final Prec@1 82.9750% Time 40.88
+04/30 10:44:19 PM | Start to train theta for epoch 124
+04/30 10:44:54 PM | Train: [125/180] Step 039/039 Loss 0.633 Prec@(1,3) (83.0%, 99.3%), ce_loss 0.934, lat_loss 6.590
+04/30 10:44:54 PM | _theta_step_train: [125/180] Final Prec@1 83.0400% Time 35.05
+04/30 10:44:58 PM | Valid: [125/180] Step 009/009 Loss 0.826 Prec@(1,3) (79.4%, 98.7%), ce_loss 0.934, lat_loss 6.589
+04/30 10:44:58 PM | val: [125/180] Final Prec@1 79.3500% Time 3.80
+04/30 10:44:58 PM | Start to train weights for epoch 125
+04/30 10:45:39 PM | Train: [126/180] Step 039/039 Loss 0.719 Prec@(1,3) (81.1%, 99.0%), ce_loss 0.932, lat_loss 6.589
+04/30 10:45:39 PM | _w_step_train: [126/180] Final Prec@1 81.0500% Time 41.27
+04/30 10:45:39 PM | Start to train theta for epoch 125
+04/30 10:46:14 PM | Train: [126/180] Step 039/039 Loss 0.693 Prec@(1,3) (81.4%, 99.1%), ce_loss 0.931, lat_loss 6.589
+04/30 10:46:14 PM | _theta_step_train: [126/180] Final Prec@1 81.4275% Time 35.34
+04/30 10:46:18 PM | Valid: [126/180] Step 009/009 Loss 1.002 Prec@(1,3) (74.1%, 98.0%), ce_loss 0.931, lat_loss 6.589
+04/30 10:46:18 PM | val: [126/180] Final Prec@1 74.1200% Time 3.81
+04/30 10:46:18 PM | Start to train weights for epoch 126
+04/30 10:46:59 PM | Train: [127/180] Step 039/039 Loss 0.681 Prec@(1,3) (82.0%, 99.1%), ce_loss 0.929, lat_loss 6.589
+04/30 10:46:59 PM | _w_step_train: [127/180] Final Prec@1 82.0125% Time 40.52
+04/30 10:46:59 PM | Start to train theta for epoch 126
+04/30 10:47:34 PM | Train: [127/180] Step 039/039 Loss 0.640 Prec@(1,3) (82.8%, 99.3%), ce_loss 0.928, lat_loss 6.589
+04/30 10:47:34 PM | _theta_step_train: [127/180] Final Prec@1 82.8275% Time 35.49
+04/30 10:47:38 PM | Valid: [127/180] Step 009/009 Loss 1.031 Prec@(1,3) (72.2%, 97.5%), ce_loss 0.927, lat_loss 6.589
+04/30 10:47:38 PM | val: [127/180] Final Prec@1 72.1800% Time 3.80
+04/30 10:47:38 PM | Start to train weights for epoch 127
+04/30 10:48:19 PM | Train: [128/180] Step 039/039 Loss 0.706 Prec@(1,3) (81.8%, 99.0%), ce_loss 0.926, lat_loss 6.588
+04/30 10:48:19 PM | _w_step_train: [128/180] Final Prec@1 81.8025% Time 40.55
+04/30 10:48:19 PM | Start to train theta for epoch 127
+04/30 10:48:55 PM | Train: [128/180] Step 039/039 Loss 0.636 Prec@(1,3) (83.0%, 99.3%), ce_loss 0.924, lat_loss 6.588
+04/30 10:48:55 PM | _theta_step_train: [128/180] Final Prec@1 82.9975% Time 35.86
+04/30 10:48:58 PM | Valid: [128/180] Step 009/009 Loss 0.966 Prec@(1,3) (75.9%, 98.1%), ce_loss 0.924, lat_loss 6.588
+04/30 10:48:58 PM | val: [128/180] Final Prec@1 75.9200% Time 3.76
+04/30 10:48:58 PM | Start to train weights for epoch 128
+04/30 10:49:39 PM | Train: [129/180] Step 039/039 Loss 0.710 Prec@(1,3) (81.7%, 98.9%), ce_loss 0.923, lat_loss 6.588
+04/30 10:49:40 PM | _w_step_train: [129/180] Final Prec@1 81.7325% Time 41.17
+04/30 10:49:40 PM | Start to train theta for epoch 128
+04/30 10:50:15 PM | Train: [129/180] Step 039/039 Loss 0.648 Prec@(1,3) (82.6%, 99.3%), ce_loss 0.921, lat_loss 6.588
+04/30 10:50:15 PM | _theta_step_train: [129/180] Final Prec@1 82.5600% Time 35.58
+04/30 10:50:19 PM | Valid: [129/180] Step 009/009 Loss 0.815 Prec@(1,3) (79.0%, 98.8%), ce_loss 0.921, lat_loss 6.588
+04/30 10:50:19 PM | val: [129/180] Final Prec@1 78.9500% Time 3.81
+04/30 10:50:19 PM | Start to train weights for epoch 129
+04/30 10:51:00 PM | Train: [130/180] Step 039/039 Loss 0.635 Prec@(1,3) (83.0%, 99.3%), ce_loss 0.920, lat_loss 6.588
+04/30 10:51:00 PM | _w_step_train: [130/180] Final Prec@1 82.9800% Time 40.83
+04/30 10:51:00 PM | Start to train theta for epoch 129
+04/30 10:51:35 PM | Train: [130/180] Step 039/039 Loss 0.675 Prec@(1,3) (82.6%, 99.0%), ce_loss 0.918, lat_loss 6.587
+04/30 10:51:35 PM | _theta_step_train: [130/180] Final Prec@1 82.6200% Time 35.55
+04/30 10:51:39 PM | Valid: [130/180] Step 009/009 Loss 0.855 Prec@(1,3) (78.3%, 98.6%), ce_loss 0.918, lat_loss 6.587
+04/30 10:51:39 PM | val: [130/180] Final Prec@1 78.2700% Time 3.73
+04/30 10:51:39 PM | Start to train weights for epoch 130
+04/30 10:52:21 PM | Train: [131/180] Step 039/039 Loss 0.690 Prec@(1,3) (81.7%, 99.2%), ce_loss 0.916, lat_loss 6.587
+04/30 10:52:21 PM | _w_step_train: [131/180] Final Prec@1 81.6900% Time 42.17
+04/30 10:52:21 PM | Start to train theta for epoch 130
+04/30 10:52:57 PM | Train: [131/180] Step 039/039 Loss 0.638 Prec@(1,3) (82.9%, 99.3%), ce_loss 0.915, lat_loss 6.587
+04/30 10:52:57 PM | _theta_step_train: [131/180] Final Prec@1 82.8800% Time 35.25
+04/30 10:53:00 PM | Valid: [131/180] Step 009/009 Loss 0.870 Prec@(1,3) (78.7%, 98.7%), ce_loss 0.915, lat_loss 6.587
+04/30 10:53:00 PM | val: [131/180] Final Prec@1 78.7400% Time 3.91
+04/30 10:53:00 PM | Start to train weights for epoch 131
+04/30 10:53:41 PM | Train: [132/180] Step 039/039 Loss 0.649 Prec@(1,3) (82.8%, 99.2%), ce_loss 0.913, lat_loss 6.587
+04/30 10:53:41 PM | _w_step_train: [132/180] Final Prec@1 82.8100% Time 40.52
+04/30 10:53:41 PM | Start to train theta for epoch 131
+04/30 10:54:15 PM | Train: [132/180] Step 039/039 Loss 0.612 Prec@(1,3) (83.5%, 99.3%), ce_loss 0.912, lat_loss 6.587
+04/30 10:54:15 PM | _theta_step_train: [132/180] Final Prec@1 83.5175% Time 34.01
+04/30 10:54:19 PM | Valid: [132/180] Step 009/009 Loss 0.955 Prec@(1,3) (75.7%, 98.4%), ce_loss 0.912, lat_loss 6.587
+04/30 10:54:19 PM | val: [132/180] Final Prec@1 75.7400% Time 4.01
+04/30 10:54:19 PM | Start to train weights for epoch 132
+04/30 10:55:00 PM | Train: [133/180] Step 039/039 Loss 0.630 Prec@(1,3) (83.1%, 99.3%), ce_loss 0.910, lat_loss 6.586
+04/30 10:55:00 PM | _w_step_train: [133/180] Final Prec@1 83.0875% Time 40.90
+04/30 10:55:00 PM | Start to train theta for epoch 132
+04/30 10:55:34 PM | Train: [133/180] Step 039/039 Loss 0.690 Prec@(1,3) (82.1%, 99.0%), ce_loss 0.909, lat_loss 6.586
+04/30 10:55:34 PM | _theta_step_train: [133/180] Final Prec@1 82.0500% Time 34.31
+04/30 10:55:38 PM | Valid: [133/180] Step 009/009 Loss 0.923 Prec@(1,3) (78.6%, 98.8%), ce_loss 0.909, lat_loss 6.586
+04/30 10:55:38 PM | val: [133/180] Final Prec@1 78.5500% Time 3.94
+04/30 10:55:38 PM | Start to train weights for epoch 133
+04/30 10:56:18 PM | Train: [134/180] Step 039/039 Loss 0.713 Prec@(1,3) (81.9%, 98.8%), ce_loss 0.907, lat_loss 6.586
+04/30 10:56:18 PM | _w_step_train: [134/180] Final Prec@1 81.9025% Time 40.14
+04/30 10:56:18 PM | Start to train theta for epoch 133
+04/30 10:56:54 PM | Train: [134/180] Step 039/039 Loss 0.624 Prec@(1,3) (83.4%, 99.3%), ce_loss 0.906, lat_loss 6.586
+04/30 10:56:54 PM | _theta_step_train: [134/180] Final Prec@1 83.3825% Time 35.64
+04/30 10:56:58 PM | Valid: [134/180] Step 009/009 Loss 0.855 Prec@(1,3) (78.2%, 98.9%), ce_loss 0.906, lat_loss 6.586
+04/30 10:56:58 PM | val: [134/180] Final Prec@1 78.1800% Time 3.92
+04/30 10:56:58 PM | Start to train weights for epoch 134
+04/30 10:57:38 PM | Train: [135/180] Step 039/039 Loss 0.756 Prec@(1,3) (80.6%, 98.9%), ce_loss 0.904, lat_loss 6.586
+04/30 10:57:38 PM | _w_step_train: [135/180] Final Prec@1 80.6275% Time 39.74
+04/30 10:57:38 PM | Start to train theta for epoch 134
+04/30 10:58:13 PM | Train: [135/180] Step 039/039 Loss 0.696 Prec@(1,3) (81.5%, 99.1%), ce_loss 0.903, lat_loss 6.585
+04/30 10:58:13 PM | _theta_step_train: [135/180] Final Prec@1 81.5400% Time 35.21
+04/30 10:58:17 PM | Valid: [135/180] Step 009/009 Loss 1.075 Prec@(1,3) (72.4%, 97.8%), ce_loss 0.903, lat_loss 6.585
+04/30 10:58:17 PM | val: [135/180] Final Prec@1 72.3800% Time 3.67
+04/30 10:58:17 PM | Start to train weights for epoch 135
+04/30 10:58:57 PM | Train: [136/180] Step 039/039 Loss 0.668 Prec@(1,3) (82.4%, 99.2%), ce_loss 0.902, lat_loss 6.585
+04/30 10:58:57 PM | _w_step_train: [136/180] Final Prec@1 82.3950% Time 40.64
+04/30 10:58:57 PM | Start to train theta for epoch 135
+04/30 10:59:32 PM | Train: [136/180] Step 039/039 Loss 0.597 Prec@(1,3) (83.9%, 99.4%), ce_loss 0.900, lat_loss 6.585
+04/30 10:59:32 PM | _theta_step_train: [136/180] Final Prec@1 83.9325% Time 34.93
+04/30 10:59:36 PM | Valid: [136/180] Step 009/009 Loss 1.008 Prec@(1,3) (74.1%, 97.2%), ce_loss 0.900, lat_loss 6.585
+04/30 10:59:36 PM | val: [136/180] Final Prec@1 74.0800% Time 3.64
+04/30 10:59:36 PM | Start to train weights for epoch 136
+04/30 11:00:17 PM | Train: [137/180] Step 039/039 Loss 0.636 Prec@(1,3) (83.0%, 99.3%), ce_loss 0.899, lat_loss 6.585
+04/30 11:00:17 PM | _w_step_train: [137/180] Final Prec@1 82.9575% Time 40.84
+04/30 11:00:17 PM | Start to train theta for epoch 136
+04/30 11:00:52 PM | Train: [137/180] Step 039/039 Loss 0.624 Prec@(1,3) (83.4%, 99.3%), ce_loss 0.897, lat_loss 6.584
+04/30 11:00:52 PM | _theta_step_train: [137/180] Final Prec@1 83.3825% Time 35.18
+04/30 11:00:56 PM | Valid: [137/180] Step 009/009 Loss 0.809 Prec@(1,3) (79.9%, 99.0%), ce_loss 0.897, lat_loss 6.584
+04/30 11:00:56 PM | val: [137/180] Final Prec@1 79.8500% Time 3.77
+04/30 11:00:56 PM | Start to train weights for epoch 137
+04/30 11:01:37 PM | Train: [138/180] Step 039/039 Loss 0.617 Prec@(1,3) (83.8%, 99.3%), ce_loss 0.896, lat_loss 6.584
+04/30 11:01:37 PM | _w_step_train: [138/180] Final Prec@1 83.7825% Time 40.92
+04/30 11:01:37 PM | Start to train theta for epoch 137
+04/30 11:02:12 PM | Train: [138/180] Step 039/039 Loss 0.611 Prec@(1,3) (83.7%, 99.4%), ce_loss 0.894, lat_loss 6.584
+04/30 11:02:12 PM | _theta_step_train: [138/180] Final Prec@1 83.7025% Time 35.51
+04/30 11:02:16 PM | Valid: [138/180] Step 009/009 Loss 0.987 Prec@(1,3) (73.8%, 96.9%), ce_loss 0.894, lat_loss 6.584
+04/30 11:02:16 PM | val: [138/180] Final Prec@1 73.7700% Time 3.69
+04/30 11:02:16 PM | Start to train weights for epoch 138
+04/30 11:02:57 PM | Train: [139/180] Step 039/039 Loss 0.616 Prec@(1,3) (83.5%, 99.3%), ce_loss 0.893, lat_loss 6.584
+04/30 11:02:57 PM | _w_step_train: [139/180] Final Prec@1 83.5425% Time 40.60
+04/30 11:02:57 PM | Start to train theta for epoch 138
+04/30 11:03:32 PM | Train: [139/180] Step 039/039 Loss 0.613 Prec@(1,3) (83.6%, 99.4%), ce_loss 0.891, lat_loss 6.584
+04/30 11:03:32 PM | _theta_step_train: [139/180] Final Prec@1 83.5800% Time 35.32
+04/30 11:03:36 PM | Valid: [139/180] Step 009/009 Loss 0.782 Prec@(1,3) (80.7%, 98.8%), ce_loss 0.891, lat_loss 6.584
+04/30 11:03:36 PM | val: [139/180] Final Prec@1 80.6800% Time 3.67
+04/30 11:03:36 PM | Best top1 acc by now. Save model
+04/30 11:03:36 PM | Start to train weights for epoch 139
+04/30 11:04:16 PM | Train: [140/180] Step 039/039 Loss 0.579 Prec@(1,3) (84.5%, 99.4%), ce_loss 0.890, lat_loss 6.584
+04/30 11:04:16 PM | _w_step_train: [140/180] Final Prec@1 84.4725% Time 40.51
+04/30 11:04:16 PM | Start to train theta for epoch 139
+04/30 11:04:52 PM | Train: [140/180] Step 039/039 Loss 0.651 Prec@(1,3) (82.8%, 99.2%), ce_loss 0.888, lat_loss 6.583
+04/30 11:04:52 PM | _theta_step_train: [140/180] Final Prec@1 82.8150% Time 35.84
+04/30 11:04:56 PM | Valid: [140/180] Step 009/009 Loss 0.754 Prec@(1,3) (81.0%, 98.9%), ce_loss 0.888, lat_loss 6.583
+04/30 11:04:56 PM | val: [140/180] Final Prec@1 81.0200% Time 3.87
+04/30 11:04:56 PM | Best top1 acc by now. Save model
+04/30 11:04:57 PM | Start to train weights for epoch 140
+04/30 11:05:37 PM | Train: [141/180] Step 039/039 Loss 0.669 Prec@(1,3) (82.3%, 99.2%), ce_loss 0.887, lat_loss 6.583
+04/30 11:05:37 PM | _w_step_train: [141/180] Final Prec@1 82.2525% Time 40.71
+04/30 11:05:37 PM | Start to train theta for epoch 140
+04/30 11:06:13 PM | Train: [141/180] Step 039/039 Loss 0.673 Prec@(1,3) (82.2%, 99.2%), ce_loss 0.885, lat_loss 6.583
+04/30 11:06:13 PM | _theta_step_train: [141/180] Final Prec@1 82.2175% Time 36.08
+04/30 11:06:17 PM | Valid: [141/180] Step 009/009 Loss 0.869 Prec@(1,3) (78.5%, 98.6%), ce_loss 0.885, lat_loss 6.583
+04/30 11:06:17 PM | val: [141/180] Final Prec@1 78.5300% Time 3.82
+04/30 11:06:17 PM | Start to train weights for epoch 141
+04/30 11:06:58 PM | Train: [142/180] Step 039/039 Loss 0.610 Prec@(1,3) (83.7%, 99.4%), ce_loss 0.884, lat_loss 6.583
+04/30 11:06:58 PM | _w_step_train: [142/180] Final Prec@1 83.6875% Time 41.26
+04/30 11:06:58 PM | Start to train theta for epoch 141
+04/30 11:07:33 PM | Train: [142/180] Step 039/039 Loss 0.609 Prec@(1,3) (83.7%, 99.4%), ce_loss 0.883, lat_loss 6.583
+04/30 11:07:33 PM | _theta_step_train: [142/180] Final Prec@1 83.7300% Time 34.91
+04/30 11:07:37 PM | Valid: [142/180] Step 009/009 Loss 1.019 Prec@(1,3) (75.4%, 98.4%), ce_loss 0.882, lat_loss 6.583
+04/30 11:07:37 PM | val: [142/180] Final Prec@1 75.4200% Time 3.94
+04/30 11:07:37 PM | Start to train weights for epoch 142
+04/30 11:08:17 PM | Train: [143/180] Step 039/039 Loss 0.667 Prec@(1,3) (83.0%, 99.0%), ce_loss 0.881, lat_loss 6.583
+04/30 11:08:18 PM | _w_step_train: [143/180] Final Prec@1 83.0400% Time 40.20
+04/30 11:08:18 PM | Start to train theta for epoch 142
+04/30 11:08:52 PM | Train: [143/180] Step 039/039 Loss 0.627 Prec@(1,3) (83.2%, 99.3%), ce_loss 0.880, lat_loss 6.582
+04/30 11:08:52 PM | _theta_step_train: [143/180] Final Prec@1 83.2100% Time 34.45
+04/30 11:08:56 PM | Valid: [143/180] Step 009/009 Loss 0.781 Prec@(1,3) (80.8%, 99.0%), ce_loss 0.880, lat_loss 6.582
+04/30 11:08:56 PM | val: [143/180] Final Prec@1 80.7700% Time 3.92
+04/30 11:08:56 PM | Start to train weights for epoch 143
+04/30 11:09:36 PM | Train: [144/180] Step 039/039 Loss 0.713 Prec@(1,3) (81.8%, 98.9%), ce_loss 0.879, lat_loss 6.582
+04/30 11:09:36 PM | _w_step_train: [144/180] Final Prec@1 81.8100% Time 40.45
+04/30 11:09:36 PM | Start to train theta for epoch 143
+04/30 11:10:12 PM | Train: [144/180] Step 039/039 Loss 0.748 Prec@(1,3) (81.4%, 98.5%), ce_loss 0.878, lat_loss 6.582
+04/30 11:10:12 PM | _theta_step_train: [144/180] Final Prec@1 81.4250% Time 35.43
+04/30 11:10:16 PM | Valid: [144/180] Step 009/009 Loss 0.898 Prec@(1,3) (79.2%, 98.8%), ce_loss 0.878, lat_loss 6.582
+04/30 11:10:16 PM | val: [144/180] Final Prec@1 79.2100% Time 3.84
+04/30 11:10:16 PM | Start to train weights for epoch 144
+04/30 11:10:56 PM | Train: [145/180] Step 039/039 Loss 0.694 Prec@(1,3) (81.6%, 99.1%), ce_loss 0.876, lat_loss 6.582
+04/30 11:10:56 PM | _w_step_train: [145/180] Final Prec@1 81.5725% Time 40.49
+04/30 11:10:56 PM | Start to train theta for epoch 144
+04/30 11:11:31 PM | Train: [145/180] Step 039/039 Loss 0.626 Prec@(1,3) (83.4%, 99.3%), ce_loss 0.875, lat_loss 6.582
+04/30 11:11:31 PM | _theta_step_train: [145/180] Final Prec@1 83.3575% Time 35.18
+04/30 11:11:35 PM | Valid: [145/180] Step 009/009 Loss 1.259 Prec@(1,3) (70.5%, 94.9%), ce_loss 0.875, lat_loss 6.582
+04/30 11:11:35 PM | val: [145/180] Final Prec@1 70.4500% Time 3.76
+04/30 11:11:35 PM | Start to train weights for epoch 145
+04/30 11:12:16 PM | Train: [146/180] Step 039/039 Loss 0.658 Prec@(1,3) (82.6%, 99.3%), ce_loss 0.874, lat_loss 6.582
+04/30 11:12:16 PM | _w_step_train: [146/180] Final Prec@1 82.6275% Time 40.74
+04/30 11:12:16 PM | Start to train theta for epoch 145
+04/30 11:12:51 PM | Train: [146/180] Step 039/039 Loss 0.620 Prec@(1,3) (83.5%, 99.3%), ce_loss 0.873, lat_loss 6.581
+04/30 11:12:51 PM | _theta_step_train: [146/180] Final Prec@1 83.4825% Time 34.90
+04/30 11:12:55 PM | Valid: [146/180] Step 009/009 Loss 1.043 Prec@(1,3) (73.6%, 97.7%), ce_loss 0.873, lat_loss 6.581
+04/30 11:12:55 PM | val: [146/180] Final Prec@1 73.5500% Time 3.89
+04/30 11:12:55 PM | Start to train weights for epoch 146
+04/30 11:13:36 PM | Train: [147/180] Step 039/039 Loss 0.677 Prec@(1,3) (82.2%, 99.1%), ce_loss 0.872, lat_loss 6.581
+04/30 11:13:36 PM | _w_step_train: [147/180] Final Prec@1 82.2150% Time 41.01
+04/30 11:13:36 PM | Start to train theta for epoch 146
+04/30 11:14:11 PM | Train: [147/180] Step 039/039 Loss 0.770 Prec@(1,3) (81.0%, 98.6%), ce_loss 0.871, lat_loss 6.581
+04/30 11:14:11 PM | _theta_step_train: [147/180] Final Prec@1 81.0300% Time 34.73
+04/30 11:14:14 PM | Valid: [147/180] Step 009/009 Loss 0.880 Prec@(1,3) (80.1%, 98.8%), ce_loss 0.871, lat_loss 6.581
+04/30 11:14:14 PM | val: [147/180] Final Prec@1 80.1000% Time 3.71
+04/30 11:14:14 PM | Start to train weights for epoch 147
+04/30 11:14:55 PM | Train: [148/180] Step 039/039 Loss 0.630 Prec@(1,3) (83.4%, 99.3%), ce_loss 0.869, lat_loss 6.581
+04/30 11:14:55 PM | _w_step_train: [148/180] Final Prec@1 83.3600% Time 40.97
+04/30 11:14:55 PM | Start to train theta for epoch 147
+04/30 11:15:31 PM | Train: [148/180] Step 039/039 Loss 0.618 Prec@(1,3) (83.5%, 99.3%), ce_loss 0.868, lat_loss 6.581
+04/30 11:15:31 PM | _theta_step_train: [148/180] Final Prec@1 83.5175% Time 35.40
+04/30 11:15:34 PM | Valid: [148/180] Step 009/009 Loss 0.884 Prec@(1,3) (76.5%, 98.6%), ce_loss 0.868, lat_loss 6.581
+04/30 11:15:35 PM | val: [148/180] Final Prec@1 76.4700% Time 3.83
+04/30 11:15:35 PM | Start to train weights for epoch 148
+04/30 11:16:15 PM | Train: [149/180] Step 039/039 Loss 0.729 Prec@(1,3) (81.6%, 98.7%), ce_loss 0.867, lat_loss 6.581
+04/30 11:16:15 PM | _w_step_train: [149/180] Final Prec@1 81.5875% Time 40.51
+04/30 11:16:15 PM | Start to train theta for epoch 148
+04/30 11:16:50 PM | Train: [149/180] Step 039/039 Loss 0.599 Prec@(1,3) (83.9%, 99.4%), ce_loss 0.866, lat_loss 6.581
+04/30 11:16:50 PM | _theta_step_train: [149/180] Final Prec@1 83.8750% Time 34.93
+04/30 11:16:54 PM | Valid: [149/180] Step 009/009 Loss 0.852 Prec@(1,3) (79.7%, 98.9%), ce_loss 0.866, lat_loss 6.581
+04/30 11:16:54 PM | val: [149/180] Final Prec@1 79.7200% Time 3.99
+04/30 11:16:54 PM | Start to train weights for epoch 149
+04/30 11:17:35 PM | Train: [150/180] Step 039/039 Loss 0.643 Prec@(1,3) (83.0%, 99.2%), ce_loss 0.864, lat_loss 6.581
+04/30 11:17:35 PM | _w_step_train: [150/180] Final Prec@1 83.0325% Time 40.52
+04/30 11:17:35 PM | Start to train theta for epoch 149
+04/30 11:18:10 PM | Train: [150/180] Step 039/039 Loss 0.639 Prec@(1,3) (83.1%, 99.3%), ce_loss 0.863, lat_loss 6.580
+04/30 11:18:10 PM | _theta_step_train: [150/180] Final Prec@1 83.1225% Time 35.11
+04/30 11:18:14 PM | Valid: [150/180] Step 009/009 Loss 0.850 Prec@(1,3) (79.8%, 98.8%), ce_loss 0.863, lat_loss 6.580
+04/30 11:18:14 PM | val: [150/180] Final Prec@1 79.8000% Time 3.83
+04/30 11:18:14 PM | Start to train weights for epoch 150
+04/30 11:18:54 PM | Train: [151/180] Step 039/039 Loss 0.628 Prec@(1,3) (83.6%, 99.3%), ce_loss 0.862, lat_loss 6.580
+04/30 11:18:54 PM | _w_step_train: [151/180] Final Prec@1 83.6025% Time 40.85
+04/30 11:18:54 PM | Start to train theta for epoch 150
+04/30 11:19:31 PM | Train: [151/180] Step 039/039 Loss 0.615 Prec@(1,3) (83.7%, 99.4%), ce_loss 0.861, lat_loss 6.580
+04/30 11:19:31 PM | _theta_step_train: [151/180] Final Prec@1 83.6550% Time 36.95
+04/30 11:19:35 PM | Valid: [151/180] Step 009/009 Loss 1.166 Prec@(1,3) (73.7%, 95.1%), ce_loss 0.861, lat_loss 6.580
+04/30 11:19:35 PM | val: [151/180] Final Prec@1 73.7300% Time 3.70
+04/30 11:19:35 PM | Start to train weights for epoch 151
+04/30 11:20:16 PM | Train: [152/180] Step 039/039 Loss 0.675 Prec@(1,3) (82.6%, 99.0%), ce_loss 0.860, lat_loss 6.580
+04/30 11:20:16 PM | _w_step_train: [152/180] Final Prec@1 82.5775% Time 40.64
+04/30 11:20:16 PM | Start to train theta for epoch 151
+04/30 11:20:51 PM | Train: [152/180] Step 039/039 Loss 0.608 Prec@(1,3) (83.7%, 99.4%), ce_loss 0.858, lat_loss 6.580
+04/30 11:20:52 PM | _theta_step_train: [152/180] Final Prec@1 83.7100% Time 35.74
+04/30 11:20:55 PM | Valid: [152/180] Step 009/009 Loss 0.921 Prec@(1,3) (80.8%, 98.9%), ce_loss 0.858, lat_loss 6.580
+04/30 11:20:55 PM | val: [152/180] Final Prec@1 80.7900% Time 3.85
+04/30 11:20:55 PM | Start to train weights for epoch 152
+04/30 11:21:36 PM | Train: [153/180] Step 039/039 Loss 0.594 Prec@(1,3) (84.1%, 99.4%), ce_loss 0.857, lat_loss 6.580
+04/30 11:21:36 PM | _w_step_train: [153/180] Final Prec@1 84.0625% Time 40.48
+04/30 11:21:36 PM | Start to train theta for epoch 152
+04/30 11:22:11 PM | Train: [153/180] Step 039/039 Loss 0.611 Prec@(1,3) (83.8%, 99.3%), ce_loss 0.856, lat_loss 6.580
+04/30 11:22:11 PM | _theta_step_train: [153/180] Final Prec@1 83.7800% Time 35.45
+04/30 11:22:15 PM | Valid: [153/180] Step 009/009 Loss 1.255 Prec@(1,3) (71.0%, 96.4%), ce_loss 0.856, lat_loss 6.580
+04/30 11:22:15 PM | val: [153/180] Final Prec@1 71.0100% Time 3.76
+04/30 11:22:15 PM | Start to train weights for epoch 153
+04/30 11:22:56 PM | Train: [154/180] Step 039/039 Loss 0.609 Prec@(1,3) (83.8%, 99.3%), ce_loss 0.855, lat_loss 6.580
+04/30 11:22:56 PM | _w_step_train: [154/180] Final Prec@1 83.8325% Time 40.81
+04/30 11:22:56 PM | Start to train theta for epoch 153
+04/30 11:23:32 PM | Train: [154/180] Step 039/039 Loss 0.605 Prec@(1,3) (83.9%, 99.3%), ce_loss 0.854, lat_loss 6.580
+04/30 11:23:32 PM | _theta_step_train: [154/180] Final Prec@1 83.8950% Time 35.91
+04/30 11:23:36 PM | Valid: [154/180] Step 009/009 Loss 0.764 Prec@(1,3) (81.1%, 99.0%), ce_loss 0.853, lat_loss 6.580
+04/30 11:23:36 PM | val: [154/180] Final Prec@1 81.0900% Time 3.88
+04/30 11:23:36 PM | Best top1 acc by now. Save model
+04/30 11:23:36 PM | Start to train weights for epoch 154
+04/30 11:24:17 PM | Train: [155/180] Step 039/039 Loss 0.626 Prec@(1,3) (83.6%, 99.2%), ce_loss 0.852, lat_loss 6.579
+04/30 11:24:17 PM | _w_step_train: [155/180] Final Prec@1 83.6050% Time 41.00
+04/30 11:24:17 PM | Start to train theta for epoch 154
+04/30 11:24:52 PM | Train: [155/180] Step 039/039 Loss 0.672 Prec@(1,3) (82.6%, 99.0%), ce_loss 0.851, lat_loss 6.579
+04/30 11:24:52 PM | _theta_step_train: [155/180] Final Prec@1 82.6300% Time 35.22
+04/30 11:24:56 PM | Valid: [155/180] Step 009/009 Loss 0.782 Prec@(1,3) (81.7%, 98.9%), ce_loss 0.851, lat_loss 6.579
+04/30 11:24:56 PM | val: [155/180] Final Prec@1 81.6700% Time 3.69
+04/30 11:24:56 PM | Best top1 acc by now. Save model
+04/30 11:24:56 PM | Start to train weights for epoch 155
+04/30 11:25:37 PM | Train: [156/180] Step 039/039 Loss 0.718 Prec@(1,3) (82.0%, 98.8%), ce_loss 0.850, lat_loss 6.579
+04/30 11:25:37 PM | _w_step_train: [156/180] Final Prec@1 82.0425% Time 40.89
+04/30 11:25:37 PM | Start to train theta for epoch 155
+04/30 11:26:12 PM | Train: [156/180] Step 039/039 Loss 0.600 Prec@(1,3) (84.2%, 99.3%), ce_loss 0.849, lat_loss 6.579
+04/30 11:26:12 PM | _theta_step_train: [156/180] Final Prec@1 84.1725% Time 35.01
+04/30 11:26:16 PM | Valid: [156/180] Step 009/009 Loss 0.911 Prec@(1,3) (79.8%, 98.9%), ce_loss 0.849, lat_loss 6.579
+04/30 11:26:16 PM | val: [156/180] Final Prec@1 79.8100% Time 3.82
+04/30 11:26:16 PM | Start to train weights for epoch 156
+04/30 11:26:57 PM | Train: [157/180] Step 039/039 Loss 0.693 Prec@(1,3) (83.1%, 98.8%), ce_loss 0.848, lat_loss 6.579
+04/30 11:26:57 PM | _w_step_train: [157/180] Final Prec@1 83.1325% Time 40.87
+04/30 11:26:57 PM | Start to train theta for epoch 156
+04/30 11:27:32 PM | Train: [157/180] Step 039/039 Loss 0.649 Prec@(1,3) (83.2%, 99.2%), ce_loss 0.847, lat_loss 6.579
+04/30 11:27:32 PM | _theta_step_train: [157/180] Final Prec@1 83.2025% Time 34.96
+04/30 11:27:36 PM | Valid: [157/180] Step 009/009 Loss 0.862 Prec@(1,3) (78.7%, 98.8%), ce_loss 0.847, lat_loss 6.579
+04/30 11:27:36 PM | val: [157/180] Final Prec@1 78.7300% Time 4.02
+04/30 11:27:36 PM | Start to train weights for epoch 157
+04/30 11:28:16 PM | Train: [158/180] Step 039/039 Loss 0.636 Prec@(1,3) (83.2%, 99.2%), ce_loss 0.846, lat_loss 6.579
+04/30 11:28:16 PM | _w_step_train: [158/180] Final Prec@1 83.1600% Time 40.44
+04/30 11:28:16 PM | Start to train theta for epoch 157
+04/30 11:28:52 PM | Train: [158/180] Step 039/039 Loss 0.606 Prec@(1,3) (84.0%, 99.3%), ce_loss 0.845, lat_loss 6.579
+04/30 11:28:52 PM | _theta_step_train: [158/180] Final Prec@1 83.9500% Time 35.37
+04/30 11:28:55 PM | Valid: [158/180] Step 009/009 Loss 1.086 Prec@(1,3) (74.4%, 96.0%), ce_loss 0.845, lat_loss 6.579
+04/30 11:28:55 PM | val: [158/180] Final Prec@1 74.4000% Time 3.77
+04/30 11:28:55 PM | Start to train weights for epoch 158
+04/30 11:29:36 PM | Train: [159/180] Step 039/039 Loss 0.657 Prec@(1,3) (82.8%, 99.2%), ce_loss 0.844, lat_loss 6.579
+04/30 11:29:37 PM | _w_step_train: [159/180] Final Prec@1 82.7700% Time 41.08
+04/30 11:29:37 PM | Start to train theta for epoch 158
+04/30 11:30:12 PM | Train: [159/180] Step 039/039 Loss 0.628 Prec@(1,3) (83.3%, 99.2%), ce_loss 0.843, lat_loss 6.578
+04/30 11:30:12 PM | _theta_step_train: [159/180] Final Prec@1 83.2575% Time 35.07
+04/30 11:30:16 PM | Valid: [159/180] Step 009/009 Loss 0.780 Prec@(1,3) (79.9%, 98.9%), ce_loss 0.842, lat_loss 6.578
+04/30 11:30:16 PM | val: [159/180] Final Prec@1 79.9100% Time 3.92
+04/30 11:30:16 PM | Start to train weights for epoch 159
+04/30 11:30:56 PM | Train: [160/180] Step 039/039 Loss 0.641 Prec@(1,3) (83.5%, 99.1%), ce_loss 0.841, lat_loss 6.578
+04/30 11:30:56 PM | _w_step_train: [160/180] Final Prec@1 83.5325% Time 40.64
+04/30 11:30:56 PM | Start to train theta for epoch 159
+04/30 11:31:32 PM | Train: [160/180] Step 039/039 Loss 0.616 Prec@(1,3) (83.8%, 99.3%), ce_loss 0.840, lat_loss 6.578
+04/30 11:31:32 PM | _theta_step_train: [160/180] Final Prec@1 83.8050% Time 35.50
+04/30 11:31:36 PM | Valid: [160/180] Step 009/009 Loss 0.846 Prec@(1,3) (79.4%, 98.8%), ce_loss 0.840, lat_loss 6.578
+04/30 11:31:36 PM | val: [160/180] Final Prec@1 79.3700% Time 3.88
+04/30 11:31:36 PM | Start to train weights for epoch 160
+04/30 11:32:16 PM | Train: [161/180] Step 039/039 Loss 0.690 Prec@(1,3) (81.9%, 99.1%), ce_loss 0.839, lat_loss 6.578
+04/30 11:32:16 PM | _w_step_train: [161/180] Final Prec@1 81.9025% Time 40.82
+04/30 11:32:16 PM | Start to train theta for epoch 160
+04/30 11:32:52 PM | Train: [161/180] Step 039/039 Loss 0.694 Prec@(1,3) (82.6%, 99.0%), ce_loss 0.838, lat_loss 6.578
+04/30 11:32:52 PM | _theta_step_train: [161/180] Final Prec@1 82.5675% Time 35.55
+04/30 11:32:56 PM | Valid: [161/180] Step 009/009 Loss 0.844 Prec@(1,3) (80.3%, 98.8%), ce_loss 0.838, lat_loss 6.578
+04/30 11:32:56 PM | val: [161/180] Final Prec@1 80.3400% Time 3.89
+04/30 11:32:56 PM | Start to train weights for epoch 161
+04/30 11:33:37 PM | Train: [162/180] Step 039/039 Loss 0.660 Prec@(1,3) (83.3%, 99.0%), ce_loss 0.837, lat_loss 6.578
+04/30 11:33:37 PM | _w_step_train: [162/180] Final Prec@1 83.2500% Time 41.14
+04/30 11:33:37 PM | Start to train theta for epoch 161
+04/30 11:34:12 PM | Train: [162/180] Step 039/039 Loss 0.687 Prec@(1,3) (82.4%, 99.0%), ce_loss 0.836, lat_loss 6.578
+04/30 11:34:12 PM | _theta_step_train: [162/180] Final Prec@1 82.4250% Time 35.09
+04/30 11:34:16 PM | Valid: [162/180] Step 009/009 Loss 0.875 Prec@(1,3) (78.7%, 98.9%), ce_loss 0.836, lat_loss 6.578
+04/30 11:34:16 PM | val: [162/180] Final Prec@1 78.7100% Time 3.97
+04/30 11:34:16 PM | Start to train weights for epoch 162
+04/30 11:34:58 PM | Train: [163/180] Step 039/039 Loss 0.597 Prec@(1,3) (84.2%, 99.4%), ce_loss 0.835, lat_loss 6.578
+04/30 11:34:58 PM | _w_step_train: [163/180] Final Prec@1 84.2175% Time 42.06
+04/30 11:34:58 PM | Start to train theta for epoch 162
+04/30 11:35:34 PM | Train: [163/180] Step 039/039 Loss 0.573 Prec@(1,3) (84.7%, 99.4%), ce_loss 0.834, lat_loss 6.578
+04/30 11:35:34 PM | _theta_step_train: [163/180] Final Prec@1 84.6500% Time 35.39
+04/30 11:35:37 PM | Valid: [163/180] Step 009/009 Loss 1.056 Prec@(1,3) (74.3%, 98.3%), ce_loss 0.834, lat_loss 6.578
+04/30 11:35:37 PM | val: [163/180] Final Prec@1 74.3200% Time 3.74
+04/30 11:35:37 PM | Start to train weights for epoch 163
+04/30 11:36:19 PM | Train: [164/180] Step 039/039 Loss 0.645 Prec@(1,3) (83.1%, 99.2%), ce_loss 0.833, lat_loss 6.578
+04/30 11:36:19 PM | _w_step_train: [164/180] Final Prec@1 83.0875% Time 41.55
+04/30 11:36:19 PM | Start to train theta for epoch 163
+04/30 11:36:56 PM | Train: [164/180] Step 039/039 Loss 0.590 Prec@(1,3) (84.5%, 99.4%), ce_loss 0.832, lat_loss 6.578
+04/30 11:36:56 PM | _theta_step_train: [164/180] Final Prec@1 84.4725% Time 37.14
+04/30 11:37:00 PM | Valid: [164/180] Step 009/009 Loss 0.903 Prec@(1,3) (77.3%, 98.5%), ce_loss 0.832, lat_loss 6.578
+04/30 11:37:00 PM | val: [164/180] Final Prec@1 77.3000% Time 3.66
+04/30 11:37:00 PM | Start to train weights for epoch 164
+04/30 11:37:41 PM | Train: [165/180] Step 039/039 Loss 0.620 Prec@(1,3) (83.6%, 99.3%), ce_loss 0.831, lat_loss 6.578
+04/30 11:37:41 PM | _w_step_train: [165/180] Final Prec@1 83.6175% Time 41.28
+04/30 11:37:41 PM | Start to train theta for epoch 164
+04/30 11:38:17 PM | Train: [165/180] Step 039/039 Loss 0.570 Prec@(1,3) (84.9%, 99.4%), ce_loss 0.830, lat_loss 6.577
+04/30 11:38:17 PM | _theta_step_train: [165/180] Final Prec@1 84.8625% Time 35.53
+04/30 11:38:21 PM | Valid: [165/180] Step 009/009 Loss 0.913 Prec@(1,3) (78.5%, 98.6%), ce_loss 0.830, lat_loss 6.577
+04/30 11:38:21 PM | val: [165/180] Final Prec@1 78.4500% Time 3.93
+04/30 11:38:21 PM | Start to train weights for epoch 165
+04/30 11:39:01 PM | Train: [166/180] Step 039/039 Loss 0.611 Prec@(1,3) (83.8%, 99.3%), ce_loss 0.829, lat_loss 6.577
+04/30 11:39:01 PM | _w_step_train: [166/180] Final Prec@1 83.8425% Time 40.73
+04/30 11:39:01 PM | Start to train theta for epoch 165
+04/30 11:39:38 PM | Train: [166/180] Step 039/039 Loss 0.743 Prec@(1,3) (80.9%, 98.9%), ce_loss 0.828, lat_loss 6.577
+04/30 11:39:38 PM | _theta_step_train: [166/180] Final Prec@1 80.8500% Time 36.80
+04/30 11:39:42 PM | Valid: [166/180] Step 009/009 Loss 0.956 Prec@(1,3) (76.9%, 97.7%), ce_loss 0.828, lat_loss 6.577
+04/30 11:39:42 PM | val: [166/180] Final Prec@1 76.9000% Time 3.91
+04/30 11:39:42 PM | Start to train weights for epoch 166
+04/30 11:40:23 PM | Train: [167/180] Step 039/039 Loss 0.724 Prec@(1,3) (82.0%, 98.7%), ce_loss 0.827, lat_loss 6.577
+04/30 11:40:23 PM | _w_step_train: [167/180] Final Prec@1 81.9900% Time 41.11
+04/30 11:40:23 PM | Start to train theta for epoch 166
+04/30 11:40:58 PM | Train: [167/180] Step 039/039 Loss 0.617 Prec@(1,3) (83.8%, 99.3%), ce_loss 0.826, lat_loss 6.577
+04/30 11:40:58 PM | _theta_step_train: [167/180] Final Prec@1 83.8450% Time 35.19
+04/30 11:41:02 PM | Valid: [167/180] Step 009/009 Loss 1.057 Prec@(1,3) (72.3%, 95.6%), ce_loss 0.826, lat_loss 6.577
+04/30 11:41:02 PM | val: [167/180] Final Prec@1 72.2500% Time 3.85
+04/30 11:41:02 PM | Start to train weights for epoch 167
+04/30 11:41:44 PM | Train: [168/180] Step 039/039 Loss 0.605 Prec@(1,3) (83.7%, 99.3%), ce_loss 0.825, lat_loss 6.577
+04/30 11:41:45 PM | _w_step_train: [168/180] Final Prec@1 83.7125% Time 42.18
+04/30 11:41:45 PM | Start to train theta for epoch 167
+04/30 11:42:20 PM | Train: [168/180] Step 039/039 Loss 0.639 Prec@(1,3) (83.5%, 99.2%), ce_loss 0.824, lat_loss 6.577
+04/30 11:42:20 PM | _theta_step_train: [168/180] Final Prec@1 83.4600% Time 35.05
+04/30 11:42:24 PM | Valid: [168/180] Step 009/009 Loss 0.822 Prec@(1,3) (80.8%, 99.0%), ce_loss 0.824, lat_loss 6.577
+04/30 11:42:24 PM | val: [168/180] Final Prec@1 80.7600% Time 4.02
+04/30 11:42:24 PM | Start to train weights for epoch 168
+04/30 11:43:05 PM | Train: [169/180] Step 039/039 Loss 0.612 Prec@(1,3) (83.6%, 99.4%), ce_loss 0.823, lat_loss 6.577
+04/30 11:43:05 PM | _w_step_train: [169/180] Final Prec@1 83.5875% Time 41.59
+04/30 11:43:05 PM | Start to train theta for epoch 168
+04/30 11:43:41 PM | Train: [169/180] Step 039/039 Loss 0.620 Prec@(1,3) (83.6%, 99.3%), ce_loss 0.822, lat_loss 6.577
+04/30 11:43:41 PM | _theta_step_train: [169/180] Final Prec@1 83.6450% Time 35.28
+04/30 11:43:44 PM | Valid: [169/180] Step 009/009 Loss 1.050 Prec@(1,3) (72.7%, 97.8%), ce_loss 0.822, lat_loss 6.577
+04/30 11:43:44 PM | val: [169/180] Final Prec@1 72.6600% Time 3.78
+04/30 11:43:44 PM | Start to train weights for epoch 169
+04/30 11:44:25 PM | Train: [170/180] Step 039/039 Loss 0.586 Prec@(1,3) (84.3%, 99.4%), ce_loss 0.821, lat_loss 6.577
+04/30 11:44:25 PM | _w_step_train: [170/180] Final Prec@1 84.2525% Time 40.85
+04/30 11:44:25 PM | Start to train theta for epoch 169
+04/30 11:45:00 PM | Train: [170/180] Step 039/039 Loss 0.598 Prec@(1,3) (84.0%, 99.4%), ce_loss 0.820, lat_loss 6.577
+04/30 11:45:00 PM | _theta_step_train: [170/180] Final Prec@1 83.9975% Time 34.93
+04/30 11:45:04 PM | Valid: [170/180] Step 009/009 Loss 1.357 Prec@(1,3) (67.9%, 93.3%), ce_loss 0.820, lat_loss 6.577
+04/30 11:45:04 PM | val: [170/180] Final Prec@1 67.9300% Time 3.84
+04/30 11:45:04 PM | Start to train weights for epoch 170
+04/30 11:45:44 PM | Train: [171/180] Step 039/039 Loss 0.634 Prec@(1,3) (83.3%, 99.2%), ce_loss 0.819, lat_loss 6.577
+04/30 11:45:44 PM | _w_step_train: [171/180] Final Prec@1 83.2625% Time 40.42
+04/30 11:45:44 PM | Start to train theta for epoch 170
+04/30 11:46:20 PM | Train: [171/180] Step 039/039 Loss 0.602 Prec@(1,3) (84.0%, 99.4%), ce_loss 0.818, lat_loss 6.577
+04/30 11:46:20 PM | _theta_step_train: [171/180] Final Prec@1 84.0000% Time 35.76
+04/30 11:46:24 PM | Valid: [171/180] Step 009/009 Loss 0.973 Prec@(1,3) (77.8%, 98.7%), ce_loss 0.818, lat_loss 6.577
+04/30 11:46:24 PM | val: [171/180] Final Prec@1 77.8400% Time 3.93
+04/30 11:46:24 PM | Start to train weights for epoch 171
+04/30 11:47:05 PM | Train: [172/180] Step 039/039 Loss 0.594 Prec@(1,3) (84.3%, 99.3%), ce_loss 0.817, lat_loss 6.577
+04/30 11:47:05 PM | _w_step_train: [172/180] Final Prec@1 84.3050% Time 40.44
+04/30 11:47:05 PM | Start to train theta for epoch 171
+04/30 11:47:41 PM | Train: [172/180] Step 039/039 Loss 0.678 Prec@(1,3) (82.9%, 99.0%), ce_loss 0.817, lat_loss 6.577
+04/30 11:47:41 PM | _theta_step_train: [172/180] Final Prec@1 82.9025% Time 36.02
+04/30 11:47:44 PM | Valid: [172/180] Step 009/009 Loss 0.796 Prec@(1,3) (80.8%, 99.0%), ce_loss 0.816, lat_loss 6.577
+04/30 11:47:44 PM | val: [172/180] Final Prec@1 80.8400% Time 3.73
+04/30 11:47:44 PM | Start to train weights for epoch 172
+04/30 11:48:25 PM | Train: [173/180] Step 039/039 Loss 0.599 Prec@(1,3) (84.0%, 99.4%), ce_loss 0.816, lat_loss 6.577
+04/30 11:48:25 PM | _w_step_train: [173/180] Final Prec@1 84.0325% Time 40.99
+04/30 11:48:25 PM | Start to train theta for epoch 172
+04/30 11:49:02 PM | Train: [173/180] Step 039/039 Loss 0.777 Prec@(1,3) (81.4%, 98.5%), ce_loss 0.815, lat_loss 6.576
+04/30 11:49:02 PM | _theta_step_train: [173/180] Final Prec@1 81.3675% Time 36.70
+04/30 11:49:06 PM | Valid: [173/180] Step 009/009 Loss 0.923 Prec@(1,3) (76.4%, 98.4%), ce_loss 0.815, lat_loss 6.576
+04/30 11:49:06 PM | val: [173/180] Final Prec@1 76.3900% Time 3.91
+04/30 11:49:06 PM | Start to train weights for epoch 173
+04/30 11:49:47 PM | Train: [174/180] Step 039/039 Loss 0.583 Prec@(1,3) (84.5%, 99.4%), ce_loss 0.814, lat_loss 6.576
+04/30 11:49:47 PM | _w_step_train: [174/180] Final Prec@1 84.5225% Time 40.51
+04/30 11:49:47 PM | Start to train theta for epoch 173
+04/30 11:50:22 PM | Train: [174/180] Step 039/039 Loss 0.662 Prec@(1,3) (83.1%, 99.1%), ce_loss 0.813, lat_loss 6.576
+04/30 11:50:22 PM | _theta_step_train: [174/180] Final Prec@1 83.0775% Time 35.29
+04/30 11:50:26 PM | Valid: [174/180] Step 009/009 Loss 0.902 Prec@(1,3) (76.4%, 98.6%), ce_loss 0.813, lat_loss 6.576
+04/30 11:50:26 PM | val: [174/180] Final Prec@1 76.4200% Time 3.68
+04/30 11:50:26 PM | Start to train weights for epoch 174
+04/30 11:51:06 PM | Train: [175/180] Step 039/039 Loss 0.644 Prec@(1,3) (83.7%, 99.1%), ce_loss 0.812, lat_loss 6.576
+04/30 11:51:06 PM | _w_step_train: [175/180] Final Prec@1 83.6925% Time 40.78
+04/30 11:51:06 PM | Start to train theta for epoch 174
+04/30 11:51:41 PM | Train: [175/180] Step 039/039 Loss 0.687 Prec@(1,3) (82.7%, 99.0%), ce_loss 0.811, lat_loss 6.576
+04/30 11:51:42 PM | _theta_step_train: [175/180] Final Prec@1 82.6525% Time 35.08
+04/30 11:51:45 PM | Valid: [175/180] Step 009/009 Loss 1.272 Prec@(1,3) (73.7%, 98.0%), ce_loss 0.811, lat_loss 6.576
+04/30 11:51:45 PM | val: [175/180] Final Prec@1 73.7100% Time 3.69
+04/30 11:51:45 PM | Start to train weights for epoch 175
+04/30 11:52:26 PM | Train: [176/180] Step 039/039 Loss 0.767 Prec@(1,3) (80.8%, 98.6%), ce_loss 0.811, lat_loss 6.576
+04/30 11:52:26 PM | _w_step_train: [176/180] Final Prec@1 80.7925% Time 40.44
+04/30 11:52:26 PM | Start to train theta for epoch 175
+04/30 11:53:02 PM | Train: [176/180] Step 039/039 Loss 0.636 Prec@(1,3) (83.5%, 99.2%), ce_loss 0.810, lat_loss 6.576
+04/30 11:53:02 PM | _theta_step_train: [176/180] Final Prec@1 83.4900% Time 36.18
+04/30 11:53:05 PM | Valid: [176/180] Step 009/009 Loss 0.773 Prec@(1,3) (80.4%, 99.0%), ce_loss 0.810, lat_loss 6.576
+04/30 11:53:06 PM | val: [176/180] Final Prec@1 80.4400% Time 3.60
+04/30 11:53:06 PM | Start to train weights for epoch 176
+04/30 11:53:47 PM | Train: [177/180] Step 039/039 Loss 0.643 Prec@(1,3) (83.4%, 99.1%), ce_loss 0.809, lat_loss 6.576
+04/30 11:53:47 PM | _w_step_train: [177/180] Final Prec@1 83.4350% Time 41.29
+04/30 11:53:47 PM | Start to train theta for epoch 176
+04/30 11:54:22 PM | Train: [177/180] Step 039/039 Loss 0.603 Prec@(1,3) (83.9%, 99.4%), ce_loss 0.808, lat_loss 6.576
+04/30 11:54:22 PM | _theta_step_train: [177/180] Final Prec@1 83.9025% Time 35.06
+04/30 11:54:26 PM | Valid: [177/180] Step 009/009 Loss 1.649 Prec@(1,3) (65.4%, 91.6%), ce_loss 0.808, lat_loss 6.576
+04/30 11:54:26 PM | val: [177/180] Final Prec@1 65.3900% Time 3.71
+04/30 11:54:26 PM | Start to train weights for epoch 177
+04/30 11:55:06 PM | Train: [178/180] Step 039/039 Loss 0.822 Prec@(1,3) (80.1%, 98.3%), ce_loss 0.808, lat_loss 6.576
+04/30 11:55:06 PM | _w_step_train: [178/180] Final Prec@1 80.1000% Time 40.50
+04/30 11:55:06 PM | Start to train theta for epoch 177
+04/30 11:55:41 PM | Train: [178/180] Step 039/039 Loss 0.635 Prec@(1,3) (83.2%, 99.0%), ce_loss 0.807, lat_loss 6.576
+04/30 11:55:41 PM | _theta_step_train: [178/180] Final Prec@1 83.2275% Time 34.51
+04/30 11:55:45 PM | Valid: [178/180] Step 009/009 Loss 0.714 Prec@(1,3) (81.9%, 99.0%), ce_loss 0.807, lat_loss 6.576
+04/30 11:55:45 PM | val: [178/180] Final Prec@1 81.9400% Time 3.93
+04/30 11:55:45 PM | Best top1 acc by now. Save model
+04/30 11:55:45 PM | Start to train weights for epoch 178
+04/30 11:56:26 PM | Train: [179/180] Step 039/039 Loss 0.625 Prec@(1,3) (83.4%, 99.2%), ce_loss 0.806, lat_loss 6.576
+04/30 11:56:26 PM | _w_step_train: [179/180] Final Prec@1 83.4150% Time 41.31
+04/30 11:56:26 PM | Start to train theta for epoch 178
+04/30 11:57:01 PM | Train: [179/180] Step 039/039 Loss 0.766 Prec@(1,3) (81.0%, 98.6%), ce_loss 0.806, lat_loss 6.576
+04/30 11:57:01 PM | _theta_step_train: [179/180] Final Prec@1 80.9850% Time 34.72
+04/30 11:57:05 PM | Valid: [179/180] Step 009/009 Loss 0.858 Prec@(1,3) (79.3%, 98.7%), ce_loss 0.805, lat_loss 6.576
+04/30 11:57:05 PM | val: [179/180] Final Prec@1 79.2500% Time 3.86
+04/30 11:57:05 PM | Start to train weights for epoch 179
+04/30 11:57:45 PM | Train: [180/180] Step 039/039 Loss 0.610 Prec@(1,3) (83.7%, 99.3%), ce_loss 0.805, lat_loss 6.576
+04/30 11:57:45 PM | _w_step_train: [180/180] Final Prec@1 83.7350% Time 40.51
+04/30 11:57:45 PM | Start to train theta for epoch 179
+04/30 11:58:20 PM | Train: [180/180] Step 039/039 Loss 0.628 Prec@(1,3) (83.6%, 99.2%), ce_loss 0.804, lat_loss 6.576
+04/30 11:58:20 PM | _theta_step_train: [180/180] Final Prec@1 83.6200% Time 34.77
+04/30 11:58:24 PM | Valid: [180/180] Step 009/009 Loss 1.561 Prec@(1,3) (57.8%, 90.8%), ce_loss 0.804, lat_loss 6.576
+04/30 11:58:24 PM | val: [180/180] Final Prec@1 57.7700% Time 3.71
+05/01 07:30:55 AM | Sampled Architecture: ir_k5_e6 - ir_k3_e6 - ir_k3_e6 - ir_k5_e6 - ir_k5_e6 - ir_k5_e6 - ir_k5_e6 - skip - skip - ir_k3_e6 - ir_k5_e6 - skip - skip - ir_k5_e6 - skip - skip - skip - ir_k5_e6 - skip - skip - skip - skip
+05/01 07:30:55 AM | CONGRATULATIONS! New architecture fbnet_cpu_sample2 was written into fbnet_building_blocks/fbnet_modeldef.py
+05/01 09:26:03 AM | Firstly, start to train weights for epoch 0
+05/01 09:26:42 AM | Train: [  1/180] Step 050/079 Loss 3.021 Prec@(1,3) (14.7%, 60.6%), ce_loss 2.268, lat_loss 6.659
+05/01 09:27:03 AM | Train: [  1/180] Step 079/079 Loss 2.905 Prec@(1,3) (18.2%, 67.0%), ce_loss 2.181, lat_loss 6.658
+05/01 09:27:03 AM | _w_step_train: [  1/180] Final Prec@1 18.1800% Time 60.32
+05/01 09:27:03 AM | Firstly, start to train weights for epoch 1
+05/01 09:27:43 AM | Train: [  2/180] Step 050/079 Loss 2.465 Prec@(1,3) (30.4%, 84.8%), ce_loss 2.053, lat_loss 6.658
+05/01 09:28:05 AM | Train: [  2/180] Step 079/079 Loss 2.416 Prec@(1,3) (32.0%, 85.5%), ce_loss 1.998, lat_loss 6.657
+05/01 09:28:05 AM | _w_step_train: [  2/180] Final Prec@1 31.9650% Time 61.45
+05/01 09:28:05 AM | Firstly, start to train weights for epoch 2
+05/01 09:39:45 AM | Firstly, start to train weights for epoch 0
