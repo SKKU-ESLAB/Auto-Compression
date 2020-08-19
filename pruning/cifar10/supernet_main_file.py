@@ -23,7 +23,8 @@ parser.add_argument('--architecture_name', type=str, default='', \
                     help='Name of an architecture to be sampled')
 parser.add_argument('--hardsampling_bool_value', type=str, default='True', \
                     help='If not False or 0 -> do hardsampling, else - softmax sampling')
-parser.add_argument('--prune', type=str, default='channel')
+parser.add_argument('--prune', type=str, default='channel', \
+                    help='channel or group')
 args = parser.parse_args()
 
 def train_supernet():
