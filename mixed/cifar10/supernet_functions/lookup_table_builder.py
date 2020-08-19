@@ -16,7 +16,7 @@ np.set_printoptions(threshold=sys.maxsize)
 #CANDIDATE_BLOCKS = ["ir_k3_e1", "ir_k3_s2", "ir_k3_e3",
 #                    "ir_k3_e6", "ir_k5_e1", "ir_k5_s2",
 #                    "ir_k5_e3", "ir_k5_e6", "skip"]
-CANDIDATE_HIGH = ["S0", "S2", "S4", "S6", "S8"]
+CANDIDATE_HIGH = ["S6_4bit", "S6_8bit", "S7_4bit", "S7_8bit", "S8_4bit", "S8_8bit"]
 
 SEARCH_SPACE = OrderedDict([
     # Note: the second and third dimentions are recommended (will not be used in training) and written just for debagging
@@ -61,6 +61,10 @@ class LookUpTable_HIGH:
     def _generate_layers_parameters(self, search_space):
         # layers_parameters are : C_in, C_out, expansion, stride
         layers_parameters = [((search_space["input_shape"][layer_id][0],
+                              search_space["channel_size"][layer_id],
+                              search_space["strides"][layer_id], layer_id,
+                              self.prune_type),
+                              (search_space["input_shape"][layer_id][0],
                               search_space["channel_size"][layer_id],
                               search_space["strides"][layer_id], layer_id,
                               self.prune_type),

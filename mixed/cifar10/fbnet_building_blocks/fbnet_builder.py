@@ -221,22 +221,24 @@ PRIMITIVES = {
     "A4_W2": lambda C_in, C_out, a, w, stride, padding, maxpool, index, layer_num, **kwargs: QConvBNRelu(
             C_in, C_out, 4, w+1, 3, stride, padding, maxpool, 0, "relu", "bn", index, layer_num, False, **kwargs
     ),
-    "S0": lambda in_planes, planes, stride, layer_num, prune, **kwargs: ResNetBlock(
-                    in_planes, planes, stride, prune, 0.0, layer_num, **kwargs
+    "S6_4bit": lambda in_planes, planes, stride, layer_num, prune, **kwargs: ResNetBlock(
+                    in_planes, planes, 4, 4, stride, prune, 0.6, layer_num, **kwargs
     ),
-    "S2": lambda in_planes, planes, stride, layer_num, prune, **kwargs: ResNetBlock(
-                    in_planes, planes, stride, prune, 0.2, layer_num, **kwargs
+    "S6_8bit": lambda in_planes, planes, stride, layer_num, prune, **kwargs: ResNetBlock(
+                    in_planes, planes, 8, 8, stride, prune, 0.6, layer_num, **kwargs
     ),
-    "S4": lambda in_planes, planes, stride, layer_num, prune, **kwargs: ResNetBlock(
-                    in_planes, planes, stride, prune, 0.4, layer_num, **kwargs
+    "S7_4bit": lambda in_planes, planes, stride, layer_num, prune, **kwargs: ResNetBlock(
+                    in_planes, planes, 4, 4, stride, prune, 0.7, layer_num, **kwargs
     ),
-    "S6": lambda in_planes, planes, stride, layer_num, prune, **kwargs: ResNetBlock(
-                    in_planes, planes, stride, prune, 0.6, layer_num, **kwargs
+    "S7_8bit": lambda in_planes, planes, stride, layer_num, prune, **kwargs: ResNetBlock(
+                    in_planes, planes, 8, 8, stride, prune, 0.7, layer_num, **kwargs
     ),
-    "S8": lambda in_planes, planes, stride, layer_num, prune, **kwargs: ResNetBlock(
-                    in_planes, planes, stride, prune, 0.8, layer_num, **kwargs
+    "S8_4bit": lambda in_planes, planes, stride, layer_num, prune, **kwargs: ResNetBlock(
+                    in_planes, planes, 4, 4, stride, prune, 0.8, layer_num, **kwargs
     ),
-
+    "S8_8bit": lambda in_planes, planes, stride, layer_num, prune, **kwargs: ResNetBlock(
+                    in_planes, planes, 8, 8, stride, prune, 0.8, layer_num, **kwargs
+    ),
 }
 
 class LambdaLayer(nn.Module):
@@ -249,11 +251,11 @@ class LambdaLayer(nn.Module):
 
 class ResNetBlock(nn.Sequential):
     def __init__(
-        self, in_planes, planes, stride, type_prune, sparsity, layer_num, option='A'
+        self, in_planes, planes, num_bits, num_bits_weight, stride, type_prune, sparsity, layer_num, option='A'
     ):
         super(ResNetBlock, self).__init__()
         if in_planes==3:
-            op = nn.Conv2d(in_planes, planes, kernel_size=3, stride=1, padding=1, bias=False)
+            op = QConv2d(in_planes, planes, num_bits, num_bits_weight, kernel_size=3, stride=1, padding=1, bias=False)
             if type_prune=='channel':
                 op = prune.ln_structured(op, name='weight', amount=sparsity, n=2, dim=0)
             elif type_prune=='group':
@@ -304,16 +306,16 @@ class ResNetBlock(nn.Sequential):
                 op = prune.custom_from_mask(op, name='weight', mask=tmp_pruned)
             self.add_module("fc", op)
         else:
-            op = BasicBlock(in_planes, planes, stride, type_prune, sparsity, layer_num, option)
+            op = BasicBlock(in_planes, planes, num_bits, num_bits_weight, stride, type_prune, sparsity, layer_num, option)
             self.add_module("conv", op)
 
 class BasicBlock(nn.Module):
     expansion = 1
 
-    def __init__(self, in_planes, planes, stride, type_prune, sparsity, layer_num, option='A'):
+    def __init__(self, in_planes, planes, num_bits, num_bits_weight, stride, type_prune, sparsity, layer_num, option='A'):
         super(BasicBlock, self).__init__()
 
-        self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.conv1 = QConv2d(in_planes, planes, num_bits, num_bits_weight, kernel_size=3, stride=stride, padding=1, bias=False)
 
         if type_prune=='channel':
             self.conv1 = prune.ln_structured(self.conv1, name='weight', amount=sparsity, n=2, dim=0)
@@ -337,7 +339,7 @@ class BasicBlock(nn.Module):
             self.conv1 = prune.custom_from_mask(self.conv1, name='weight', mask=tmp_pruned)
 
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv2 = QConv2d(planes, planes, num_bits, num_bits_weight, kernel_size=3, stride=1, padding=1, bias=False)
         if type_prune=='channel':
             self.conv2 = prune.ln_structured(self.conv2, name='weight', amount=sparsity, n=2, dim=0)
         elif type_prune=='group':
@@ -370,7 +372,7 @@ class BasicBlock(nn.Module):
                                             F.pad(x[:, :, ::2, ::2], (0, 0, 0, 0, planes//4, planes//4), "constant", 0))
             elif option == 'B':
                 self.shortcut = nn.Sequential(
-                     nn.Conv2d(in_planes, self.expansion * planes, kernel_size=1, stride=stride, bias=False),
+                     QConv2d(in_planes, self.expansion * planes, num_bits, num_bits_weight, kernel_size=1, stride=stride, bias=False),
                      nn.BatchNorm2d(self.expansion * planes)
                 )
 

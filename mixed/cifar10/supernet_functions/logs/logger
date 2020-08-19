@@ -27755,3 +27755,6 @@
 08/13 01:10:26 PM | Valid: [  1/1] Step 039/039 Loss 5.930 Prec@(1,3) (30.8%, 86.7%), ce_loss 1.956, lat_loss 16.091
 08/13 01:10:26 PM | val: [  1/1] Final Prec@1 30.7700% Time 3.62
 08/13 01:10:26 PM | Best top1 acc by now. Save model
+08/19 03:55:55 PM | Firstly, start to train weights for epoch 0
+08/19 03:56:24 PM | Firstly, start to train weights for epoch 0
+08/19 03:56:45 PM | Train: [  1/1] Step 050/2499 Loss 6.400 Prec@(1,3) (10.3%, 48.5%), ce_loss 2.552, lat_loss 12.538
