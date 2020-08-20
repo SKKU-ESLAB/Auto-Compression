@@ -1,2 +1,4 @@
 events.out.tfevents*
 SAVED_LOGS
+logs
+__pycache__
