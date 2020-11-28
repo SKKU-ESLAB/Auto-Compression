@@ -39,7 +39,7 @@ SEARCH_SPACE = OrderedDict([
 
 class LookUpTable_HIGH:
     def __init__(self, candidate_blocks=CANDIDATE_HIGH, search_space=SEARCH_SPACE,
-                 calulate_latency=False, prune_type='group'):
+                 calculate_latency=False, prune_type='group'):
         self.cnt_layers = len(search_space["input_shape"])
         self.search_space=SEARCH_SPACE
         self.candidate=CANDIDATE_HIGH
@@ -52,7 +52,7 @@ class LookUpTable_HIGH:
         
         # lookup_table
         self.lookup_table_latency = None
-        if calulate_latency:
+        if calculate_latency:
             self._create_from_operations(cnt_of_runs=CONFIG_SUPERNET['lookup_table']['number_of_runs'],
                                          write_to_file=CONFIG_SUPERNET['lookup_table']['path_to_lookup_table_high'])
         else:
