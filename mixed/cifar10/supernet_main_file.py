@@ -45,7 +45,7 @@ def train_supernet():
                                                       logger)
     test_loader = get_test_loader(CONFIG_SUPERNET['dataloading']['batch_size'],
                                   CONFIG_SUPERNET['dataloading']['path_to_save_data'])
-    lookup_table = LookUpTable_HIGH(calulate_latency=CONFIG_SUPERNET['lookup_table']['create_from_scratch'], prune_type=args.prune)
+    lookup_table = LookUpTable_HIGH(calculate_latency=CONFIG_SUPERNET['lookup_table']['create_from_scratch'], prune_type=args.prune)
 
     ###MODEL
     model = FBNet_Stochastic_SuperNet(lookup_table, cnt_classes=10).cuda()
