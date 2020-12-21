@@ -1,8 +1,14 @@
+# Update (2020.12.21)
+This repo only supports onnx conversion.
+Model training should proceed through the original repo([Yet-Another-EfficientDet-Pytorch](https://github.com/zylo117/Yet-Another-EfficientDet-Pytorch)
+
+
 # Update (20200429)
 
 This repo is based on the [Yet-Another-EfficientDet-Pytorch](https://github.com/zylo117/Yet-Another-EfficientDet-Pytorch) repo. There are many needs to convert this efficientdet network into ONNX, so we make this repo to help poeple to convert model into ONNX or TVM. Note that this repo only provide function how to convert model to ONNX or TVM, not focusing on model training or other things. If you want to train or test this efficientdet model, the best way is refer to original [Yet-Another-EfficientDet-Pytorch](https://github.com/zylo117/Yet-Another-EfficientDet-Pytorch) repo.
 
 We have change some code based on this [original repo](https://github.com/zylo117/Yet-Another-EfficientDet-Pytorch) to help convert successfully.
+
 
 # convert onnx
 If you want to convert to ONNX, just run
