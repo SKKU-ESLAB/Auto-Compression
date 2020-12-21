@@ -1,6 +1,7 @@
 # Update (2020.12.21)
 This repo only supports onnx conversion.
-Model training should proceed through the original repo([Yet-Another-EfficientDet-Pytorch](https://github.com/zylo117/Yet-Another-EfficientDet-Pytorch)
+
+Model training should proceed through the original repo([Yet-Another-EfficientDet-Pytorch](https://github.com/zylo117/Yet-Another-EfficientDet-Pytorch))
 
 
 # Update (20200429)
