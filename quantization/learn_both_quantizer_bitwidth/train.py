@@ -17,7 +17,7 @@ from torch.autograd import Variable
 
 parser = argparse.ArgumentParser(description='PyTorch - Learning Quantization')
 parser.add_argument('--model', default='resnet32', help='select model')
-parser.add_argument('--dir', default='../data', help='data root')
+parser.add_argument('--dir', default='/data', help='data root')
 parser.add_argument('--dataset', default='cifar100', help='select dataset')
 parser.add_argument('--load', default=0, type=int, help='0: no load, 1: resume, 2: load model, 3: load weight')
 parser.add_argument('--load_file', default='./checkpoint/trained.pth', help='select loading file')
@@ -134,7 +134,6 @@ if args.initskip and device == torch.device('cuda'):
 elif args.load == 1:
     # Load saved file.
     print(f'==> Resuming from saved file..: {args.load_file}')
-    assert os.path.isdir('save'), 'Error: no save directory!'
     checkpoint = torch.load('%s' %args.load_file)
     if 'model' in  checkpoint.keys():
         checkpoint = checkpoint['model']
@@ -158,7 +157,6 @@ elif args.load == 1:
 
 elif args.load == 2:
     print('==> Loading model')
-    assert os.path.isdir('save'), 'Error: no save directory!'
     checkpoint = torch.load('%s' %args.load_file)
     #model.load_state_dict(checkpoint)
     model = torch.nn.DataParallel(model).cuda()
@@ -166,7 +164,6 @@ elif args.load == 2:
 
 elif args.load == 3:
     print('==> Loading pretrained weight')
-    assert os.path.isdir('save'), 'Error: no checkpoint directory found!'
     checkpoint = torch.load('./%s' %args.load_file)
     pretrained = model_builder(args.model, args.dataset, False, index)
     pretrained.load_state_dict(checkpoint['model'])
@@ -336,8 +333,6 @@ def eval(epoch):
                 'acc': best_acc,
                 'epoch': epoch,
             }
-            if not os.path.isdir('save'):
-                os.mkdir('save')
             torch.save(state, f'{args.save}/{args.exp}_best_{args.savefile}')
 
         if (epoch % 10) == 0:
@@ -346,8 +341,6 @@ def eval(epoch):
                 'acc': top1.avg,
                 'epoch': epoch,
             }
-            if not os.path.isdir('save'):
-                os.mkdir('save')
             torch.save(state, f'{args.save}/{args.exp}_{args.savefile}')
     print(f'evalaution time bitops: {bitops[0]}')
 
