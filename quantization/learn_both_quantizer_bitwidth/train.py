@@ -29,6 +29,7 @@ parser.add_argument('--strict_false', action='store_true', help='load_state_dict
 parser.add_argument('--m', default=0.9, type=float, help='set momentum value')
 parser.add_argument('--lr_ms', nargs='+', default=[20, 40, 60], type=int, help='set milestones')
 parser.add_argument('--lr_g', default=0.1, type=float, help='set gamma for multistep lr scheduler')
+parser.add_argument('--cosine', action='store_true', help='set the lr scheduler to cosine annealing')
 parser.add_argument('--workers', default=4, type=int, help='set number of workers')
 parser.add_argument('--savefile', default='ckpt.pth', help='save file name')
 parser.add_argument('--log_interval', default=50, type=int, help='logging interval')
@@ -210,6 +211,8 @@ optimizer = optim.SGD([{'params': lr1_param, 'lr': args.lr1, 'weight_decay': arg
                        {'params': lr3_param, 'lr': args.lr3}], momentum=args.m)
 
 scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_ms, gamma=args.lr_g)
+if args.cosine:
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epoch, eta_min=args.lr1*(args.lr_g ** 3))
 
 logging.info("args = %s", args)
 
