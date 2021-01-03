@@ -282,10 +282,10 @@ def train(epoch):
             if isinstance(m, lq_conv2d_orig):
                 i += 1
                 if isinstance(args.w_bit, list):
-                    prob_w = F.softmax(m.theta_w).cpu().tolist()
+                    prob_w = F.softmax(m.theta_w)
                     sel=torch.argmax(prob_w)
                     str_to_print += f'{args.w_bit[sel]}'
-                    prob_w = [f'{i:.5f}' for i in prob_w]
+                    prob_w = [f'{i:.5f}' for i in prob_w.cpu().tolist()]
                     str_to_log += f'layer {i} theta_w: [{", ".join(prob_w)}]\n'
                 else:
                     break
