@@ -277,16 +277,21 @@ def train(epoch):
     if args.is_qt:
         i=1
         str_to_log = '\n'
+        str_to_print = f'Epoch {epoch} Bitwidth selection: \n'
         for _, m in enumerate(model.modules()):
             if isinstance(m, lq_conv2d_orig):
                 i += 1
                 if isinstance(args.w_bit, list):
                     prob_w = F.softmax(m.theta_w).cpu().tolist()
+                    sel=torch.argmax(prob_w)
+                    str_to_print += f'{args.w_bit[sel]}'
                     prob_w = [f'{i:.5f}' for i in prob_w]
                     str_to_log += f'layer {i} theta_w: [{", ".join(prob_w)}]\n'
                 else:
                     break
         logging.info(str_to_log)
+        logging.info(str_to_print)
+        
         i=1
         str_to_log = '\n'
         for _, m in enumerate(model.modules()):
@@ -357,6 +362,23 @@ else:
         eval(epoch)
         scheduler.step()
         #print_param(model)
+        if epoch == end_epoch:
+            if args.is_qt:
+                i=1
+                str_to_log = 'Final bitwidth selection: \n'
+                for _, m in enumerate(model.modules()):
+                    if isinstance(m, lq_conv2d_orig):
+                        i += 1
+                        if isinstance(args.w_bit, list):
+                            prob_w = F.softmax(m.theta_w).cpu().tolist()
+                            sel=torch.argmax(prob_w)
+                            str_to_log += f'{args.w_bit[sel]}'
+                            #prob_w = [f'{i:.5f}' for i in prob_w]
+                            #str_to_log += f'layer {i} theta_w: [{", ".join(prob_w)}]\n'
+                        else:
+                            break
+                logging.info(str_to_log)
+
 
 logging.info('Best accuracy : {:.3f} %'.format(best_acc))
 #print_param(model)
