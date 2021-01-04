@@ -33,64 +33,78 @@ def _make_divisible(v, divisor, min_value=None):
     return new_v
 
 
-def conv_3x3_bn(inp, oup, stride, is_qt=False, lq=False, block_num=-1, layer_num=-1, index=None, fwlq=False):
+def conv_3x3_bn(inp, oup, stride, is_qt=False, lq=False, fwlq=False): # first layer
     return nn.Sequential(
-        LQ_Conv2d(inp, oup, 3, stride=stride, padding=1, bias=False, is_qt=is_qt, lq=lq, block_num=block_num, layer_num=layer_num, index=index, fwlq=fwlq),
+        nn.Conv2d(inp, oup, 3, stride=stride, padding=1, bias=False),
         nn.BatchNorm2d(oup),
         nn.ReLU6(inplace=True)
     )
 
 
-def conv_1x1_bn(inp, oup, lq=False, is_qt=False, block_num=-1, layer_num=-1, index=None, fwlq=False):
+def conv_1x1_bn(inp, oup, lq=False, is_qt=False, fwlq=False):
     return nn.Sequential(
-        LQ_Conv2d(inp, oup, 1, stride=1, padding=0, bias=False, is_qt=is_qt, lq=lq, block_num=block_num, layer_num=layer_num, index=index, fwlq=fwlq),
+        LQ_Conv2d(inp, oup, 1, stride=1, padding=0, bias=False, is_qt=is_qt, lq=lq, fwlq=fwlq),
         nn.BatchNorm2d(oup),
         nn.ReLU6(inplace=True)
     )
 
 
 class InvertedResidual(nn.Module):
-    def __init__(self, inp, oup, stride, expand_ratio, is_qt=False, lq=False, block_num=-1, index=[], fwlq=False):
+    def __init__(self, inp, oup, stride, expand_ratio, is_qt=False, lq=False, fwlq=False):
         super(InvertedResidual, self).__init__()
         assert stride in [1, 2]
 
         hidden_dim = round(inp * expand_ratio)
         self.identity = stride == 1 and inp == oup
+        self.expand_ratio = expand_ratio
 
         if expand_ratio == 1:
             self.conv = nn.Sequential(
                 # dw
-                LQ_Conv2d(hidden_dim, hidden_dim, 3, stride=stride, padding=1, groups=hidden_dim, bias=False, is_qt=is_qt, lq=lq, block_num=block_num, layer_num=0, index=index, fwlq=fwlq),
+                LQ_Conv2d(inp, hidden_dim, 3, stride=stride, padding=1, groups=hidden_dim, bias=False, is_qt=is_qt, lq=lq, fwlq=fwlq),
                 nn.BatchNorm2d(hidden_dim),
                 nn.ReLU6(inplace=True),
                 # pw-linear
-                LQ_Conv2d(hidden_dim, oup, 1, stride=1, padding=0, bias=False, is_qt=is_qt, lq=lq, block_num=block_num, layer_num=1, index=index, fwlq=fwlq),
+                LQ_Conv2d(hidden_dim, oup, 1, stride=1, padding=0, bias=False, is_qt=is_qt, lq=lq, fwlq=fwlq),
                 nn.BatchNorm2d(oup),
             )
         else:
             self.conv = nn.Sequential(
                 # pw
-                LQ_Conv2d(inp, hidden_dim, 1, stride=1, padding=0, bias=False, is_qt=is_qt, lq=lq, block_num=block_num, layer_num=0, index=index, fwlq=fwlq),
+                LQ_Conv2d(inp, hidden_dim, 1, stride=1, padding=0, bias=False, is_qt=is_qt, lq=lq, fwlq=fwlq),
                 nn.BatchNorm2d(hidden_dim),
                 nn.ReLU6(inplace=True),
                 # dw
-                LQ_Conv2d(hidden_dim, hidden_dim, 3, stride=stride, padding=1, groups=hidden_dim, bias=False, is_qt=is_qt, lq=lq, block_num=block_num, layer_num=1, index=index, fwlq=fwlq),
+                LQ_Conv2d(hidden_dim, hidden_dim, 3, stride=stride, padding=1, groups=hidden_dim, bias=False, is_qt=is_qt, lq=lq, fwlq=fwlq),
                 nn.BatchNorm2d(hidden_dim),
                 nn.ReLU6(inplace=True),
                 # pw-linear
-                LQ_Conv2d(hidden_dim, oup, 1, stride=1, padding=0, bias=False, is_qt=is_qt, lq=lq, block_num=block_num, layer_num=2, index=index, fwlq=fwlq),
+                LQ_Conv2d(hidden_dim, oup, 1, stride=1, padding=0, bias=False, is_qt=is_qt, lq=lq, fwlq=fwlq),
                 nn.BatchNorm2d(oup),
             )
 
     def forward(self, x):
-        if self.identity:
-            return x + self.conv(x)
+        if self.expand_ratio == 1:
+            out, _ = self.conv[0](x)
+            out = self.conv[1:3](out)
+            out, _ = self.conv[3](out)
+            out = self.conv[4](out)
         else:
-            return self.conv(x)
+            out, _ = self.conv[0](x)
+            out = self.conv[1:3](out)
+            out, _ = self.conv[3](out)
+            out = self.conv[4:6](out)
+            out, _ = self.conv[6](out)
+
+        if self.identity:
+            return x + out
+            
+        else:
+            return out 
 
 
 class MobileNetV2(nn.Module):
-    def __init__(self, num_classes=1000, is_qt=False, lq=False, index=[], fwlq=False):
+    def __init__(self, num_classes=1000, is_qt=False, lq=False, fwlq=False, index=[]):
         super(MobileNetV2, self).__init__()
         # setting of inverted residual blocks
         self.cfgs = [
@@ -100,44 +114,43 @@ class MobileNetV2(nn.Module):
             [6,  32, 3, 2],
             [6,  64, 4, 2],
             [6,  96, 3, 1],
-            [6, 160, 3, 1],
+            [6, 160, 3, 2],
             [6, 320, 1, 1],
         ]
 
         # building first layer
         width_mult = 1
-        block_num = 0
         input_channel = _make_divisible(32 * width_mult, 4 if width_mult == 0.1 else 8)
-        layers = [conv_3x3_bn(3, input_channel, 1, is_qt=is_qt, lq=lq, block_num=block_num, layer_num=0, index=index, fwlq=fwlq)]
-        block_num += 1
+        layers = [conv_3x3_bn(3, input_channel, 2, is_qt=is_qt, lq=lq, fwlq=fwlq)]
+        
         # building inverted residual blocks
         block = InvertedResidual
         for t, c, n, s in self.cfgs:
             output_channel = _make_divisible(c * width_mult, 4 if width_mult == 0.1 else 8)
             for i in range(n):
-                layers.append(block(input_channel, output_channel, s if i == 0 else 1, t, is_qt=is_qt, lq=lq, block_num=block_num, index=index, fwlq=fwlq))
+                layers.append(block(input_channel, output_channel, s if i == 0 else 1, t, is_qt=is_qt, lq=lq, fwlq=fwlq))
                 input_channel = output_channel
-                block_num += 1
         self.features = nn.Sequential(*layers)
+        
         # building last several layers
         output_channel = _make_divisible(1280 * width_mult, 4 if width_mult == 0.1 else 8) if width_mult > 1.0 else 1280
-        self.conv = conv_1x1_bn(input_channel, output_channel, is_qt=is_qt, lq=lq, block_num=block_num, layer_num=0,  index=index, fwlq=fwlq)
+        self.conv = conv_1x1_bn(input_channel, output_channel, is_qt=is_qt, lq=lq, fwlq=fwlq)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.classifier = nn.Linear(output_channel, num_classes)
-
+        self.classifier = nn.Linear(output_channel, num_classes) # last layer
         self._initialize_weights()
 
     def forward(self, x):
         x = self.features(x)
-        x = self.conv(x)
+        x, _ = self.conv[0](x)
+        x = self.conv[1:](x)
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         x = self.classifier(x)
-        return x
+        return x, torch.Tensor([0]).cuda()
 
     def _initialize_weights(self):
         for m in self.modules():
-            if isinstance(m, lq_conv2d_v1):
+            if isinstance(m, lq_conv2d_orig):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
                 m.weight.data.normal_(0, math.sqrt(2. / n))
                 if m.bias is not None:
