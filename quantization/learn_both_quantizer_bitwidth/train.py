@@ -30,7 +30,7 @@ parser.add_argument('--m', default=0.9, type=float, help='set momentum value')
 parser.add_argument('--lr_ms', nargs='+', default=[20, 40, 60], type=int, help='set milestones')
 parser.add_argument('--lr_g', default=0.1, type=float, help='set gamma for multistep lr scheduler')
 parser.add_argument('--cosine', action='store_true', help='set the lr scheduler to cosine annealing')
-parser.add_argument('--workers', default=4, type=int, help='set number of workers')
+parser.add_argument('--workers', default=8, type=int, help='set number of workers')
 parser.add_argument('--savefile', default='ckpt.pth', help='save file name')
 parser.add_argument('--log_interval', default=50, type=int, help='logging interval')
 parser.add_argument('--exp', type=str)
@@ -160,8 +160,11 @@ elif args.load == 2:
     print('==> Loading model')
     checkpoint = torch.load('%s' %args.load_file)
     #model.load_state_dict(checkpoint)
+    if args.model=='mobilenetv2':
+        model.load_state_dict(checkpoint, strict=not args.strict_false)
+    else:
+        model.load_state_dict(checkpoint['model'], strict=not args.strict_false)
     model = torch.nn.DataParallel(model).cuda()
-    model.load_state_dict(checkpoint['model'], strict=not(args.strict_false))
 
 elif args.load == 3:
     print('==> Loading pretrained weight')
