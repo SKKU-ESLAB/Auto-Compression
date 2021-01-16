@@ -233,6 +233,14 @@ def train(epoch):
         inputs, targets = inputs.to(device), targets.to(device)
         data_time = time.time()
         outputs, bitops= model(inputs)
+        ###########
+        allb
+        for i in model.modules():
+            if isinstance(i, Q_Conv2d()):
+                b = i.bitoperation
+
+
+        ###########
         if len(bitops)>1:
             bitops = bitops[0]
 
