@@ -235,7 +235,7 @@ class lq_conv2d_orig(nn.Conv2d):
                 # 1. learning bitwidth
                 x_bar_list = []
                 for qx in self.qx:       
-                    x_bar = Round.apply(w_hat * qx) / qx
+                    x_bar = Round.apply(x_hat * qx) / qx
                     nan_detect(x_bar)
                     x_bar_list.append(x_bar)
                 soft_mask_x = nn.functional.gumbel_softmax(self.theta_x, tau=1, hard=False)
