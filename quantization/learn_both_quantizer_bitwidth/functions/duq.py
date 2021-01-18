@@ -38,13 +38,19 @@ class Q_ReLU(nn.Module):
         self.a.data.fill_(np.log(np.exp(offset + diff)-1))
         self.c.data.fill_(np.log(np.exp(offset + diff)-1))
     
-    def forward(self, x, accum_cost):
-        N, C, H, W = x.shape
+    def forward(self, x):
+        if x.dim() > 2:
+            N, C, H, W = x.shape
+            act_size = H * W
+        else:
+            N1, N2 = x.shape
+            act_size = N2
+            
         if self.act_func:
             x = F.relu(x, self.inplace)
         
-        if self.n_lvs == 0:
-            cost = 32 * H * W
+        if isinstance(self.n_lvs, int) and self.n_lvs == 0:
+            act_size *= 32
         else:
             a = F.softplus(self.a)
             c = F.softplus(self.c)
@@ -52,21 +58,20 @@ class Q_ReLU(nn.Module):
             
             if not isinstance(self.n_lvs, torch.Tensor):
                 x = RoundQuant.apply(x, self.n_lvs) * c
-                cost = self.n_lvs * H * W
-                return x, cost
+                act_size *= self.n_lvs
             else:
                 # TODO 1: weighted sum of discretized x  (V)
                 # TODO 2: compare speed of for loop <-> batched one
                 x = x.repeat(self.n_lvs.shape[0], 1, 1, 1, 1)
                 x = RoundQuant.apply(x, self.n_lvs) * c
-                softmask_x = F.gumbel_softmax(self.theta_x, tau=1, hard=False)
-                softmask_x = softmask_x.view(-1,1,1,1,1)
-                x = softmask_x * x
+                softmask = F.gumbel_softmax(self.theta_x, tau=1, hard=False)
+                softmask = softmask.view(-1,1,1,1,1)
+                x = softmask * x
                 x = x.sum(dim=0)
                 
-                cost = (softmask * self.n_lvs).sum() * H * W
+                act_size *= (softmask * self.n_lvs).sum()
                 
-        return x, cost
+        return x, act_size
 
         
 class Q_ReLU6(Q_ReLU):
@@ -102,27 +107,27 @@ class Q_Sym(nn.Module):
 
     def forward(self, x):
         N, C, H, W = x.shape
-        if self.n_lvs == 0:
-            cost = 32 * H * W
-            return x, cost
+        if isinstance(self.n_lvs, int) and self.n_lvs == 0:
+            act_size = 32 * H * W
+            return x, act_size
         else:
             a = F.softplus(self.a)
             c = F.softplus(self.c)
             x = F.hardtanh(x / a, -1, 1)
 
-            if not instance(self.n_lvs, torch.Tensor):
+            if not isinstance(self.n_lvs, torch.Tensor):
                 x = RoundQuant.apply(x, self.n_lvs // 2) * c
-                cost = self.n_lvs * H * W
-                return x, cost
+                act_size = self.n_lvs * H * W
+                return x, act_size
             else:
-                x = x.repeat(self.n_lv.shape[0], 1, 1, 1, 1)
+                x = x.repeat(self.n_lvs.shape[0], 1, 1, 1, 1)
                 x = RoundQuant.apply(x, self.n_lvs) * c
                 softmask = F.gumbel_softmax(self.theta_x, tau=1, hard=False)
                 softmask = softmask.view(-1,1,1,1,1)
-                x = softmask_x * x
+                x = softmask * x
                 x = x.sum(dim=0)
-                cost = (softmask * self.n_lvs).sum() * H * W
-                return x, cost 
+                act_size = (softmask * self.n_lvs).sum() * H * W
+                return x, act_size 
 
 
 class Q_HSwish(nn.Module):
@@ -135,7 +140,7 @@ class Q_HSwish(nn.Module):
         self.c = Parameter(torch.Tensor(1))
         self.d = -3/8
 
-    def initialize(self, n_lv, offset, diff):
+    def initialize(self, n_lvs, offset, diff):
         self.n_lvs = n_lvs
         self.a.data.fill_(np.log(np.exp(offset + diff)-1))
         self.c.data.fill_(np.log(np.exp(offset + diff)-1))
@@ -183,7 +188,7 @@ class Q_Conv2d(nn.Conv2d):
             bitwidth = self.n_lvs
         else:
             weight = weight.repeat(self.n_lvs.shape[0], 1, 1, 1, 1)
-            weight = RoundQuant.apply(weight, self.n_lvs // 2) * c
+            weight = RoundQuant.apply(weight, self.n_lvs // 2) * c            
             softmask = F.gumbel_softmax(self.theta_w, tau=1, hard=False)
             softmask = softmask.view(-1,1,1,1,1)
             weight = softmask * weight
@@ -192,15 +197,15 @@ class Q_Conv2d(nn.Conv2d):
 
         return weight, bitwidth
 
-    def forward(self, x, act_cost):
+    def forward(self, x, cost, act_size=0):
         O, I, K1, K2 = self.weight.shape
-        if self.n_lvs == 0:
-            cost = act_cost * 32 * O * I * K1 * K2 * (1/self.stride) * (1/self.stride)
+        if isinstance(self.n_lvs, int) and self.n_lvs == 0:
+            cost += act_size * 32 * O * I * K1 * K2 * (1/self.stride[0]) * (1/self.stride[0])
             return F.conv2d(x, self.weight, self.bias,
                 self.stride, self.padding, self.dilation, self.groups), cost
         else:
             weight, bitwidth = self._weight_quant()
-            cost = act_cost * bitwidth * O * I * K1 * K2 * (1/self.stride) * (1/self.stride)
+            cost += act_size * bitwidth * O * I * K1 * K2 * (1/self.stride[0]) * (1/self.stride[0])
             return F.conv2d(x, weight, self.bias,
                 self.stride, self.padding, self.dilation, self.groups), cost
 
@@ -214,14 +219,14 @@ class Q_Linear(nn.Linear):
         self.weight_old = None
 
     def initialize(self, n_lvs):
-        self.n_lvs = torch.Tensor(n_lvs).view(-1,1,1,1,1) if len(n_lvs)>1 \
+        self.n_lvs = torch.Tensor(n_lvs).view(-1,1,1) if len(n_lvs)>1 \
                      else n_lvs[0]
         self.theta_w = Parameter(torch.ones(len(n_lvs))/len(n_lvs))
         max_val = self.weight.data.abs().max().item()
         self.a.data.fill_(np.log(np.exp(max_val * 0.9)-1))
         self.c.data.fill_(np.log(np.exp(max_val * 0.9)-1))
 
-    def _weight_quant(self, act_cost):
+    def _weight_quant(self):
         a = F.softplus(self.a)
         c = F.softplus(self.c)
 
@@ -230,23 +235,23 @@ class Q_Linear(nn.Linear):
             weight = RoundQuant.apply(weight, self.n_lvs // 2) * c
             bitwidth = self.n_lvs
         else:
-            weight = weight.repeat(self.n_lv.shape[0], 1, 1, 1, 1)
+            weight = weight.repeat(self.n_lvs.shape[0], 1, 1)
             weight = RoundQuant.apply(weight, self.n_lvs // 2) * c
             softmask = F.gumbel_softmax(self.theta_w, tau=1, hard=False)
-            softmask = softmask.view(-1,1,1,1,1)
+            softmask = softmask.view(-1,1,1)
             weight = softmask * weight
             weight = weight.sum(dim=0)
             bitwidth = (softmask * self.n_lvs).sum()
-        return weight, cost
+        return weight, bitwidth
 
-    def forward(self, x):
+    def forward(self, x, cost, act_size=0):
         O, I = self.weight.shape
-        if self.n_lvs == 0:
-            cost = act_cost * 32 * O * I
+        if isinstance(self.n_lvs, int) and self.n_lvs == 0:
+            cost += act_size * 32 * O * I
             return F.linear(x, self.weight, self.bias), cost
         else:
-            weight = self._weight_quant()
-            cost = act_cost * bitwidth * O * I
+            weight, bitwidth = self._weight_quant()
+            cost += act_size * bitwidth * O * I
             return F.linear(x, weight, self.bias), cost
 
 
@@ -316,7 +321,7 @@ def initialize(model, loader, n_lvs, act=False, weight=False, eps=0.05):
             else:
                 output = model(input)
         break
-    
+
     model.cuda()
     for hook in hooks:
         hook.remove()

@@ -32,8 +32,8 @@ def data_loader(dir, dataset, batch_size, workers):
         train_set = datasets.CIFAR100(root=dir, train=True, download=True, transform=train_transform)
         val_set = datasets.CIFAR100(root=dir, train=False, download=False, transform=val_transform)
     elif dataset == 'imagenet':
-        traindir = os.path.join(dir, 'train')
-        valdir = os.path.join(dir, 'val')
+        traindir = os.path.join(dir, 'imagenet/train')
+        valdir = os.path.join(dir, 'imagenet/val')
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], 
                                          std=[0.229, 0.224, 0.225])
         train_transform = transforms.Compose([

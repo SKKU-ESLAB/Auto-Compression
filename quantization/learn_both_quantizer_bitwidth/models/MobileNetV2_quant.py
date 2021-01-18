@@ -3,9 +3,11 @@ from __future__ import division
 from __future__ import unicode_literals
 from __future__ import print_function
 
+import torch
 from torch import nn
 import torch.nn.functional as F
 from torch.utils.model_zoo import load_url as load_state_dict_from_url
+from functions.duq import Q_Sym
 
 
 __all__ = ['MobileNetV2', 'mobilenet_v2']
@@ -78,11 +80,57 @@ class InvertedResidual(nn.Module):
         ])
         self.conv = ops.Sequential(*layers)
 
-    def forward(self, x):
+    def forward(self, x, cost, act_size=None):
         if self.use_res_connect:
-            return x + self.conv(x)
+            #print('residual block ----')
+            #print(self.conv[0])
+            x_identity = x 
+            x, act_size = self.conv[0](x)
+
+            x, cost = self.conv[1][0](x, cost, act_size)
+            x = self.conv[1][1](x)
+            x, act_size = self.conv[1][2](x)
+
+            x, cost = self.conv[2][0](x, cost, act_size)
+            x = self.conv[2][1](x)
+            x, act_size = self.conv[2][2](x)
+
+            x, cost = self.conv[3](x, cost, act_size)
+            x = self.conv[4](x)
+            return x_identity + x, cost
+
         else:
-            return self.conv(x)
+            if isinstance(self.conv[0], Q_Sym):
+                x, act_size = self.conv[0](x)
+
+                x, cost = self.conv[1][0](x, cost, act_size)
+                x = self.conv[1][1](x)
+                x, act_size = self.conv[1][2](x)
+
+                x, cost = self.conv[2][0](x, cost, act_size)
+                x = self.conv[2][1](x)
+                x, act_size = self.conv[2][2](x)
+
+                x, cost = self.conv[3](x, cost, act_size)
+                x = self.conv[4](x)
+            
+            else:
+                x, cost = self.conv[0][0](x, cost, act_size)
+                x = self.conv[0][1](x)
+                x, act_size = self.conv[0][2](x)
+
+                x, cost = self.conv[1](x, cost, act_size)
+                x = self.conv[2](x)
+            
+            # 1. filter ops.Sym 
+            #   isinstance(self.conv[0], Q_Sym)
+            # 2. process first / second convbnrelu
+            #   1) [:1] : conv, input={x, accum_cost, act_size}, output={x, accum_cost}
+            #   2) [1:] : bn-relu, input={x}, output={x, act_size}
+            # 3. process third conv-bn
+            #   1) [:1] : conv, input={x, accum_cost, act_size}, output={x, accum_cost}
+            #   2) [1:] : bn, input={x}, output={x}
+            return x, cost
 
 
 class MobileNetV2(nn.Module):
@@ -155,8 +203,6 @@ class MobileNetV2(nn.Module):
             ops.Linear(self.last_channel, num_classes),
         )
 
-
-
         # weight initialization
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -170,15 +216,43 @@ class MobileNetV2(nn.Module):
                 nn.init.normal_(m.weight, 0, 0.01)
                 nn.init.zeros_(m.bias)
 
+    # method 1: cost passing with indexing
+    def _forward(self, x):
+        _, _, H, W = x.shape
+        act_size = 32 * H * W
+
+        # first conv
+        cost = torch.Tensor([0]).cuda()
+        x, cost = self.features[0][0](x, cost, act_size)
+        x = self.features[0][1](x)
+        x, act_size = self.features[0][2](x)
+
+        # InvertedResidual blocks
+        x, cost = self.features[1](x, cost, act_size)
+        for i in range(2, 18):
+            x, cost = self.features[i](x, cost)
+        x, act_size =  self.features[18](x)
+        x, cost = self.features[19][0](x, cost, act_size)
+        x = self.features[19][1](x)
+        
+        # classifier
+        x = F.relu(x, inplace=True)
+        x = x.mean([2, 3])
+        x, act_size = self.relu6(x)
+        x = self.classifier[0](x)
+        x, cost = self.classifier[1](x, cost, act_size)
+        return x, cost
+
+
+    '''
+    # original forward 
     def _forward(self, x):
         x = self.features(x)
         x = F.relu(x, inplace=True)
         x = x.mean([2, 3])
         x = self.relu6(x)
         x = self.classifier(x)
-        for self.modules:
-            if isinstance()
-        return x, bitops
+    '''
 
     # Allow for accessing forward method in a inherited class
     forward = _forward

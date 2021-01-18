@@ -10,3 +10,6 @@ save
 *.pyc
 checkpoint
 logs
+.vscode
+*.npy
+eslab09-lbq.ipynb
