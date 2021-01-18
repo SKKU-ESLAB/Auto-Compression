@@ -14,18 +14,21 @@ from models import *
 from utils import *
 from functions import *
 from torch.autograd import Variable
+from models.MobileNetV2_quant import mobilenet_v2
 
 parser = argparse.ArgumentParser(description='PyTorch - Learning Quantization')
-parser.add_argument('--model', default='resnet32', help='select model')
+parser.add_argument('--model', default='mobilenetv2', help='select model')
 parser.add_argument('--dir', default='/data', help='data root')
-parser.add_argument('--dataset', default='cifar100', help='select dataset')
-parser.add_argument('--load', default=0, type=int, help='0: no load, 1: resume, 2: load model, 3: load weight')
-parser.add_argument('--load_file', default='./checkpoint/trained.pth', help='select loading file')
+parser.add_argument('--dataset', default='imagenet', help='select dataset')
+#parser.add_argument('--load', default=0, type=int, help='0: no load, 1: resume, 2: load model, 3: load weight')
+#parser.add_argument('--load_file', default='./checkpoint/trained.pth', help='select loading file')
 parser.add_argument('--batchsize', default=128, type=int, help='set batch size')
-parser.add_argument('--epoch', default=160, type=int, help='number of epochs tp train for')
+#parser.add_argument('--epoch', default=160, type=int, help='number of epochs tp train for')
+parser.add_argument('--warmup', default=5, type=int)
+parser.add_argument('--ft_epoch', default=15, type=int)
 parser.add_argument('--wd', default=1e-4, type=float, help='set weight decay value')
 parser.add_argument('--seed', default=7, type=int, help='random seed')
-parser.add_argument('--strict_false', action='store_true', help='load_state_dict option "strict" False')
+#parser.add_argument('--strict_false', action='store_true', help='load_state_dict option "strict" False')
 parser.add_argument('--m', default=0.9, type=float, help='set momentum value')
 parser.add_argument('--lr_ms', nargs='+', default=[20, 40, 60], type=int, help='set milestones')
 parser.add_argument('--lr_g', default=0.1, type=float, help='set gamma for multistep lr scheduler')
@@ -33,24 +36,27 @@ parser.add_argument('--cosine', action='store_true', help='set the lr scheduler 
 parser.add_argument('--workers', default=8, type=int, help='set number of workers')
 parser.add_argument('--savefile', default='ckpt.pth', help='save file name')
 parser.add_argument('--log_interval', default=50, type=int, help='logging interval')
-parser.add_argument('--exp', type=str)
+parser.add_argument('--exp', default='test', type=str)
+parser.add_argument("--quant_op")
 
-parser.add_argument('--lr1', default=0.01, type=float, help='set learning rate value1')
-parser.add_argument('--lr2', default=0.001, type=float, help='set learning rate value2')
-parser.add_argument('--lr3', default=0.0001, type=float, help='set learning rate value3')
-parser.add_argument('--lq_mode', '-lq', action='store_true', help='learning quantization mode')
-parser.add_argument('--lb_mode', '-lb', action='store_true', help='learn bitwidth (dnas approach)')
-parser.add_argument('--is_qt', '-q', action='store_true', help='quantization')
-parser.add_argument('--gamma', '-g', action='store_true', help='trainable gamma factor')
+#parser.add_argument('--lr1', default=0.01, type=float, help='set learning rate value1')
+#parser.add_argument('--lr2', default=0.001, type=float, help='set learning rate value2')
+#parser.add_argument('--lr3', default=0.0001, type=float, help='set learning rate value3')
+parser.add_argument("--lr", default=0.04, type=float)
+
 parser.add_argument('--comp_ratio', default=0.005, type=float, help='set target compression ratio of FLOPs loss')
 parser.add_argument('--scaling', default=1e-6, type=float, help='set FLOPs loss scaling factor')
-parser.add_argument('--w_bit', default=[6], type=int, nargs='+', help='set weight bits')
-parser.add_argument('--x_bit', default=[8], type=int, nargs='+', help='set activation bits')
+parser.add_argument('--w_bit', default=[8], type=int, nargs='+', help='set weight bits')
+parser.add_argument('--a_bit', default=[8], type=int, nargs='+', help='set activation bits')
+
+#parser.add_argument('--lq_mode', '-lq', action='store_true', help='learning quantization mode')
+parser.add_argument('--lb_mode', '-lb', action='store_true', help='learn bitwidth (dnas approach)')
+#parser.add_argument('--is_qt', '-q', action='store_true', help='quantization')
+#parser.add_argument('--gamma', '-g', action='store_true', help='trainable gamma factor')
 parser.add_argument('-eval', action='store_true', help='evaluation mode')
 parser.add_argument('-initskip', action='store_true', help='skip initialization (for loading cw, dw? maybe..')
-
-parser.add_argument('-fwbw', action='store_true', help='use filter-wise bitwidth')
-parser.add_argument('-fwlq', action='store_true', help='use filter-wise quantization interval learning')
+#parser.add_argument('-fwbw', action='store_true', help='use filter-wise bitwidth')
+#parser.add_argument('-fwlq', action='store_true', help='use filter-wise quantization interval learning')
 args = parser.parse_args()
 args.save = f'logs/{args.dataset}/{args.exp}-{time.strftime("%y%m%d-%H%M%S")}'
 create_exp_dir(args.save)
@@ -65,11 +71,16 @@ fh.setFormatter(logging.Formatter(log_format))
 logging.getLogger().addHandler(fh)
 
 
+if len(args.w_bit)==1:
+    print("Fixed bitwidth for weight")
+    #args.w_bit = args.w_bit[0]
+if len(args.a_bit)==1:
+    print("Fixed bitwidth for activation")
+    #args.a_bit = args.a_bit[0]
 
-
-
-#Device configuration
+# Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f'device:{device}')
 torch.backends.cudnn.benchmark = False
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
@@ -77,148 +88,116 @@ random.seed(args.seed)
 
 best_acc = 0
 start_epoch = 1
-end_epoch = args.epoch
+end_epoch = args.ft_epoch
 
-if len(args.w_bit)==1:
-    print("Fixed bitwidth for weight")
-    args.w_bit = args.w_bit[0]
-if len(args.x_bit)==1:
-    print("Fixed bitwidth for activation")
-    args.x_bit = args.x_bit[0]
 
-# Data
+# Dataloader
 print('==> Preparing Data..')
 train_loader, val_loader = data_loader(args.dir, args.dataset, args.batchsize, args.workers)
-torch.autograd.set_detect_anomaly(True)
 
 print('==> Building Model..')
-if args.fwbw and not args.lb_mode:
-    index = np.load(f'./index_{args.w_bit}bit.npy', allow_pickle=True)
-    print("Filter-wise bitwidth!")
-elif args.fwbw and args.lb_mode:
-    index = []
-    print("Learning filter-wise bitwidth!") ### TODO
-    raise NotImplementedError
-elif args.lb_mode:
-    index = []
-    print("Learning layer-wise bitwidth")
+if args.lb_mode:
+    print("Learning layer-wise bitwidth.")
 else:
-    index = []
-    print("Fixed bitwidth!")
+    print("Fixed bitwidth.")
 
+# QuantOps
+if args.quant_op == "duq":
+    from functions.duq import *
+    print("==> differentiable and unified quantization method is selected..")
+elif args.quant_op == "qil":
+    torch.autograd.set_detect_anomaly(True)
+    from functions.qil import * 
+    print("==> quantization interval learning method is selected..")
+elif args.quant_op == "lsq":
+    from functions.lsq import *
+    print("==> learning step size method is selected..")
+elif args.quant_op == 'duq_wo_scale':
+    from functions.duq_wo_scale import *
+    print("==> differentiable and unified quantization without scale.. ")
+elif args.quant_op == 'duq_w_offset':
+    from functions.duq_w_offset import *
+    print("==> differentiable and unified quantization with offset.. ")
+elif args.quant_op == 'duq_init_change':
+    from functions.duq_init_change import *
+else:
+    raise NotImplementedError
+
+# bitops_total
 def get_bitops_total():
-    model_ = model_builder(args.model, args.dataset)
+    model_ = mobilenet_v2(QuantOps)
+    #model_ = model_builder(args.model, args.dataset)
     model_ = model_.to(device)
     if args.dataset in ["cifar100", "cifar10"]:
         input = torch.randn([1,3,32,32]).cuda()
     else:
         input = torch.randn([1,3,224,224]).cuda()
     model_.train()
-    out, _ =  model_(input)
-    bitops = 0
-    for m in model_.modules():
-        if isinstance(m, lq_conv2d_orig):
-            bitops += m.bitops_count()
+    #for name, param in model_.named_parameters():
+    #    print(name)
+    #print(model_, '\n\n')
+    out, bitops =  model_(input)
+
+    #for m in model_.modules():
+    #    if isinstance(m, lq_conv2d_orig):
+    #        bitops += m.bitops_count()
     return bitops
 
 bitops_total = get_bitops_total()
 print(f'bitops_total: {int(bitops_total[0]):d}')
 
-model = model_builder(args.model, args.dataset, args.is_qt, args.lq_mode, index, args.fwlq)
+
+# model
+if args.model == "mobilenetv2":
+    model = mobilenet_v2(QuantOps)
+    model.load_state_dict(torch.load("./checkpoint/mobilenet_v2-b0353104.pth"), False)
+else:
+    raise NotImplementedError
+#model = model_builder(args.model, args.dataset, args.is_qt, args.lq_mode, index, args.fwlq)
 model = model.to(device)
+if torch.cuda.device_count() > 1:
+    print(f'==> DataParallel: device count = {torch.cuda.device_count()}')
+    model = torch.nn.DataParallel(model)#, device_ids=range(torch.cuda.device_count()))
 
-#for key in model.state_dict().keys():
-#    print(key)
-if args.initskip and device == torch.device('cuda'):
-    model = torch.nn.DataParallel(model).cuda()
-    cudnn.benchmark = True
-elif args.load == 1:
-    # Load saved file.
-    print(f'==> Resuming from saved file..: {args.load_file}')
-    checkpoint = torch.load('%s' %args.load_file)
-    if 'model' in  checkpoint.keys():
-        checkpoint = checkpoint['model']
-        model = torch.nn.DataParallel(model)
-        cudnn.benchmark = True
+# optimizer
+def get_optimizer(params, train_quant, train_weight, train_bnbias, lr_decay=1):
+    (quant, skip, weight, bnbias) = params
+    optimizer = optim.SGD([
+        {'params': skip, 'weight_decay': 0, 'lr': 0},
+        {'params': quant, 'weight_decay': 0., 'lr': args.lr * 1e-2 * lr_decay if train_quant else 0},
+        {'params': bnbias, 'weight_decay': 0., 'lr': args.lr * lr_decay if train_bnbias else 0},
+        {'params': weight, 'weight_decay': args.decay, 'lr': args.lr * lr_decay if train_weight else 0},
+    ], momentum=0.9, nesterov=True)
+    return optimizer
 
-    #for i in checkpoint.keys():
-    #    #print(i)
-    #    if i in model.state_dict().keys():
-    #        print(i)
+optimizer = optim.SGD(model.parameters(), lr=args.lr)
 
-    if args.model=='mobilenetv2':
-        model.load_state_dict(checkpoint, strict=False)
-        best_acc=0
-        start_epoch=0
-    else:
-        model.load_state_dict(checkpoint['model'])
-        best_acc = checkpoint['acc']
-        start_epoch = checkpoint['epoch'] + 2
-        print('%.3f' %best_acc)
-
-elif args.load == 2:
-    print('==> Loading model')
-    checkpoint = torch.load('%s' %args.load_file)
-    #model.load_state_dict(checkpoint)
-    if args.model=='mobilenetv2':
-        model.load_state_dict(checkpoint, strict=not args.strict_false)
-    else:
-        model.load_state_dict(checkpoint['model'], strict=not args.strict_false)
-    model = torch.nn.DataParallel(model).cuda()
-
-elif args.load == 3:
-    print('==> Loading pretrained weight')
-    checkpoint = torch.load('./%s' %args.load_file)
-    pretrained = model_builder(args.model, args.dataset, False, index)
-    pretrained.load_state_dict(checkpoint['model'])
-
-else :
-    model = torch.nn.DataParallel(model)
-    pass
-if args.is_qt:
-    for m in model.modules():
-        if isinstance(m, lq_conv2d_orig):
-            m.is_qt = args.is_qt
-            m.tr_gamma = args.gamma
-            m.set_bit_width(args.w_bit, args.x_bit, args.eval or args.initskip)
-model = model.to(device)
-#print(m)
-#a = checkpoint['model'];
-#b = a['module.layer3.0.conv1.weight']
-#c = torch.flatten(b,1)
-
-#np.savetxt('weight_.csv', c.cpu(), delimiter=',')
-
+# scheduler
+scheduler = CosineWithWarmup(optimizer, 
+        warmup_len=args.warmup, warmup_start_multiplier=0.1,
+        max_epochs=args.ft_epoch, eta_min=1e-3)
 
 criterion = nn.CrossEntropyLoss()
 
-lr1_param = []
-lr2_param = []
-lr3_param = []
-lr1_param_name = []
-lr2_param_name = []
-lr3_param_name = []
-for name, param in model.named_parameters():
-    if 'gamma' in name:
-        lr3_param.append(param)
-        lr3_param_name.append(name)
-    elif ('dw' in name) or ('cw' in name) or ('dx' in name) or ('cx' in name)  :
-        lr2_param.append(param)
-        lr2_param_name.append(name)
-    else:
-        lr1_param.append(param)
-        lr1_param_name.append(name)
 
-optimizer = optim.SGD([{'params': lr1_param, 'lr': args.lr1, 'weight_decay': args.wd},
-                       {'params': lr2_param, 'lr': args.lr2},
-                       {'params': lr3_param, 'lr': args.lr3}], momentum=args.m)
-
-scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_ms, gamma=args.lr_g)
-if args.cosine:
-    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epoch, eta_min=args.lr1*(args.lr_g ** 3))
-
-logging.info("args = %s", args)
-
+# bitwidth Initilization
+with torch.no_grad():
+    n_lvs_w = [2**i for i in args.w_bit]
+    n_lvs_a = [2**i for i in args.a_bit]
+    #print(n_lvs_w)
+    #print(n_lvs_a,'\n\n')
+    
+    print('==> weight bitwidth is set up..')
+    QuantOps.initialize(model, train_loader, n_lvs_w, weight=True)
+    print('==> activation bitwidth is set up ..')
+    QuantOps.initialize(model, train_loader, n_lvs_a, act=True)
+    
+    
+    for name, module in model.named_modules():
+        if isinstance(module, (Q_ReLU, Q_Sym, Q_HSwish, Q_Conv2d, Q_Linear)):
+            if isinstance(module.n_lvs, torch.Tensor):
+                module.n_lvs = module.n_lvs.cuda()
+                #print('convert to cuda')
 
 # Training
 def train(epoch):
@@ -236,14 +215,7 @@ def train(epoch):
         inputs, targets = inputs.to(device), targets.to(device)
         data_time = time.time()
         outputs, bitops= model(inputs)
-        ###########
-        allb
-        for i in model.modules():
-            if isinstance(i, Q_Conv2d()):
-                b = i.bitoperation
 
-
-        ###########
         if len(bitops)>1:
             bitops = bitops[0]
 
@@ -275,14 +247,6 @@ def train(epoch):
                 len(train_loader.dataset),
                 eval_acc_loss.avg, eval_bitops_loss.avg, top1.avg, top5.avg,
                 data_time - end, model_time - data_time)
-        '''
-        if args.lb_mode:
-            progress_bar(batch_idx, len(train_loader), 'L_acc: %.3f | L_bitops: %.3f | top1.avg: %.3f%% | top5.avg: %.3f%%'
-                % (eval_acc_loss.avg, eval_bitops_loss.avg, top1.avg, top5.avg))
-        else :
-            progress_bar(batch_idx, len(train_loader), 'L_acc: %.3f | top1.avg: %.3f%% | top5.avg: %.3f%%'
-                % (eval_acc_loss.avg, top1.avg, top5.avg))
-        '''
         end = time.time()
 
     if args.is_qt:
@@ -308,7 +272,7 @@ def train(epoch):
         for _, m in enumerate(model.modules()):
             if isinstance(m, lq_conv2d_orig):
                 i += 1
-                if isinstance(args.x_bit, list):
+                if isinstance(args.a_bit, list):
                     prob_x = F.softmax(m.theta_x).cpu().tolist()
                     prob_x = [f'{i:.5f}' for i in prob_x]
                     str_to_log += f'layer {i} theta_x: [{", ".join(prob_x)}]\n'
@@ -341,22 +305,28 @@ def eval(epoch):
             top1.update(acc1[0], inputs.size(0))
             top5.update(acc5[0], inputs.size(0))
 
-            #progress_bar(batch_idx, len(val_loader), 'Loss: %.4f | top1.avg: %.3f%% | top5.avg: %.3f%%'
-            #% (eval_loss.avg , top1.avg, top5.avg))
         logging.info('Loss: %.4f | top1.avg: %.3f%% | top5.avg: %.3f%%' % (eval_loss.avg, top1.avg, top5.avg))
         # Save checkpoint.
         if top1.avg > best_acc:
             best_acc = top1.avg
+            if isinstance(model, torch.nn.DataParallel):
+                model_state = model.module.state_dict()
+            else:
+                model_state = model.state_dict()
             state = {
-                'model': model.state_dict(),
+                'model': model_state,
                 'acc': best_acc,
                 'epoch': epoch,
             }
             torch.save(state, f'{args.save}/{args.exp}_best_{args.savefile}')
 
         if (epoch % 10) == 0:
+            if isinstance(model, torch.nn.DataParallel):
+                model_state = model.module.state_dict()
+            else:
+                model_state = model.state_dict()
             state = {
-                'model': model.state_dict(),
+                'model': model_state,
                 'acc': top1.avg,
                 'epoch': epoch,
             }
