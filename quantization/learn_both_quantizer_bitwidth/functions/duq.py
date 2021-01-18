@@ -51,6 +51,7 @@ class Q_ReLU(nn.Module):
         
         if isinstance(self.n_lvs, int) and self.n_lvs == 0:
             act_size *= 32
+            return x, act_size
         else:
             a = F.softplus(self.a)
             c = F.softplus(self.c)
@@ -59,19 +60,28 @@ class Q_ReLU(nn.Module):
             if not isinstance(self.n_lvs, torch.Tensor):
                 x = RoundQuant.apply(x, self.n_lvs) * c
                 act_size *= self.n_lvs
+                return x, act_size
             else:
                 # TODO 1: weighted sum of discretized x  (V)
                 # TODO 2: compare speed of for loop <-> batched one
-                x = x.repeat(self.n_lvs.shape[0], 1, 1, 1, 1)
-                x = RoundQuant.apply(x, self.n_lvs) * c
+                # 1) for loop
                 softmask = F.gumbel_softmax(self.theta_x, tau=1, hard=False)
                 softmask = softmask.view(-1,1,1,1,1)
+                x_bar = torch.zeros_like(x)
+                
+                for i, n_lv in enumerate(self.n_lvs):
+                    x_bar += RoundQuant.apply(x, n_lv) * c * softmask[i,0,0,0,0]
+                
+                '''
+                # 2) batched -> out of memory
+                x = x.repeat(self.n_lvs.shape[0], 1, 1, 1, 1)
+                x = RoundQuant.apply(x, self.n_lvs) * c
                 x = softmask * x
                 x = x.sum(dim=0)
-                
+                '''
                 act_size *= (softmask * self.n_lvs).sum()
                 
-        return x, act_size
+                return x_bar, act_size
 
         
 class Q_ReLU6(Q_ReLU):
@@ -120,14 +130,15 @@ class Q_Sym(nn.Module):
                 act_size = self.n_lvs * H * W
                 return x, act_size
             else:
-                x = x.repeat(self.n_lvs.shape[0], 1, 1, 1, 1)
-                x = RoundQuant.apply(x, self.n_lvs) * c
                 softmask = F.gumbel_softmax(self.theta_x, tau=1, hard=False)
                 softmask = softmask.view(-1,1,1,1,1)
-                x = softmask * x
-                x = x.sum(dim=0)
+                x_bar = torch.zeros_like(x)
+                
+                for i, n_lv in enumerate(self.n_lvs):
+                    x_bar += RoundQuant.apply(x, n_lv) * c * softmask[i,0,0,0,0]
+
                 act_size = (softmask * self.n_lvs).sum() * H * W
-                return x, act_size 
+                return x_bar, act_size 
 
 
 class Q_HSwish(nn.Module):
@@ -187,12 +198,11 @@ class Q_Conv2d(nn.Conv2d):
             weight = RoundQuant.apply(weight, self.n_lvs // 2) * c
             bitwidth = self.n_lvs
         else:
-            weight = weight.repeat(self.n_lvs.shape[0], 1, 1, 1, 1)
-            weight = RoundQuant.apply(weight, self.n_lvs // 2) * c            
             softmask = F.gumbel_softmax(self.theta_w, tau=1, hard=False)
             softmask = softmask.view(-1,1,1,1,1)
-            weight = softmask * weight
-            weight = weight.sum(dim=0)
+            w_bar = torch.zeros_like(weight)
+            for i, n_lv in enumerate(self.n_lvs):
+                w_bar += RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0,0,0]
             bitwidth = (softmask * self.n_lvs).sum()
 
         return weight, bitwidth
@@ -235,14 +245,14 @@ class Q_Linear(nn.Linear):
             weight = RoundQuant.apply(weight, self.n_lvs // 2) * c
             bitwidth = self.n_lvs
         else:
-            weight = weight.repeat(self.n_lvs.shape[0], 1, 1)
-            weight = RoundQuant.apply(weight, self.n_lvs // 2) * c
             softmask = F.gumbel_softmax(self.theta_w, tau=1, hard=False)
             softmask = softmask.view(-1,1,1)
-            weight = softmask * weight
-            weight = weight.sum(dim=0)
+            w_bar = torch.zeros_like(weight)
+            for i, n_lv in enumerate(self.n_lvs):
+                w_bar += RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0]
             bitwidth = (softmask * self.n_lvs).sum()
-        return weight, bitwidth
+
+        return w_bar, bitwidth
 
     def forward(self, x, cost, act_size=0):
         O, I = self.weight.shape

@@ -225,7 +225,8 @@ class MobileNetV2(nn.Module):
         cost = torch.Tensor([0]).cuda()
         x, cost = self.features[0][0](x, cost, act_size)
         x = self.features[0][1](x)
-        x, act_size = self.features[0][2](x)
+        t = self.features[0][2](x)
+        x, act_size = t
 
         # InvertedResidual blocks
         x, cost = self.features[1](x, cost, act_size)
