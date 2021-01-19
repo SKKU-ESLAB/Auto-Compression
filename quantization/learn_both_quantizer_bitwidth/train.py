@@ -24,47 +24,46 @@ parser.add_argument('--dir', default='/data', help='data root')
 parser.add_argument('--dataset', default='imagenet', help='select dataset')
 #parser.add_argument('--load', default=0, type=int, help='0: no load, 1: resume, 2: load model, 3: load weight')
 #parser.add_argument('--load_file', default='./checkpoint/trained.pth', help='select loading file')
-parser.add_argument('--batchsize', default=128, type=int, help='set batch size')
 #parser.add_argument('--epoch', default=160, type=int, help='number of epochs tp train for')
+
+parser.add_argument('--batchsize', default=128, type=int, help='set batch size')
+parser.add_argument("--lr", default=0.04, type=float
 parser.add_argument('--warmup', default=5, type=int)
 parser.add_argument('--ft_epoch', default=15, type=int)
+
 parser.add_argument('--wd', default=1e-4, type=float, help='set weight decay value')
-parser.add_argument('--seed', default=7, type=int, help='random seed')
-#parser.add_argument('--strict_false', action='store_true', help='load_state_dict option "strict" False')
 parser.add_argument('--m', default=0.9, type=float, help='set momentum value')
-parser.add_argument('--lr_ms', nargs='+', default=[20, 40, 60], type=int, help='set milestones')
-parser.add_argument('--lr_g', default=0.1, type=float, help='set gamma for multistep lr scheduler')
-parser.add_argument('--cosine', action='store_true', help='set the lr scheduler to cosine annealing')
-parser.add_argument('--workers', default=8, type=int, help='set number of workers')
-parser.add_argument('--savefile', default='ckpt.pth', help='save file name')
 parser.add_argument('--log_interval', default=50, type=int, help='logging interval')
 parser.add_argument('--exp', default='test', type=str)
+parser.add_argument('--seed', default=7, type=int, help='random seed')
 parser.add_argument("--quant_op")
 
 #parser.add_argument('--lr1', default=0.01, type=float, help='set learning rate value1')
 #parser.add_argument('--lr2', default=0.001, type=float, help='set learning rate value2')
 #parser.add_argument('--lr3', default=0.0001, type=float, help='set learning rate value3')
-parser.add_argument("--lr", default=0.04, type=float)
 
 parser.add_argument('--comp_ratio', default=0.005, type=float, help='set target compression ratio of FLOPs loss')
 parser.add_argument('--scaling', default=1e-6, type=float, help='set FLOPs loss scaling factor')
 parser.add_argument('--w_bit', default=[8], type=int, nargs='+', help='set weight bits')
 parser.add_argument('--a_bit', default=[8], type=int, nargs='+', help='set activation bits')
 
+#parser.add_argument('--strict_false', action='store_true', help='load_state_dict option "strict" False')
 #parser.add_argument('--lq_mode', '-lq', action='store_true', help='learning quantization mode')
-parser.add_argument('--lb_mode', '-lb', action='store_true', help='learn bitwidth (dnas approach)')
 #parser.add_argument('--is_qt', '-q', action='store_true', help='quantization')
 #parser.add_argument('--gamma', '-g', action='store_true', help='trainable gamma factor')
-parser.add_argument('-eval', action='store_true', help='evaluation mode')
-parser.add_argument('-initskip', action='store_true', help='skip initialization (for loading cw, dw? maybe..')
-#parser.add_argument('-fwbw', action='store_true', help='use filter-wise bitwidth')
-#parser.add_argument('-fwlq', action='store_true', help='use filter-wise quantization interval learning')
-parser.add_argument('-sep_bitops', action='store_true', help='separate bitwidth calculation from forward()')
+#parser.add_argument('--fwbw', action='store_true', help='use filter-wise bitwidth')
+#parser.add_argument('--fwlq', action='store_true', help='use filter-wise quantization interval learning')
+
+parser.add_argument('--eval', action='store_true', help='evaluation mode')
+parser.add_argument('--initskip', action='store_true', help='skip initialization (for loading cw, dw? maybe..')
+parser.add_argument('--lb_mode', '-lb', action='store_true', help='learn bitwidth (dnas approach)')
+parser.add_argument('--sep_bitops', action='store_true', help='separate bitwidth calculation from forward()')
+
 args = parser.parse_args()
 args.save = f'logs/{args.dataset}/{args.exp}-{time.strftime("%y%m%d-%H%M%S")}'
+args.workers = 8
+
 create_exp_dir(args.save)
-
-
 log_format = '%(asctime)s %(message)s'
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
             format=log_format, datefmt='%m/%d %I:%M:%S %p')
@@ -103,6 +102,7 @@ if args.lb_mode:
     print("Learning layer-wise bitwidth.")
 else:
     print("Fixed bitwidth.")
+
 
 # QuantOps
 if args.quant_op == "duq":
@@ -255,7 +255,7 @@ def train(epoch):
         
         if args.lb_mode:
             loss_bitops = torch.abs((bitops-bitops_target)*args.scaling)
-            if (batch_idx) % args.log_interval == 0:
+            if (batch_idx) % (args.log_interval*5) == 0:
                 print(f'bitops-bitops_target: {bitops-bitops_target}')
             loss_bitops = loss_bitops.reshape(torch.Size([]))
             loss += loss_bitops 
@@ -354,7 +354,7 @@ def eval(epoch):
                 'acc': best_acc,
                 'epoch': epoch,
             }
-            torch.save(state, f'{args.save}/{args.exp}_best_{args.savefile}')
+            torch.save(state, f'{args.save}/{args.exp}_best_ckpt.pth')
 
         if (epoch % 10) == 0:
             if isinstance(model, torch.nn.DataParallel):
@@ -366,7 +366,7 @@ def eval(epoch):
                 'acc': top1.avg,
                 'epoch': epoch,
             }
-            torch.save(state, f'{args.save}/{args.exp}_{args.savefile}')
+            torch.save(state, f'{args.save}/{args.exp}_{epoch}_ckpt.pth')
     print(f'evalaution time bitops: {bitops[0]}')
 
 if args.eval:
