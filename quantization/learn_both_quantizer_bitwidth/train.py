@@ -9,11 +9,13 @@ import argparse
 import random
 import time
 import logging
+import locale
 
 from models import *
 from utils import *
 from functions import *
 from torch.autograd import Variable
+from torch import Tensor
 from models.MobileNetV2_quant import mobilenet_v2
 
 parser = argparse.ArgumentParser(description='PyTorch - Learning Quantization')
@@ -57,6 +59,7 @@ parser.add_argument('-eval', action='store_true', help='evaluation mode')
 parser.add_argument('-initskip', action='store_true', help='skip initialization (for loading cw, dw? maybe..')
 #parser.add_argument('-fwbw', action='store_true', help='use filter-wise bitwidth')
 #parser.add_argument('-fwlq', action='store_true', help='use filter-wise quantization interval learning')
+parser.add_argument('-sep_bitops', action='store_true', help='separate bitwidth calculation from forward()')
 args = parser.parse_args()
 args.save = f'logs/{args.dataset}/{args.exp}-{time.strftime("%y%m%d-%H%M%S")}'
 create_exp_dir(args.save)
@@ -73,10 +76,10 @@ logging.getLogger().addHandler(fh)
 
 if len(args.w_bit)==1:
     print("Fixed bitwidth for weight")
-    #args.w_bit = args.w_bit[0]
+
 if len(args.a_bit)==1:
     print("Fixed bitwidth for activation")
-    #args.a_bit = args.a_bit[0]
+
 
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -103,7 +106,10 @@ else:
 
 # QuantOps
 if args.quant_op == "duq":
-    from functions.duq import *
+    if args.sep_bitops:
+        from functions.duq_sep_bitops import *
+    else:
+        from functions.duq import *
     print("==> differentiable and unified quantization method is selected..")
 elif args.quant_op == "qil":
     torch.autograd.set_detect_anomaly(True)
@@ -123,28 +129,56 @@ elif args.quant_op == 'duq_init_change':
 else:
     raise NotImplementedError
 
+def calc_bitops(model):      
+    a_bit_list = [32]
+    w_bit_list = []
+    compute_list = []
+
+    for module in model.modules():
+        if isinstance(module, (Q_ReLU, Q_Sym, Q_HSwish)):
+            if isinstance(module.bits, int) :
+                a_bit_list.append(module.bits)
+            else:
+                softmask = F.gumbel_softmax(module.theta, tau=1, hard=False)
+                a_bit_list.append((softmask * module.bits).sum())
+
+        elif isinstance(module, (Q_Conv2d, Q_Linear)):
+            if isinstance(module.bits, int) :
+                w_bit_list.append(module.bits)
+            else:
+                softmask = F.gumbel_softmax(module.theta, tau=1, hard=False)
+                w_bit_list.append((softmask * module.bits).sum())
+                
+            compute_list.append(module.computation)
+
+    cost = (Tensor(a_bit_list) * Tensor(w_bit_list) * Tensor(compute_list)).sum(dim=0, keepdim=True)
+    #print(cost.shape)
+    return cost
+
+
 # bitops_total
 def get_bitops_total():
     model_ = mobilenet_v2(QuantOps)
-    #model_ = model_builder(args.model, args.dataset)
     model_ = model_.to(device)
     if args.dataset in ["cifar100", "cifar10"]:
         input = torch.randn([1,3,32,32]).cuda()
     else:
         input = torch.randn([1,3,224,224]).cuda()
     model_.train()
-    #for name, param in model_.named_parameters():
-    #    print(name)
-    #print(model_, '\n\n')
-    out, bitops =  model_(input)
 
-    #for m in model_.modules():
-    #    if isinstance(m, lq_conv2d_orig):
-    #        bitops += m.bitops_count()
+    if args.sep_bitops:
+        print('==> separate bitops calculation')
+        QuantOps.initialize(model_, train_loader, 32, weight=True)
+        QuantOps.initialize(model_, train_loader, 32, act=True)
+        bitops = calc_bitops(model_)
+    else:
+        out, bitops =  model_(input)
+
     return bitops
 
 bitops_total = get_bitops_total()
-print(f'bitops_total: {int(bitops_total[0]):d}')
+print(f'bitops_total: {int(bitops_total):d}')
+print(f'bitops_targt: {int(bitops_total * args.comp_ratio):d}')
 
 
 # model
@@ -153,11 +187,11 @@ if args.model == "mobilenetv2":
     model.load_state_dict(torch.load("./checkpoint/mobilenet_v2-b0353104.pth"), False)
 else:
     raise NotImplementedError
-#model = model_builder(args.model, args.dataset, args.is_qt, args.lq_mode, index, args.fwlq)
 model = model.to(device)
 if torch.cuda.device_count() > 1:
     print(f'==> DataParallel: device count = {torch.cuda.device_count()}')
-    model = torch.nn.DataParallel(model)#, device_ids=range(torch.cuda.device_count()))
+    model = torch.nn.DataParallel(model) #, device_ids=range(torch.cuda.device_count()))
+
 
 # optimizer
 def get_optimizer(params, train_quant, train_weight, train_bnbias, lr_decay=1):
@@ -172,6 +206,7 @@ def get_optimizer(params, train_quant, train_weight, train_bnbias, lr_decay=1):
 
 optimizer = optim.SGD(model.parameters(), lr=args.lr)
 
+
 # scheduler
 scheduler = CosineWithWarmup(optimizer, 
         warmup_len=args.warmup, warmup_start_multiplier=0.1,
@@ -182,22 +217,12 @@ criterion = nn.CrossEntropyLoss()
 
 # bitwidth Initilization
 with torch.no_grad():
-    n_lvs_w = [2**i for i in args.w_bit]
-    n_lvs_a = [2**i for i in args.a_bit]
-    #print(n_lvs_w)
-    #print(n_lvs_a,'\n\n')
     
     print('==> weight bitwidth is set up..')
-    QuantOps.initialize(model, train_loader, n_lvs_w, weight=True)
-    print('==> activation bitwidth is set up ..')
-    QuantOps.initialize(model, train_loader, n_lvs_a, act=True)
-    
-    
-    for name, module in model.named_modules():
-        if isinstance(module, (Q_ReLU, Q_Sym, Q_HSwish, Q_Conv2d, Q_Linear)):
-            if isinstance(module.n_lvs, torch.Tensor):
-                module.n_lvs = module.n_lvs.cuda()
-                #print('convert to cuda')
+    QuantOps.initialize(model, train_loader, args.w_bit, weight=True)
+    print('==> activation bitwidth is set up..')
+    QuantOps.initialize(model, train_loader, args.a_bit, act=True)
+
 
 # Training
 def train(epoch):
@@ -214,9 +239,15 @@ def train(epoch):
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         inputs, targets = inputs.to(device), targets.to(device)
         data_time = time.time()
-        outputs, bitops= model(inputs)
 
-        if len(bitops)>1:
+        if args.sep_bitops:
+            outputs = model(inputs)
+            bitops = calc_bitops(model)
+        else:
+            outputs, bitops = model(inputs)
+
+        if not isinstance(bitops, (float, int)):
+            #print(bitops)
             bitops = bitops[0]
 
         loss = criterion(outputs, targets)
@@ -296,7 +327,12 @@ def eval(epoch):
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(val_loader):
             inputs, targets = inputs.to(device), targets.to(device)
-            outputs, bitops = model(inputs)
+
+            if args.sep_bitops:
+                outputs = model(inputs)
+                bitops = calc_bitops(model)
+            else:
+                outputs, bitops = model(inputs)
             loss = criterion(outputs, targets)
 
             # TODO: bitops loss
