@@ -46,7 +46,7 @@ class Q_ReLU(nn.Module):
             self.bits = Tensor(bits)
         else:
             self.n_lvs = n_lvs[0]
-            self.bits = bits
+            self.bits = bits[0] if isinstance(bits, list) else bits
 
         print(n_lvs)
         print(self.n_lvs)
@@ -111,7 +111,7 @@ class Q_ReLU6(Q_ReLU):
             self.bits = Tensor(bits)
         else:
             self.n_lvs = n_lvs[0]
-            self.bits = bits
+            self.bits = bits[0] if isinstance(bits, list) else bits
 
         self.theta = Parameter(torch.ones(len(n_lvs))/len(n_lvs))
         if offset + diff > 6:
@@ -144,7 +144,7 @@ class Q_Sym(nn.Module):
             self.bits = Tensor(bits)
         else:
             self.n_lvs = n_lvs[0]
-            self.bits = bits
+            self.bits = bits[0] if isinstance(bits, list) else bits
 
         self.theta = Parameter(torch.ones(len(n_lvs))/len(n_lvs))
         self.a.data.fill_(np.log(np.exp(offset + diff)-1))
@@ -232,7 +232,7 @@ class Q_Conv2d(nn.Conv2d):
             self.bits = Tensor(bits)
         else:
             self.n_lvs = n_lvs[0]
-            self.bits = bits
+            self.bits = bits[0] if isinstance(bits, list) else bits
 
         self.theta = Parameter(torch.ones(len(n_lvs))/len(n_lvs))
         max_val = self.weight.data.abs().max().item()
@@ -303,7 +303,7 @@ class Q_Linear(nn.Linear):
             self.bits = Tensor(bits)
         else:
             self.n_lvs = n_lvs[0]
-            self.bits = bits
+            self.bits = bits[0] if isinstance(bits, list) else bits
 
         self.theta = Parameter(torch.ones(len(n_lvs))/len(n_lvs))
         max_val = self.weight.data.abs().max().item()
