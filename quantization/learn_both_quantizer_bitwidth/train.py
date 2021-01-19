@@ -23,7 +23,7 @@ parser.add_argument('--model', default='mobilenetv2', help='select model')
 parser.add_argument('--dir', default='/data', help='data root')
 parser.add_argument('--dataset', default='imagenet', help='select dataset')
 
-parser.add_argument('--batchsize', default=128, type=int, help='set batch size')
+parser.add_argument('--batchsize', default=64, type=int, help='set batch size')
 parser.add_argument("--lr", default=0.04, type=float)
 parser.add_argument('--warmup', default=5, type=int)
 parser.add_argument('--ft_epoch', default=15, type=int)
@@ -62,11 +62,9 @@ logging.getLogger().addHandler(fh)
 
 if len(args.w_bit)==1:
     print("Fixed bitwidth for weight")
-    args.w_bit = args.w_bit[0]
 
 if len(args.a_bit)==1:
     print("Fixed bitwidth for activation")
-    args.a_bit = args.a_bit[0]
 
 
 # Device configuration
@@ -138,6 +136,8 @@ def calc_bitops(model):
                 w_bit_list.append(module.bits)
             else:
                 softmask = F.gumbel_softmax(module.theta, tau=1, hard=False)
+                #print(softmask)
+                #print(module.bits)
                 w_bit_list.append((softmask * module.bits).sum())
                 
             compute_list.append(module.computation)
@@ -230,21 +230,20 @@ def train(epoch):
 
         inputs, targets = inputs.to(device), targets.to(device)
         data_time = time.time()
-
         if args.sep_bitops:
-            outputs = model(inputs)
-            bitops = calc_bitops(model)
+            outputs = model(inputs)    
         else:
             outputs, bitops = model(inputs)
-
-        if not isinstance(bitops, (float, int)):
-            #print(bitops)
-            bitops = bitops[0]
 
         loss = criterion(outputs, targets)
         eval_acc_loss.update(loss.item(), inputs.size(0))
         
         if args.lb_mode:
+            if args.sep_bitops:
+                bitops = calc_bitops(model)
+            if not isinstance(bitops, (float, int)):
+                #print(bitops)
+                bitops = bitops[0]
             loss_bitops = torch.abs((bitops-bitops_target)*args.scaling)
             if (batch_idx) % (args.log_interval*5) == 0:
                 print(f'bitops-bitops_target: {bitops-bitops_target}')
@@ -270,6 +269,7 @@ def train(epoch):
                 eval_acc_loss.avg, eval_bitops_loss.avg, top1.avg, top5.avg,
                 data_time - end, model_time - data_time)
         end = time.time()
+        
 
     if args.lb_mode:
         i=1
