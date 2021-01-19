@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import torch
+from torch import Tensor
 from torch import nn
 import torch.nn.functional as F
 from torch.utils.model_zoo import load_url as load_state_dict_from_url
@@ -80,7 +81,12 @@ class InvertedResidual(nn.Module):
         ])
         self.conv = ops.Sequential(*layers)
 
-    def forward(self, x, cost, act_size=None):
+    def forward(self, x):
+        if self.use_res_connect:
+            return x + self.conv(x)
+        else:
+            return self.conv(x)
+    '''def forward(self, x, cost, act_size=None):
         if self.use_res_connect:
             #print('residual block ----')
             #print(self.conv[0])
@@ -130,7 +136,7 @@ class InvertedResidual(nn.Module):
             # 3. process third conv-bn
             #   1) [:1] : conv, input={x, accum_cost, act_size}, output={x, accum_cost}
             #   2) [1:] : bn, input={x}, output={x}
-            return x, cost
+            return x, cost'''
 
 
 class MobileNetV2(nn.Module):
@@ -216,7 +222,7 @@ class MobileNetV2(nn.Module):
                 nn.init.normal_(m.weight, 0, 0.01)
                 nn.init.zeros_(m.bias)
 
-    # method 1: cost passing with indexing
+    '''# method 1: cost passing with indexing
     def _forward(self, x):
         _, _, H, W = x.shape
         act_size = 32 * H * W
@@ -242,10 +248,10 @@ class MobileNetV2(nn.Module):
         x, act_size = self.relu6(x)
         x = self.classifier[0](x)
         x, cost = self.classifier[1](x, cost, act_size)
-        return x, cost
+        return x, cost'''
 
 
-    '''
+    
     # original forward 
     def _forward(self, x):
         x = self.features(x)
@@ -253,7 +259,9 @@ class MobileNetV2(nn.Module):
         x = x.mean([2, 3])
         x = self.relu6(x)
         x = self.classifier(x)
-    '''
+
+        return x
+    
 
     # Allow for accessing forward method in a inherited class
     forward = _forward
