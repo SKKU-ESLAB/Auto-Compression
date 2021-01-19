@@ -89,7 +89,7 @@ train_loader, val_loader = data_loader(args.dir, args.dataset, args.batchsize, a
 print('==> Building Model..')
 if args.lb_mode:
     print("Learning layer-wise bitwidth.")
-    if len(args.w_bit) < 2  and  len(args.a_bit) < 2:
+    if not (isinstance(args.w_bit, list) or isinstance(args.a_bit, list)):
         raise ValueError
 else:
     print("Fixed bitwidth.")
