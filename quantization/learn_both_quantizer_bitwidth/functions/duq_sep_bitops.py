@@ -58,18 +58,10 @@ class Q_ReLU(nn.Module):
         self.c.data.fill_(np.log(np.exp(offset + diff)-1))
     
     def forward(self, x):
-        if x.dim() > 2:
-            N, C, H, W = x.shape
-            act_size = H * W
-        else:
-            N1, N2 = x.shape
-            act_size = N2
-            
         if self.act_func:
             x = F.relu(x, self.inplace)
         
         if isinstance(self.n_lvs, int) and self.n_lvs == 0:
-            act_size *= 32
             return x
         else:
             a = F.softplus(self.a)
@@ -78,7 +70,6 @@ class Q_ReLU(nn.Module):
             
             if not isinstance(self.n_lvs, torch.Tensor):
                 x = RoundQuant.apply(x, self.n_lvs) * c
-                act_size *= self.n_lvs
                 return x
             else:
                 # 1) for loop
@@ -88,8 +79,6 @@ class Q_ReLU(nn.Module):
 
                 for i, n_lv in enumerate(self.n_lvs):
                     x_bar += RoundQuant.apply(x, n_lv) * c * softmask[i]
-                
-                act_size *= (softmask * self.n_lvs).sum()
                 
                 return x_bar
 
@@ -152,9 +141,7 @@ class Q_Sym(nn.Module):
 
 
     def forward(self, x):
-        N, C, H, W = x.shape
         if isinstance(self.n_lvs, int) and self.n_lvs == 0:
-            act_size = 32 * H * W
             return x
         else:
             a = F.softplus(self.a)
@@ -163,7 +150,6 @@ class Q_Sym(nn.Module):
 
             if not isinstance(self.n_lvs, torch.Tensor):
                 x = RoundQuant.apply(x, self.n_lvs // 2) * c
-                act_size = self.n_lvs * H * W
                 return x
             else:
                 softmask = F.gumbel_softmax(self.theta, tau=1, hard=False)
@@ -172,8 +158,7 @@ class Q_Sym(nn.Module):
                 
                 for i, n_lv in enumerate(self.n_lvs):
                     x_bar += RoundQuant.apply(x, n_lv) * c * softmask[i]
-
-                act_size = (softmask * self.n_lvs).sum() * H * W
+                    
                 return x_bar
 
 
