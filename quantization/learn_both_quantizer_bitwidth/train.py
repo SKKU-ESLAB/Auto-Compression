@@ -147,6 +147,8 @@ def calc_bitops(model):
                 w_bit_list.append(module.bits)
             else:
                 softmask = F.gumbel_softmax(module.theta, tau=1, hard=False)
+                print(softmask)
+                print(module.bits)
                 w_bit_list.append((softmask * module.bits).sum())
                 
             compute_list.append(module.computation)
@@ -356,7 +358,7 @@ def eval(epoch):
             }
             torch.save(state, f'{args.save}/{args.exp}_best_ckpt.pth')
 
-        if True #(epoch % 10) == 0:
+        if True: #(epoch % 10) == 0:
             if isinstance(model, torch.nn.DataParallel):
                 model_state = model.module.state_dict()
             else:
