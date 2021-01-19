@@ -27,7 +27,7 @@ parser.add_argument('--dataset', default='imagenet', help='select dataset')
 #parser.add_argument('--epoch', default=160, type=int, help='number of epochs tp train for')
 
 parser.add_argument('--batchsize', default=128, type=int, help='set batch size')
-parser.add_argument("--lr", default=0.04, type=float
+parser.add_argument("--lr", default=0.04, type=float)
 parser.add_argument('--warmup', default=5, type=int)
 parser.add_argument('--ft_epoch', default=15, type=int)
 
@@ -356,7 +356,7 @@ def eval(epoch):
             }
             torch.save(state, f'{args.save}/{args.exp}_best_ckpt.pth')
 
-        if (epoch % 10) == 0:
+        if True #(epoch % 10) == 0:
             if isinstance(model, torch.nn.DataParallel):
                 model_state = model.module.state_dict()
             else:
