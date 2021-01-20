@@ -28,13 +28,10 @@ parser.add_argument("--lr", default=0.04, type=float)
 parser.add_argument('--warmup', default=5, type=int)
 parser.add_argument('--ft_epoch', default=15, type=int)
 
-parser.add_argument('--wd', default=1e-4, type=float, help='set weight decay value')
-parser.add_argument('--m', default=0.9, type=float, help='set momentum value')
 parser.add_argument('--log_interval', default=50, type=int, help='logging interval')
 parser.add_argument('--exp', default='test', type=str)
 parser.add_argument('--seed', default=7, type=int, help='random seed')
-parser.add_argument("--quant_op")
-
+parser.add_argument("--quant_op", required=True)
 
 parser.add_argument('--comp_ratio', default=1, type=float, help='set target compression ratio of FLOPs loss')
 parser.add_argument('--scaling', default=1e-6, type=float, help='set FLOPs loss scaling factor')
@@ -42,13 +39,19 @@ parser.add_argument('--w_bit', default=[4], type=int, nargs='+', help='set weigh
 parser.add_argument('--a_bit', default=[4], type=int, nargs='+', help='set activation bits')
 
 parser.add_argument('--eval', action='store_true', help='evaluation mode')
-parser.add_argument('--initskip', action='store_true', help='skip initialization (for loading cw, dw? maybe..')
 parser.add_argument('--lb_mode', '-lb', action='store_true', help='learn bitwidth (dnas approach)')
 parser.add_argument('--sep_bitops', action='store_true', help='separate bitwidth calculation from forward()')
+parser.add_argument('--cooltime', default=0, type=int, help='seconds for processor cooling (for sv8 and sv9')
 
 args = parser.parse_args()
-args.save = f'logs/{args.dataset}/{args.exp}-{time.strftime("%y%m%d-%H%M%S")}'
+if args.exp == 'test':
+    args.save = f'logs/{args.dataset}/{args.exp}-{time.strftime("%y%m%d-%H%M%S")}'
+else:
+    args.save = f'logs/{args.dataset}/{args.exp}' #-{time.strftime("%y%m%d-%H%M%S")}'
+
 args.workers = 8
+args.m = 0.9   # momentum value
+args.wd = 1e-4 # weight decay value
 
 create_exp_dir(args.save)
 log_format = '%(asctime)s %(message)s'
@@ -76,7 +79,7 @@ np.random.seed(args.seed)
 random.seed(args.seed)
 
 best_acc = 0
-start_epoch = 1
+last_epoch = 0
 end_epoch = args.ft_epoch
 
 
@@ -118,7 +121,8 @@ elif args.quant_op == 'duq_init_change':
 else:
     raise NotImplementedError
 
-def calc_bitops(model):      
+# calculate bitops (theta-weighted)
+def calc_bitops(model):
     a_bit_list = [32]
     w_bit_list = []
     compute_list = []
@@ -136,18 +140,15 @@ def calc_bitops(model):
                 w_bit_list.append(module.bits)
             else:
                 softmask = F.gumbel_softmax(module.theta, tau=1, hard=False)
-                #print(softmask)
-                #print(module.bits)
                 w_bit_list.append((softmask * module.bits).sum())
                 
             compute_list.append(module.computation)
 
     cost = (Tensor(a_bit_list) * Tensor(w_bit_list) * Tensor(compute_list)).sum(dim=0, keepdim=True)
-    #print(cost.shape)
     return cost
 
 
-# bitops_total
+# calculate bitops for full precision
 def get_bitops_total():
     model_ = mobilenet_v2(QuantOps)
     model_ = model_.to(device)
@@ -184,7 +185,7 @@ if torch.cuda.device_count() > 1:
     model = torch.nn.DataParallel(model) #, device_ids=range(torch.cuda.device_count()))
 
 
-# optimizer
+# optimizer -> for further coding (got from PROFIT)
 def get_optimizer(params, train_quant, train_weight, train_bnbias, lr_decay=1):
     (quant, skip, weight, bnbias) = params
     optimizer = optim.SGD([
@@ -194,7 +195,6 @@ def get_optimizer(params, train_quant, train_weight, train_bnbias, lr_decay=1):
         {'params': weight, 'weight_decay': args.decay, 'lr': args.lr * lr_decay if train_weight else 0},
     ], momentum=0.9, nesterov=True)
     return optimizer
-
 optimizer = optim.SGD(model.parameters(), lr=args.lr)
 
 
@@ -216,7 +216,9 @@ with torch.no_grad():
 
 # Training
 def train(epoch):
-    print('train:')
+    #print('train:')
+    for i in range(len(optimizer.param_groups)):
+        print(f'[epoch {epoch}] lr = {optimizer.param_groups[i]["lr"]}')
     model.train()
     eval_acc_loss = AverageMeter()
     eval_bitops_loss = AverageMeter()
@@ -226,8 +228,8 @@ def train(epoch):
     bitops_target = bitops_total * args.comp_ratio
     
     end = t0 = time.time()
-    for batch_idx, (inputs, targets) in enumerate(train_loader):
 
+    for batch_idx, (inputs, targets) in enumerate(train_loader):
         inputs, targets = inputs.to(device), targets.to(device)
         data_time = time.time()
         if args.sep_bitops:
@@ -242,7 +244,6 @@ def train(epoch):
             if args.sep_bitops:
                 bitops = calc_bitops(model)
             if not isinstance(bitops, (float, int)):
-                #print(bitops)
                 bitops = bitops[0]
             loss_bitops = torch.abs((bitops-bitops_target)*args.scaling)
             if (batch_idx) % (args.log_interval*5) == 0:
@@ -259,7 +260,6 @@ def train(epoch):
         loss.backward()
         optimizer.step()
         model_time = time.time()
-        
         if (batch_idx) % args.log_interval == 0:
             logging.info('Train Epoch: %4d Process: %5d/%5d  ' + \
                     'L_acc: %.3f | L_bitops: %.3f | top1.avg: %.3f%% | top5.avg: %.3f%% | ' +  \
@@ -274,34 +274,29 @@ def train(epoch):
     if args.lb_mode:
         i=1
         str_to_log = '\n'
-        str_to_print = f'Epoch {epoch} Bitwidth selection: \n'
+        str_to_print = f'Epoch {epoch}, weight bitwidth selection probability: \n'
         for _, m in enumerate(model.modules()):
-            if isinstance(m, lq_conv2d_orig):
+            if isinstance(m, (Q_Conv2d, Q_Linear)):
                 i += 1
-                if isinstance(args.w_bit, list):
-                    prob_w = F.softmax(m.theta_w)
+                if len(m.bits) > 1:
+                    prob_w = F.softmax(m.theta)
                     sel=torch.argmax(prob_w)
                     str_to_print += f'{args.w_bit[sel]}'
                     prob_w = [f'{i:.5f}' for i in prob_w.cpu().tolist()]
-                    str_to_log += f'layer {i} theta_w: [{", ".join(prob_w)}]\n'
-                else:
-                    break
+                    str_to_log += f'layer {i} [{", ".join(prob_w)}]\n'
         logging.info(str_to_log)
-        logging.info(str_to_print)
         
         i=1
         str_to_log = '\n'
+        str_to_print = f'Epoch {epoch}, activation bitwidth selection probability: \n'
         for _, m in enumerate(model.modules()):
-            if isinstance(m, lq_conv2d_orig):
+            if isinstance(m, (Q_ReLU, Q_Sym, Q_HSwish)):
                 i += 1
-                if isinstance(args.a_bit, list):
-                    prob_x = F.softmax(m.theta_x).cpu().tolist()
-                    prob_x = [f'{i:.5f}' for i in prob_x]
-                    str_to_log += f'layer {i} theta_x: [{", ".join(prob_x)}]\n'
-                else:
-                    break
-                #m.dw.data = m.dw.clamp(1e-4, m.cw.data[0] - 1e-4)
-                #m.dx.data = m.dx.clamp(1e-2, m.cx.data[0] - 1e-2)
+                if len(m.bits) > 1:
+                    prob_a = F.softmax(m.theta).cpu().tolist()
+                    prob_a = [f'{i:.5f}' for i in prob_a]
+                    str_to_log += f'layer {i} [{", ".join(prob_a)}]\n'
+
         logging.info(str_to_log)
     t1 = time.time()
     print(f'epoch time: {t1-t0:.3f} s')
@@ -326,67 +321,36 @@ def eval(epoch):
                 outputs, bitops = model(inputs)
             loss = criterion(outputs, targets)
 
-            # TODO: bitops loss
             acc1, acc5 = accuracy(outputs.data, targets.data, top_k=(1,5))
             eval_loss.update(loss.item(), inputs.size(0))
             top1.update(acc1[0], inputs.size(0))
             top5.update(acc5[0], inputs.size(0))
 
         logging.info('Loss: %.4f | top1.avg: %.3f%% | top5.avg: %.3f%%' % (eval_loss.avg, top1.avg, top5.avg))
-        # Save checkpoint.
+        
+        # Save checkpoint.        
+        is_best = False
         if top1.avg > best_acc:
+            is_best = True
             best_acc = top1.avg
-            if isinstance(model, torch.nn.DataParallel):
-                model_state = model.module.state_dict()
-            else:
-                model_state = model.state_dict()
-            state = {
-                'model': model_state,
-                'acc': best_acc,
-                'epoch': epoch,
-            }
-            torch.save(state, f'{args.save}/{args.exp}_best_ckpt.pth')
-
-        if True: #(epoch % 10) == 0:
-            if isinstance(model, torch.nn.DataParallel):
-                model_state = model.module.state_dict()
-            else:
-                model_state = model.state_dict()
-            state = {
-                'model': model_state,
-                'acc': top1.avg,
-                'epoch': epoch,
-            }
-            torch.save(state, f'{args.save}/{args.exp}_{epoch}_ckpt.pth')
+        create_checkpoint(model, None, optimizer, is_best, None, 
+                          top1.avg, best_acc, epoch, args.save, 1, args.exp)
     print(f'evalaution time bitops: {bitops[0]}')
+
 
 if args.eval:
     eval(0)
 
 else:
-    for epoch in range(start_epoch, end_epoch+1):
+    last_epoch, best_acc = resume_checkpoint(model, None, optimizer, scheduler, 
+                                    args.save, args.exp)
+    for epoch in range(last_epoch+1, end_epoch+1):
         logging.info('Epoch: %d/%d Best_Acc: %.3f' %(epoch, end_epoch, best_acc))
         train(epoch)
         eval(epoch)
         scheduler.step()
-        #print_param(model)
-        if epoch == end_epoch:
-            if args.lb_mode:
-                i=1
-                str_to_log = 'Final bitwidth selection: \n'
-                for _, m in enumerate(model.modules()):
-                    if isinstance(m, lq_conv2d_orig):
-                        i += 1
-                        if isinstance(args.w_bit, list):
-                            prob_w = F.softmax(m.theta_w)
-                            sel=torch.argmax(prob_w)
-                            str_to_log += f'{args.w_bit[sel]}'
-                            #prob_w = [f'{i:.5f}' for i in prob_w.cpu().tolist()]
-                            #str_to_log += f'layer {i} theta_w: [{", ".join(prob_w)}]\n'
-                        else:
-                            break
-                logging.info(str_to_log)
-
+        if args.cooltime and epoch != end_epoch:
+            print(f'sleep {args.cooltime}s for cooling GPUs..')
+            time.sleep(args.cooltime)
 
 logging.info('Best accuracy : {:.3f} %'.format(best_acc))
-#print_param(model)
