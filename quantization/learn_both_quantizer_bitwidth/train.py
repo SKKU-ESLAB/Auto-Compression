@@ -270,7 +270,7 @@ def train(epoch):
                 eval_acc_loss.avg, eval_bitops_loss.avg, top1.avg, top5.avg,
                 data_time - end, model_time - data_time)
             if args.cooltime and epoch != end_epoch:
-                print(f'sleep {args.cooltime}s for cooling GPUs.. ', end='')
+                print(f'> [sleep] {args.cooltime}s for cooling GPUs.. ', end='')
                 time.sleep(args.cooltime)
                 print('done.')
         end = time.time()
@@ -332,7 +332,7 @@ def eval(epoch):
             top5.update(acc5[0], inputs.size(0))
             if (batch_idx) % args.log_interval == 0:
                 if args.cooltime and epoch != end_epoch:
-                    print(f'> sleep {args.cooltime}s for cooling GPUs.. ', end='')
+                    print(f'> [sleep] {args.cooltime}s for cooling GPUs.. ', end='')
                     time.sleep(args.cooltime)
                     print('done.')
 
@@ -358,10 +358,6 @@ else:
         logging.info('Epoch: %d/%d Best_Acc: %.3f' %(epoch, end_epoch, best_acc))
         train(epoch)
         eval(epoch)
-        scheduler.step()
-        if args.cooltime and epoch != end_epoch:
-            print(f'sleep {args.cooltime}s for cooling GPUs.. ')
-            time.sleep(args.cooltime)
-         
+        scheduler.step()         
 
 logging.info('Best accuracy : {:.3f} %'.format(best_acc))
