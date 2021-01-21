@@ -35,8 +35,8 @@ parser.add_argument("--quant_op", required=True)
 
 parser.add_argument('--comp_ratio', default=1, type=float, help='set target compression ratio of FLOPs loss')
 parser.add_argument('--scaling', default=1e-6, type=float, help='set FLOPs loss scaling factor')
-parser.add_argument('--w_bit', default=[4], type=int, nargs='+', help='set weight bits')
-parser.add_argument('--a_bit', default=[4], type=int, nargs='+', help='set activation bits')
+parser.add_argument('--w_bit', default=[32], type=int, nargs='+', help='set weight bits')
+parser.add_argument('--a_bit', default=[32], type=int, nargs='+', help='set activation bits')
 
 parser.add_argument('--eval', action='store_true', help='evaluation mode')
 parser.add_argument('--lb_mode', '-lb', action='store_true', help='learn bitwidth (dnas approach)')
@@ -90,8 +90,7 @@ train_loader, val_loader = data_loader(args.dir, args.dataset, args.batchsize, a
 print('==> Building Model..')
 if args.lb_mode:
     print("Learning layer-wise bitwidth.")
-    if not (isinstance(args.w_bit, list) or isinstance(args.a_bit, list)):
-        raise ValueError
+
 else:
     print("Fixed bitwidth.")
 
@@ -167,7 +166,7 @@ def get_bitops_total():
         out, bitops =  model_(input)
 
     return bitops
-
+ 
 bitops_total = get_bitops_total()
 print(f'bitops_total: {int(bitops_total):d}')
 print(f'bitops_targt: {int(bitops_total * args.comp_ratio):d}')
@@ -195,15 +194,6 @@ def get_optimizer(params, train_quant, train_weight, train_bnbias, lr_decay=1):
         {'params': weight, 'weight_decay': args.decay, 'lr': args.lr * lr_decay if train_weight else 0},
     ], momentum=0.9, nesterov=True)
     return optimizer
-optimizer = optim.SGD(model.parameters(), lr=args.lr)
-
-
-# scheduler
-scheduler = CosineWithWarmup(optimizer, 
-        warmup_len=args.warmup, warmup_start_multiplier=0.1,
-        max_epochs=args.ft_epoch, eta_min=1e-3)
-
-criterion = nn.CrossEntropyLoss()
 
 
 # bitwidth Initilization
@@ -212,6 +202,15 @@ with torch.no_grad():
     QuantOps.initialize(model, train_loader, args.w_bit, weight=True)
     print('==> activation bitwidth is set up..')
     QuantOps.initialize(model, train_loader, args.a_bit, act=True)
+
+
+# optimizer & scheduler
+optimizer = optim.SGD(model.parameters(), lr=args.lr)
+scheduler = CosineWithWarmup(optimizer, 
+        warmup_len=args.warmup, warmup_start_multiplier=0.1,
+        max_epochs=args.ft_epoch, eta_min=1e-3)
+criterion = nn.CrossEntropyLoss()
+
 
 
 # Training
@@ -274,6 +273,8 @@ def train(epoch):
                 time.sleep(args.cooltime)
                 print('done.')
         end = time.time()
+        #if batch_idx == 200:
+        #    break
         
 
     if args.lb_mode:
@@ -286,9 +287,10 @@ def train(epoch):
                 if len(m.bits) > 1:
                     prob_w = F.softmax(m.theta)
                     sel=torch.argmax(prob_w)
-                    str_to_print += f'{args.w_bit[sel]}'
+                    str_to_print += f'{args.w_bit[sel]}, '
                     prob_w = [f'{i:.5f}' for i in prob_w.cpu().tolist()]
                     str_to_log += f'layer {i} [{", ".join(prob_w)}]\n'
+        logging.info(str_to_print)
         logging.info(str_to_log)
         
         i=1
@@ -299,9 +301,11 @@ def train(epoch):
                 i += 1
                 if len(m.bits) > 1:
                     prob_a = F.softmax(m.theta).cpu().tolist()
+                    sel=torch.argmax(prob_a)
+                    str_to_print += f'{args.a_bit[sel]} '
                     prob_a = [f'{i:.5f}' for i in prob_a]
                     str_to_log += f'layer {i} [{", ".join(prob_a)}]\n'
-
+        logging.info(str_to_print)
         logging.info(str_to_log)
     t1 = time.time()
     print(f'epoch time: {t1-t0:.3f} s')
@@ -343,6 +347,7 @@ def eval(epoch):
         if top1.avg > best_acc:
             is_best = True
             best_acc = top1.avg
+        
         create_checkpoint(model, None, optimizer, is_best, None, 
                           top1.avg, best_acc, epoch, args.save, 1, args.exp)
     print(f'evalaution time bitops: {bitops[0]}')
@@ -358,6 +363,6 @@ else:
         logging.info('Epoch: %d/%d Best_Acc: %.3f' %(epoch, end_epoch, best_acc))
         train(epoch)
         eval(epoch)
-        scheduler.step()         
+        scheduler.step()
 
 logging.info('Best accuracy : {:.3f} %'.format(best_acc))
