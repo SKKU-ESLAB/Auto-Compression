@@ -61,7 +61,8 @@ class Q_ReLU(nn.Module):
                 softmask = softmask
                 x_bar = torch.zeros_like(x)
                 for i, n_lv in enumerate(self.n_lvs):
-                    x_bar += RoundQuant.apply(x, n_lv) * c * softmask[i]
+                    #x_bar += RoundQuant.apply(x, n_lv) * c * softmask[i]
+                    x_bar = torch.add(x_bar, RoundQuant.apply(x, n_lv) * c * softmask[i])
                 return x_bar
 
         
@@ -115,7 +116,8 @@ class Q_Sym(nn.Module):
                 softmask = softmask
                 x_bar = torch.zeros_like(x)
                 for i, n_lv in enumerate(self.n_lvs):
-                    x_bar += RoundQuant.apply(x, n_lv) * c * softmask[i]
+                    #x_bar += RoundQuant.apply(x, n_lv) * c * softmask[i]
+                    x_bar = torch.add(x_bar, RoundQuant.apply(x, n_lv) * c * softmask[i])
                 return x_bar
 
 
@@ -183,7 +185,8 @@ class Q_Conv2d(nn.Conv2d):
             softmask = softmask.view(-1,1,1,1,1)       
             w_bar = torch.zeros_like(weight)
             for i, n_lv in enumerate(self.n_lvs):
-                w_bar += RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0,0,0]
+                #w_bar += RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0,0,0]
+                w_bar = torch.add(w_bar, RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0,0,0])
 
             return w_bar
 
@@ -229,7 +232,8 @@ class Q_Linear(nn.Linear):
 
             w_bar = torch.zeros_like(weight)
             for i, n_lv in enumerate(self.n_lvs):
-                w_bar += RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0]
+                #w_bar += RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0]
+                w_bar = torch.add(w_bar, RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0])
 
             return w_bar
 
