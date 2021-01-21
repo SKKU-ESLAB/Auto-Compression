@@ -172,6 +172,8 @@ print(f'bitops_targt: {int(bitops_target):d}')
 # model
 if args.model == "mobilenetv2":
     model = mobilenet_v2(QuantOps)
+    if not os.path.isfile("./checkpoint/mobilenet_v2-b0353104.pth"):
+        os.system("wget -P ./checkpoint https://download.pytorch.org/models/mobilenet_v2-b0353104.pth")
     model.load_state_dict(torch.load("./checkpoint/mobilenet_v2-b0353104.pth"), False)
 else:
     raise NotImplementedError
