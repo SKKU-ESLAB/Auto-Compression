@@ -216,9 +216,10 @@ with torch.no_grad():
 
 # Training
 def train(epoch):
-    #print('train:')
+    print('train:')
     for i in range(len(optimizer.param_groups)):
-        print(f'[epoch {epoch}] lr = {optimizer.param_groups[i]["lr"]}')
+        print(f'[epoch {epoch}] lr = {optimizer.param_groups[i]["lr"]:.6f}')
+
     model.train()
     eval_acc_loss = AverageMeter()
     eval_bitops_loss = AverageMeter()
@@ -268,6 +269,10 @@ def train(epoch):
                 len(train_loader.dataset),
                 eval_acc_loss.avg, eval_bitops_loss.avg, top1.avg, top5.avg,
                 data_time - end, model_time - data_time)
+            if args.cooltime and epoch != end_epoch:
+                print(f'sleep {args.cooltime}s for cooling GPUs.. ', end='')
+                time.sleep(args.cooltime)
+                print('done.')
         end = time.time()
         
 
@@ -325,6 +330,11 @@ def eval(epoch):
             eval_loss.update(loss.item(), inputs.size(0))
             top1.update(acc1[0], inputs.size(0))
             top5.update(acc5[0], inputs.size(0))
+            if (batch_idx) % args.log_interval == 0:
+                if args.cooltime and epoch != end_epoch:
+                    print(f'> sleep {args.cooltime}s for cooling GPUs.. ', end='')
+                    time.sleep(args.cooltime)
+                    print('done.')
 
         logging.info('Loss: %.4f | top1.avg: %.3f%% | top5.avg: %.3f%%' % (eval_loss.avg, top1.avg, top5.avg))
         
@@ -344,13 +354,14 @@ if args.eval:
 else:
     last_epoch, best_acc = resume_checkpoint(model, None, optimizer, scheduler, 
                                     args.save, args.exp)
-    for epoch in range(last_epoch+1, end_epoch+1):
+    for epoch in range(last_epoch, end_epoch+1):
         logging.info('Epoch: %d/%d Best_Acc: %.3f' %(epoch, end_epoch, best_acc))
         train(epoch)
         eval(epoch)
         scheduler.step()
         if args.cooltime and epoch != end_epoch:
-            print(f'sleep {args.cooltime}s for cooling GPUs..')
+            print(f'sleep {args.cooltime}s for cooling GPUs.. ')
             time.sleep(args.cooltime)
+         
 
 logging.info('Best accuracy : {:.3f} %'.format(best_acc))

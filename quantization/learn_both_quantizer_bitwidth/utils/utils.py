@@ -299,15 +299,15 @@ def resume_checkpoint(model, model_ema, optimizer, scheduler, root, prefix='trai
         ###################################
         try: 
             optimizer.load_state_dict(checkpoint["optimizer"])
-        except KeyError:
-            # if optimizer is not included in checkpoint
+            optimizer.step()
+            scheduler.step(epoch-1) 
+        except KeyError:   # if optimizer is not included in the checkpoint
             for i in range(epoch):
-                print(f'[epoch {i+1}] lr = {optimizer.param_groups[0]["lr"]}  (restored)')
-                optimizer.step()
+                print(f'[epoch {i+1}] lr = {optimizer.param_groups[0]["lr"]:.6f}  (restored)')
                 scheduler.step()
         ###################################
 
         return (epoch, best_acc)
     else:
         print("==> Can't find checkpoint...training from initial stage")
-        return (0, 0)
+        return (1, 0)
