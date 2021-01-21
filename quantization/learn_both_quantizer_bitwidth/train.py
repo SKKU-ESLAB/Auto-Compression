@@ -97,10 +97,7 @@ else:
 
 # QuantOps
 if args.quant_op == "duq":
-    if args.sep_bitops:
-        from functions.duq_sep_bitops import *
-    else:
-        from functions.duq import *
+    from functions.duq import *
     print("==> differentiable and unified quantization method is selected..")
 elif args.quant_op == "qil":
     torch.autograd.set_detect_anomaly(True)
@@ -273,8 +270,8 @@ def train(epoch):
                 time.sleep(args.cooltime)
                 print('done.')
         end = time.time()
-        #if batch_idx == 200:
-        #    break
+        if batch_idx == 200:
+            break
         
 
     if args.lb_mode:
