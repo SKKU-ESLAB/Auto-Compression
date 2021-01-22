@@ -195,12 +195,7 @@ def get_optimizer(params, train_quant, train_weight, train_bnbias, lr_decay=1):
     return optimizer
 
 
-# optimizer & scheduler
-optimizer = optim.SGD(model.parameters(), lr=args.lr)
-scheduler = CosineWithWarmup(optimizer, 
-        warmup_len=args.warmup, warmup_start_multiplier=0.1,
-        max_epochs=args.ft_epoch, eta_min=1e-3)
-criterion = nn.CrossEntropyLoss()
+
 
 # bitwidth Initilization
 with torch.no_grad():
@@ -209,10 +204,12 @@ with torch.no_grad():
     print('==> activation bitwidth is set up..')
     QuantOps.initialize(model, train_loader, args.a_bit, act=True)
 
-
-
-
-
+# optimizer & scheduler
+optimizer = optim.SGD(model.parameters(), lr=args.lr)
+scheduler = CosineWithWarmup(optimizer, 
+        warmup_len=args.warmup, warmup_start_multiplier=0.1,
+        max_epochs=args.ft_epoch, eta_min=1e-3)
+criterion = nn.CrossEntropyLoss()
 
 # Training
 def train(epoch):
