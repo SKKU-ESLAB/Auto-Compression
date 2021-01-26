@@ -49,8 +49,8 @@ else:
     args.save = f'logs/{args.dataset}/{args.exp}' #-{time.strftime("%y%m%d-%H%M%S")}'
 
 args.workers = 8
-args.m = 0.9   # momentum value
-args.wd = 1e-4 # weight decay value
+args.momentum = 0.9   # momentum value
+args.decay = 1e-4 # weight decay value
 
 create_exp_dir(args.save)
 log_format = '%(asctime)s %(message)s'
@@ -159,14 +159,15 @@ def get_bitops_total():
     model_.eval()
     QuantOps.initialize(model_, train_loader, 32, weight=True)
     QuantOps.initialize(model_, train_loader, 32, act=True)
-    bitops = calc_bitops(model_, full=True)
+    #bitops = calc_bitops(model_, full=True)
+    _, bitops = model_(input)
 
     return bitops
  
 bitops_total = get_bitops_total()
 bitops_target = bitops_total * args.comp_ratio
-print(f'bitops_total: {int(bitops_total):d}')
-print(f'bitops_targt: {int(bitops_target):d}')
+logging.info(f'bitops_total: {int(bitops_total):d}')
+logging.info(f'bitops_targt: {int(bitops_target):d}')
 
 
 # model
@@ -184,17 +185,70 @@ if torch.cuda.device_count() > 1:
 
 
 # optimizer -> for further coding (got from PROFIT)
-def get_optimizer(params, train_quant, train_weight, train_bnbias, lr_decay=1):
-    (quant, skip, weight, bnbias) = params
+def get_optimizer(params, train_quant, train_weight, train_bnbias):
+    (weight, quant, bnbias, skip) = params
     optimizer = optim.SGD([
+        {'params': weight, 'weight_decay': args.decay, 'lr': args.lr  if train_weight else 0},
+        {'params': quant, 'weight_decay': 0., 'lr': args.lr * 1e-2 if train_quant else 0},
+        {'params': bnbias, 'weight_decay': 0., 'lr': args.lr if train_bnbias else 0},
         {'params': skip, 'weight_decay': 0, 'lr': 0},
-        {'params': quant, 'weight_decay': 0., 'lr': args.lr * 1e-2 * lr_decay if train_quant else 0},
-        {'params': bnbias, 'weight_decay': 0., 'lr': args.lr * lr_decay if train_bnbias else 0},
-        {'params': weight, 'weight_decay': args.decay, 'lr': args.lr * lr_decay if train_weight else 0},
-    ], momentum=0.9, nesterov=True)
+    ], momentum=args.momentum, nesterov=True)
     return optimizer
 
 
+def categorize_param(model, params_to_train="both"):
+    weight = []
+    quant = []
+    bnbias = []
+    skip = []
+
+    if params_to_train=="both":
+        print('train both')
+        for name, param in model.named_parameters():
+            if name.endswith(".a") or name.endswith(".b") \
+                or name.endswith(".c") or name.endswith(".d"):
+                quant.append(param)
+                #print('quant,', name)
+            elif len(param.shape) == 1 or name.endswith(".bias"):
+                bnbias.append(param)
+                #print('bnbias,', name)
+            else:
+                weight.append(param)
+                #print('weight,', name)
+
+    elif params_to_train=="weight":
+        print('==> train weight')
+        for name, param in model.named_parameters():
+            if name.endswith(".a") or name.endswith(".b") \
+                or name.endswith(".c") or name.endswith(".d"):
+                quant.append(param)
+                #print('quant,', name)
+            elif name.endswith(".theta"):
+                skip.append(param)
+            elif len(param.shape) == 1 or name.endswith(".bias"):
+                bnbias.append(param)
+                #print('bnbias,', name)
+            else:
+                weight.append(param)
+                #print('weight,', name)
+
+    elif params_to_train=="theta":
+        print('==> train theta')
+        for name, param in model.named_parameters():
+            if name.endswith(".a") or name.endswith(".b") \
+                or name.endswith(".c") or name.endswith(".d"):
+                quant.append(param)
+                #print('quant,', name)
+            elif name.endswith(".theta"):
+                weight.append(param)
+                #print('weight,', name)
+            elif len(param.shape) == 1 or name.endswith(".bias"):
+                bnbias.append(param)
+                #print('bnbias,', name)
+            else:
+                skip.append(param)
+                
+    return (weight, quant, bnbias, skip,)
 
 
 # bitwidth Initilization
@@ -204,39 +258,44 @@ with torch.no_grad():
     print('==> activation bitwidth is set up..')
     QuantOps.initialize(model, train_loader, args.a_bit, act=True)
 
+
 # optimizer & scheduler
-optimizer = optim.SGD(model.parameters(), lr=args.lr)
-scheduler = CosineWithWarmup(optimizer, 
+#optimizer = optim.SGD(model.parameters(), )  # missed lr_decay and momentum...
+optimizer_w = get_optimizer(categorize_param(model, "weight"), True, True, True)
+optimizer_theta = get_optimizer(categorize_param(model, "theta"), True, True, True)
+
+scheduler_w = CosineWithWarmup(optimizer_w, 
+        warmup_len=args.warmup, warmup_start_multiplier=0.1,
+        max_epochs=args.ft_epoch, eta_min=1e-3)
+scheduler_theta = CosineWithWarmup(optimizer_theta, 
         warmup_len=args.warmup, warmup_start_multiplier=0.1,
         max_epochs=args.ft_epoch, eta_min=1e-3)
 criterion = nn.CrossEntropyLoss()
 
+
 # Training
 def train(epoch):
     print('train:')
-    for i in range(len(optimizer.param_groups)):
-        print(f'[epoch {epoch}] lr = {optimizer.param_groups[i]["lr"]:.6f}')
-
+    for i in range(len(optimizer_w.param_groups)):
+        print(f'[epoch {epoch}] lr{i} = {optimizer_w.param_groups[i]["lr"]:.6f}')
+    optimizer = optimizer_w if epoch % 5 < 3 else optimizer_theta
     model.train()
     eval_acc_loss = AverageMeter()
     eval_bitops_loss = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
-
-    
     
     end = t0 = time.time()
 
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         inputs, targets = inputs.to(device), targets.to(device)
         data_time = time.time()
-        outputs = model(inputs)
+        outputs, bitops = model(inputs)
 
         loss = criterion(outputs, targets)
         eval_acc_loss.update(loss.item(), inputs.size(0))
         
-        if args.lb_mode:
-            bitops = calc_bitops(model)
+        if args.lb_mode and epoch%3 == 0:
             if not isinstance(bitops, (float, int)):
                 bitops = bitops[0]
             loss_bitops = torch.abs((bitops-bitops_target)*args.scaling)
@@ -269,8 +328,7 @@ def train(epoch):
                 print('done.')
                 
         end = time.time()
-        #if batch_idx == 200:
-        #    break
+
         
 
     if args.lb_mode:
@@ -321,10 +379,10 @@ def eval(epoch):
         for batch_idx, (inputs, targets) in enumerate(val_loader):
             inputs, targets = inputs.to(device), targets.to(device)
 
-            outputs = model(inputs)
+            outputs, bitops = model(inputs)
             loss = criterion(outputs, targets)
             if args.lb_mode:
-                bitops = calc_bitops(model)
+                #bitops = calc_bitops(model)
                 if not isinstance(bitops, (float, int)):
                     bitops = bitops[0]
                 loss_bitops = torch.abs((bitops-bitops_target)*args.scaling)
@@ -360,7 +418,7 @@ def eval(epoch):
             is_best = True
             best_acc = top1.avg
         
-        create_checkpoint(model, None, optimizer, is_best, None, 
+        create_checkpoint(model, None, optimizer_w, optimizer_theta, is_best, None, 
                           top1.avg, best_acc, epoch, args.save, 1, args.exp)
     
 
@@ -369,12 +427,14 @@ if args.eval:
     eval(0)
 
 else:
-    last_epoch, best_acc = resume_checkpoint(model, None, optimizer, scheduler, 
-                                    args.save, args.exp)
+    last_epoch, best_acc = resume_checkpoint(model, None, optimizer_w, scheduler_w, 
+                                    scheduler_theta, args.save, args.exp)
     for epoch in range(last_epoch, end_epoch+1):
         logging.info('Epoch: %d/%d Best_Acc: %.3f' %(epoch, end_epoch, best_acc))
         train(epoch)
         eval(epoch)
-        scheduler.step()
+        scheduler_w.step()  ##########################  TODO: scheduler w and theta
+        scheduler_theta.step()
+        
 
 logging.info('Best accuracy : {:.3f} %'.format(best_acc))

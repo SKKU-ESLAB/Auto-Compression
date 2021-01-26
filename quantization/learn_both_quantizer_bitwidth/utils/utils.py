@@ -224,7 +224,7 @@ class CosineWithWarmup(torch.optim.lr_scheduler._LRScheduler):
         return [base_lr * lr_multiplier for base_lr in self.base_lrs]
 
 
-def create_checkpoint(model, model_ema, optimizer, is_best, is_ema_best,
+def create_checkpoint(model, model_ema, optimizer_w, optimizer_theta, is_best, is_ema_best,
         acc, best_acc, epoch, root, save_freq=10, prefix='train'):
     pathlib.Path(root).mkdir(parents=True, exist_ok=True) 
 
@@ -257,14 +257,15 @@ def create_checkpoint(model, model_ema, optimizer, is_best, is_ema_best,
             'model': model_state,
             'model_ema': model_ema_state,
             'epoch': epoch,
-            'optimizer': optimizer.state_dict(),
+            'optimizer_w': optimizer_w.state_dict(),
+            'optimizer_theta': optimizer_theta.state_dict(),
             'acc': acc,
             'best_acc': best_acc,
         }
         torch.save(state, filename)
 
 
-def resume_checkpoint(model, model_ema, optimizer, scheduler, root, prefix='train'):
+def resume_checkpoint(model, model_ema, optimizer_w, optimizer_theta, scheduler_w, scheduler_theta, root, prefix='train'):
     files = glob.glob(os.path.join(root, "{}_*.pth".format(prefix)))
 
     max_idx = -1
@@ -297,14 +298,23 @@ def resume_checkpoint(model, model_ema, optimizer, scheduler, root, prefix='trai
             best_acc = checkpoint["acc"]
         
         ###################################
-        try: 
-            optimizer.load_state_dict(checkpoint["optimizer"])
-            optimizer.step()
-            scheduler.step(epoch-1) 
-        except KeyError:   # if optimizer is not included in the checkpoint
+        if "optimizer" in checkpoint.keys():
+            optimizer_w.load_state_dict(checkpoint["optimizer"]) 
+            optimizer_w.step()
+            scheduler_w.step(epoch-1)
+            scheduler_theta.step(epoch-1)
+        elif "optimizer_w" in checkpoint.keys() and "optimizer_theta" in checkpoint.keys():
+            optimizer_w.load_state_dict(checkpoint["optimizer_w"])
+            optimizer_theta.load_state_dict(checkpoint["optimizer_theta"])
+            optimizer_w.step()
+            optimizer_theta.step()
+            scheduler_w.step(epoch-1)
+            scheduler_theta.step(epoch-1)
+        else:
             for i in range(epoch):
-                print(f'[epoch {i+1}] lr = {optimizer.param_groups[0]["lr"]:.6f}  (restored)')
-                scheduler.step()
+                print(f'[epoch {i+1}] lr = {optimizer_w.param_groups[3]["lr"]:.6f}  (restored)')
+                scheduler_w.step()
+                scheduler_theta.step()
         ###################################
 
         return (epoch, best_acc)

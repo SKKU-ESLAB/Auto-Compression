@@ -48,7 +48,7 @@ class Q_ReLU(nn.Module):
             x = F.relu(x, self.inplace)
         
         if len(self.bits)==1 and self.bits[0]==32:
-            return x
+            return x, 32
         else:
             a = F.softplus(self.a)
             c = F.softplus(self.c)
@@ -56,7 +56,7 @@ class Q_ReLU(nn.Module):
             
             if len(self.n_lvs) == 1:
                 x = RoundQuant.apply(x, self.n_lvs[0]) * c
-                return x
+                return x, self.bits[0]
             else:
                 # 1) for loop
                 softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
@@ -65,7 +65,8 @@ class Q_ReLU(nn.Module):
                 for i, n_lv in enumerate(self.n_lvs):
                     #x_bar += RoundQuant.apply(x, n_lv) * c * softmask[i]
                     x_bar = torch.add(x_bar, RoundQuant.apply(x, n_lv) * c * softmask[i])
-                return x_bar
+                act_size = (softmask * self.bits).sum()
+                return x_bar, act_size
 
         
 class Q_ReLU6(Q_ReLU):
@@ -108,7 +109,7 @@ class Q_Sym(nn.Module):
 
     def forward(self, x):
         if len(self.bits)==1 and self.bits[0]==32:
-            return x
+            return x, 32
         else:
             a = F.softplus(self.a)
             c = F.softplus(self.c)
@@ -116,7 +117,7 @@ class Q_Sym(nn.Module):
 
             if len(self.n_lvs) == 1:
                 x = RoundQuant.apply(x, self.n_lvs[0] // 2) * c
-                return x
+                return x, self.bits[0]
             else:
                 softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
                 softmask = softmask
@@ -124,7 +125,8 @@ class Q_Sym(nn.Module):
                 for i, n_lv in enumerate(self.n_lvs):
                     #x_bar += RoundQuant.apply(x, n_lv) * c * softmask[i]
                     x_bar = torch.add(x_bar, RoundQuant.apply(x, n_lv) * c * softmask[i])
-                return x_bar
+                act_size = (softmask * self.bits).sum()
+                return x_bar, act_size
 
 
 class Q_HSwish(nn.Module):
@@ -168,6 +170,7 @@ class Q_Conv2d(nn.Conv2d):
         self.c = Parameter(Tensor(1))
         self.weight_old = None
         self.theta = Parameter(Tensor([1]))
+        self.computation = 0
 
     def initialize(self, bits):
         self.bits = Parameter(Tensor(bits), requires_grad=False)
@@ -188,7 +191,7 @@ class Q_Conv2d(nn.Conv2d):
 
         if len(self.n_lvs) == 1:
             weight = RoundQuant.apply(weight, self.n_lvs[0] // 2) * c
-            return weight
+            return weight, self.bits[0]
         else:
             softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
             softmask = softmask.view(-1,1,1,1,1)       
@@ -196,17 +199,20 @@ class Q_Conv2d(nn.Conv2d):
             for i, n_lv in enumerate(self.n_lvs):
                 #w_bar += RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0,0,0]
                 w_bar = torch.add(w_bar, RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0,0,0])
+            bitwidth = (softmask * self.bits).sum()
 
-            return w_bar
+            return w_bar, bitwidth
 
-    def forward(self, x):
+    def forward(self, x, cost, act_size=None):
         if len(self.bits)==1 and self.bits[0]==32:
+            cost += act_size * 32 * self.computation
             return F.conv2d(x, self.weight, self.bias,
-                self.stride, self.padding, self.dilation, self.groups)
+                self.stride, self.padding, self.dilation, self.groups), cost
         else:
-            weight = self._weight_quant()
+            weight, bitwidth = self._weight_quant()
+            cost += act_size * bitwidth * self.computation
             return F.conv2d(x, weight, self.bias,
-                self.stride, self.padding, self.dilation, self.groups)
+                self.stride, self.padding, self.dilation, self.groups), cost
 
 
 class Q_Linear(nn.Linear):
@@ -218,6 +224,7 @@ class Q_Linear(nn.Linear):
         self.c = Parameter(Tensor(1))
         self.weight_old = None
         self.theta = Parameter(Tensor([1]))
+        self.computation = 0
 
     def initialize(self, bits):
         self.bits = Parameter(Tensor(bits), requires_grad=False)
@@ -237,7 +244,7 @@ class Q_Linear(nn.Linear):
         weight = F.hardtanh(self.weight / a, -1, 1)
         if len(self.n_lvs) == 1:
             weight = RoundQuant.apply(weight, self.n_lvs[0] // 2) * c
-            return weight
+            return weight, self.bits[0]
         else:
             softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
             softmask = softmask.view(-1,1,1)
@@ -246,15 +253,17 @@ class Q_Linear(nn.Linear):
             for i, n_lv in enumerate(self.n_lvs):
                 #w_bar += RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0]
                 w_bar = torch.add(w_bar, RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0])
+            bitwidth = (softmask * self.bits).sum()
+            return w_bar, bitwidth
 
-            return w_bar
-
-    def forward(self, x):
+    def forward(self, x, cost, act_size=None):
         if len(self.bits)==1 and self.bits[0]==32:
-            return F.linear(x, self.weight, self.bias)
+            cost += act_size * 32 * self.computation
+            return F.linear(x, self.weight, self.bias), cost
         else:
-            weight = self._weight_quant()
-            return F.linear(x, weight, self.bias)
+            weight, bitwidth = self._weight_quant()
+            cost += act_size * bitwidth * self.computation
+            return F.linear(x, weight, self.bias), cost
 
 
 class Q_Conv2dPad(Q_Conv2d):
@@ -308,16 +317,17 @@ def initialize(model, loader, bits, act=False, weight=False, eps=0.05):
         if isinstance(module, (Q_Conv2d, Q_Linear)) and weight:
             module.initialize(bits)
         
-        if isinstance(module, Q_Conv2d):
+        if isinstance(module, Q_Conv2d) and weight:
             O, I, K1, K2 = module.weight.shape
             N, C, H, W = input[0].shape
             s = module.stride[0]
             module.computation = O * I * K1 * K2 * H * W / s / s
 
-        if isinstance(module, Q_Linear):
+        if isinstance(module, Q_Linear) and weight:
             O, I = module.weight.shape
             N, I = input[0].shape
             module.computation = O * I
+            print("\nInitial Q_Linear\n")
 
     hooks = []
 
