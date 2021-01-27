@@ -41,6 +41,8 @@ parser.add_argument('--a_bit', default=[32], type=int, nargs='+', help='set acti
 parser.add_argument('--eval', action='store_true', help='evaluation mode')
 parser.add_argument('--lb_mode', '-lb', action='store_true', help='learn bitwidth (dnas approach)')
 parser.add_argument('--cooltime', default=0, type=int, help='seconds for processor cooling (for sv8 and sv9')
+parser.add_argument('--w_ep', default=1, type=int, help='')
+parser.add_argument('--t_ep', default=1, type=int, help='')
 
 args = parser.parse_args()
 if args.exp == 'test':
@@ -185,70 +187,36 @@ if torch.cuda.device_count() > 1:
 
 
 # optimizer -> for further coding (got from PROFIT)
-def get_optimizer(params, train_quant, train_weight, train_bnbias):
-    (weight, quant, bnbias, skip) = params
+def get_optimizer(params, train_weight, train_quant, train_bnbias, train_theta):
+    (weight, quant, bnbias, theta, skip) = params
     optimizer = optim.SGD([
         {'params': weight, 'weight_decay': args.decay, 'lr': args.lr  if train_weight else 0},
         {'params': quant, 'weight_decay': 0., 'lr': args.lr * 1e-2 if train_quant else 0},
         {'params': bnbias, 'weight_decay': 0., 'lr': args.lr if train_bnbias else 0},
+        {'params': theta, 'weight_decay': 0., 'lr': args.lr if train_theta else 0},
         {'params': skip, 'weight_decay': 0, 'lr': 0},
     ], momentum=args.momentum, nesterov=True)
     return optimizer
 
 
-def categorize_param(model, params_to_train="both"):
+def categorize_param(model):
     weight = []
     quant = []
     bnbias = []
+    theta = []
     skip = []
+    for name, param in model.named_parameters():
+        if name.endswith(".a") or name.endswith(".b") \
+            or name.endswith(".c") or name.endswith(".d"):
+            quant.append(param)
+        elif len(param.shape) == 1 and (name.endswith('weight') or  name.endswith(".bias")):
+            bnbias.append(param)
+        elif name.endswith(".theta"):
+            theta.append(param)
+        else:
+            weight.append(param)
 
-    if params_to_train=="both":
-        print('train both')
-        for name, param in model.named_parameters():
-            if name.endswith(".a") or name.endswith(".b") \
-                or name.endswith(".c") or name.endswith(".d"):
-                quant.append(param)
-                #print('quant,', name)
-            elif len(param.shape) == 1 or name.endswith(".bias"):
-                bnbias.append(param)
-                #print('bnbias,', name)
-            else:
-                weight.append(param)
-                #print('weight,', name)
-
-    elif params_to_train=="weight":
-        print('==> train weight')
-        for name, param in model.named_parameters():
-            if name.endswith(".a") or name.endswith(".b") \
-                or name.endswith(".c") or name.endswith(".d"):
-                quant.append(param)
-                #print('quant,', name)
-            elif name.endswith(".theta"):
-                skip.append(param)
-            elif len(param.shape) == 1 or name.endswith(".bias"):
-                bnbias.append(param)
-                #print('bnbias,', name)
-            else:
-                weight.append(param)
-                #print('weight,', name)
-
-    elif params_to_train=="theta":
-        print('==> train theta')
-        for name, param in model.named_parameters():
-            if name.endswith(".a") or name.endswith(".b") \
-                or name.endswith(".c") or name.endswith(".d"):
-                quant.append(param)
-                #print('quant,', name)
-            elif name.endswith(".theta"):
-                weight.append(param)
-                #print('weight,', name)
-            elif len(param.shape) == 1 or name.endswith(".bias"):
-                bnbias.append(param)
-                #print('bnbias,', name)
-            else:
-                skip.append(param)
-                
-    return (weight, quant, bnbias, skip,)
+    return (weight, quant, bnbias, theta, skip,)
 
 
 # bitwidth Initilization
@@ -261,8 +229,9 @@ with torch.no_grad():
 
 # optimizer & scheduler
 #optimizer = optim.SGD(model.parameters(), )  # missed lr_decay and momentum...
-optimizer_w = get_optimizer(categorize_param(model, "weight"), True, True, True)
-optimizer_theta = get_optimizer(categorize_param(model, "theta"), True, True, True)
+params = categorize_param(model)
+optimizer_w = get_optimizer(params, True, True, True, False)
+optimizer_theta = get_optimizer(params, False, True, True, True)
 
 scheduler_w = CosineWithWarmup(optimizer_w, 
         warmup_len=args.warmup, warmup_start_multiplier=0.1,
@@ -278,7 +247,7 @@ def train(epoch):
     print('train:')
     for i in range(len(optimizer_w.param_groups)):
         print(f'[epoch {epoch}] lr{i} = {optimizer_w.param_groups[i]["lr"]:.6f}')
-    optimizer = optimizer_w if epoch % 5 < 3 else optimizer_theta
+    optimizer = optimizer_w if (epoch-1) % (args.w_ep + args.t_ep) < args.w_ep else optimizer_theta
     model.train()
     eval_acc_loss = AverageMeter()
     eval_bitops_loss = AverageMeter()
@@ -295,9 +264,9 @@ def train(epoch):
         loss = criterion(outputs, targets)
         eval_acc_loss.update(loss.item(), inputs.size(0))
         
-        if args.lb_mode and epoch%3 == 0:
+        if args.lb_mode and (epoch-1) % (args.w_ep + args.t_ep) >= args.w_ep:
             if not isinstance(bitops, (float, int)):
-                bitops = bitops[0]
+                bitops = bitops.mean()
             loss_bitops = torch.abs((bitops-bitops_target)*args.scaling)
             if (batch_idx) % (args.log_interval*5) == 0:
                 print(f'bitops-bitops_target: {bitops-bitops_target}')
@@ -384,7 +353,7 @@ def eval(epoch):
             if args.lb_mode:
                 #bitops = calc_bitops(model)
                 if not isinstance(bitops, (float, int)):
-                    bitops = bitops[0]
+                    bitops = bitops.mean()
                 loss_bitops = torch.abs((bitops-bitops_target)*args.scaling)
                 if (batch_idx) % (args.log_interval*5) == 0:
                     logging.info(f'bitops-bitops_target:   {bitops-bitops_target}')
