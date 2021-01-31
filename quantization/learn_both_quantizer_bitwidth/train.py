@@ -248,10 +248,10 @@ criterion = nn.CrossEntropyLoss()
 def train(epoch):
     print('train:')
 
-    if (epoch-1) % (args.w_ep + args.t_ep) < args.w_ep 
+    if (epoch-1) % (args.w_ep + args.t_ep) < args.w_ep :
         print("==> weight epoch ..")
         optimizer = optimizer_w 
-    else 
+    else :
         print("==> theta epoch ..")
         optimizer = optimizer_theta
     for i in range(len(optimizer.param_groups)):
