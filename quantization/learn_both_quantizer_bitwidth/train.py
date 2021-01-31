@@ -181,6 +181,8 @@ if args.model == "mobilenetv2":
 else:
     raise NotImplementedError
 model = model.to(device)
+#print(model)
+#exit()
 if torch.cuda.device_count() > 1:
     print(f'==> DataParallel: device count = {torch.cuda.device_count()}')
     model = torch.nn.DataParallel(model) #, device_ids=range(torch.cuda.device_count()))
@@ -245,9 +247,16 @@ criterion = nn.CrossEntropyLoss()
 # Training
 def train(epoch):
     print('train:')
-    for i in range(len(optimizer_w.param_groups)):
-        print(f'[epoch {epoch}] lr{i} = {optimizer_w.param_groups[i]["lr"]:.6f}')
-    optimizer = optimizer_w if (epoch-1) % (args.w_ep + args.t_ep) < args.w_ep else optimizer_theta
+
+    if (epoch-1) % (args.w_ep + args.t_ep) < args.w_ep 
+        print("==> weight epoch ..")
+        optimizer = optimizer_w 
+    else 
+        print("==> theta epoch ..")
+        optimizer = optimizer_theta
+    for i in range(len(optimizer.param_groups)):
+        print(f'[epoch {epoch}] lr{i} = {optimizer.param_groups[i]["lr"]:.6f}')
+        
     model.train()
     eval_acc_loss = AverageMeter()
     eval_bitops_loss = AverageMeter()
