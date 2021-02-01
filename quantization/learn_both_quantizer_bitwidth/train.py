@@ -53,6 +53,7 @@ else:
 args.workers = 8
 args.momentum = 0.9   # momentum value
 args.decay = 1e-4 # weight decay value
+args.lb_mode = False
 if (len(args.w_bit) > 1 or len(args.a_bit) > 1) and not args.lb_off:
     args.lb_mode = True
     print("## Learning bitwidth selection")
@@ -184,6 +185,7 @@ if args.model == "mobilenetv2":
 else:
     raise NotImplementedError
 model = model.to(device)
+
 #print(model)
 #exit()
 if torch.cuda.device_count() > 1:
