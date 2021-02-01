@@ -327,7 +327,6 @@ def initialize(model, loader, bits, act=False, weight=False, eps=0.05):
             O, I = module.weight.shape
             N, I = input[0].shape
             module.computation = O * I
-            print("\nInitial Q_Linear\n")
 
     hooks = []
 

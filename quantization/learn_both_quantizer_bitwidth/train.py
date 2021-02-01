@@ -24,8 +24,8 @@ parser.add_argument('--dir', default='/data', help='data root')
 parser.add_argument('--dataset', default='imagenet', help='select dataset')
 
 parser.add_argument('--batchsize', default=64, type=int, help='set batch size')
-parser.add_argument("--lr", default=0.04, type=float)
-parser.add_argument('--warmup', default=5, type=int)
+parser.add_argument("--lr", default=0.005, type=float)
+parser.add_argument('--warmup', default=3, type=int)
 parser.add_argument('--ft_epoch', default=15, type=int)
 
 parser.add_argument('--log_interval', default=50, type=int, help='logging interval')
@@ -33,13 +33,13 @@ parser.add_argument('--exp', default='test', type=str)
 parser.add_argument('--seed', default=7, type=int, help='random seed')
 parser.add_argument("--quant_op", required=True)
 
-parser.add_argument('--comp_ratio', default=1, type=float, help='set target compression ratio of FLOPs loss')
+parser.add_argument('--comp_ratio', default=1, type=float, help='set target compression ratio of Bitops loss')
 parser.add_argument('--scaling', default=1e-6, type=float, help='set FLOPs loss scaling factor')
 parser.add_argument('--w_bit', default=[32], type=int, nargs='+', help='set weight bits')
 parser.add_argument('--a_bit', default=[32], type=int, nargs='+', help='set activation bits')
 
 parser.add_argument('--eval', action='store_true', help='evaluation mode')
-parser.add_argument('--lb_mode', '-lb', action='store_true', help='learn bitwidth (dnas approach)')
+parser.add_argument('--lb_off', '-lboff', action='store_true', help='learn bitwidth (dnas approach)')
 parser.add_argument('--cooltime', default=0, type=int, help='seconds for processor cooling (for sv8 and sv9')
 parser.add_argument('--w_ep', default=1, type=int, help='')
 parser.add_argument('--t_ep', default=1, type=int, help='')
@@ -53,6 +53,9 @@ else:
 args.workers = 8
 args.momentum = 0.9   # momentum value
 args.decay = 1e-4 # weight decay value
+if (len(args.w_bit) > 1 or len(args.a_bit) > 1) and not args.lb_off:
+    args.lb_mode = True
+    print("## Learning bitwidth selection")
 
 create_exp_dir(args.save)
 log_format = '%(asctime)s %(message)s'
@@ -232,64 +235,76 @@ with torch.no_grad():
 # optimizer & scheduler
 #optimizer = optim.SGD(model.parameters(), )  # missed lr_decay and momentum...
 params = categorize_param(model)
-optimizer_w = get_optimizer(params, True, True, True, False)
-optimizer_theta = get_optimizer(params, False, True, True, True)
+optimizer = get_optimizer(params, True, True, True, True)
+current_lr = -1
 
-scheduler_w = CosineWithWarmup(optimizer_w, 
+scheduler = CosineWithWarmup(optimizer, 
         warmup_len=args.warmup, warmup_start_multiplier=0.1,
         max_epochs=args.ft_epoch, eta_min=1e-3)
-scheduler_theta = CosineWithWarmup(optimizer_theta, 
-        warmup_len=args.warmup, warmup_start_multiplier=0.1,
-        max_epochs=args.ft_epoch, eta_min=1e-3)
+#scheduler_theta = CosineWithWarmup(optimizer_theta, 
+#        warmup_len=args.warmup, warmup_start_multiplier=0.1,
+#        max_epochs=args.ft_epoch, eta_min=1e-3)
 criterion = nn.CrossEntropyLoss()
-
+scaler = torch.cuda.amp.GradScaler()
+#model, optimizer = amp.initialize(model, optimizer, opt_level="01")
 
 # Training
 def train(epoch):
     print('train:')
 
-    if (epoch-1) % (args.w_ep + args.t_ep) < args.w_ep :
-        print("==> weight epoch ..")
-        optimizer = optimizer_w 
-    else :
-        print("==> theta epoch ..")
-        optimizer = optimizer_theta
     for i in range(len(optimizer.param_groups)):
-        print(f'[epoch {epoch}] lr{i} = {optimizer.param_groups[i]["lr"]:.6f}')
+        print(f'[epoch {epoch}] optimizer, lr{i} = {optimizer.param_groups[i]["lr"]:.6f}')
+
         
     model.train()
     eval_acc_loss = AverageMeter()
     eval_bitops_loss = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
+    current_lr = optimizer.param_groups[0]['lr']
     
     end = t0 = time.time()
-
     for batch_idx, (inputs, targets) in enumerate(train_loader):
+        if args.lb_mode:
+            if batch_idx % 1000 == 0: # learning weight
+                optimizer.param_groups[0]['lr'] = current_lr
+                #optimizer.param_groups[1]['lr'] = current_lr * 1e-2
+                optimizer.param_groups[3]['lr'] = 0 # 0:weight  1:quant  2:bnbias  3:theta
+                
+            elif batch_idx % 1000 == 800: # learning theta
+                optimizer.param_groups[0]['lr'] = 0
+                #optimizer.param_groups[1]['lr'] = 0
+                optimizer.param_groups[3]['lr'] = current_lr # 0:weight  1:quant  2:bnbias  3:theta
+            
+            #if batch_idx == 1000:
+            #    break
         inputs, targets = inputs.to(device), targets.to(device)
         data_time = time.time()
-        outputs, bitops = model(inputs)
+        with torch.cuda.amp.autocast():
+            outputs, bitops = model(inputs)
 
-        loss = criterion(outputs, targets)
-        eval_acc_loss.update(loss.item(), inputs.size(0))
-        
-        if args.lb_mode and (epoch-1) % (args.w_ep + args.t_ep) >= args.w_ep:
-            if not isinstance(bitops, (float, int)):
-                bitops = bitops.mean()
-            loss_bitops = torch.abs((bitops-bitops_target)*args.scaling)
-            if (batch_idx) % (args.log_interval*5) == 0:
-                print(f'bitops-bitops_target: {bitops-bitops_target}')
-            loss_bitops = loss_bitops.reshape(torch.Size([]))
-            loss += loss_bitops 
-            eval_bitops_loss.update(loss_bitops.item(), inputs.size(0))
+            loss = criterion(outputs, targets)
+            eval_acc_loss.update(loss.item(), inputs.size(0))
+            
+            if args.lb_mode and optimizer.param_groups[3]['lr'] != 0 :#(epoch-1) % (args.w_ep + args.t_ep) >= args.w_ep:
+                if not isinstance(bitops, (float, int)):
+                    bitops = bitops.mean()
+                loss_bitops = torch.abs((bitops-bitops_target)*args.scaling)
+                if (batch_idx) % (args.log_interval*5) == 0:
+                    print(f'bitops-bitops_target: {bitops-bitops_target}')
+                loss_bitops = loss_bitops.reshape(torch.Size([]))
+                loss += loss_bitops 
+                eval_bitops_loss.update(loss_bitops.item(), inputs.size(0))
 
-        acc1, acc5 = accuracy(outputs.data, targets.data, top_k=(1,5))
-        top1.update(acc1[0], inputs.size(0))
-        top5.update(acc5[0], inputs.size(0))
+            acc1, acc5 = accuracy(outputs.data, targets.data, top_k=(1,5))
+            top1.update(acc1[0], inputs.size(0))
+            top5.update(acc5[0], inputs.size(0))
         
         optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        scaler.scale(loss).backward()
+        #scaler.unscale_(optimizer)
+        scaler.step(optimizer)
+        scaler.update()
 
         model_time = time.time()
         if (batch_idx) % args.log_interval == 0:
@@ -298,16 +313,19 @@ def train(epoch):
                     'Data Time: %.3f s | Model Time: %.3f s',   # \t Memory %.03fMB',
                 epoch, batch_idx * len(inputs),
                 len(train_loader.dataset),
-                eval_acc_loss.avg, eval_bitops_loss.avg, top1.avg, top5.avg,
+                eval_acc_loss.avg, eval_bitops_loss.avg if optimizer.param_groups[3]['lr'] !=0 else 0, 
+                top1.avg, top5.avg,
                 data_time - end, model_time - data_time)
             if args.cooltime and epoch != end_epoch:
                 print(f'> [sleep] {args.cooltime}s for cooling GPUs.. ', end='')
                 time.sleep(args.cooltime)
                 print('done.')
-                
-        end = time.time()
-
         
+
+        optimizer.param_groups[3]['lr']
+        end = time.time()
+    optimizer.param_groups[0]['lr'] = current_lr
+    optimizer.param_groups[3]['lr'] = current_lr 
 
     if args.lb_mode:
         i=1
@@ -380,7 +398,7 @@ def eval(epoch):
                 logging.info('Train Epoch: %4d Process: %5d/%5d  ' + \
                         'L_acc: %.3f | L_bitops: %.3f | top1.avg: %.3f%% | top5.avg: %.3f%% | ',
                     epoch, batch_idx * len(inputs),
-                    len(train_loader.dataset),
+                    len(val_loader.dataset),
                     eval_loss.avg, eval_bitops_loss.avg, top1.avg, top5.avg)
                 if args.cooltime and epoch != end_epoch:
                     print(f'> [sleep] {args.cooltime}s for cooling GPUs.. ', end='')
@@ -396,7 +414,7 @@ def eval(epoch):
             is_best = True
             best_acc = top1.avg
         
-        create_checkpoint(model, None, optimizer_w, optimizer_theta, is_best, None, 
+        create_checkpoint(model, None, optimizer, is_best, None, 
                           top1.avg, best_acc, epoch, args.save, 1, args.exp)
     
 
@@ -405,14 +423,13 @@ if args.eval:
     eval(0)
 
 else:
-    last_epoch, best_acc = resume_checkpoint(model, None, optimizer_w, scheduler_w, 
-                                    scheduler_theta, args.save, args.exp)
+    last_epoch, best_acc = resume_checkpoint(model, None, optimizer, scheduler, 
+                                    args.save, args.exp)
     for epoch in range(last_epoch, end_epoch+1):
         logging.info('Epoch: %d/%d Best_Acc: %.3f' %(epoch, end_epoch, best_acc))
         train(epoch)
         eval(epoch)
-        scheduler_w.step()  ##########################  TODO: scheduler w and theta
-        scheduler_theta.step()
+        scheduler.step() 
         
 
 logging.info('Best accuracy : {:.3f} %'.format(best_acc))
