@@ -298,13 +298,17 @@ def resume_checkpoint(model, model_ema, optimizer, scheduler, root, prefix='trai
         
         ###################################
         if "optimizer" in checkpoint.keys():
+            print(f"==> Resume epoch {epoch}.. ")
             optimizer.load_state_dict(checkpoint["optimizer"]) 
+            optimizer.step()
+            scheduler.step()
         else:
             for i in range(epoch):
+                print(f'==> Restore epoch {epoch}..')
                 print(f'[epoch {i+1}] lr = {optimizer.param_groups[3]["lr"]:.6f}  (restored)')
                 scheduler.step()
         ###################################
-
+        
         return (epoch, best_acc)
     else:
         print("==> Can't find checkpoint...training from initial stage")
