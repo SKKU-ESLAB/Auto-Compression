@@ -67,6 +67,12 @@ fh = logging.FileHandler(os.path.join(args.save, 'log.txt'))
 fh.setFormatter(logging.Formatter(log_format))
 logging.getLogger().addHandler(fh)
 
+# argument logging
+string_to_log = '==> parsed arguments.. \n'
+for key in vars(args):
+    string_to_log += f'  {key} : {getattr(args, key)}\n'
+logging.info(string_to_log)
+
 
 if len(args.w_bit)==1:
     print("## Fixed bitwidth for weight")
@@ -278,7 +284,7 @@ def train(epoch):
                 #optimizer.param_groups[1]['lr'] = 0
                 optimizer.param_groups[3]['lr'] = current_lr # 0:weight  1:quant  2:bnbias  3:theta
             
-            #if batch_idx == 1000:
+            #if batch_idx == 2:
             #    break
         inputs, targets = inputs.to(device), targets.to(device)
         data_time = time.time()
@@ -427,7 +433,7 @@ if args.eval:
 else:
     last_epoch, best_acc = resume_checkpoint(model, None, optimizer, scheduler, 
                                     args.save, args.exp)
-    for epoch in range(last_epoch, end_epoch+1):
+    for epoch in range(last_epoch+1, end_epoch+1):
         logging.info('Epoch: %d/%d Best_Acc: %.3f' %(epoch, end_epoch, best_acc))
         train(epoch)
         eval(epoch)
