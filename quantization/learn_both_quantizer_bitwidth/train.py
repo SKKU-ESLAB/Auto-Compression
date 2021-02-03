@@ -192,13 +192,6 @@ else:
     raise NotImplementedError
 model = model.to(device)
 
-#print(model)
-#exit()
-if torch.cuda.device_count() > 1:
-    print(f'==> DataParallel: device count = {torch.cuda.device_count()}')
-    model = torch.nn.DataParallel(model) #, device_ids=range(torch.cuda.device_count()))
-
-
 # optimizer -> for further coding (got from PROFIT)
 def get_optimizer(params, train_weight, train_quant, train_bnbias, train_theta):
     (weight, quant, bnbias, theta, skip) = params
@@ -239,9 +232,12 @@ with torch.no_grad():
     print('==> activation bitwidth is set up..')
     QuantOps.initialize(model, train_loader, args.a_bit, act=True)
 
+if torch.cuda.device_count() > 1:
+    print(f'==> DataParallel: device count = {torch.cuda.device_count()}')
+    model = torch.nn.DataParallel(model) #, device_ids=range(torch.cuda.device_count()))
+
 
 # optimizer & scheduler
-#optimizer = optim.SGD(model.parameters(), )  # missed lr_decay and momentum...
 params = categorize_param(model)
 optimizer = get_optimizer(params, True, True, True, True)
 current_lr = -1
@@ -249,11 +245,9 @@ current_lr = -1
 scheduler = CosineWithWarmup(optimizer, 
         warmup_len=args.warmup, warmup_start_multiplier=0.1,
         max_epochs=args.ft_epoch, eta_min=1e-3)
-#scheduler_theta = CosineWithWarmup(optimizer_theta, 
-#        warmup_len=args.warmup, warmup_start_multiplier=0.1,
-#        max_epochs=args.ft_epoch, eta_min=1e-3)
+
 criterion = nn.CrossEntropyLoss()
-scaler = torch.cuda.amp.GradScaler()
+#scaler = torch.cuda.amp.GradScaler()
 #model, optimizer = amp.initialize(model, optimizer, opt_level="01")
 
 # Training
@@ -309,10 +303,12 @@ def train(epoch):
             top5.update(acc5[0], inputs.size(0))
         
         optimizer.zero_grad()
-        scaler.scale(loss).backward()
+        loss.backward()
+        optimizer.step()
+        #scaler.scale(loss).backward()
         #scaler.unscale_(optimizer)
-        scaler.step(optimizer)
-        scaler.update()
+        #scaler.step(optimizer)
+        #scaler.update()
 
         model_time = time.time()
         if (batch_idx) % args.log_interval == 0:
@@ -347,7 +343,7 @@ def train(epoch):
                     sel=torch.argmax(prob_w)
                     str_to_print += f'{args.w_bit[sel]}, '
                     prob_w = [f'{i:.5f}' for i in prob_w.cpu().tolist()]
-                    str_to_log += f'layer {i} [{", ".join(prob_w)}]\n'
+                    str_to_log += f'layer {i} [{" ".join(prob_w)}]\n'
         logging.info(str_to_print)
         logging.info(str_to_log)
         
@@ -362,7 +358,9 @@ def train(epoch):
                     sel=torch.argmax(prob_a)
                     str_to_print += f'{args.a_bit[sel]} '
                     prob_a = [f'{i:.5f}' for i in prob_a.cpu().tolist()]
-                    str_to_log += f'layer {i} [{", ".join(prob_a)}]\n'
+                    
+                    # TODO: more readable print
+                    str_to_log += f'layer {i} [{" ".join(prob_a)}]\n'
         logging.info(str_to_print)
         logging.info(str_to_log)
 
