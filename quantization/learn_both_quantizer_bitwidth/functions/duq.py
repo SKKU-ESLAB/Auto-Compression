@@ -322,7 +322,6 @@ def initialize(model, loader, bits, act=False, weight=False, eps=0.05):
         hooks.append(hook)
 
     model.train()
-    #model.cpu()
 
     for i, (input, target) in enumerate(loader):
         with torch.no_grad():
@@ -332,7 +331,7 @@ def initialize(model, loader, bits, act=False, weight=False, eps=0.05):
                 output = model(input.cuda())
         break
 
-    #model.cuda()
+    model.cuda()
     for hook in hooks:
         hook.remove()
 
