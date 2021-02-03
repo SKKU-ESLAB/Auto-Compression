@@ -21,7 +21,6 @@ class RoundQuant(torch.autograd.Function):
     def backward(ctx, grad_output):
         return grad_output, None
 
-
 class Q_ReLU(nn.Module):
     def __init__(self, act_func=True, inplace=False):
         super(Q_ReLU, self).__init__()
@@ -38,6 +37,8 @@ class Q_ReLU(nn.Module):
         self.n_lvs = 2 ** self.bits
         '''self.bits = bits
         self.n_lvs = [2**i for i in bits]'''
+        self.a = Parameter(Tensor(len(self.bits)))
+        self.c = Parameter(Tensor(len(self.bits)))
 
         self.theta = Parameter(torch.ones(len(self.n_lvs))/len(self.n_lvs))
         self.a.data.fill_(np.log(np.exp(offset + diff)-1))
@@ -52,21 +53,17 @@ class Q_ReLU(nn.Module):
         else:
             a = F.softplus(self.a)
             c = F.softplus(self.c)
-            x = F.hardtanh(x / a, 0, 1)
-            
-            if len(self.n_lvs) == 1:
-                x = RoundQuant.apply(x, self.n_lvs[0]) * c
-                return x, self.bits[0]
-            else:
-                # 1) for loop
-                softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
-                softmask = softmask
-                x_bar = torch.zeros_like(x)
-                for i, n_lv in enumerate(self.n_lvs):
-                    #x_bar += RoundQuant.apply(x, n_lv) * c * softmask[i]
-                    x_bar = torch.add(x_bar, RoundQuant.apply(x, n_lv) * c * softmask[i])
-                act_size = (softmask * self.bits).sum()
-                return x_bar, act_size
+
+            # 1) for loop
+            softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
+            softmask = softmask
+            x_bar = torch.zeros_like(x)
+            for i, n_lv in enumerate(self.n_lvs):
+                x_temp = F.hardtanh(x / a[i], 0, 1)
+                #x_bar += RoundQuant.apply(x, n_lv) * c * softmask[i]
+                x_bar = torch.add(x_bar, RoundQuant.apply(x_temp, n_lv) * c[i] * softmask[i])
+            act_size = (softmask * self.bits).sum()
+            return x_bar, act_size
 
         
 class Q_ReLU6(Q_ReLU):
@@ -78,8 +75,10 @@ class Q_ReLU6(Q_ReLU):
         self.n_lvs = 2 ** self.bits
         '''self.bits = bits
         self.n_lvs = [2**i for i in bits]'''
-
+        self.a = Parameter(Tensor(len(self.bits)))
+        self.c = Parameter(Tensor(len(self.bits)))
         self.theta = Parameter(torch.ones(len(self.n_lvs))/len(self.n_lvs))
+
         if offset + diff > 6:
             self.a.data.fill_(np.log(np.exp(6)-1))
             self.c.data.fill_(np.log(np.exp(6)-1))
@@ -92,7 +91,7 @@ class Q_Sym(nn.Module):
     def __init__(self):
         super(Q_Sym, self).__init__()
         self.n_lvs = [1]
-        self.bits = [32]#Parameter(Tensor([32]), requires_grad=False)
+        self.bits = [32] #Parameter(Tensor([32]), requires_grad=False)
         self.a = Parameter(Tensor(1))
         self.c = Parameter(Tensor(1))
         self.theta = Parameter(Tensor([1]))
@@ -102,6 +101,8 @@ class Q_Sym(nn.Module):
         self.n_lvs = 2 ** self.bits
         #self.bits = bits
         #self.n_lvs = [2**i for i in bits]
+        self.a = Parameter(Tensor(len(self.bits)))
+        self.c = Parameter(Tensor(len(self.bits)))
 
         self.theta = Parameter(torch.ones(len(self.n_lvs))/len(self.n_lvs))
         self.a.data.fill_(np.log(np.exp(offset + diff)-1))
@@ -113,20 +114,15 @@ class Q_Sym(nn.Module):
         else:
             a = F.softplus(self.a)
             c = F.softplus(self.c)
-            x = F.hardtanh(x / a, -1, 1)
 
-            if len(self.n_lvs) == 1:
-                x = RoundQuant.apply(x, self.n_lvs[0] // 2) * c
-                return x, self.bits[0]
-            else:
-                softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
-                softmask = softmask
-                x_bar = torch.zeros_like(x)
-                for i, n_lv in enumerate(self.n_lvs):
-                    #x_bar += RoundQuant.apply(x, n_lv) * c * softmask[i]
-                    x_bar = torch.add(x_bar, RoundQuant.apply(x, n_lv) * c * softmask[i])
-                act_size = (softmask * self.bits).sum()
-                return x_bar, act_size
+            softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
+            softmask = softmask
+            x_bar = torch.zeros_like(x)
+            for i, n_lv in enumerate(self.n_lvs):
+                x_temp = F.hardtanh(x / a[i], -1, 1)
+                x_bar = torch.add(x_bar, RoundQuant.apply(x_temp, n_lv) * c[i] * softmask[i])
+            act_size = (softmask * self.bits).sum()
+            return x_bar, act_size
 
 
 class Q_HSwish(nn.Module):
@@ -178,6 +174,8 @@ class Q_Conv2d(nn.Conv2d):
         
         '''self.bits = bits
         #self.n_lvs = [2**i for i in bits]'''
+        self.a = Parameter(Tensor(len(self.bits)))
+        self.c = Parameter(Tensor(len(self.bits)))
         
         self.theta = Parameter(torch.ones(len(self.n_lvs))/len(self.n_lvs))
         max_val = self.weight.data.abs().max().item()
@@ -187,21 +185,15 @@ class Q_Conv2d(nn.Conv2d):
     def _weight_quant(self):
         a = F.softplus(self.a)
         c = F.softplus(self.c)
-        weight = F.hardtanh(self.weight / a, -1, 1)
 
-        if len(self.n_lvs) == 1:
-            weight = RoundQuant.apply(weight, self.n_lvs[0] // 2) * c
-            return weight, self.bits[0]
-        else:
-            softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
-            softmask = softmask.view(-1,1,1,1,1)       
-            w_bar = torch.zeros_like(weight)
-            for i, n_lv in enumerate(self.n_lvs):
-                #w_bar += RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0,0,0]
-                w_bar = torch.add(w_bar, RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0,0,0])
-            bitwidth = (softmask * self.bits).sum()
+        softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
+        w_bar = torch.zeros_like(self.weight)
+        for i, n_lv in enumerate(self.n_lvs):
+            weight = F.hardtanh(self.weight / a[i], -1, 1)
+            w_bar = torch.add(w_bar, RoundQuant.apply(weight, n_lv) * c[i] * softmask[i])
+        bitwidth = (softmask * self.bits).sum()
 
-            return w_bar, bitwidth
+        return w_bar, bitwidth
 
     def forward(self, x, cost, act_size=None):
         if len(self.bits)==1 and self.bits[0]==32:
@@ -231,6 +223,8 @@ class Q_Linear(nn.Linear):
         self.n_lvs = 2 ** self.bits
         '''self.bits = bits
         self.n_lvs = [2**i for i in bits]'''
+        self.a = Parameter(Tensor(len(self.bits)))
+        self.c = Parameter(Tensor(len(self.bits)))
 
         self.theta = Parameter(torch.ones(len(self.n_lvs))/len(self.n_lvs))
         max_val = self.weight.data.abs().max().item()
@@ -241,20 +235,13 @@ class Q_Linear(nn.Linear):
         a = F.softplus(self.a)
         c = F.softplus(self.c)
 
-        weight = F.hardtanh(self.weight / a, -1, 1)
-        if len(self.n_lvs) == 1:
-            weight = RoundQuant.apply(weight, self.n_lvs[0] // 2) * c
-            return weight, self.bits[0]
-        else:
-            softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
-            softmask = softmask.view(-1,1,1)
-
-            w_bar = torch.zeros_like(weight)
-            for i, n_lv in enumerate(self.n_lvs):
-                #w_bar += RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0]
-                w_bar = torch.add(w_bar, RoundQuant.apply(weight, n_lv) * c * softmask[i,0,0])
-            bitwidth = (softmask * self.bits).sum()
-            return w_bar, bitwidth
+        softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
+        w_bar = torch.zeros_like(self.weight)
+        for i, n_lv in enumerate(self.n_lvs):
+            weight = F.hardtanh(self.weight / a[i], -1, 1)                
+            w_bar = torch.add(w_bar, RoundQuant.apply(weight, n_lv) * c[i] * softmask[i])
+        bitwidth = (softmask * self.bits).sum()
+        return w_bar, bitwidth
 
     def forward(self, x, cost, act_size=None):
         if len(self.bits)==1 and self.bits[0]==32:
@@ -335,17 +322,17 @@ def initialize(model, loader, bits, act=False, weight=False, eps=0.05):
         hooks.append(hook)
 
     model.train()
-    model.cpu()
+    #model.cpu()
 
     for i, (input, target) in enumerate(loader):
         with torch.no_grad():
             if isinstance(model, nn.DataParallel):
-                output = model.module(input)
+                output = model.module(input.cuda())
             else:
-                output = model(input)
+                output = model(input.cuda())
         break
 
-    model.cuda()
+    #model.cuda()
     for hook in hooks:
         hook.remove()
 
