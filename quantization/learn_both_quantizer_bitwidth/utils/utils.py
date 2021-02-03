@@ -312,4 +312,4 @@ def resume_checkpoint(model, model_ema, optimizer, scheduler, root, prefix='trai
         return (epoch, best_acc)
     else:
         print("==> Can't find checkpoint...training from initial stage")
-        return (1, 0)
+        return (0, 0)
