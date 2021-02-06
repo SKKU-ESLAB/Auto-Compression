@@ -171,11 +171,11 @@ def get_bitops_total():
     model_.eval()
     QuantOps.initialize(model_, train_loader, 32, weight=True)
     QuantOps.initialize(model_, train_loader, 32, act=True)
-    #bitops = calc_bitops(model_, full=True)
     _, bitops = model_(input)
 
     return bitops
  
+print("==> Calculate target bitops..")
 bitops_total = get_bitops_total()
 bitops_target = bitops_total * args.comp_ratio
 logging.info(f'bitops_total: {int(bitops_total):d}')
@@ -321,7 +321,7 @@ def train(epoch):
                 top1.avg, top5.avg,
                 data_time - end, model_time - data_time)
             if args.cooltime and epoch != end_epoch:
-                print(f'> [sleep] {args.cooltime}s for cooling GPUs.. ', end='')
+                print(f'> [sleep] {args.cooltime}s for cooling GPUs.. ', end='', flush=True)
                 time.sleep(args.cooltime)
                 print('done.')
         
