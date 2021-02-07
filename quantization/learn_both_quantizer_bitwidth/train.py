@@ -33,7 +33,9 @@ parser.add_argument('--exp', default='test', type=str)
 parser.add_argument('--seed', default=7, type=int, help='random seed')
 parser.add_argument("--quant_op", required=True)
 
-parser.add_argument('--comp_ratio', default=1, type=float, help='set target compression ratio of Bitops loss')
+#parser.add_argument('--comp_ratio', default=1, type=float, help='set target compression ratio of Bitops loss')
+parser.add_argument('--target_w', default=4, type=float, help='set target weight bitwidth')
+parser.add_argument('--target_a', default=4, type=float, help='set target activation bitwidth')
 parser.add_argument('--scaling', default=1e-6, type=float, help='set FLOPs loss scaling factor')
 parser.add_argument('--w_bit', default=[32], type=int, nargs='+', help='set weight bits')
 parser.add_argument('--a_bit', default=[32], type=int, nargs='+', help='set activation bits')
@@ -43,6 +45,7 @@ parser.add_argument('--lb_off', '-lboff', action='store_true', help='learn bitwi
 parser.add_argument('--cooltime', default=0, type=int, help='seconds for processor cooling (for sv8 and sv9')
 parser.add_argument('--w_ep', default=1, type=int, help='')
 parser.add_argument('--t_ep', default=1, type=int, help='')
+parser.add_argument('--alternate', action="store_true")
 
 args = parser.parse_args()
 if args.exp == 'test':
@@ -54,6 +57,7 @@ args.workers = 8
 args.momentum = 0.9   # momentum value
 args.decay = 1e-4 # weight decay value
 args.lb_mode = False
+args.comp_ratio = args.target_w / 32. * args.target_a / 32
 if (len(args.w_bit) > 1 or len(args.a_bit) > 1) and not args.lb_off:
     args.lb_mode = True
     print("## Learning bitwidth selection")
@@ -67,7 +71,7 @@ fh = logging.FileHandler(os.path.join(args.save, 'log.txt'))
 fh.setFormatter(logging.Formatter(log_format))
 logging.getLogger().addHandler(fh)
 
-# argument logging
+# Argument logging ################## 
 string_to_log = '==> parsed arguments.. \n'
 for key in vars(args):
     string_to_log += f'  {key} : {getattr(args, key)}\n'
@@ -82,6 +86,7 @@ if len(args.a_bit)==1:
 
 if args.lb_mode:
     print("## Learning layer-wise bitwidth.")
+
 
 
 # Device configuration
@@ -176,10 +181,12 @@ def get_bitops_total():
     return bitops
  
 print("==> Calculate target bitops..")
+bitops_first_layer= 11098128384
 bitops_total = get_bitops_total()
-bitops_target = bitops_total * args.comp_ratio
-logging.info(f'bitops_total: {int(bitops_total):d}')
-logging.info(f'bitops_targt: {int(bitops_target):d}')
+bitops_target = (bitops_total-bitops_first_layer) * (args.target_w/32.) * (args.target_a/32.) + (bitops_first_layer * (args.target_w/32.))
+logging.info(f'bitops_total: {int(bitops_total*1e-9):d}')
+logging.info(f'bitops_targt: {int(bitops_target*1e-9):d}')
+logging.info(f'bitops_wrong: {int(bitops_total * (args.target_w/32.) * (args.target_a/32.)):d}')
 
 
 # model
@@ -197,7 +204,7 @@ def get_optimizer(params, train_weight, train_quant, train_bnbias, train_theta):
     (weight, quant, bnbias, theta, skip) = params
     optimizer = optim.SGD([
         {'params': weight, 'weight_decay': args.decay, 'lr': args.lr  if train_weight else 0},
-        {'params': quant, 'weight_decay': 0., 'lr': args.lr * 1e-2 if train_quant else 0},
+        {'params': quant, 'weight_decay': 0., 'lr': args.lr if train_quant else 0},
         {'params': bnbias, 'weight_decay': 0., 'lr': args.lr if train_bnbias else 0},
         {'params': theta, 'weight_decay': 0., 'lr': args.lr if train_theta else 0},
         {'params': skip, 'weight_decay': 0, 'lr': 0},
@@ -267,7 +274,7 @@ def train(epoch):
     
     end = t0 = time.time()
     for batch_idx, (inputs, targets) in enumerate(train_loader):
-        if args.lb_mode:
+        if args.lb_mode and args.alternate:
             if batch_idx % 1000 == 0: # learning weight
                 optimizer.param_groups[0]['lr'] = current_lr
                 #optimizer.param_groups[1]['lr'] = current_lr * 1e-2
@@ -291,9 +298,7 @@ def train(epoch):
             if args.lb_mode and optimizer.param_groups[3]['lr'] != 0 :#(epoch-1) % (args.w_ep + args.t_ep) >= args.w_ep:
                 if not isinstance(bitops, (float, int)):
                     bitops = bitops.mean()
-                loss_bitops = torch.abs((bitops-bitops_target)*args.scaling)
-                if (batch_idx) % (args.log_interval*5) == 0:
-                    print(f'bitops-bitops_target: {bitops-bitops_target}')
+                loss_bitops = bitops*args.scale
                 loss_bitops = loss_bitops.reshape(torch.Size([]))
                 loss += loss_bitops 
                 eval_bitops_loss.update(loss_bitops.item(), inputs.size(0))
@@ -386,11 +391,10 @@ def eval(epoch):
             if args.lb_mode:
                 #bitops = calc_bitops(model)
                 if not isinstance(bitops, (float, int)):
-                    bitops = bitops.mean()
-                loss_bitops = torch.abs((bitops-bitops_target)*args.scaling)
+                    loss_bitops = bitops*args.scaling*1e-9
                 if (batch_idx) % (args.log_interval*5) == 0:
-                    logging.info(f'bitops-bitops_target:   {bitops-bitops_target}')
-                    logging.info(f'evalaution time bitops: {bitops}')
+                    logging.info(f'bitops_target:   {bitops_target*1e-9}')
+                    logging.info(f'evalaution time bitops: {bitops*1e-9}')
                 loss_bitops = loss_bitops.reshape(torch.Size([]))
                 loss += loss_bitops 
                 eval_bitops_loss.update(loss_bitops.item(), inputs.size(0))
@@ -402,7 +406,7 @@ def eval(epoch):
 
             if (batch_idx) % args.log_interval == 0:
                 logging.info('Train Epoch: %4d Process: %5d/%5d  ' + \
-                        'L_acc: %.3f | L_bitops: %.3f | top1.avg: %.3f%% | top5.avg: %.3f%% | ',
+                        'L_acc: %.3cf | L_bitops: %.3f | top1.avg: %.3f%% | top5.avg: %.3f%% | ',
                     epoch, batch_idx * len(inputs),
                     len(val_loader.dataset),
                     eval_loss.avg, eval_bitops_loss.avg, top1.avg, top5.avg)

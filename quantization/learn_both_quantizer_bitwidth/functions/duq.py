@@ -21,6 +21,22 @@ class RoundQuant(torch.autograd.Function):
     def backward(ctx, grad_output):
         return grad_output, None
 
+"""
+@inproceedings{
+    esser2020learned,
+    title={LEARNED STEP SIZE QUANTIZATION},
+    author={Steven K. Esser and Jeffrey L. McKinstry and Deepika Bablani and Rathinakumar Appuswamy and Dharmendra S. Modha},
+    booktitle={International Conference on Learning Representations},
+    year={2020},
+    url={https://openreview.net/forum?id=rkgO66VKDS}
+}
+"""
+def grad_scale(x, scale):
+    yOut = x
+    yGrad = x * scale
+    return (yOut-yGrad).detach() + yGrad
+
+
 class Q_ReLU(nn.Module):
     def __init__(self, act_func=True, inplace=False):
         super(Q_ReLU, self).__init__()
@@ -51,8 +67,10 @@ class Q_ReLU(nn.Module):
         if len(self.bits)==1 and self.bits[0]==32:
             return x, 32
         else:
-            a = F.softplus(self.a)
-            c = F.softplus(self.c)
+
+            g = 1.0 / torch.sqrt(x.numel() * self.n_lvs).to(x.device)
+            a = F.softplus(grad_scale(self.a, g))
+            c = F.softplus(grad_scale(self.c, g))
 
             # 1) for loop
             softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
@@ -112,9 +130,10 @@ class Q_Sym(nn.Module):
         if len(self.bits)==1 and self.bits[0]==32:
             return x, 32
         else:
-            a = F.softplus(self.a)
-            c = F.softplus(self.c)
-
+            g = 1.0 / torch.sqrt(x.numel() * self.n_lvs).to(x.device)
+            a = F.softplus(grad_scale(self.a, g))
+            c = F.softplus(grad_scale(self.c, g))
+            
             softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
             softmask = softmask
             x_bar = torch.zeros_like(x)
@@ -124,7 +143,7 @@ class Q_Sym(nn.Module):
             act_size = (softmask * self.bits).sum()
             return x_bar, act_size
 
-
+################## didn't modify Q_HSwish #################
 class Q_HSwish(nn.Module):
     def __init__(self, act_func=True):
         super(Q_HSwish, self).__init__()
@@ -155,7 +174,7 @@ class Q_HSwish(nn.Module):
             x = RoundQuant.apply(x, self.n_lvs) * c
             x = x + self.d
             return x 
-
+##########################################################
 
 class Q_Conv2d(nn.Conv2d):
     def __init__(self, *args, **kargs):
@@ -183,9 +202,10 @@ class Q_Conv2d(nn.Conv2d):
         self.c.data.fill_(np.log(np.exp(max_val * 0.9)-1))
 
     def _weight_quant(self):
-        a = F.softplus(self.a)
-        c = F.softplus(self.c)
-
+        g = 1.0 / torch.sqrt(self.weight.numel() * self.n_lvs).to(self.weight.device)
+        a = F.softplus(grad_scale(self.a, g))
+        c = F.softplus(grad_scale(self.c, g))
+        
         softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
         w_bar = torch.zeros_like(self.weight)
         for i, n_lv in enumerate(self.n_lvs):
@@ -232,8 +252,9 @@ class Q_Linear(nn.Linear):
         self.c.data.fill_(np.log(np.exp(max_val * 0.9)-1))
 
     def _weight_quant(self):
-        a = F.softplus(self.a)
-        c = F.softplus(self.c)
+        g = 1.0 / torch.sqrt(self.weight.numel() * self.n_lvs).to(self.weight.device)
+        a = F.softplus(grad_scale(self.a, g))
+        c = F.softplus(grad_scale(self.c, g))
 
         softmask = F.gumbel_softmax(self.theta, tau=1, hard=False, dim=0)
         w_bar = torch.zeros_like(self.weight)
