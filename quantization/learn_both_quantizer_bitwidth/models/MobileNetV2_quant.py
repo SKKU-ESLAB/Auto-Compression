@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import torch
-from torch import Tensor
 from torch import nn
 import torch.nn.functional as F
 from torch.utils.model_zoo import load_url as load_state_dict_from_url
@@ -81,12 +80,7 @@ class InvertedResidual(nn.Module):
         ])
         self.conv = ops.Sequential(*layers)
 
-    def forward(self, x):
-        if self.use_res_connect:
-            return x + self.conv(x)
-        else:
-            return self.conv(x)
-    '''def forward(self, x, cost, act_size=None):
+    def forward(self, x, cost, act_size=None):
         if self.use_res_connect:
             #print('residual block ----')
             #print(self.conv[0])
@@ -107,7 +101,15 @@ class InvertedResidual(nn.Module):
 
         else:
             if isinstance(self.conv[0], Q_Sym):
-                x, act_size = self.conv[0](x)
+                try:
+                    x, act_size = self.conv[0](x)
+                except Exception as e:
+                    print('Q_Sym output error')
+                    print(type(self.conv[0](x)))
+                    print(self.conv[0](x).shape)
+                    exit()
+                    
+
 
                 x, cost = self.conv[1][0](x, cost, act_size)
                 x = self.conv[1][1](x)
@@ -136,7 +138,7 @@ class InvertedResidual(nn.Module):
             # 3. process third conv-bn
             #   1) [:1] : conv, input={x, accum_cost, act_size}, output={x, accum_cost}
             #   2) [1:] : bn, input={x}, output={x}
-            return x, cost'''
+            return x, cost
 
 
 class MobileNetV2(nn.Module):
@@ -199,6 +201,7 @@ class MobileNetV2(nn.Module):
         # building last several layers
         features.append(ops.Sym())
         features.append(ConvBNReLU(ops, input_channel, self.last_channel, kernel_size=1, ReLU6=False))
+        
         # make it nn.Sequential
         self.features = ops.Sequential(*features)
 
@@ -222,21 +225,24 @@ class MobileNetV2(nn.Module):
                 nn.init.normal_(m.weight, 0, 0.01)
                 nn.init.zeros_(m.bias)
 
-    '''# method 1: cost passing with indexing
+    # method 1: cost passing with indexing
     def _forward(self, x):
-        _, _, H, W = x.shape
-        act_size = 32 * H * W
 
         # first conv
+        act_size = 32
         cost = torch.Tensor([0]).cuda()
         x, cost = self.features[0][0](x, cost, act_size)
+        #print(cost)
         x = self.features[0][1](x)
         t = self.features[0][2](x)
         x, act_size = t
 
         # InvertedResidual blocks
         x, cost = self.features[1](x, cost, act_size)
+        #print(cost)
+        #print('cost in model', type(cost), cost.shape)
         for i in range(2, 18):
+            #print(i)
             x, cost = self.features[i](x, cost)
         x, act_size =  self.features[18](x)
         x, cost = self.features[19][0](x, cost, act_size)
@@ -248,10 +254,10 @@ class MobileNetV2(nn.Module):
         x, act_size = self.relu6(x)
         x = self.classifier[0](x)
         x, cost = self.classifier[1](x, cost, act_size)
-        return x, cost'''
+        return x, cost
 
 
-    
+    '''
     # original forward 
     def _forward(self, x):
         x = self.features(x)
@@ -259,9 +265,7 @@ class MobileNetV2(nn.Module):
         x = x.mean([2, 3])
         x = self.relu6(x)
         x = self.classifier(x)
-
-        return x
-    
+    '''
 
     # Allow for accessing forward method in a inherited class
     forward = _forward

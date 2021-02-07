@@ -1,11 +1,16 @@
+import math
 import os
+import re
 import sys
 import time
-import math
+import shutil
+import pathlib
+import glob
 
 import torch
 import torch.nn as nn
 import torch.nn.init as init
+
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
@@ -166,11 +171,11 @@ def count_memory(model):
 
 def create_exp_dir(path, scripts_to_save=None):
   if not os.path.exists(path):
-    os.mkdir(path)
+    os.makedirs(path, exist_ok=True)
   print('Experiment dir : {}'.format(path))
 
   if scripts_to_save is not None:
-    os.mkdir(os.path.join(path, 'scripts'))
+    os.makedirs(os.path.join(path, 'scripts'))
     for script in scripts_to_save:
       dst_file = os.path.join(path, 'scripts', os.path.basename(script))
       shutil.copyfile(script, dst_file)
@@ -217,3 +222,94 @@ class CosineWithWarmup(torch.optim.lr_scheduler._LRScheduler):
                 1 + math.cos(math.pi * cosine_epoch / self.cosine_len)) / 2
         assert lr_multiplier >= 0.0
         return [base_lr * lr_multiplier for base_lr in self.base_lrs]
+
+
+def create_checkpoint(model, model_ema, optimizer, is_best, is_ema_best,
+        acc, best_acc, epoch, root, save_freq=10, prefix='train'):
+    pathlib.Path(root).mkdir(parents=True, exist_ok=True) 
+
+    filename = os.path.join(root, '{}_{}.pth'.format(prefix, epoch))
+    bestname = os.path.join(root, '{}_best.pth'.format(prefix))
+    #bestemaname = os.path.join(root, '{}_ema_best.pth'.format(prefix))
+    #tempname = os.path.join(_temp_dir, '{}_tmp.pth'.format(prefix))
+
+    if isinstance(model, torch.nn.DataParallel):
+        model_state = model.module.state_dict()
+    else:
+        model_state = model.state_dict()
+
+    if model_ema is not None: 
+        if isinstance(model_ema, torch.nn.DataParallel):
+            model_ema_state = model_ema.module.state_dict()
+        else:
+            model_ema_state = model_ema.state_dict()
+    else:
+        model_ema_state = None
+
+    if is_best:
+        torch.save(model_state, bestname)
+
+    if is_ema_best:        
+        torch.save(model_ema_state, bestname)
+        
+    if epoch > 0 and (epoch % save_freq) == 0:
+        state = {
+            'model': model_state,
+            'model_ema': model_ema_state,
+            'epoch': epoch,
+            'optimizer': optimizer.state_dict(),
+            'acc': acc,
+            'best_acc': best_acc,
+        }
+        torch.save(state, filename)
+
+
+def resume_checkpoint(model, model_ema, optimizer, scheduler, root, prefix='train'):
+    files = glob.glob(os.path.join(root, "{}_*.pth".format(prefix)))
+
+    max_idx = -1
+    for file in files:
+        num = re.search("{}_(\d+).pth".format(prefix), file)
+        if num is not None:
+            num = num.group(1)
+            max_idx = max(max_idx, int(num))
+
+    if max_idx != -1:
+        print(f'Find last training info: epoch {max_idx}')
+        checkpoint = torch.load(
+            os.path.join(root, "{}_{}.pth".format(prefix, max_idx)))
+        if isinstance(model, torch.nn.DataParallel):
+            model.module.load_state_dict(checkpoint["model"])
+        else:
+            model.load_state_dict(checkpoint["model"])
+
+        if model_ema is not None:
+            if isinstance(model_ema, torch.nn.DataParallel):
+                model_ema.module.load_state_dict(checkpoint["model_ema"])
+            else:
+                model_ema.load_state_dict(checkpoint["model_ema"])
+        
+        epoch = checkpoint["epoch"]
+        
+        try:
+            best_acc = checkpoint["best_acc"]
+        except KeyError:
+            best_acc = checkpoint["acc"]
+        
+        ###################################
+        if "optimizer" in checkpoint.keys():
+            print(f"==> Resume epoch {epoch}.. ")
+            optimizer.load_state_dict(checkpoint["optimizer"]) 
+            optimizer.step()
+            scheduler.step()
+        else:
+            for i in range(epoch):
+                print(f'==> Restore epoch {epoch}..')
+                print(f'[epoch {i+1}] lr = {optimizer.param_groups[3]["lr"]:.6f}  (restored)')
+                scheduler.step()
+        ###################################
+        
+        return (epoch, best_acc)
+    else:
+        print("==> Can't find checkpoint...training from initial stage")
+        return (0, 0)
