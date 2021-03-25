@@ -4,6 +4,7 @@ import random
 import shutil
 import time
 import warnings
+import math
 
 import torch
 import torch.nn as nn
@@ -81,6 +82,11 @@ parser.add_argument('--prune-amount', default=0.5, type=float,
                     help='Pruning amount')
 parser.add_argument('--restart', default='', type=str, metavar='PATH',
                     help='path to restart checkpoint (default: none)')
+parser.add_argument('--num-survive', default=0, type=int,
+                    help='number of not pruned layers')
+parser.add_argument('--lr-scheduler', default='multistep', type=str,
+                    help='Type of learning rate decay scheduler (multistep, consine)')
+parser.add_argument('--warmup-lr', default=0, type=int)
 
 best_acc1 = 0
 
@@ -204,9 +210,13 @@ def main_worker(gpu, ngpus_per_node, args):
         print("=> creating model '{}'".format(args.arch))
         model = models.__dict__[args.arch]()
 
+    count_prune_candidate = 0
     for m in model.modules():
         if isinstance(m, nn.Conv2d) and m.groups == 1 and m.kernel_size == (1, 1):
-            ln_block_unstructured(m, name='weight', amount=args.prune_amount, n=2, block_size=(4, 1))
+            count_prune_candidate += 1
+            if count_prune_candidate > args.num_survive:
+                #ln_block_unstructured(m, name='weight', amount=args.prune_amount, n=2, block_size=(4, 1))
+                prune.l1_unstructured(m, name='weight', amount=args.prune_amount)
 
     if not torch.cuda.is_available():
         print('using CPU, this will be slow')
@@ -267,6 +277,15 @@ def main_worker(gpu, ngpus_per_node, args):
                   .format(args.restart, checkpoint['epoch']))
         else:
             print("=> no checkpoint found at '{}'".format(args.restart))
+
+        count_prune_candidate = 0
+        for m in model.modules():
+            if isinstance(m, nn.Conv2d) and m.groups == 1 and m.kernel_size == (1, 1):
+                count_prune_candidate += 1
+                if count_prune_candidate > args.num_survive:
+                    #ln_block_unstructured(m, name='weight', amount=args.prune_amount, n=2, block_size=(4, 1))
+                    prune.remove(m, 'weight')
+                    prune.l1_unstructured(m, name='weight', amount=args.prune_amount)
 
     # optionally resume from a checkpoint
     if args.resume:
@@ -356,6 +375,26 @@ def main_worker(gpu, ngpus_per_node, args):
             }, is_best)
 
 
+def calc_learning_rate(args, epoch, batch=0, nBatch=None):
+    T_total = args.epochs * nBatch
+    T_cur = epoch * nBatch + batch
+    lr = 0.5 * args.lr * (1 + math.cos(math.pi * T_cur / T_total))
+    return lr
+
+def adjust_learning_rate(args, optimizer, epoch, batch=0, nBatch=None):
+    new_lr = calc_learning_rate(args, epoch, batch, nBatch)
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+    return new_lr
+
+def warmup_adjust_learning_rate(args, optimizer, T_total, nBatch, epoch, batch=0, warmup_lr=0):
+    T_cur = epoch * nBatch + batch + 1
+    new_lr = T_cur / T_total * (args.lr - warmup_lr) + warmup_lr
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = new_lr
+    return new_lr
+
+
 def train(train_loader, model, criterion, optimizer, epoch, args):
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
@@ -370,8 +409,20 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
     # switch to train mode
     model.train()
 
+    nBatch = len(train_loader)
+
     end = time.time()
     for i, (images, target) in enumerate(train_loader):
+        if args.lr_scheduler == 'consine':
+            if epoch < args.warmup_epochs:
+                new_lr = warmup_adjust_learning_rate(
+                    args, optimizer, warmup_epochs * nBatch, nBatch, epoch, i, warmup_lr
+                )
+            else:
+                new_lr = adjust_learning_rate(
+                    args, optimizer, epoch - warmup_epochs, i, nBatch
+                )
+
         # measure data loading time
         data_time.update(time.time() - end)
 
