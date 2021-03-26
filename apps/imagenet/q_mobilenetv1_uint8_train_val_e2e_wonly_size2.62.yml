@@ -1,0 +1,83 @@
+# =========================== Basic Settings ===========================
+# machine info
+num_gpus_per_job: 4  # number of gpus each job need
+num_cpus_per_job: 63  # number of cpus each job need
+memory_per_job: 200  # memory requirement each job need
+gpu_type: "nvidia-tesla-p100"
+
+# data
+#dataset: imagenet1k
+dataset: imagenet1k_lmdb
+data_transforms: imagenet1k_basic
+data_loader: imagenet1k_basic
+dataset_dir: data
+#dataset_dir: /mnt/cephfs_lq/cv/linjieyang/data/imagenet_lmdb
+data_loader_workers: 5 #10
+
+# info
+num_classes: 1000
+image_size: 224
+topk: [1, 5]
+num_epochs: 150
+
+# optimizer
+optimizer: sgd
+momentum: 0.9
+weight_decay: 0.00004
+nesterov: True
+
+# lr
+lr: 0.05
+lr_scheduler: cos_annealing_iter
+#lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
+#exp_decaying_gamma: 0.98
+
+# model profiling
+profiling: [gpu]
+#model_profiling_verbose: True
+
+# pretrain, resume, test_only
+pretrained_dir: ''
+pretrained_file: ''
+resume: ''
+test_only: False
+
+#
+random_seed: 1995
+batch_size: 256 #512 #256 #1024 #4096 #1024 #256
+model: ''
+reset_parameters: True
+
+#
+distributed: True
+distributed_all_reduce: True
+use_diff_seed: True
+
+#
+width_divisor: 8
+min_width: 1
+
+#
+unbiased: False
+rescale: True #False
+switchbn: False
+clamp: True
+#normalize: False
+bn_calib: False
+rescale_type: constant #[stddev, constant]
+calib_pact: True
+
+#
+kappa: 1.0
+bits_list: [8, 7, 6, 5, 4, 3, 2, 1]
+weight_quant_scheme: original
+act_quant_scheme: original
+target_size: 2.62
+init_bit: 4.5
+hard_assign_epoch: 120
+# =========================== Override Settings ===========================
+fp_pretrained_file: /home/byte_uslab_cvg/user/linjieyang/qnn/imagenet/mobilenetv1_uint8/bits_list_[32]/weight_only_True/ema_decay_None/stats_sharing_False/fp_pretrained_False/rescale_True/clamp_True/switchbn_False/bn_calib_False/rescale_type_constant/rescale_weight_STE_False/rescale_activation_STE_False/calib_pact_False/best_model.pt
+log_dir: /home/byte_uslab_cvg/user/linjieyang/frac_bits_new/imagenet/mobilenetv1_uint8_e2e
+weight_only: True
+model: models.q_mobilenet_v1
+data_transforms: imagenet1k_mobile

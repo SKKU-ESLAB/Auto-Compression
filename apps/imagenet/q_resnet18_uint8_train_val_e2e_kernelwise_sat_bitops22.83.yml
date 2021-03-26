@@ -1,0 +1,95 @@
+# =========================== Basic Settings ===========================
+# machine info
+num_gpus_per_job: 4  # number of gpus each job need
+num_cpus_per_job: 63  # number of cpus each job need
+memory_per_job: 200  # memory requirement each job need
+gpu_type: "nvidia-tesla-p100"
+
+# data
+dataset: imagenet1k_lmdb
+data_transforms: imagenet1k_basic
+data_loader: imagenet1k_basic
+dataset_dir: data
+#dataset_dir: /mnt/cephfs_new_wj/uslabcv/meijieru/data/imagenet_lmdb
+data_loader_workers: 5
+
+# info
+num_classes: 1000
+image_size: 224
+topk: [1, 5]
+num_epochs: 150 #100 #150 #120
+
+# optimizer
+optimizer: sgd
+momentum: 0.9
+#weight_decay: 0.0005
+weight_decay: 0.00004
+#weight_decay: 0.0001
+nesterov: True
+
+# lr
+lr: 0.05 #0.1 #0.05 #0.1
+lr_scheduler: cos_annealing_iter #multistep #cos_annealing_iter
+#multistep_lr_milestones: [30, 60, 90]
+#multistep_lr_gamma: 0.1
+
+# model profiling
+profiling: [gpu]
+#model_profiling_verbose: True
+profiling_only: False
+
+# pretrain, resume, test_only
+pretrained_dir: ''
+#'/mnt/cephfs_new_wj/uslabcv/linjieyang/frac_bits/lq_models/resnet18_uint8/ema_decay_None/fp_pretrained_True/bit_list_[8, 7, 6, 5, 4, 3, 2, 1]/rescale_False/calib_pact_False/kappa_0.1/target_bitops_21.46/init_bit_3.5'
+
+pretrained_file: ''
+resume: ''
+test_only: False
+
+#
+random_seed: 1995
+batch_size: 256 #1280 #512 #256 #1024 #4096 #1024 #256
+model: ''
+reset_parameters: True
+
+#
+distributed: True
+distributed_all_reduce: True
+use_diff_seed: True
+
+#
+stats_sharing: False
+
+#
+unbiased: False
+rescale: True
+clamp: True
+#normalize: False
+bn_calib: False
+rescale_type: constant #[stddev, constant]
+rescale_weight_STE: False #True
+rescale_activation_STE: False
+calib_pact: True
+
+#
+#switch_alpha: True
+kappa: 1.0
+weight_quant_scheme: original
+act_quant_scheme: original
+target_bitops: 22.83
+init_bit: 3.5
+per_channel_weight: True
+hard_assign_epoch: 120
+#
+#block_type: basic
+
+# =========================== Override Settings ===========================
+fp_pretrained_file: /home/byte_uslab_cvg/user/linjieyang/qnn/imagenet/s_resnet18/setting_list_[[1.0, 1.0, 224, [32, 32]]]/ema_decay_None/stats_sharing_False/fp_pretrained_False/rescale_True/rescale_conv_False/clamp_False/switchbn_False/bn_calib_False/rescale_type_constant/calib_pact_False/rescale_weight_STE_False/rescale_activation_STE_False/best_model.pt
+
+log_dir: /home/byte_uslab_cvg/user/linjieyang/frac_bits/imagenet/resnet18_uint8_kernelwise #_relu
+#progressive: 'ascending'
+model: models.q_resnet
+depth: 18
+bits_list: [8, 7, 6, 5, 4, 3, 2, 1]
+act_bits_list: [8, 7, 6, 5, 4, 3, 2, 1]
+weight_only: False
