@@ -7,10 +7,10 @@ gpu_type: "nvidia-tesla-p100"
 
 # data
 #dataset: imagenet1k
-dataset: imagenet1k_lmdb
+dataset: imagenet1k
 data_transforms: imagenet1k_basic
 data_loader: imagenet1k_basic
-dataset_dir: data
+dataset_dir: /data/imagenet
 #dataset_dir: /mnt/cephfs_lq/cv/linjieyang/data/imagenet_lmdb
 data_loader_workers: 5 #10
 

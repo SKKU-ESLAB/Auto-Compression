@@ -27,7 +27,7 @@ from utils.transforms import ImageFolderLMDB
 #from utils.distributed import init_dist, master_only, is_master
 #from utils.distributed import get_rank, get_world_size
 #from utils.distributed import dist_all_reduce_tensor
-#from utils.distributed import master_only_print as mprint
+#from utils.distributed import master_only_print as print
 #from utils.distributed import AllReduceDistributedDataParallel, allreduce_grads
 from ultron_io import UltronIO
 from utils.config import FLAGS
@@ -39,11 +39,11 @@ from models.quantizable_ops import QuantizableConv2d, QuantizableLinear
 def timing(f):
     @wraps(f)
     def wrap(*args, **kw):
-        if is_master():
+        if True: # is_master():
             ts = time.time()
             result = f(*args, **kw)
             te = time.time()
-            mprint('func:{!r} took: {:2.4f} sec'.format(f.__name__, te-ts))
+            print('func:{!r} took: {:2.4f} sec'.format(f.__name__, te-ts))
         else:
             result = f(*args, **kw)
         return result
@@ -269,7 +269,7 @@ def data_loader(train_set, val_set, test_set):
         FLAGS.batch_size = FLAGS.batch_size_per_gpu * FLAGS.num_gpus_per_job
     else:
         raise ValueError('batch size (per gpu) is not defined')
-    batch_size = int(FLAGS.batch_size / get_world_size())
+    batch_size = int(FLAGS.batch_size)# / get_world_size())
     if FLAGS.data_loader in ['imagenet1k_basic','cifar', 'cinic']:
         #if getattr(FLAGS, 'distributed', False):
         #    if FLAGS.test_only:
@@ -494,7 +494,7 @@ def set_random_seed(seed=None):
     torch.cuda.manual_seed_all(seed)
 
 
-@master_only
+#@master_only
 def get_meters(phase):
     """util function for meters"""
     def get_single_meter(phase, suffix=''):
@@ -514,7 +514,7 @@ def get_meters(phase):
 
 def profiling(model, use_cuda):
     """profiling on either gpu or cpu"""
-    mprint('Start model profiling, use_cuda:{}.'.format(use_cuda))
+    print('Start model profiling, use_cuda:{}.'.format(use_cuda))
     flops, params, bitops, bitops_max, bytesize, energy, latency = model_profiling(
         model, FLAGS.image_size, FLAGS.image_size,
         verbose=getattr(FLAGS, 'model_profiling_verbose', False))
@@ -540,7 +540,7 @@ def get_experiment_setting():
         experiment_setting = os.path.join(experiment_setting, 'init_bit_{}'.format(getattr(FLAGS, 'init_bit', False)))
     if getattr(FLAGS, 'unbiased', False):
         experiment_setting = os.path.join(experiment_setting, f'unbiased_True')
-    mprint('Experiment settings: {}'.format(experiment_setting))
+    print('Experiment settings: {}'.format(experiment_setting))
     return experiment_setting
 
 
@@ -575,10 +575,10 @@ def forward_loss(model, criterion, input, target, meter):
 
 
 def bit_discretizing(model):
-    mprint('hard offset', FLAGS.hard_offset)
+    print('hard offset', FLAGS.hard_offset)
     for m in model.modules():
         if hasattr(m, 'bit_discretizing'):
-          mprint('bit discretized for ', m)
+          print('bit discretized for ', m)
           m.bit_discretizing()
 
 
@@ -661,16 +661,16 @@ def run_one_epoch(
                 #        bn_idx += 1
         else: #not train
             if ema:
-                mprint('ema apply')
+                print('ema apply')
                 ema.shadow_apply(model)
             forward_loss(model, criterion, input, target, meters)
             if ema:
-                mprint('ema recover')
+                print('ema recover')
                 ema.weight_recover(model)
     val_top1 = None
     if is_master():
         results = flush_scalar_meters(meters)
-        mprint('{:.1f}s\t{}\t{}/{}: '.format(
+        print('{:.1f}s\t{}\t{}/{}: '.format(
             time.time() - t_start, phase, epoch, FLAGS.num_epochs) +
               ', '.join('{}: {}'.format(k, v) for k, v in results.items()))
         val_top1 = results['top1_error']
@@ -689,14 +689,14 @@ def train_val_test():
     # seed
     #if getattr(FLAGS, 'use_diff_seed', False):
     #if getattr(FLAGS, 'use_diff_seed', False) and not FLAGS.test_only:
-    if getattr(FLAGS, 'use_diff_seed', False) and not getattr(FLAGS, 'stoch_valid', False):
-        print('use diff seed is True')
-        while not is_initialized():
-            print('Waiting for initialization ...')
-            time.sleep(5)
-        print('Expected seed: {}'.format(getattr(FLAGS, 'random_seed', 0) + get_rank()))
-        set_random_seed(getattr(FLAGS, 'random_seed', 0) + get_rank())
-    else:
+    #if getattr(FLAGS, 'use_diff_seed', False) and not getattr(FLAGS, 'stoch_valid', False):
+    #    print('use diff seed is True')
+    #    #while not is_initialized():
+    #    #print('Waiting for initialization ...')
+    #    #time.sleep(5)
+    #    print('Expected seed: {}'.format(getattr(FLAGS, 'random_seed', 0))) #+ get_rank()))
+    #    set_random_seed(getattr(FLAGS, 'random_seed', 0))# + get_rank())
+    if True: #else:
         set_random_seed()
 
     # experiment setting
@@ -752,7 +752,7 @@ def train_val_test():
             old_keys = list(checkpoint.keys())
             for key_new, key_old in zip(new_keys, old_keys):
                 new_checkpoint[key_new] = checkpoint[key_old]
-                mprint('remap {} to {}'.format(key_new, key_old))
+                print('remap {} to {}'.format(key_new, key_old))
             checkpoint = new_checkpoint
         model_dict = model_wrapper.state_dict()
         #checkpoint = {k: v for k, v in checkpoint.items() if k in model_dict}
@@ -762,7 +762,7 @@ def train_val_test():
                 checkpoint.pop(k)
         model_dict.update(checkpoint)
         model_wrapper.load_state_dict(model_dict)
-        mprint('Loaded full precision model {}.'.format(FLAGS.fp_pretrained_file))
+        print('Loaded full precision model {}.'.format(FLAGS.fp_pretrained_file))
 
     # check pretrained
     if FLAGS.pretrained_file and FLAGS.pretrained_dir:
@@ -780,7 +780,7 @@ def train_val_test():
             old_keys = list(checkpoint.keys())
             for key_new, key_old in zip(new_keys, old_keys):
                 new_checkpoint[key_new] = checkpoint[key_old]
-                mprint('remap {} to {}'.format(key_new, key_old))
+                print('remap {} to {}'.format(key_new, key_old))
             checkpoint = new_checkpoint
         # filter lamda_w and lamda_a args:
         pretrained_dict = {}
@@ -788,11 +788,11 @@ def train_val_test():
             if 'lamda_w' in k or 'lamda_a' in k:
                 checkpoint['model'][k] = v.repeat(model_wrapper.state_dict()[k].size())
         model_wrapper.load_state_dict(checkpoint['model'])
-        mprint('Loaded model {}.'.format(pretrained_file))
+        print('Loaded model {}.'.format(pretrained_file))
     optimizer = get_optimizer(model_wrapper)
 
     if FLAGS.test_only and (test_loader is not None):
-        mprint('Start testing.')
+        print('Start testing.')
         ema = checkpoint.get('ema', None)
         test_meters = get_meters('test')
         with torch.no_grad():
@@ -819,7 +819,7 @@ def train_val_test():
         best_val = checkpoint['best_val']
         train_meters, val_meters = checkpoint['meters']
         ema = checkpoint.get('ema', None)
-        mprint('Loaded checkpoint {} at epoch {}.'.format(
+        print('Loaded checkpoint {} at epoch {}.'.format(
             log_dir, last_epoch))
     else:
         if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
@@ -831,7 +831,7 @@ def train_val_test():
         train_meters = get_meters('train')
         val_meters = get_meters('val')
         # if start from scratch, print model and do profiling
-        mprint(model_wrapper)
+        print(model_wrapper)
         if getattr(FLAGS, 'profiling', False):
             if 'gpu' in FLAGS.profiling:
                 profiling(model, use_cuda=True)
@@ -844,7 +844,7 @@ def train_val_test():
         except OSError:
             pass
 
-    mprint('Start training.')
+    print('Start training.')
     for epoch in range(last_epoch+1, FLAGS.num_epochs):
         if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
             lr_sched = lr_scheduler
@@ -853,18 +853,18 @@ def train_val_test():
             # For PyTorch 1.1+, comment the following line
             #lr_scheduler.step()
         # train
-        mprint(' train '.center(40, '*'))
+        print(' train '.center(40, '*'))
         run_one_epoch(
           epoch, train_loader, model_wrapper, criterion, optimizer,
           train_meters, phase='train', ema=ema, scheduler=lr_sched)
 
         # val
-        mprint(' validation '.center(40, '~'))
+        print(' validation '.center(40, '~'))
         if val_meters is not None:
             val_meters['best_val'].cache(best_val)
         with torch.no_grad():
             if epoch == getattr(FLAGS,'hard_assign_epoch', float('inf')):
-                mprint('Start to use hard assigment')
+                print('Start to use hard assigment')
                 setattr(FLAGS, 'hard_assignment', True)
                 lower_offset = -1
                 higher_offset = 0
@@ -913,7 +913,7 @@ def train_val_test():
                         'model': model_wrapper.state_dict(),
                     }
                     )
-                mprint('New best validation top1 error: {:.3f}'.format(best_val))
+                print('New best validation top1 error: {:.3f}'.format(best_val))
 
             # save latest checkpoint
             io.torch_save(
@@ -935,11 +935,11 @@ def train_val_test():
         profiling(model, use_cuda=True)
         for m in model.modules():
             if hasattr(m, 'alpha'):
-                mprint(m, m.alpha)
+                print(m, m.alpha)
             if hasattr(m, 'lamda_w'):
-                mprint(m, m.lamda_w)
+                print(m, m.lamda_w)
             if hasattr(m, 'lamda_a'):
-                mprint(m, m.lamda_a)
+                print(m, m.lamda_a)
     return
 
 

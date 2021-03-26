@@ -47,11 +47,11 @@ class UltronIO(object):
         else:
             os.makedirs(folder_path, **mkdir_args)
     def check_path(self, file_path):
-        if is_hdfs_path(file_path): 
-          return self.worker.apply(
-              hdfs_check_path,
-              (self.host, self.pyarrow_args, file_path))
-        else:
+        #if is_hdfs_path(file_path): 
+        #  return self.worker.apply(
+        #      hdfs_check_path,
+        #      (self.host, self.pyarrow_args, file_path))
+        if True:
           return os.path.exists(file_path)
 
     def torch_load(self, file_path, **load_args):
