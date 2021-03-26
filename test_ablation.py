@@ -16,19 +16,19 @@ from memory_profiler import profile
 import torch
 import torch.nn as nn
 from torch import multiprocessing
-from torch.distributed import all_gather, get_world_size, is_initialized
+# from torch.distributed import all_gather, get_world_size, is_initialized
 from torchvision import datasets, transforms
-from torch.utils.data.distributed import DistributedSampler
+# from torch.utils.data.distributed import DistributedSampler
 from torch.nn.modules.utils import _pair
 
 from utils.model_profiling import model_profiling
 from utils.transforms import Lighting
 from utils.transforms import ImageFolderLMDB
-from utils.distributed import init_dist, master_only, is_master
-from utils.distributed import get_rank, get_world_size
-from utils.distributed import dist_all_reduce_tensor
-from utils.distributed import master_only_print as mprint
-from utils.distributed import AllReduceDistributedDataParallel, allreduce_grads
+# from utils.distributed import init_dist, master_only, is_master
+# from utils.distributed import get_rank, get_world_size
+# from utils.distributed import dist_all_reduce_tensor
+# from utils.distributed import master_only_print as mprint
+# from utils.distributed import AllReduceDistributedDataParallel, allreduce_grads
 
 from utils.config import FLAGS
 from utils.meters import ScalarMeter, flush_scalar_meters
@@ -55,15 +55,15 @@ def get_model():
     """get model"""
     model_lib = importlib.import_module(FLAGS.model)
     model = model_lib.Model(FLAGS.num_classes)
-    if getattr(FLAGS, 'distributed', False):
-        gpu_id = init_dist()
-        if getattr(FLAGS, 'distributed_all_reduce', False):
-            model_wrapper = AllReduceDistributedDataParallel(model.cuda())
-        else:
-            model_wrapper = torch.nn.parallel.DistributedDataParallel(
-                model.cuda(), [gpu_id], gpu_id)
-    else:
-        model_wrapper = torch.nn.DataParallel(model).cuda()
+#   if getattr(FLAGS, 'distributed', False):
+#      gpu_id = init_dist()
+#        if getattr(FLAGS, 'distributed_all_reduce', False):
+#            model_wrapper = AllReduceDistributedDataParallel(model.cuda())
+##        else:
+#            model_wrapper = torch.nn.parallel.DistributedDataParallel(
+#                model.cuda(), [gpu_id], gpu_id)
+#    else:
+    model_wrapper = torch.nn.DataParallel(model).cuda()
     return model, model_wrapper
 
 

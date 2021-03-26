@@ -16,19 +16,19 @@ from pysnooper import snoop
 import torch
 import torch.nn as nn
 from torch import multiprocessing
-from torch.distributed import all_gather, get_world_size, is_initialized
+#from torch.distributed import all_gather, get_world_size, is_initialized
 from torchvision import datasets, transforms
-from torch.utils.data.distributed import DistributedSampler
+#from torch.utils.data.distributed import DistributedSampler
 from torch.nn.modules.utils import _pair
 
 from utils.model_profiling import model_profiling
 from utils.transforms import Lighting
 from utils.transforms import ImageFolderLMDB
-from utils.distributed import init_dist, master_only, is_master
-from utils.distributed import get_rank, get_world_size
-from utils.distributed import dist_all_reduce_tensor
-from utils.distributed import master_only_print as mprint
-from utils.distributed import AllReduceDistributedDataParallel, allreduce_grads
+#from utils.distributed import init_dist, master_only, is_master
+#from utils.distributed import get_rank, get_world_size
+#from utils.distributed import dist_all_reduce_tensor
+#from utils.distributed import master_only_print as mprint
+#from utils.distributed import AllReduceDistributedDataParallel, allreduce_grads
 from ultron_io import UltronIO
 from utils.config import FLAGS
 from utils.meters import ScalarMeter, flush_scalar_meters
@@ -54,15 +54,15 @@ def get_model():
     """get model"""
     model_lib = importlib.import_module(FLAGS.model)
     model = model_lib.Model(FLAGS.num_classes)
-    if getattr(FLAGS, 'distributed', False):
-        gpu_id = init_dist()
-        if getattr(FLAGS, 'distributed_all_reduce', False):
-            model_wrapper = AllReduceDistributedDataParallel(model.cuda())
-        else:
-            model_wrapper = torch.nn.parallel.DistributedDataParallel(
-                model.cuda(), [gpu_id], gpu_id)
-    else:
-        model_wrapper = torch.nn.DataParallel(model).cuda()
+    #if getattr(FLAGS, 'distributed', False):
+    #    gpu_id = init_dist()
+    #    if getattr(FLAGS, 'distributed_all_reduce', False):
+    #        model_wrapper = AllReduceDistributedDataParallel(model.cuda())
+    #    else:
+    #        model_wrapper = torch.nn.parallel.DistributedDataParallel(
+    #            model.cuda(), [gpu_id], gpu_id)
+    #else:
+    model_wrapper = torch.nn.DataParallel(model).cuda()
     return model, model_wrapper
 
 
@@ -271,15 +271,15 @@ def data_loader(train_set, val_set, test_set):
         raise ValueError('batch size (per gpu) is not defined')
     batch_size = int(FLAGS.batch_size / get_world_size())
     if FLAGS.data_loader in ['imagenet1k_basic','cifar', 'cinic']:
-        if getattr(FLAGS, 'distributed', False):
-            if FLAGS.test_only:
-                train_sampler = None
-            else:
-                train_sampler = DistributedSampler(train_set)
-            val_sampler = DistributedSampler(val_set)
-        else:
-            train_sampler = None
-            val_sampler = None
+        #if getattr(FLAGS, 'distributed', False):
+        #    if FLAGS.test_only:
+        #        train_sampler = None
+        #    else:
+        #        train_sampler = DistributedSampler(train_set)
+        #    val_sampler = DistributedSampler(val_set)
+        #else:
+        train_sampler = None
+        val_sampler = None
         if not FLAGS.test_only:
             train_loader = torch.utils.data.DataLoader(
                 train_set,
@@ -561,8 +561,8 @@ def forward_loss(model, criterion, input, target, meter):
     for k in FLAGS.topk:
         correct_k.append(correct[:k].float().sum(0))
     res = torch.cat(correct_k, dim=0)
-    if getattr(FLAGS, 'distributed', False) and getattr(FLAGS, 'distributed_all_reduce', False):
-        res = dist_all_reduce_tensor(res)
+    #if getattr(FLAGS, 'distributed', False) and getattr(FLAGS, 'distributed_all_reduce', False):
+    #    res = dist_all_reduce_tensor(res)
     res = res.cpu().detach().numpy()
     bs = (res.size - 1) // len(FLAGS.topk)
     for i, k in enumerate(FLAGS.topk):
@@ -616,8 +616,8 @@ def run_one_epoch(
     else:
         model.eval()
 
-    if getattr(FLAGS, 'distributed', False):
-        loader.sampler.set_epoch(epoch)
+    #if getattr(FLAGS, 'distributed', False):
+    #    loader.sampler.set_epoch(epoch)
 
     for batch_idx, (input, target) in enumerate(loader):
         if phase == 'cal':
@@ -642,8 +642,8 @@ def run_one_epoch(
               else:  
                 loss += getattr(FLAGS, 'kappa', 1.0) * get_comp_cost_loss(model)
             loss.backward()
-            if getattr(FLAGS, 'distributed', False) and getattr(FLAGS, 'distributed_all_reduce', False):
-                allreduce_grads(model)
+            #if getattr(FLAGS, 'distributed', False) and getattr(FLAGS, 'distributed_all_reduce', False):
+            #    allreduce_grads(model)
             optimizer.step()
             # For PyTorch 1.0 or earlier, comment the following two lines
             if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
@@ -684,8 +684,8 @@ def train_val_test():
     """train and val"""
     torch.backends.cudnn.benchmark = True
     # init distributed
-    if getattr(FLAGS, 'distributed', False):
-        init_dist()
+    #if getattr(FLAGS, 'distributed', False):
+    #    init_dist()
     # seed
     #if getattr(FLAGS, 'use_diff_seed', False):
     #if getattr(FLAGS, 'use_diff_seed', False) and not FLAGS.test_only:
