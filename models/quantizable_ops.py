@@ -191,10 +191,11 @@ class QuantizableConv2d(nn.Conv2d):
         weight.div_(2.0)
 
         if getattr(FLAGS, 'simple_interpolation', False):
-            m = 1. / (torch.abs(lamda_w.view(1, -1) - torch.Tensor(FLAGS.bits_list).view(-1, 1).cuda()) + self.eps)
+            weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).cuda()
+            m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
             p = m / m.sum(dim=0, keepdim=True)
             weight_list = []
-            for i, bit in enumerate(FLAGS.bits_list):
+            for i, bit in enumerate(weight_bits_tensor_list):
                 weight_list.append(p[i].view(-1, 1, 1, 1) * self.quant(weight, bit, 0, 0.5, weight_quant_scheme))
             weight = torch.stack(weight_list).sum(dim=0)
         else:
@@ -233,10 +234,11 @@ class QuantizableConv2d(nn.Conv2d):
                 input_val.add_(1.0)
                 input_val.div_(2.0)
             if getattr(FLAGS, 'simple_interpolation', False):
-                m = 1. / (torch.abs(lamda_a.view(1, -1) - torch.Tensor(act_bits_list).view(-1, 1).cuda()) + self.eps)
+                act_bits_tensor_list = torch.Tensor(act_bits_list).cuda()
+                m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
                 p = m / m.sum(dim=0, keepdim=True)
                 input_val_list = []
-                for i , bit in enumerate(act_bits_list):
+                for i , bit in enumerate(act_bits_tensor_list):
                     input_val_list.append(p[i].view(-1, 1, 1) * self.quant(input_val, bit, 1, 0, act_quant_scheme))
                 input_val = torch.stack(input_val_list).sum(dim=0)
             else:
@@ -376,10 +378,11 @@ class QuantizableLinear(nn.Linear):
         weight.div_(2.0)
 
         if getattr(FLAGS, 'simple_interpolation', False):
-            m = 1. / (torch.abs(lamda_w.view(1, -1) - torch.Tensor(FLAGS.bits_list).view(-1, 1).cuda()) + self.eps)
+            weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).cuda()
+            m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
             p = m / m.sum(dim=0, keepdim=True)
             weight_list = []
-            for i, bit in enumerate(FLAGS.bits_list):
+            for i, bit in enumerate(weight_bits_tensor_list):
                 weight_list.append(p[i].view(-1, 1) * self.quant(weight, bit, 0, 0.5, weight_quant_scheme))
             weight = torch.stack(weight_list).sum(dim=0)
         else:
@@ -418,10 +421,11 @@ class QuantizableLinear(nn.Linear):
             input_val = torch.where(input < torch.abs(self.alpha), input, torch.abs(self.alpha))
             input_val.div_(torch.abs(self.alpha))
             if getattr(FLAGS, 'simple_interpolation', False):
-                m = 1. / (torch.abs(lamda_a.view(1, -1) - torch.Tensor(act_bits_list).view(-1, 1).cuda()) + self.eps)
+                act_bits_tensor_list = torch.Tensor(act_bits_list).cuda()
+                m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
                 p = m / m.sum(dim=0, keepdim=True)
                 input_val_list = []
-                for i, bit in enumerate(act_bits_list):
+                for i, bit in enumerate(act_bits_tensor_list):
                     input_val_list.append(p[i] * self.quant(input_val, bit, 1, 0, act_quant_scheme))
                 input_val = torch.stack(input_val_list).sum(dim=0)
             else:
