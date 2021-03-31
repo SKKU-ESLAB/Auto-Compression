@@ -424,10 +424,15 @@ class QuantizableLinear(nn.Linear):
                 act_bits_tensor_list = torch.Tensor(act_bits_list).cuda()
                 m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
                 p = m / m.sum(dim=0, keepdim=True)
-                input_val_list = []
-                for i, bit in enumerate(act_bits_tensor_list):
-                    input_val_list.append(p[i] * self.quant(input_val, bit, 1, 0, act_quant_scheme))
-                input_val = torch.stack(input_val_list).sum(dim=0)
+                if getattr(FLAGS, 'stepsize_aggregation', False):
+                    pass
+                elif getattr(FLAGS, 'bitwidth_aggregation', False):
+                    pass
+                else:
+                    input_val_list = []
+                    for i, bit in enumerate(act_bits_tensor_list):
+                        input_val_list.append(p[i] * self.quant(input_val, bit, 1, 0, act_quant_scheme))
+                    input_val = torch.stack(input_val_list).sum(dim=0)
             else:
                 p_a_l = 1 + torch.floor(lamda_a) - lamda_a
                 p_a_h = 1 - p_a_l

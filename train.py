@@ -35,6 +35,17 @@ from utils.meters import ScalarMeter, flush_scalar_meters
 from utils.model_profiling import compare_models
 from models.quantizable_ops import EMA
 from models.quantizable_ops import QuantizableConv2d, QuantizableLinear
+import wandb
+
+#import argparse
+
+#parser = argparse.ArgumentParser()
+#parser.add_argument('--log_interval', type=int, default=100)
+#args = parser.parse_args()
+
+PROJECT_NAME='LBQv2'
+wandb.init(project=PROJECT_NAME, dir=FLAGS.log_dir)
+wandb.config.update(FLAGS)
 
 def timing(f):
     @wraps(f)
@@ -659,6 +670,15 @@ def run_one_epoch(
                 #        ema.update('bn{}_mean'.format(bn_idx), m.running_mean)
                 #        ema.update('bn{}_var'.format(bn_idx), m.running_var)
                 #        bn_idx += 1
+            if (batch_idx) % FLAGS.log_interval == 0:
+                results = flush_scalar_meters(meters)
+                curr = batch_idx * len(input)
+                total = len(loader.dataset)
+                print(f'Train Epoch: {epoch:4d}  Phase: {phase}  Process: {curr:5d}/{total:5d} '\
+                      f'Loss: {results["loss"]:.3f} | '\
+                      f'top1.avg: {100*(1-results["top1_error"]):.3f} % | '\
+                      f'top5.avg: {100*(1-results["top5_error"]):.3f} % | ')
+                
         else: #not train
             if ema:
                 print('ema apply')
@@ -667,13 +687,15 @@ def run_one_epoch(
             if ema:
                 print('ema recover')
                 ema.weight_recover(model)
+    #logging.info('L_acc: %.4f | L_bitops: %.3f | top1.avg: %.3f%% | top5.avg: %.3f%%' \
+    #        % (eval_acc_loss.avg, eval_bitops_loss.avg*1e-9, top1.avg, top5.avg))
     val_top1 = None
-    if is_master():
-        results = flush_scalar_meters(meters)
-        print('{:.1f}s\t{}\t{}/{}: '.format(
-            time.time() - t_start, phase, epoch, FLAGS.num_epochs) +
-              ', '.join('{}: {}'.format(k, v) for k, v in results.items()))
-        val_top1 = results['top1_error']
+    #if is_master():
+    results = flush_scalar_meters(meters)
+    print('{:.1f}s\t{}\t{}/{}: '.format(
+        time.time() - t_start, phase, epoch, FLAGS.num_epochs) +
+        ', '.join('{}: {}'.format(k, v) for k, v in results.items()))
+    val_top1 = results['top1_error']
     return val_top1
 
 
@@ -738,11 +760,16 @@ def train_val_test():
 
     log_dir = FLAGS.log_dir
     log_dir = os.path.join(log_dir, experiment_setting)
-    io = UltronIO('hdfs://haruna/home')
+
+
     # full precision pretrained
     if getattr(FLAGS, 'fp_pretrained_file', None):
-        checkpoint = io.torch_load(
-            FLAGS.fp_pretrained_file, map_location=lambda storage, loc: storage)
+        #checkpoint = io.torch_load(
+            #FLAGS.fp_pretrained_file, map_location=lambda storage, loc: storage)
+        if not os.path.isfile(FLAGS.fp_pretrained_file):
+            pretrain_dir = os.path.dirname(FLAGS.fp_pretrained_file)
+            os.system(f"wget -P {pretrain_dir} https://download.pytorch.org/models/mobilenet_v2-b0353104.pth")
+        checkpoint = torch.load(FLAGS.fp_pretrained_file)
         # update keys from external models
         if type(checkpoint) == dict and 'model' in checkpoint:
             checkpoint = checkpoint['model']
@@ -764,13 +791,14 @@ def train_val_test():
         model_wrapper.load_state_dict(model_dict)
         print('Loaded full precision model {}.'.format(FLAGS.fp_pretrained_file))
 
-    # check pretrained
+    # check pretrained ----------------------------------
     if FLAGS.pretrained_file and FLAGS.pretrained_dir:
         pretrained_dir = FLAGS.pretrained_dir
         #pretrained_dir = os.path.join(pretrained_dir, experiment_setting)
         pretrained_file = os.path.join(pretrained_dir, FLAGS.pretrained_file)
-        checkpoint = io.torch_load(
-            pretrained_file, map_location=lambda storage, loc: storage)
+        #checkpoint = io.torch_load(
+        #    pretrained_file, map_location=lambda storage, loc: storage)
+        checkpoint = torch.load(pretrained_file)
         # update keys from external models
         #if type(checkpoint) == dict and 'model' in checkpoint:
         #    checkpoint = checkpoint['model']
@@ -802,11 +830,12 @@ def train_val_test():
                 test_meters, phase='test', ema=ema)
         return
 
-    # check resume training
-    if io.check_path(os.path.join(log_dir, 'latest_checkpoint.pt')):
-        checkpoint = io.torch_load(
-            os.path.join(log_dir, 'latest_checkpoint.pt'),
-            map_location=lambda storage, loc: storage)
+    # check resume training ------------------------------
+    if os.path.isfile(os.path.join(log_dir, 'latest_checkpoint.pt')):
+        #checkpoint = io.torch_load(
+        #    os.path.join(log_dir, 'latest_checkpoint.pt'),
+        #    map_location=lambda storage, loc: storage)
+        checkpoint = torch.load(os.path.join(log_dir, 'latest_checkpoint.pt'))
         model_wrapper.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         last_epoch = checkpoint['last_epoch']
@@ -831,7 +860,7 @@ def train_val_test():
         train_meters = get_meters('train')
         val_meters = get_meters('val')
         # if start from scratch, print model and do profiling
-        print(model_wrapper)
+        #print(model_wrapper)
         if getattr(FLAGS, 'profiling', False):
             if 'gpu' in FLAGS.profiling:
                 profiling(model, use_cuda=True)
@@ -840,7 +869,7 @@ def train_val_test():
 
     if getattr(FLAGS, 'log_dir', None):
         try:
-            io.create_folder(log_dir)
+            os.makedirs(log_dir)
         except OSError:
             pass
 
@@ -852,13 +881,14 @@ def train_val_test():
             lr_sched = None
             # For PyTorch 1.1+, comment the following line
             #lr_scheduler.step()
-        # train
-        print(' train '.center(40, '*'))
-        run_one_epoch(
+        # train ---------------------------------------------
+        print(' train '.center(40, '*')) 
+        train_top1 = run_one_epoch(
           epoch, train_loader, model_wrapper, criterion, optimizer,
           train_meters, phase='train', ema=ema, scheduler=lr_sched)
+        #print(f'{train_top1} <-> {flush_scalar_meters(train_meters)["top1_error"]}') -> 안되넴
 
-        # val
+        # val -----------------------------------------------
         print(' validation '.center(40, '~'))
         if val_meters is not None:
             val_meters['best_val'].cache(best_val)
@@ -907,7 +937,7 @@ def train_val_test():
         if is_master():
             if top1_error < best_val:
                 best_val = top1_error
-                io.torch_save(
+                torch.save(
                     os.path.join(log_dir, 'best_model.pt'),
                     {
                         'model': model_wrapper.state_dict(),
@@ -916,7 +946,7 @@ def train_val_test():
                 print('New best validation top1 error: {:.3f}'.format(best_val))
 
             # save latest checkpoint
-            io.torch_save(
+            torch.save(
                 os.path.join(log_dir, 'latest_checkpoint.pt'),
                 {
                     'model': model_wrapper.state_dict(),
