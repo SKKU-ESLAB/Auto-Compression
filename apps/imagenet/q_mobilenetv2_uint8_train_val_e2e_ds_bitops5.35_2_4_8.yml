@@ -68,7 +68,7 @@ calib_pact: True
 
 #
 kappa: 1.0
-bits_list: [8, 7, 6, 5, 4, 3, 2]
+bits_list: [8, 4, 2]
 weight_quant_scheme: original
 act_quant_scheme: original
 init_bit: 4.5
