@@ -76,7 +76,7 @@ target_bitops: 3.32
 hard_assign_epoch: 20
 # =========================== Override Settings ===========================
 fp_pretrained_file: /home/lkj004124/logs/mobilenet_v2-b0353104.pth
-log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/mobilenetv2_uint8_e2e_ds
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/mobilenetv2_uint8_e2e_ds_bitops3.32
 model: models.q_mobilenet_v2
 double_side: True
 data_transforms: imagenet1k_mobile

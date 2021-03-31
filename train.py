@@ -933,42 +933,41 @@ def train_val_test():
             top1_error = run_one_epoch(
                 epoch, val_loader, model_wrapper, criterion, optimizer,
                 val_meters, phase='val', ema=ema)
-        if is_master():
-            if top1_error < best_val:
-                best_val = top1_error
-                torch.save(
-                    os.path.join(log_dir, 'best_model.pt'),
-                    {
-                        'model': model_wrapper.state_dict(),
-                    }
-                    )
-                print('New best validation top1 error: {:.3f}'.format(best_val))
 
-            # save latest checkpoint
+        if top1_error < best_val:
+            best_val = top1_error
             torch.save(
-                os.path.join(log_dir, 'latest_checkpoint.pt'),
+                os.path.join(log_dir, 'best_model.pt'),
                 {
                     'model': model_wrapper.state_dict(),
-                    'optimizer': optimizer.state_dict(),
-                    'last_epoch': epoch,
-                    'best_val': best_val,
-                    'meters': (train_meters, val_meters),
-                    'ema': ema,
-                })
+                }
+                )
+            print('New best validation top1 error: {:.3f}'.format(best_val))
+
+        # save latest checkpoint
+        torch.save(
+            os.path.join(log_dir, 'latest_checkpoint.pt'),
+            {
+                'model': model_wrapper.state_dict(),
+                'optimizer': optimizer.state_dict(),
+                'last_epoch': epoch,
+                'best_val': best_val,
+                'meters': (train_meters, val_meters),
+                'ema': ema,
+            })
 
         # For PyTorch 1.0 or earlier, comment the following two lines
         if FLAGS.lr_scheduler not in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
             lr_scheduler.step()
 
-    if is_master():
-        profiling(model, use_cuda=True)
-        for m in model.modules():
-            if hasattr(m, 'alpha'):
-                print(m, m.alpha)
-            if hasattr(m, 'lamda_w'):
-                print(m, m.lamda_w)
-            if hasattr(m, 'lamda_a'):
-                print(m, m.lamda_a)
+    profiling(model, use_cuda=True)
+    for m in model.modules():
+        if hasattr(m, 'alpha'):
+            print(m, m.alpha)
+        if hasattr(m, 'lamda_w'):
+            print(m, m.lamda_w)
+        if hasattr(m, 'lamda_a'):
+            print(m, m.lamda_a)
     return
 
 
