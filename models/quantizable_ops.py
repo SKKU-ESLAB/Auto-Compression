@@ -186,6 +186,7 @@ class QuantizableConv2d(nn.Conv2d):
         weight_quant_scheme = getattr(FLAGS, 'weight_quant_scheme', 'modified')
         act_quant_scheme = getattr(FLAGS, 'act_quant_scheme', 'original')
 
+        ### Weight quantization
         weight = torch.tanh(self.weight) / torch.max(torch.abs(torch.tanh(self.weight)))
         weight.add_(1.0)
         weight.div_(2.0)
@@ -221,6 +222,7 @@ class QuantizableConv2d(nn.Conv2d):
             weight_scale /= torch.std(weight.detach())
             weight.mul_(weight_scale)
 
+        ### Activation quantization
         if self.weight_only:
             input_val = input
         else:
@@ -252,9 +254,11 @@ class QuantizableConv2d(nn.Conv2d):
                 input_val = p_a_h.view(-1,1,1) * self.quant(input_val, torch.ceil(lamda_a), 1, 0, act_quant_scheme) \
                     + p_a_l.view(-1,1,1) * self.quant(input_val, torch.floor(lamda_a), 1, 0, act_quant_scheme)
             if self.double_side:
-                input_val.mul_(2.0)
+                input_val.mul_(2.0) 
                 input_val.sub_(1.0)
             input_val.mul_(torch.abs(self.alpha))
+
+        ### conv2d operation
         y = nn.functional.conv2d(
             input_val, weight, self.bias, self.stride, self.padding,
             self.dilation, self.groups)
@@ -373,6 +377,7 @@ class QuantizableLinear(nn.Linear):
         weight_quant_scheme = getattr(FLAGS, 'weight_quant_scheme', 'modified')
         act_quant_scheme = getattr(FLAGS, 'act_quant_scheme', 'original')
 
+        ### Weight quantization
         weight = torch.tanh(self.weight) / torch.max(torch.abs(torch.tanh(self.weight)))
         weight.add_(1.0)
         weight.div_(2.0)
@@ -414,7 +419,9 @@ class QuantizableLinear(nn.Linear):
                 bias = bias / weight_scale
         else:
             bias = self.bias
+        
 
+        ### Activation quantization
         if self.weight_only:
             input_val = input
         else:
@@ -444,6 +451,8 @@ class QuantizableLinear(nn.Linear):
                 input_val = p_a_h * self.quant(input_val, torch.ceil(lamda_a), 1, 0, act_quant_scheme) \
                     + p_a_l * self.quant(input_val, torch.floor(lamda_a), 1, 0, act_quant_scheme)
             input_val.mul_(torch.abs(self.alpha))
+        
+        ### Linear operation
         return nn.functional.linear(input_val, weight, bias)
     
     @property

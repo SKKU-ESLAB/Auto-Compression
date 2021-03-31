@@ -1,24 +1,23 @@
 # =========================== Basic Settings ===========================
 # machine info
-num_gpus_per_job: 4  # number of gpus each job need
-num_cpus_per_job: 63  # number of cpus each job need
+num_gpus_per_job: 1  # number of gpus each job need
+num_cpus_per_job: 4  # number of cpus each job need
 memory_per_job: 200  # memory requirement each job need
-gpu_type: "nvidia-tesla-p100"
+gpu_type: "titan rtx"
 
 # data
-#dataset: imagenet1k
-dataset: imagenet1k_lmdb
+dataset: imagenet1k
 data_transforms: imagenet1k_basic
 data_loader: imagenet1k_basic
-dataset_dir: data
+dataset_dir: /data/imagenet
 #dataset_dir: /mnt/cephfs_new_wj/uslabcv/meijieru/data/imagenet_lmdb
-data_loader_workers: 5 #10
+data_loader_workers: 12 #10
 
 # info
 num_classes: 1000
 image_size: 224
 topk: [1, 5]
-num_epochs: 150
+num_epochs: 30
 
 # optimizer
 optimizer: sgd
@@ -27,7 +26,7 @@ weight_decay: 0.00004
 nesterov: True
 
 # lr
-lr: 0.1
+lr: 0.05
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
 #exp_decaying_gamma: 0.98
@@ -43,7 +42,7 @@ resume: ''
 test_only: False
 
 #
-random_seed: 1995
+random_seed: 1
 batch_size: 256 #512 #256 #1024 #4096 #1024 #256
 model: ''
 reset_parameters: True
@@ -74,10 +73,11 @@ weight_quant_scheme: original
 act_quant_scheme: original
 init_bit: 4.5
 target_bitops: 5.35
-hard_assign_epoch: 120
+hard_assign_epoch: 20
 # =========================== Override Settings ===========================
-fp_pretrained_file: /home/byte_uslab_cvg/user/linjieyang/qnn/imagenet/mobilenetv2_uint8/bits_list_[32]/weight_only_True/ema_decay_None/stats_sharing_False/fp_pretrained_False/rescale_True/clamp_True/switchbn_False/bn_calib_False/rescale_type_constant/best_model.pt
-log_dir: /home/byte_uslab_cvg/user/linjieyang/frac_bits_new/imagenet/mobilenetv2_uint8_e2e_w_orig
+fp_pretrained_file: /home/lkj004124/logs/mobilenet_v2-b0353104.pth
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/mobilenetv2_uint8_e2e_ds
 model: models.q_mobilenet_v2
 double_side: True
 data_transforms: imagenet1k_mobile
+log_interval: 100

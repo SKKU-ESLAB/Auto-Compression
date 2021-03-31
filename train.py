@@ -43,10 +43,6 @@ import wandb
 #parser.add_argument('--log_interval', type=int, default=100)
 #args = parser.parse_args()
 
-PROJECT_NAME='LBQv2'
-wandb.init(project=PROJECT_NAME, dir=FLAGS.log_dir)
-wandb.config.update(FLAGS)
-
 def timing(f):
     @wraps(f)
     def wrap(*args, **kw):
@@ -872,6 +868,9 @@ def train_val_test():
             os.makedirs(log_dir)
         except OSError:
             pass
+    PROJECT_NAME='LBQv2'
+    wandb.init(project=PROJECT_NAME, dir=FLAGS.log_dir)
+    wandb.config.update(FLAGS)
 
     print('Start training.')
     for epoch in range(last_epoch+1, FLAGS.num_epochs):

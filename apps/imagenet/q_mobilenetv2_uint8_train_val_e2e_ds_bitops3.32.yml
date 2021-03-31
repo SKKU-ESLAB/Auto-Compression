@@ -1,18 +1,17 @@
 # =========================== Basic Settings ===========================
 # machine info
 num_gpus_per_job: 1  # number of gpus each job need
-num_cpus_per_job: 8  # number of cpus each job need
+num_cpus_per_job: 4  # number of cpus each job need
 memory_per_job: 200  # memory requirement each job need
-gpu_type: "nvidia-tesla-p100"
+gpu_type: "titan rtx"
 
 # data
-#dataset: imagenet1k
 dataset: imagenet1k
 data_transforms: imagenet1k_basic
 data_loader: imagenet1k_basic
 dataset_dir: /data/imagenet
 #dataset_dir: /mnt/cephfs_new_wj/uslabcv/meijieru/data/imagenet_lmdb
-data_loader_workers: 5 #10
+data_loader_workers: 12 #10
 
 # info
 num_classes: 1000
@@ -27,7 +26,7 @@ weight_decay: 0.00004
 nesterov: True
 
 # lr
-lr: 0.01
+lr: 0.05
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
 #exp_decaying_gamma: 0.98
