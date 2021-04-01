@@ -96,7 +96,7 @@ class Quantize_k(Function):
         zero_point is the value used for 0-bit, and should be on the interval [0, 1].
     """
     @staticmethod
-    def forward(ctx, input, bit=torch.tensor([8]), align_dim=0, zero_point=0, stepsize=0, scheme='modified'):
+    def forward(ctx, input, bit=torch.tensor([8]), align_dim=0, zero_point=0, stepsize=0, scheme='original'):
         assert torch.all(bit >= 0)
         assert torch.all(input >= 0) and torch.all(input <= 1)
         assert zero_point >= 0 and zero_point <= 1
@@ -201,12 +201,12 @@ class QuantizableConv2d(nn.Conv2d):
             if getattr(FLAGS, 'stepsize_aggregation', False):
                 pass
             elif getattr(FLAGS, 'bitwidth_aggregation', False):
-                interpolated_bit = sum([p[i] * weight_bits_tensor_list[i] for i in len(p)])
+                interpolated_bit = sum([p[i] * weight_bits_tensor_list[i] for i in range(len(p))])
                 weight = self.quant(weight, interpolated_bit, 0, 0.5, weight_quant_scheme)
             else:
                 weight_list = []
                 for i, bit in enumerate(weight_bits_tensor_list):
-                    weight_list.append(p[i].view(-1, 1, 1, 1) * self.quant(weight, bit, 0, 0.5, weight_quant_scheme))
+                    weight_list.append(p[i].view(-1, 1, 1, 1) * self.quant(weight, bit, 0, 0.5, 0, weight_quant_scheme))
                 weight = torch.stack(weight_list).sum(dim=0)
             # -------------------------------------------------------
         else:
@@ -217,8 +217,8 @@ class QuantizableConv2d(nn.Conv2d):
                 one_hot = gumbel_softmax(logits, getattr(FLAGS, 'temperature',1.0))
                 p_l = one_hot[0,0]
                 p_h = one_hot[0,1]
-            weight = p_h.view(-1,1,1,1) * self.quant(weight, torch.ceil(lamda_w), 0, 0.5, weight_quant_scheme) \
-                + p_l.view(-1,1,1,1) * self.quant(weight, torch.floor(lamda_w), 0, 0.5, weight_quant_scheme)
+            weight = p_h.view(-1,1,1,1) * self.quant(weight, torch.ceil(lamda_w), 0, 0.5, 0, weight_quant_scheme) \
+                + p_l.view(-1,1,1,1) * self.quant(weight, torch.floor(lamda_w), 0, 0.5, 0, weight_quant_scheme)
         weight.mul_(2.0)
         weight.sub_(1.0)
         if getattr(FLAGS, 'rescale_conv', False):
@@ -254,12 +254,12 @@ class QuantizableConv2d(nn.Conv2d):
                 if getattr(FLAGS, 'stepsize_aggregation', False):
                     pass
                 elif getattr(FLAGS, 'bitwidth_aggregation', False):
-                    interpolated_bit = sum([p[i] * act_bits_tensor_list[i] for i in len(p)])
+                    interpolated_bit = sum([p[i] * act_bits_tensor_list[i] for i in range(len(p))])
                     input_val = self.quant(input_val, interpolated_bit, 1, 0, act_quant_scheme)
                 else:
                     input_val_list = []
                     for i , bit in enumerate(act_bits_tensor_list):
-                        input_val_list.append(p[i].view(-1, 1, 1) * self.quant(input_val, bit, 1, 0, act_quant_scheme))
+                        input_val_list.append(p[i].view(-1, 1, 1) * self.quant(input_val, bit, 1, 0, 0, act_quant_scheme))
                     input_val = torch.stack(input_val_list).sum(dim=0)
                 # -------------------------------------------------------
             else:
@@ -270,8 +270,8 @@ class QuantizableConv2d(nn.Conv2d):
                     one_hot = gumbel_softmax(logits, getattr(FLAGS, 'temperature',1.0))
                     p_a_l = one_hot[0,0]
                     p_a_h = one_hot[0,1]
-                input_val = p_a_h.view(-1,1,1) * self.quant(input_val, torch.ceil(lamda_a), 1, 0, act_quant_scheme) \
-                    + p_a_l.view(-1,1,1) * self.quant(input_val, torch.floor(lamda_a), 1, 0, act_quant_scheme)
+                input_val = p_a_h.view(-1,1,1) * self.quant(input_val, torch.ceil(lamda_a), 1, 0, 0, act_quant_scheme) \
+                    + p_a_l.view(-1,1,1) * self.quant(input_val, torch.floor(lamda_a), 1, 0, 0, act_quant_scheme)
             if self.double_side:
                 input_val.mul_(2.0) 
                 input_val.sub_(1.0)
@@ -409,7 +409,7 @@ class QuantizableLinear(nn.Linear):
             if getattr(FLAGS, 'stepsize_aggregation', False):
                 pass
             elif getattr(FLAGS, 'bitwidth_aggregation', False):
-                interpolated_bit = sum([p[i] * weight_bits_tensor_list[i] for i in len(p)])
+                interpolated_bit = sum([p[i] * weight_bits_tensor_list[i] for i in range(len(p))])
                 weight = self.quant(weight, interpolated_bit, 0, 0.5, weight_quant_scheme)
             else:
                 weight_list = []
@@ -462,7 +462,7 @@ class QuantizableLinear(nn.Linear):
                 if getattr(FLAGS, 'stepsize_aggregation', False):
                     pass
                 elif getattr(FLAGS, 'bitwidth_aggregation', False):
-                    interpolated_bit = sum([p[i] * act_bits_tensor_list[i] for i in len(p)])
+                    interpolated_bit = sum([p[i] * act_bits_tensor_list[i] for i in range(len(p))])
                     input_val = self.quant(input_val, interpolated_bit, 1, 0, act_quant_scheme)
                 else:
                     input_val_list = []
