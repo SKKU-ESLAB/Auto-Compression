@@ -124,7 +124,7 @@ class Quantize_k(Function):
 
     @staticmethod
     def backward(ctx, grad_output):
-        return grad_output, None, None, None, None
+        return grad_output, None, None, None, None, None
 
 
 class QuantizableConv2d(nn.Conv2d):
