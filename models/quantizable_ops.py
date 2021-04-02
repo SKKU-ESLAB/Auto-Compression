@@ -119,7 +119,10 @@ class Quantize_k(Function):
             pass
         else:
             raise NotImplementedError
-        assert torch.all(res >= 0) and torch.all(res <= 1)
+
+        assert torch.all(res >= 0) 
+        assert torch.all(res <= 1)
+        
         return res
 
     @staticmethod

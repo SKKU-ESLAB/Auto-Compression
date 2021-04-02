@@ -618,6 +618,7 @@ def run_one_epoch(
     t_start = time.time()
     assert phase in ['train', 'val', 'test', 'cal'], "phase not be in train/val/test/cal."
     train = phase == 'train'
+    log_dir = FLAGS.log_dir
     if train:
         model.train()
     else:
@@ -625,13 +626,32 @@ def run_one_epoch(
 
     #if getattr(FLAGS, 'distributed', False):
     #    loader.sampler.set_epoch(epoch)
+    lambda_wlist=[[],[],[],[],[]]
+    lambda_alist=[[],[],[],[],[]]
 
     for batch_idx, (input, target) in enumerate(loader):
+        ######### DEBUG Start ###########
+        #if batch_idx == 20:
+        #    break
+        ######### DEBUG End ###########
         if phase == 'cal':
             if batch_idx == getattr(FLAGS, 'bn_cal_batch_num', -1):
                 break
         target = target.cuda(non_blocking=True)
         if train:
+            ########### Log lambda start ###########
+            cnt = 0
+            
+            for m in model.modules():
+                if hasattr(m, 'lamda_w'):
+                    lambda_wlist[cnt].append(m.lamda_w.item())
+                    lambda_alist[cnt].append(m.lamda_a.item())
+                    cnt += 1
+                if cnt == 5:
+                    break
+            
+            ########### Log lambda end ###########
+                 
             if FLAGS.lr_scheduler == 'linear_decaying':
                 linear_decaying_per_step = (
                     FLAGS.lr/FLAGS.num_epochs/len(loader.dataset)*FLAGS.batch_size)
@@ -685,6 +705,17 @@ def run_one_epoch(
                 ema.weight_recover(model)
     #logging.info('L_acc: %.4f | L_bitops: %.3f | top1.avg: %.3f%% | top5.avg: %.3f%%' \
     #        % (eval_acc_loss.avg, eval_bitops_loss.avg*1e-9, top1.avg, top5.avg))
+    
+    ########## save lambda log start ############
+    if train:
+        np_lambda_wa = np.array([lambda_wlist, lambda_alist])
+        np_lambda_path = os.path.join(log_dir, f'{epoch}ep.npy')
+        np.save(np_lambda_path, np_lambda_wa)
+        print(f'{np_lambda_path} saved.')
+        print('shape: ', np_lambda_wa.shape)
+        
+    ########## save lambda log end ############
+
     val_top1 = None
     #if is_master():
     results = flush_scalar_meters(meters)
@@ -716,6 +747,8 @@ def train_val_test():
     #    set_random_seed(getattr(FLAGS, 'random_seed', 0))# + get_rank())
     if True: #else:
         set_random_seed()
+    interp_method = 'simple_interpolation (ours)' if getattr(FLAGS, 'simple_interpolation', False) else 'fracbits_original'
+    print(f'\n==> Interpolation method: {interp_method}\n')
 
     # experiment setting
     experiment_setting = get_experiment_setting()
@@ -937,16 +970,14 @@ def train_val_test():
         if top1_error < best_val:
             best_val = top1_error
             torch.save(
-                os.path.join(log_dir, 'best_model.pt'),
                 {
                     'model': model_wrapper.state_dict(),
-                }
-                )
+                },
+                os.path.join(log_dir, 'best_model.pt'))
             print('New best validation top1 error: {:.3f}'.format(best_val))
 
         # save latest checkpoint
         torch.save(
-            os.path.join(log_dir, 'latest_checkpoint.pt'),
             {
                 'model': model_wrapper.state_dict(),
                 'optimizer': optimizer.state_dict(),
@@ -954,7 +985,8 @@ def train_val_test():
                 'best_val': best_val,
                 'meters': (train_meters, val_meters),
                 'ema': ema,
-            })
+            },
+            os.path.join(log_dir, 'latest_checkpoint.pt'))
 
         # For PyTorch 1.0 or earlier, comment the following two lines
         if FLAGS.lr_scheduler not in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
