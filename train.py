@@ -631,9 +631,10 @@ def run_one_epoch(
 
     for batch_idx, (input, target) in enumerate(loader):
         ######### DEBUG Start ###########
-        #if batch_idx == 20:
-        #    break
+        if batch_idx == 20:
+            break
         ######### DEBUG End ###########
+
         if phase == 'cal':
             if batch_idx == getattr(FLAGS, 'bn_cal_batch_num', -1):
                 break
@@ -641,7 +642,6 @@ def run_one_epoch(
         if train:
             ########### Log lambda start ###########
             cnt = 0
-            
             for m in model.modules():
                 if hasattr(m, 'lamda_w'):
                     lambda_wlist[cnt].append(m.lamda_w.item())
@@ -649,7 +649,6 @@ def run_one_epoch(
                     cnt += 1
                 if cnt == 5:
                     break
-            
             ########### Log lambda end ###########
                  
             if FLAGS.lr_scheduler == 'linear_decaying':
@@ -747,8 +746,19 @@ def train_val_test():
     #    set_random_seed(getattr(FLAGS, 'random_seed', 0))# + get_rank())
     if True: #else:
         set_random_seed()
-    interp_method = 'simple_interpolation (ours)' if getattr(FLAGS, 'simple_interpolation', False) else 'fracbits_original'
-    print(f'\n==> Interpolation method: {interp_method}\n')
+    interpolation_method = 'simple_interpolation (ours)' if getattr(FLAGS, 'simple_interpolation', False) \
+                    else 'fracbits_original'
+
+    if getattr(FLAGS, 'stepsize_aggregation', False):
+        aggregation_type = 'stepsize'
+    elif getattr(FLAGS, 'bitwidth_aggregation', False):
+        aggregation_type = 'bitwidth'
+    else:
+        aggregation_type = 'quantized result'
+    
+    print(f'\n==> Interpolation method: {interpolation_method}')
+    print(f'==> Aggregation level: {aggregation_type}\n')
+
 
     # experiment setting
     experiment_setting = get_experiment_setting()
@@ -974,7 +984,7 @@ def train_val_test():
                     'model': model_wrapper.state_dict(),
                 },
                 os.path.join(log_dir, 'best_model.pt'))
-            print('New best validation top1 error: {:.3f}'.format(best_val))
+            print('New best validation top1 err: {:.3f}'.format(best_val))
 
         # save latest checkpoint
         torch.save(

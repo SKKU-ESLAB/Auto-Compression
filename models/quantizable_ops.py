@@ -6,6 +6,7 @@ import torch.nn as nn
 from torch.autograd import Function
 from torch.nn.modules.utils import _pair
 from utils.gumbel import gumbel_softmax
+from time import sleep
 
 from utils.config import FLAGS
 
@@ -100,13 +101,17 @@ class Quantize_k(Function):
         assert torch.all(bit >= 0)
         assert torch.all(input >= 0) and torch.all(input <= 1)
         assert zero_point >= 0 and zero_point <= 1
-        if scheme == 'original':
+        #print(f'\nzeropoint: {zero_point}')
+        #print(f'scheme: {scheme}\n')
+        if scheme == 'original' or scheme == 'bitwidth_aggregation':
             a = torch.pow(2, bit) - 1
             expand_dim = input.dim() - align_dim - 1
             a = a[(...,) + (None,) * expand_dim]
             res = torch.round(a * input)
             res.div_(1 + torch.relu(a - 1))
             res.add_(zero_point * torch.relu(1 - a))
+            if scheme == 'original':
+                assert torch.all(res <= 1)
         elif scheme == 'modified':
             a = torch.pow(2, bit)
             expand_dim = input.dim() - align_dim - 1
@@ -115,14 +120,19 @@ class Quantize_k(Function):
             res = torch.clamp(res, max=a - 1)
             res.div_(a)
             res.add_(zero_point * torch.relu(2 - a))
-        elif scheme == 'stepsize_agg': ### use aggregated stepsize
-            pass
-        else:
+            assert torch.all(res <= 1)
+        elif scheme == 'stepsize_aggregation': ### use aggregated stepsize
             raise NotImplementedError
 
-        assert torch.all(res >= 0) 
-        assert torch.all(res <= 1)
-        
+        else:
+            raise NotImplementedError
+        assert torch.all(res >= 0)
+        #try:
+        #    assert torch.all(res <= 1)
+        #cexcept AssertionError as e:
+        #    print(res[res>1].tolist())
+        #    print(e)
+        #    exit()
         return res
 
     @staticmethod
@@ -187,11 +197,19 @@ class QuantizableConv2d(nn.Conv2d):
         lamda_a = torch.clamp(self.lamda_a, min(act_bits_list), max(act_bits_list))
         if self.lamda_a_min is not None:
             lamda_a = torch.clamp(lamda_a, min=self.lamda_a_min)
-         
-        weight_quant_scheme = getattr(FLAGS, 'weight_quant_scheme', 'modified')
-        act_quant_scheme = getattr(FLAGS, 'act_quant_scheme', 'original')
+        
+        if getattr(FLAGS, 'stepsize_aggregation', False):
+            aggregation_type = 'stepsize_aggregation'
+        elif getattr(FLAGS, 'bitwidth_aggregation', False):
+            aggregation_type = 'bitwidth_aggregation'
+        elif getattr(FLAGS, 'simple_interpolation'):
+            aggregation_type = 'simple_interpolation'
+        else:
+            aggregation_type = 'original'
+        weight_quant_scheme = aggregation_type
+        act_quant_scheme = aggregation_type
 
-        ### Weight quantization
+        ### Weight quantizat ion
         weight = torch.tanh(self.weight) / torch.max(torch.abs(torch.tanh(self.weight)))
         weight.add_(1.0)
         weight.div_(2.0)
@@ -205,7 +223,7 @@ class QuantizableConv2d(nn.Conv2d):
                 pass
             elif getattr(FLAGS, 'bitwidth_aggregation', False):
                 interpolated_bit = sum([p[i] * weight_bits_tensor_list[i] for i in range(len(p))])
-                weight = self.quant(weight, interpolated_bit, 0, 0.5, weight_quant_scheme)
+                weight = self.quant(weight, interpolated_bit, 0, 0.5, 0, weight_quant_scheme)
             else:
                 weight_list = []
                 for i, bit in enumerate(weight_bits_tensor_list):
@@ -258,7 +276,7 @@ class QuantizableConv2d(nn.Conv2d):
                     pass
                 elif getattr(FLAGS, 'bitwidth_aggregation', False):
                     interpolated_bit = sum([p[i] * act_bits_tensor_list[i] for i in range(len(p))])
-                    input_val = self.quant(input_val, interpolated_bit, 1, 0, act_quant_scheme)
+                    input_val = self.quant(input_val, interpolated_bit, 1, 0, 0, act_quant_scheme)
                 else:
                     input_val_list = []
                     for i , bit in enumerate(act_bits_tensor_list):
@@ -413,11 +431,11 @@ class QuantizableLinear(nn.Linear):
                 pass
             elif getattr(FLAGS, 'bitwidth_aggregation', False):
                 interpolated_bit = sum([p[i] * weight_bits_tensor_list[i] for i in range(len(p))])
-                weight = self.quant(weight, interpolated_bit, 0, 0.5, weight_quant_scheme)
+                weight = self.quant(weight, interpolated_bit, 0, 0.5, 0, weight_quant_scheme)
             else:
                 weight_list = []
                 for i, bit in enumerate(weight_bits_tensor_list):
-                    weight_list.append(p[i].view(-1, 1) * self.quant(weight, bit, 0, 0.5, weight_quant_scheme))
+                    weight_list.append(p[i].view(-1, 1) * self.quant(weight, bit, 0, 0.5, 0, weight_quant_scheme))
                 weight = torch.stack(weight_list).sum(dim=0)
             # ----------------------------------------------
         else:
@@ -428,8 +446,8 @@ class QuantizableLinear(nn.Linear):
                 one_hot = gumbel_softmax(logits, getattr(FLAGS, 'temperature',1.0))
                 p_l = one_hot[0,0]
                 p_h = one_hot[0,1]
-            weight = p_h.view(-1,1) * self.quant(weight, torch.ceil(lamda_w), 0, 0.5, weight_quant_scheme) \
-                + p_l.view(-1,1) * self.quant(weight, torch.floor(lamda_w), 0, 0.5, weight_quant_scheme)
+            weight = p_h.view(-1,1) * self.quant(weight, torch.ceil(lamda_w), 0, 0.5, 0, weight_quant_scheme) \
+                + p_l.view(-1,1) * self.quant(weight, torch.floor(lamda_w), 0, 0.5, 0, weight_quant_scheme)
         weight.mul_(2.0)
         weight.sub_(1.0)
         if getattr(FLAGS, 'rescale', True):
@@ -466,11 +484,11 @@ class QuantizableLinear(nn.Linear):
                     pass
                 elif getattr(FLAGS, 'bitwidth_aggregation', False):
                     interpolated_bit = sum([p[i] * act_bits_tensor_list[i] for i in range(len(p))])
-                    input_val = self.quant(input_val, interpolated_bit, 1, 0, act_quant_scheme)
+                    input_val = self.quant(input_val, interpolated_bit, 1, 0, 0, act_quant_scheme)
                 else:
                     input_val_list = []
                     for i, bit in enumerate(act_bits_tensor_list):
-                        input_val_list.append(p[i] * self.quant(input_val, bit, 1, 0, act_quant_scheme))
+                        input_val_list.append(p[i] * self.quant(input_val, bit, 1, 0, 0, act_quant_scheme))
                     input_val = torch.stack(input_val_list).sum(dim=0)
                 # ----------------------------------------------
             else:
@@ -481,8 +499,8 @@ class QuantizableLinear(nn.Linear):
                     one_hot = gumbel_softmax(logits, getattr(FLAGS, 'temperature',1.0))
                     p_a_l = one_hot[0,0]
                     p_a_h = one_hot[0,1]
-                input_val = p_a_h * self.quant(input_val, torch.ceil(lamda_a), 1, 0, act_quant_scheme) \
-                    + p_a_l * self.quant(input_val, torch.floor(lamda_a), 1, 0, act_quant_scheme)
+                input_val = p_a_h * self.quant(input_val, torch.ceil(lamda_a), 1, 0, 0, act_quant_scheme) \
+                    + p_a_l * self.quant(input_val, torch.floor(lamda_a), 1, 0, 0, act_quant_scheme)
             input_val.mul_(torch.abs(self.alpha))
         
         ### Linear operation

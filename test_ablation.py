@@ -272,15 +272,15 @@ def data_loader(train_set, val_set, test_set):
         raise ValueError('batch size (per gpu) is not defined')
     batch_size = int(FLAGS.batch_size / get_world_size())
     if FLAGS.data_loader in ['imagenet1k_basic','cifar', 'cinic']:
-        if getattr(FLAGS, 'distributed', False):
-            if FLAGS.test_only:
-                train_sampler = None
-            else:
-                train_sampler = DistributedSampler(train_set)
-            val_sampler = DistributedSampler(val_set)
-        else:
-            train_sampler = None
-            val_sampler = None
+        #if getattr(FLAGS, 'distributed', False):
+        #    if FLAGS.test_only:
+        #        train_sampler = None
+        #    else:
+        #        train_sampler = DistributedSampler(train_set)
+        #    val_sampler = DistributedSampler(val_set)
+        #else:
+        train_sampler = None
+        val_sampler = None
         if not FLAGS.test_only:
             train_loader = torch.utils.data.DataLoader(
                 train_set,
@@ -553,8 +553,8 @@ def forward_loss(model, criterion, input, target, meter):
     for k in FLAGS.topk:
         correct_k.append(correct[:k].float().sum(0))
     res = torch.cat([loss.view(1)] + correct_k, dim=0)
-    if getattr(FLAGS, 'distributed', False) and getattr(FLAGS, 'distributed_all_reduce', False):
-        res = dist_all_reduce_tensor(res)
+    #if getattr(FLAGS, 'distributed', False) and getattr(FLAGS, 'distributed_all_reduce', False):
+    #    res = dist_all_reduce_tensor(res)
     res = res.cpu().detach().numpy()
     bs = (res.size - 1) // len(FLAGS.topk)
     for i, k in enumerate(FLAGS.topk):
@@ -585,7 +585,7 @@ def run_one_epoch(
         if phase == 'cal':
             model.apply(bn_calibration)
 
-    if getattr(FLAGS, 'distributed', False):
+    if getattr(FLAGS, 'distributed', False): ###################### What does this line do?? ##########################
         loader.sampler.set_epoch(epoch)
 
     scale_dict = {}
@@ -656,8 +656,8 @@ def run_one_epoch(
                 loss = forward_loss(
                     model, criterion, input, target, meters)
                 loss.backward()
-            if getattr(FLAGS, 'distributed', False) and getattr(FLAGS, 'distributed_all_reduce', False):
-                allreduce_grads(model)
+            #if getattr(FLAGS, 'distributed', False) and getattr(FLAGS, 'distributed_all_reduce', False):
+            #    allreduce_grads(model)
             optimizer.step()
             # For PyTorch 1.0 or earlier, comment the following two lines
             if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
