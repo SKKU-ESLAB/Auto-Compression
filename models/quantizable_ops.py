@@ -173,6 +173,14 @@ class QuantizableConv2d(nn.Conv2d):
             self.lamda_a = nn.Parameter(torch.tensor(init_bit))
         self.eps = 0.00001
         self.input_size = input_size
+        if getattr(FLAGS, 'stepsize_aggregation', False):
+            self.quant_scheme = 'stepsize_aggregation'
+        elif getattr(FLAGS, 'bitwidth_aggregation', False):
+            self.quant_type = 'bitwidth_aggregation'
+        elif getattr(FLAGS, 'simple_interpolation'):
+            self.quant_type = 'simple_interpolation'
+        else:
+            self.quant_type = 'original'
 
     def forward(self, input):
         if self.same_padding:
@@ -198,16 +206,8 @@ class QuantizableConv2d(nn.Conv2d):
         if self.lamda_a_min is not None:
             lamda_a = torch.clamp(lamda_a, min=self.lamda_a_min)
         
-        if getattr(FLAGS, 'stepsize_aggregation', False):
-            aggregation_type = 'stepsize_aggregation'
-        elif getattr(FLAGS, 'bitwidth_aggregation', False):
-            aggregation_type = 'bitwidth_aggregation'
-        elif getattr(FLAGS, 'simple_interpolation'):
-            aggregation_type = 'simple_interpolation'
-        else:
-            aggregation_type = 'original'
-        weight_quant_scheme = aggregation_type
-        act_quant_scheme = aggregation_type
+        weight_quant_scheme = self.quant_type
+        act_quant_scheme = self.quant_type
 
         ### Weight quantizat ion
         weight = torch.tanh(self.weight) / torch.max(torch.abs(torch.tanh(self.weight)))
@@ -399,6 +399,14 @@ class QuantizableLinear(nn.Linear):
         else:
             self.lamda_a = nn.Parameter(torch.tensor(init_bit))
         self.eps = 0.00001
+        if getattr(FLAGS, 'stepsize_aggregation', False):
+            self.quant_scheme = 'stepsize_aggregation'
+        elif getattr(FLAGS, 'bitwidth_aggregation', False):
+            self.quant_type = 'bitwidth_aggregation'
+        elif getattr(FLAGS, 'simple_interpolation'):
+            self.quant_type = 'simple_interpolation'
+        else:
+            self.quant_type = 'original'
 
     def forward(self, input):
         lamda_w = self.lamda_w
@@ -414,8 +422,8 @@ class QuantizableLinear(nn.Linear):
         if self.lamda_a_min is not None:
             lamda_a = torch.clamp(lamda_a, min=self.lamda_a_min)
         
-        weight_quant_scheme = getattr(FLAGS, 'weight_quant_scheme', 'modified')
-        act_quant_scheme = getattr(FLAGS, 'act_quant_scheme', 'original')
+        weight_quant_scheme = self.quant_type
+        act_quant_scheme = self.quant_type
 
         ### Weight quantization
         weight = torch.tanh(self.weight) / torch.max(torch.abs(torch.tanh(self.weight)))
