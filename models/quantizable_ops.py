@@ -103,7 +103,7 @@ class Quantize_k(Function):
         assert zero_point >= 0 and zero_point <= 1
         #print(f'\nzeropoint: {zero_point}')
         #print(f'scheme: {scheme}\n')
-        if scheme == 'original' or scheme == 'bitwidth_aggregation':
+        if scheme in ['original', 'simple_interpolation', 'bitwidth_aggregation', 'bitwidth_direct']:
             a = torch.pow(2, bit) - 1
             expand_dim = input.dim() - align_dim - 1
             a = a[(...,) + (None,) * expand_dim]
@@ -123,8 +123,8 @@ class Quantize_k(Function):
             assert torch.all(res <= 1)
         elif scheme == 'stepsize_aggregation': ### use aggregated stepsize
             raise NotImplementedError
-
         else:
+            print(scheme)
             raise NotImplementedError
         assert torch.all(res >= 0)
         #try:
@@ -173,13 +173,12 @@ class QuantizableConv2d(nn.Conv2d):
             self.lamda_a = nn.Parameter(torch.tensor(init_bit))
         self.eps = 0.00001
         self.input_size = input_size
-        if getattr(FLAGS, 'stepsize_aggregation', False):
-            self.quant_scheme = 'stepsize_aggregation'
-        elif getattr(FLAGS, 'bitwidth_aggregation', False):
-            self.quant_type = 'bitwidth_aggregation'
-        elif getattr(FLAGS, 'simple_interpolation'):
-            self.quant_type = 'simple_interpolation'
-        else:
+        qtype_list = ['stepsize_aggregation', 'bitwidth_aggregation', 'bitwidth_direct', 'simple_interpolation']
+        self.quant_type = None
+        for name in qtype_list:
+            if getattr(FLAGS, name, False):
+                self.quant_type = name
+        if self.quant_type == None:
             self.quant_type = 'original'
 
     def forward(self, input):
@@ -224,6 +223,8 @@ class QuantizableConv2d(nn.Conv2d):
             elif getattr(FLAGS, 'bitwidth_aggregation', False):
                 interpolated_bit = sum([p[i] * weight_bits_tensor_list[i] for i in range(len(p))])
                 weight = self.quant(weight, interpolated_bit, 0, 0.5, 0, weight_quant_scheme)
+            elif getattr(FLAGS, 'bitwidth_direct', False):
+                weight = self.quant(weight, lamda_w, 0, 0.5, 0, weight_quant_scheme)
             else:
                 weight_list = []
                 for i, bit in enumerate(weight_bits_tensor_list):
@@ -274,6 +275,8 @@ class QuantizableConv2d(nn.Conv2d):
                 p = m / m.sum(dim=0, keepdim=True)
                 if getattr(FLAGS, 'stepsize_aggregation', False):
                     pass
+                elif getattr(FLAGS, 'bitwidth_direct', False):
+                    input_val = self.quant(input_val, lamda_a, 1, 0, 0, weight_quant_scheme)
                 elif getattr(FLAGS, 'bitwidth_aggregation', False):
                     interpolated_bit = sum([p[i] * act_bits_tensor_list[i] for i in range(len(p))])
                     input_val = self.quant(input_val, interpolated_bit, 1, 0, 0, act_quant_scheme)
@@ -399,13 +402,12 @@ class QuantizableLinear(nn.Linear):
         else:
             self.lamda_a = nn.Parameter(torch.tensor(init_bit))
         self.eps = 0.00001
-        if getattr(FLAGS, 'stepsize_aggregation', False):
-            self.quant_scheme = 'stepsize_aggregation'
-        elif getattr(FLAGS, 'bitwidth_aggregation', False):
-            self.quant_type = 'bitwidth_aggregation'
-        elif getattr(FLAGS, 'simple_interpolation'):
-            self.quant_type = 'simple_interpolation'
-        else:
+        qtype_list = ['simple_interpolation', 'stepsize_aggregation', 'bitwidth_aggregation', 'bitwidth_direct', ]
+        self.quant_type = None
+        for name in qtype_list:
+            if getattr(FLAGS, name, False):
+                self.quant_type = name
+        if self.quant_type == None:
             self.quant_type = 'original'
 
     def forward(self, input):
@@ -437,6 +439,8 @@ class QuantizableLinear(nn.Linear):
             p = m / m.sum(dim=0, keepdim=True)
             if getattr(FLAGS, 'stepsize_aggregation', False):
                 pass
+            elif getattr(FLAGS, 'bitwidth_direct', False):
+                weight = self.quant(weight, lamda_w, 0, 0.5, 0, weight_quant_scheme)
             elif getattr(FLAGS, 'bitwidth_aggregation', False):
                 interpolated_bit = sum([p[i] * weight_bits_tensor_list[i] for i in range(len(p))])
                 weight = self.quant(weight, interpolated_bit, 0, 0.5, 0, weight_quant_scheme)
@@ -490,6 +494,8 @@ class QuantizableLinear(nn.Linear):
                 p = m / m.sum(dim=0, keepdim=True)
                 if getattr(FLAGS, 'stepsize_aggregation', False):
                     pass
+                elif getattr(FLAGS, 'bitwidth_direct', False):
+                    input_val = self.quant(input_val, lamda_a, 1, 0, 0, weight_quant_scheme)
                 elif getattr(FLAGS, 'bitwidth_aggregation', False):
                     interpolated_bit = sum([p[i] * act_bits_tensor_list[i] for i in range(len(p))])
                     input_val = self.quant(input_val, interpolated_bit, 1, 0, 0, act_quant_scheme)
