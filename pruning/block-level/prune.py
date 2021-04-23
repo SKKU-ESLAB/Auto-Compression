@@ -86,6 +86,7 @@ parser.add_argument('--num-survive', default=0, type=int,
                     help='number of not pruned layers')
 parser.add_argument('--lr-scheduler', default='multistep', type=str,
                     help='Type of learning rate decay scheduler (multistep, consine)')
+parser.add_argument('--warmup-epochs', default=0, type=int)
 parser.add_argument('--warmup-lr', default=0, type=int)
 
 best_acc1 = 0
@@ -375,19 +376,19 @@ def main_worker(gpu, ngpus_per_node, args):
             }, is_best)
 
 
-def calc_learning_rate(args, epoch, batch=0, nBatch=None):
+def cosine_calc_learning_rate(args, epoch, batch=0, nBatch=None):
     T_total = args.epochs * nBatch
     T_cur = epoch * nBatch + batch
     lr = 0.5 * args.lr * (1 + math.cos(math.pi * T_cur / T_total))
     return lr
 
-def adjust_learning_rate(args, optimizer, epoch, batch=0, nBatch=None):
-    new_lr = calc_learning_rate(args, epoch, batch, nBatch)
+def cosine_adjust_learning_rate(args, optimizer, epoch, batch=0, nBatch=None):
+    new_lr = cosine_calc_learning_rate(args, epoch, batch, nBatch)
     for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
+        param_group['lr'] = new_lr
     return new_lr
 
-def warmup_adjust_learning_rate(args, optimizer, T_total, nBatch, epoch, batch=0, warmup_lr=0):
+def cosine_warmup_adjust_learning_rate(args, optimizer, T_total, nBatch, epoch, batch=0, warmup_lr=0):
     T_cur = epoch * nBatch + batch + 1
     new_lr = T_cur / T_total * (args.lr - warmup_lr) + warmup_lr
     for param_group in optimizer.param_groups:
@@ -413,14 +414,14 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
 
     end = time.time()
     for i, (images, target) in enumerate(train_loader):
-        if args.lr_scheduler == 'consine':
+        if args.lr_scheduler == 'cosine':
             if epoch < args.warmup_epochs:
-                new_lr = warmup_adjust_learning_rate(
-                    args, optimizer, warmup_epochs * nBatch, nBatch, epoch, i, warmup_lr
+                new_lr = cosine_warmup_adjust_learning_rate(
+                    args, optimizer, args.warmup_epochs * nBatch, nBatch, epoch, i, args.warmup_lr
                 )
             else:
-                new_lr = adjust_learning_rate(
-                    args, optimizer, epoch - warmup_epochs, i, nBatch
+                new_lr = cosine_adjust_learning_rate(
+                    args, optimizer, epoch - args.warmup_epochs, i, nBatch
                 )
 
         # measure data loading time
