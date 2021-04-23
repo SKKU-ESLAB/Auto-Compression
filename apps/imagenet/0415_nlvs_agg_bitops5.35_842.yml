@@ -17,7 +17,7 @@ data_loader_workers: 12 #10
 num_classes: 1000
 image_size: 224
 topk: [1, 5]
-num_epochs: 30
+num_epochs: 55
 
 # optimizer
 optimizer: sgd
@@ -43,7 +43,7 @@ test_only: False
 
 #
 random_seed: 1
-batch_size: 64
+batch_size: 64 #512 #256 #1024 #4096 #1024 #256
 model: ''
 reset_parameters: True
 
@@ -68,16 +68,19 @@ calib_pact: True
 
 #
 kappa: 1.0
-bits_list: [5, 4, 3, 2]
+bits_list: [8, 4, 2]
 weight_quant_scheme: original
 act_quant_scheme: original
 init_bit: 4.5
 target_bitops: 5.35
-hard_assign_epoch: 20
+hard_assign_epoch: 40
 # =========================== Override Settings ===========================
 fp_pretrained_file: /home/lkj004124/logs/mobilenet_v2-b0353104.pth
-log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0415_fracbits_mobilenetv2_ds_bitops5.35_5_4_3_2
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0415_nlvs_agg_bitops5.35_842
 model: models.q_mobilenet_v2
 double_side: True
 data_transforms: imagenet1k_mobile
 log_interval: 100
+
+simple_interpolation: True
+nlvs_aggregation: True
