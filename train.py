@@ -631,7 +631,7 @@ def run_one_epoch(
 
     for batch_idx, (input, target) in enumerate(loader):
         ######### DEBUG Start ###########
-        #if batch_idx == 20:
+        #if batch_idx > 3:
         #    break
         ######### DEBUG End ###########
         if phase == 'cal':
@@ -664,10 +664,10 @@ def run_one_epoch(
             loss = forward_loss(
                 model, criterion, input, target, meters)
             if epoch >= FLAGS.warmup_epochs and not getattr(FLAGS,'hard_assignment', False):
-              if getattr(FLAGS,'weight_only', False):
-                loss += getattr(FLAGS, 'kappa', 1.0) * get_model_size_loss(model)
-              else:  
-                loss += getattr(FLAGS, 'kappa', 1.0) * get_comp_cost_loss(model)
+                if getattr(FLAGS,'weight_only', False):
+                    loss += getattr(FLAGS, 'kappa', 1.0) * get_model_size_loss(model)
+                else:  
+                    loss += getattr(FLAGS, 'kappa', 1.0) * get_comp_cost_loss(model)
             loss.backward()
             #if getattr(FLAGS, 'distributed', False) and getattr(FLAGS, 'distributed_all_reduce', False):
             #    allreduce_grads(model)
@@ -931,6 +931,18 @@ def train_val_test():
             val_meters['best_val'].cache(best_val)
         with torch.no_grad():
             if epoch == getattr(FLAGS,'hard_assign_epoch', float('inf')):
+                #################
+                if getattr(FLAGS, 'nlvs_direct', False):
+                    FLAGS.nlvs_direct = False
+                    for m in model.modules():
+                        if hasattr(m, 'nlvs_w'):
+                            m.quant_type = 'simple_interpolation'
+                            m.lamda_w.data = torch.log2(m.nlvs_w)
+                            print(f'm.lamda_w.data = {m.lamda_w.data}')
+                        if hasattr(m, 'nlvs_a'):
+                            m.quant_type = 'simple_interpolation'
+                            m.lamda_a.data = torch.log2(m.nlvs_a)
+                            print(f'm.lamda_a.data = {m.lamda_a.data}')
                 print('Start to use hard assigment')
                 setattr(FLAGS, 'hard_assignment', True)
                 lower_offset = -1
