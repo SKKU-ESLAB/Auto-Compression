@@ -662,17 +662,17 @@ def run_one_epoch(
                 curr = batch_idx * len(input)
                 total = len(loader.dataset)
                 acc1_array[batch_idx // FLAGS.log_interval] = (100*(1-results["top1_error"]))
+                for name, m in model.named_modules():
+                    cnt = 0
+                    if hasattr(m, 'lamda_w'):
+                        lambda_array[0, cnt, batch_idx // FLAGS.log_interval] = m.lamda_w.item()
+                        lambda_array[1, cnt, batch_idx // FLAGS.log_interval] = m.lamda_a.item()
+                        cnt += 1
                 print(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Train Epoch: {epoch:4d}  Phase: {phase}  Process: {curr:5d}/{total:5d} '\
                       f'Loss: {results["loss"]:.3f} | '\
                       f'top1.avg: {100*(1-results["top1_error"]):.3f} % | '\
                       f'top5.avg: {100*(1-results["top5_error"]):.3f} % | ')
-                for name, m in model.named_modules():
-                    cnt = 0
-                    if hasattr(m, 'lamda_w'):
-                        lambda_array[0, cnt, batch_idx] = m.lamda_w.item()
-                        lambda_array[1, cnt, batch_idx] = m.lamda_a.item()
-                        #print(name)
-                        cnt += 1
+
         
         else: #not train
             if ema:
