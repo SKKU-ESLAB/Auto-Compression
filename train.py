@@ -11,8 +11,6 @@ import copy
 import numpy as np
 np.set_printoptions(threshold=sys.maxsize)
 
-from pysnooper import snoop
-
 import torch
 import torch.nn as nn
 from torch import multiprocessing
@@ -545,7 +543,6 @@ def get_experiment_setting():
     return experiment_setting
 
 
-#@snoop()
 def forward_loss(model, criterion, input, target, meter):
     """forward model and return loss"""
     if getattr(FLAGS, 'normalize', False):
@@ -661,13 +658,14 @@ def run_one_epoch(
                 results = flush_scalar_meters(meters)
                 curr = batch_idx * len(input)
                 total = len(loader.dataset)
-                acc1_array[batch_idx // FLAGS.log_interval] = (100*(1-results["top1_error"]))
-                for name, m in model.named_modules():
-                    cnt = 0
-                    if hasattr(m, 'lamda_w'):
-                        lambda_array[0, cnt, batch_idx // FLAGS.log_interval] = m.lamda_w.item()
-                        lambda_array[1, cnt, batch_idx // FLAGS.log_interval] = m.lamda_a.item()
-                        cnt += 1
+                if getattr(FLAGS, 'log_bitwidth', False):
+                    acc1_array[batch_idx // FLAGS.log_interval] = (100*(1-results["top1_error"]))
+                    for name, m in model.named_modules():
+                        cnt = 0
+                        if hasattr(m, 'lamda_w'):
+                            lambda_array[0, cnt, batch_idx // FLAGS.log_interval] = m.lamda_w.item()
+                            lambda_array[1, cnt, batch_idx // FLAGS.log_interval] = m.lamda_a.item()
+                            cnt += 1
                 print(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Train Epoch: {epoch:4d}  Phase: {phase}  Process: {curr:5d}/{total:5d} '\
                       f'Loss: {results["loss"]:.3f} | '\
                       f'top1.avg: {100*(1-results["top1_error"]):.3f} % | '\
@@ -711,8 +709,6 @@ def run_one_epoch(
     return val_top1
 
 
-#@profile
-#@snoop(depth=2)
 @timing
 def train_val_test():
     """train and val"""

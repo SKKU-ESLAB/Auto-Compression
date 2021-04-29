@@ -26,7 +26,7 @@ weight_decay: 0.00004
 nesterov: True
 
 # lr
-lr: 0.025
+lr: 0.1
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
 #exp_decaying_gamma: 0.98
@@ -81,3 +81,4 @@ model: models.q_mobilenet_v2
 double_side: True
 data_transforms: imagenet1k_mobile
 log_interval: 32
+log_bitwidth: True
