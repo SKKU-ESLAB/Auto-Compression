@@ -16,19 +16,12 @@ from pysnooper import snoop
 import torch
 import torch.nn as nn
 from torch import multiprocessing
-#from torch.distributed import all_gather, get_world_size, is_initialized
 from torchvision import datasets, transforms
-#from torch.utils.data.distributed import DistributedSampler
 from torch.nn.modules.utils import _pair
 
 from utils.model_profiling import model_profiling
 from utils.transforms import Lighting
 from utils.transforms import ImageFolderLMDB
-#from utils.distributed import init_dist, master_only, is_master
-#from utils.distributed import get_rank, get_world_size
-#from utils.distributed import dist_all_reduce_tensor
-#from utils.distributed import master_only_print as print
-#from utils.distributed import AllReduceDistributedDataParallel, allreduce_grads
 from ultron_io import UltronIO
 from utils.config import FLAGS
 from utils.meters import ScalarMeter, flush_scalar_meters
@@ -36,6 +29,7 @@ from utils.model_profiling import compare_models
 from models.quantizable_ops import EMA
 from models.quantizable_ops import QuantizableConv2d, QuantizableLinear
 import wandb
+import datetime
 
 #import argparse
 
@@ -609,7 +603,8 @@ def get_model_size_loss(model):
         loss = torch.abs(loss - target_size)
     return loss
 
-
+n_layer = 53
+#n_alayer = 53
 @timing
 #@snoop(depth=2)
 def run_one_epoch(
@@ -626,30 +621,34 @@ def run_one_epoch(
 
     #if getattr(FLAGS, 'distributed', False):
     #    loader.sampler.set_epoch(epoch)
-    lambda_wlist=[[],[],[],[],[]]
-    lambda_alist=[[],[],[],[],[]]
+
+    len_loader = len(loader)
+    global n_layer
+    lambda_array = np.zeros((2, 53, len_loader)) #len(loader)))
+    acc1_array = np.zeros(len_loader) #len(loader))
+    #lambda_wlist = [[]] * n_layer
+    #lambda_alist = [[]] * n_layer
+    #acc1_list = []
 
     for batch_idx, (input, target) in enumerate(loader):
-        ######### DEBUG Start ###########
-        #if batch_idx > 3:
-        #    break
-        ######### DEBUG End ###########
+        ######### FAST TEST Start ###########
+        # if batch_idx == len_loader :
+        #     break
+        ######### FAST TEST End ###########
+
         if phase == 'cal':
             if batch_idx == getattr(FLAGS, 'bn_cal_batch_num', -1):
                 break
         target = target.cuda(non_blocking=True)
         if train:
             ########### Log lambda start ###########
-            cnt = 0
-            
-            for m in model.modules():
+            for name, m in model.named_modules():
+                cnt = 0
                 if hasattr(m, 'lamda_w'):
-                    lambda_wlist[cnt].append(m.lamda_w.item())
-                    lambda_alist[cnt].append(m.lamda_a.item())
+                    lambda_array[0, cnt, batch_idx] = m.lamda_w.item()
+                    lambda_array[1, cnt, batch_idx] = m.lamda_a.item()
+                    #print(name)
                     cnt += 1
-                if cnt == 5:
-                    break
-            
             ########### Log lambda end ###########
                  
             if FLAGS.lr_scheduler == 'linear_decaying':
@@ -657,9 +656,7 @@ def run_one_epoch(
                     FLAGS.lr/FLAGS.num_epochs/len(loader.dataset)*FLAGS.batch_size)
                 for param_group in optimizer.param_groups:
                     param_group['lr'] -= linear_decaying_per_step
-            # For PyTorch 1.1+, comment the following two line
-            #if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
-            #    scheduler.step()
+            
             optimizer.zero_grad()
             loss = forward_loss(
                 model, criterion, input, target, meters)
@@ -669,28 +666,17 @@ def run_one_epoch(
                 else:  
                     loss += getattr(FLAGS, 'kappa', 1.0) * get_comp_cost_loss(model)
             loss.backward()
-            #if getattr(FLAGS, 'distributed', False) and getattr(FLAGS, 'distributed_all_reduce', False):
-            #    allreduce_grads(model)
             optimizer.step()
-            # For PyTorch 1.0 or earlier, comment the following two lines
+
             if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
                 scheduler.step()
-            if ema:
-                ema.shadow_update(model)
-                #for name, param in model.named_parameters():
-                #    if param.requires_grad:
-                #        ema.update(name, param.data)
-                #bn_idx = 0
-                #for m in model.modules():
-                #    if isinstance(m, nn.BatchNorm2d):
-                #        ema.update('bn{}_mean'.format(bn_idx), m.running_mean)
-                #        ema.update('bn{}_var'.format(bn_idx), m.running_var)
-                #        bn_idx += 1
+
+            results = flush_scalar_meters(meters)
+            acc1_array[batch_idx] = (100*(1-results["top1_error"]))
             if (batch_idx) % FLAGS.log_interval == 0:
-                results = flush_scalar_meters(meters)
                 curr = batch_idx * len(input)
                 total = len(loader.dataset)
-                print(f'Train Epoch: {epoch:4d}  Phase: {phase}  Process: {curr:5d}/{total:5d} '\
+                print(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Train Epoch: {epoch:4d}  Phase: {phase}  Process: {curr:5d}/{total:5d} '\
                       f'Loss: {results["loss"]:.3f} | '\
                       f'top1.avg: {100*(1-results["top1_error"]):.3f} % | '\
                       f'top5.avg: {100*(1-results["top5_error"]):.3f} % | ')
@@ -703,22 +689,28 @@ def run_one_epoch(
             if ema:
                 print('ema recover')
                 ema.weight_recover(model)
-    #logging.info('L_acc: %.4f | L_bitops: %.3f | top1.avg: %.3f%% | top5.avg: %.3f%%' \
-    #        % (eval_acc_loss.avg, eval_bitops_loss.avg*1e-9, top1.avg, top5.avg))
     
     ########## save lambda log start ############
     if train:
-        np_lambda_wa = np.array([lambda_wlist, lambda_alist])
+        #np_lambda_wa = np.array([lambda_wlist, lambda_alist])
+        #np_acc1 = np.array(acc1_list)
         np_lambda_path = os.path.join(log_dir, f'{epoch}ep.npy')
-        np.save(np_lambda_path, np_lambda_wa)
+        np_acc1_path = os.path.join(log_dir, f'{epoch}ep_acc1.npy')
+        np.save(np_lambda_path, lambda_array)
+        np.save(np_acc1_path, acc1_array)
         print(f'{np_lambda_path} saved.')
-        print('shape: ', np_lambda_wa.shape)
+        print('np_lambda_wa shape: ', lambda_array.shape)
+        print('np_acc1 shape: ', acc1_array.shape)
+        exit()
         
     ########## save lambda log end ############
 
     val_top1 = None
     #if is_master():
-    results = flush_scalar_meters(meters)
+    try:
+        results = flush_scalar_meters(meters)
+    except:
+        pass
     print('{:.1f}s\t{}\t{}/{}: '.format(
         time.time() - t_start, phase, epoch, FLAGS.num_epochs) +
         ', '.join('{}: {}'.format(k, v) for k, v in results.items()))
@@ -1028,7 +1020,7 @@ def init_multiprocessing():
 
 def main():
     """train and eval model"""
-    init_multiprocessing()
+    #init_multiprocessing()
     train_val_test()
 
 
