@@ -603,10 +603,9 @@ def get_model_size_loss(model):
         loss = torch.abs(loss - target_size)
     return loss
 
+
 n_layer = 53
-#n_alayer = 53
 @timing
-#@snoop(depth=2)
 def run_one_epoch(
         epoch, loader, model, criterion, optimizer, meters, phase='train', ema=None, scheduler=None):
     """run one epoch for train/val/test/cal"""
@@ -619,16 +618,12 @@ def run_one_epoch(
     else:
         model.eval()
 
-    #if getattr(FLAGS, 'distributed', False):
-    #    loader.sampler.set_epoch(epoch)
 
-    len_loader = len(loader)
+    len_loader = len(loader) // FLAGS.log_interval
     global n_layer
     lambda_array = np.zeros((2, 53, len_loader)) #len(loader)))
     acc1_array = np.zeros(len_loader) #len(loader))
-    #lambda_wlist = [[]] * n_layer
-    #lambda_alist = [[]] * n_layer
-    #acc1_list = []
+
 
     for batch_idx, (input, target) in enumerate(loader):
         ######### FAST TEST Start ###########
@@ -641,16 +636,6 @@ def run_one_epoch(
                 break
         target = target.cuda(non_blocking=True)
         if train:
-            ########### Log lambda start ###########
-            for name, m in model.named_modules():
-                cnt = 0
-                if hasattr(m, 'lamda_w'):
-                    lambda_array[0, cnt, batch_idx] = m.lamda_w.item()
-                    lambda_array[1, cnt, batch_idx] = m.lamda_a.item()
-                    #print(name)
-                    cnt += 1
-            ########### Log lambda end ###########
-                 
             if FLAGS.lr_scheduler == 'linear_decaying':
                 linear_decaying_per_step = (
                     FLAGS.lr/FLAGS.num_epochs/len(loader.dataset)*FLAGS.batch_size)
@@ -671,16 +656,24 @@ def run_one_epoch(
             if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
                 scheduler.step()
 
-            results = flush_scalar_meters(meters)
-            acc1_array[batch_idx] = (100*(1-results["top1_error"]))
+            #print(100*(1-results["top1_error"]))
             if (batch_idx) % FLAGS.log_interval == 0:
+                results = flush_scalar_meters(meters)
                 curr = batch_idx * len(input)
                 total = len(loader.dataset)
+                acc1_array[batch_idx // FLAGS.log_interval] = (100*(1-results["top1_error"]))
                 print(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Train Epoch: {epoch:4d}  Phase: {phase}  Process: {curr:5d}/{total:5d} '\
                       f'Loss: {results["loss"]:.3f} | '\
                       f'top1.avg: {100*(1-results["top1_error"]):.3f} % | '\
                       f'top5.avg: {100*(1-results["top5_error"]):.3f} % | ')
-                
+                for name, m in model.named_modules():
+                    cnt = 0
+                    if hasattr(m, 'lamda_w'):
+                        lambda_array[0, cnt, batch_idx] = m.lamda_w.item()
+                        lambda_array[1, cnt, batch_idx] = m.lamda_a.item()
+                        #print(name)
+                        cnt += 1
+        
         else: #not train
             if ema:
                 print('ema apply')
