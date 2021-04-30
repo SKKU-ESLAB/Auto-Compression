@@ -288,7 +288,8 @@ class QuantizableConv2d(nn.Conv2d):
             p_h = 1 - p_l
             if not getattr(FLAGS, 'hard_assignment', False) and getattr(FLAGS,'gumbel_softmax',False):
                 logits = torch.Tensor([torch.log(p_l)+ self.eps, torch.log(p_h) + self.eps]).view(1,2).cuda()
-                one_hot = gumbel_softmax(logits, getattr(FLAGS, 'temperature',1.0))
+                #one_hot = gumbel_softmax(logits, getattr(FLAGS, 'temperature',1.0))
+                one_hot = F.softmax(logits)
                 p_l = one_hot[0,0]
                 p_h = one_hot[0,1]
             weight = p_h.view(-1,1,1,1) * self.quant(weight, torch.ceil(lamda_w), 0, 0.5, 0, weight_quant_scheme) \
@@ -352,7 +353,8 @@ class QuantizableConv2d(nn.Conv2d):
                 p_a_h = 1 - p_a_l
                 if not getattr(FLAGS, 'hard_assignment', False) and getattr(FLAGS,'gumbel_softmax',False):
                     logits = torch.Tensor([torch.log(p_a_l)+ self.eps, torch.log(p_a_h) + self.eps]).view(1,2).cuda()
-                    one_hot = gumbel_softmax(logits, getattr(FLAGS, 'temperature',1.0))
+                    #one_hot = gumbel_softmax(logits, getattr(FLAGS, 'temperature',1.0))
+                    one_hot = F.softmax(logits)
                     p_a_l = one_hot[0,0]
                     p_a_h = one_hot[0,1]
                 input_val = p_a_h.view(-1,1,1) * self.quant(input_val, torch.ceil(lamda_a), 1, 0, 0, act_quant_scheme) \
@@ -536,7 +538,8 @@ class QuantizableLinear(nn.Linear):
             p_h = 1 - p_l
             if not getattr(FLAGS, 'hard_assignment', False) and getattr(FLAGS,'gumbel_softmax',False):
                 logits = torch.Tensor([torch.log(p_l)+ self.eps, torch.log(p_h) + self.eps]).view(1,2).cuda()
-                one_hot = gumbel_softmax(logits, getattr(FLAGS, 'temperature',1.0))
+                #one_hot = gumbel_softmax(logits, getattr(FLAGS, 'temperature',1.0))
+                one_hot = F.softmax(logits)
                 p_l = one_hot[0,0]
                 p_h = one_hot[0,1]
             weight = p_h.view(-1,1) * self.quant(weight, torch.ceil(lamda_w), 0, 0.5, 0, weight_quant_scheme) \
@@ -599,7 +602,8 @@ class QuantizableLinear(nn.Linear):
                 p_a_h = 1 - p_a_l
                 if not getattr(FLAGS, 'hard_assignment', False) and getattr(FLAGS,'gumbel_softmax',False):
                     logits = torch.Tensor([torch.log(p_a_l)+ self.eps, torch.log(p_a_h) + self.eps]).view(1,2).cuda()
-                    one_hot = gumbel_softmax(logits, getattr(FLAGS, 'temperature',1.0))
+                    #one_hot = gumbel_softmax(logits, getattr(FLAGS, 'temperature',1.0))
+                    one_hot = F.softmax(logits)
                     p_a_l = one_hot[0,0]
                     p_a_h = one_hot[0,1]
                 input_val = p_a_h * self.quant(input_val, torch.ceil(lamda_a), 1, 0, 0, act_quant_scheme) \
