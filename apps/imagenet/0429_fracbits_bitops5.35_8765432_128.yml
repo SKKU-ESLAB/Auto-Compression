@@ -26,7 +26,7 @@ weight_decay: 0.00004
 nesterov: True
 
 # lr
-lr: 0.025
+lr: 0.05
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
 #exp_decaying_gamma: 0.98
@@ -43,7 +43,7 @@ test_only: False
 
 #
 random_seed: 1
-batch_size: 64
+batch_size: 128
 model: ''
 reset_parameters: True
 
@@ -71,7 +71,7 @@ kappa: 1.0
 bits_list: [8, 7, 6, 5, 4, 3, 2]
 weight_quant_scheme: original
 act_quant_scheme: original
-init_bit: 4.5
+init_bit: 7.7
 target_bitops: 5.35
 hard_assign_epoch: 25
 # =========================== Override Settings ===========================
