@@ -40,8 +40,8 @@ parser.add_argument('--log_interval', default=100, type=int, help='logging inter
 parser.add_argument('--exp', default='test', type=str)
 parser.add_argument('--seed', default=7, type=int, help='random seed')
 # (note: discretize_epoch is added below.)
-# TODO: Make gumbel process end-to-end
-#       Now gumbel training process  is seperated as 'search' phase and 'retrain' phase.
+# TODO: Make DNAS approach end-to-end
+#       Now DNAS training process is seperated as 'search' phase and 'retrain' phase.
 #       Phases are discerned using existence of args.retrain_path.
 
 

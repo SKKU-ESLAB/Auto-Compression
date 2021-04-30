@@ -726,6 +726,8 @@ def run_one_epoch(
 
 @timing
 def train_val_test():
+    if not getattr(FLAGS, 'gumbel', True):
+        from models.quantizable_ops_nogumbel import QuantizableConv2d, QuantizableLinear
     if getattr(FLAGS, 'amp', False):
         print()
         print('--------------------------------------')
