@@ -28,6 +28,7 @@ from models.quantizable_ops import EMA
 from models.quantizable_ops import QuantizableConv2d, QuantizableLinear
 import wandb
 import datetime
+import torch.cuda.amp as amp
 
 #import argparse
 
@@ -602,10 +603,10 @@ def get_model_size_loss(model):
     return loss
 
 
-
+torch.autograd.set_detect_anomaly(True)
 @timing
 def run_one_epoch(
-        epoch, loader, model, criterion, optimizer, meters, phase='train', ema=None, scheduler=None):
+        epoch, loader, model, criterion, optimizer, meters, phase='train', ema=None, scheduler=None, scaler=None):
     """run one epoch for train/val/test/cal"""
     t_start = time.time()
     assert phase in ['train', 'val', 'test', 'cal'], "phase not be in train/val/test/cal."
@@ -641,23 +642,37 @@ def run_one_epoch(
                 for param_group in optimizer.param_groups:
                     param_group['lr'] -= linear_decaying_per_step
             
-            optimizer.zero_grad()
+            
             ############ [Question] what is this block for? #############
-            ##             8-bit quantization?                         ##
+            ##                      8-bit quantization?                      
             if getattr(FLAGS, 'normalize', False):
                 inputs = inputs #(128 * inputs).round_().clamp_(-128, 127)
             else:
                 inputs = (255 * inputs).round_()
             #############################################################
-            outputs = model(inputs)
-            loss = torch.mean(criterion(outputs, targets))
-            if epoch >= FLAGS.warmup_epochs and not getattr(FLAGS,'hard_assignment', False):
-                if getattr(FLAGS,'weight_only', False):
-                    loss += getattr(FLAGS, 'kappa', 1.0) * get_model_size_loss(model)
-                else:  
-                    loss += getattr(FLAGS, 'kappa', 1.0) * get_comp_cost_loss(model)
-            loss.backward()
-            optimizer.step()
+            if getattr(FLAGS, 'amp', False):
+                with amp.autocast():
+                    outputs = model(inputs)
+                    loss = torch.mean(criterion(outputs, targets))
+                    if epoch >= FLAGS.warmup_epochs and not getattr(FLAGS,'hard_assignment', False):
+                        if getattr(FLAGS,'weight_only', False):
+                            loss += getattr(FLAGS, 'kappa', 1.0) * get_model_size_loss(model)
+                        else:
+                            loss += getattr(FLAGS, 'kappa', 1.0) * get_comp_cost_loss(model)
+                    scaler.scale(loss).backward()
+                    scaler.step(optimizer)
+                    scaler.update()
+
+            else:
+                outputs = model(inputs)
+                loss = torch.mean(criterion(outputs, targets))
+                if epoch >= FLAGS.warmup_epochs and not getattr(FLAGS,'hard_assignment', False):
+                    if getattr(FLAGS,'weight_only', False):
+                        loss += getattr(FLAGS, 'kappa', 1.0) * get_model_size_loss(model)
+                    else:
+                        loss += getattr(FLAGS, 'kappa', 1.0) * get_comp_cost_loss(model)
+                loss.backward()
+                optimizer.step()
 
             if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
                 scheduler.step()
@@ -683,9 +698,9 @@ def run_one_epoch(
                 curr = batch_idx * len(inputs)
                 total = len(loader.dataset)
                 print(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Train Epoch: {epoch:4d}  Phase: {phase}  Process: {curr:5d}/{total:5d} '\
-                      f'Loss: {eval_loss.avg:.4f} | '\
-                      f'top1.avg: {top1.avg:.4f} % | '\
-                      f'top5.avg: {top5.avg:.4f} % | ')
+                    f'Loss: {eval_loss.avg:.4f} | '\
+                    f'top1.avg: {top1.avg:.4f} % | '\
+                    f'top5.avg: {top5.avg:.4f} % | ')
 
         
         else: #not train
@@ -694,11 +709,6 @@ def run_one_epoch(
                 ema.shadow_apply(model)
             forward_loss(model, criterion, inputs, targets, meters)
             outputs = model(inputs)
-            #loss = torch.mean(criterion(outputs, targets))
-            #acc1, acc5 = accuracy(outputs.data, targets.data, top_k=(1,5))
-            #eval_loss.update(loss.item(), inputs.size(0))
-            #top1.update(acc1[0], inputs.size(0))
-            #top5.update(acc5[0], inputs.size(0))
             if ema:
                 print('ema recover')
                 ema.weight_recover(model)
@@ -716,31 +726,23 @@ def run_one_epoch(
 
 @timing
 def train_val_test():
+    if getattr(FLAGS, 'amp', False):
+        print()
+        print('--------------------------------------')
+        print('==> AUTOMATIC MIXED PRECISION Training')
+        print('--------------------------------------\n\n')
     """train and val"""
-    torch.backends.cudnn.benchmark = True
-    # init distributed
-    #if getattr(FLAGS, 'distributed', False):
-    #    init_dist()
-    # seed
-    #if getattr(FLAGS, 'use_diff_seed', False):
-    #if getattr(FLAGS, 'use_diff_seed', False) and not FLAGS.test_only:
-    #if getattr(FLAGS, 'use_diff_seed', False) and not getattr(FLAGS, 'stoch_valid', False):
-    #    print('use diff seed is True')
-    #    #while not is_initialized():
-    #    #print('Waiting for initialization ...')
-    #    #time.sleep(5)
-    #    print('Expected seed: {}'.format(getattr(FLAGS, 'random_seed', 0))) #+ get_rank()))
-    #    set_random_seed(getattr(FLAGS, 'random_seed', 0))# + get_rank())
+    torch.backends.cudnn.benchmark = False
+    scaler = torch.cuda.amp.GradScaler()
     if True: #else:
         set_random_seed()
 
-    ####### DEBUG MSG: START ############
+    ####### DEBUG MSG 
     interp_method = 'simple_interpolation (ours)' if getattr(FLAGS, 'simple_interpolation', False) else 'fracbits_original'
     print(f'\n==> Interpolation method: {interp_method}\n')
     if getattr(FLAGS, 'bitwidth_direct', False):
         print('==> Direct learning of bitwidth (This should be shown)\n')
 
-    ####### DEBUG MSG: END   ############
 
     # experiment setting
     experiment_setting = get_experiment_setting()
@@ -754,23 +756,15 @@ def train_val_test():
         if 'cpu' in FLAGS.profiling:
             profiling(model, use_cuda=False)
         return
-    #
+    
+    # ema_decay : not used
     ema_decay = getattr(FLAGS, 'ema_decay', None)
     if ema_decay:
         ema = EMA(ema_decay)
         ema.shadow_register(model_wrapper)
-        #for name, param in model.named_parameters():
-        #    if param.requires_grad:
-        #        ema.register(name, param.data)
-        #bn_idx = 0
-        #for m in model.modules():
-        #    if isinstance(m, nn.BatchNorm2d):
-        #        ema.register('bn{}_mean'.format(bn_idx), m.running_mean)
-        #        ema.register('bn{}_var'.format(bn_idx), m.running_var)
-        #        bn_idx += 1
     else:
         ema = None
-
+    
     # data
     train_transforms, val_transforms, test_transforms = data_transforms()
     train_set, val_set, test_set = dataset(
@@ -784,8 +778,6 @@ def train_val_test():
 
     # full precision pretrained
     if getattr(FLAGS, 'fp_pretrained_file', None):
-        #checkpoint = io.torch_load(
-            #FLAGS.fp_pretrained_file, map_location=lambda storage, loc: storage)
         if not os.path.isfile(FLAGS.fp_pretrained_file):
             pretrain_dir = os.path.dirname(FLAGS.fp_pretrained_file)
             os.system(f"wget -P {pretrain_dir} https://download.pytorch.org/models/mobilenet_v2-b0353104.pth")
@@ -802,6 +794,7 @@ def train_val_test():
                 print('remap {} to {}'.format(key_new, key_old))
             checkpoint = new_checkpoint
         model_dict = model_wrapper.state_dict()
+        
         #checkpoint = {k: v for k, v in checkpoint.items() if k in model_dict}
         # remove unexpected keys
         for k in list(checkpoint.keys()):
@@ -847,14 +840,11 @@ def train_val_test():
             run_one_epoch(
                 -1, test_loader,
                 model_wrapper, criterion, optimizer,
-                test_meters, phase='test', ema=ema)
+                test_meters, phase='test', ema=ema, scaler=scaler)
         return
 
     # check resume training ------------------------------
     if os.path.isfile(os.path.join(log_dir, 'latest_checkpoint.pt')):
-        #checkpoint = io.torch_load(
-        #    os.path.join(log_dir, 'latest_checkpoint.pt'),
-        #    map_location=lambda storage, loc: storage)
         checkpoint = torch.load(os.path.join(log_dir, 'latest_checkpoint.pt'))
         model_wrapper.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
@@ -908,7 +898,7 @@ def train_val_test():
         print(' train '.center(40, '*')) 
         train_top1 = run_one_epoch(
           epoch, train_loader, model_wrapper, criterion, optimizer,
-          train_meters, phase='train', ema=ema, scheduler=lr_sched)
+          train_meters, phase='train', ema=ema, scheduler=lr_sched, scaler=scaler)
         #print(f'{train_top1} <-> {flush_scalar_meters(train_meters)["top1_error"]}') -> 안되넴
 
         # val -----------------------------------------------
@@ -967,7 +957,7 @@ def train_val_test():
                 setattr(FLAGS,'hard_offset', 0)
             top1_error = run_one_epoch(
                 epoch, val_loader, model_wrapper, criterion, optimizer,
-                val_meters, phase='val', ema=ema)
+                val_meters, phase='val', ema=ema, scaler=scaler)
 
         if top1_error < best_val:
             best_val = top1_error

@@ -3,6 +3,7 @@ from utils.distributed import master_only_print as mprint
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.autograd import Function
 from torch.nn.modules.utils import _pair
 from utils.gumbel import gumbel_softmax
@@ -24,7 +25,6 @@ def bn_calibration(m):
 
 def out_shape(i, p, d, k, s):
     return (i + 2 * p - d * (k - 1) - 1) // s + 1
-
 
 class EMA():
     def __init__(self, decay):
@@ -148,7 +148,7 @@ class Quantize_k(Function):
             expand_dim = input.dim() - align_dim - 1
             a = a[(...,) + (None,) * expand_dim]
             res = torch.floor(a * input)
-            res = torch.clamp(res, max=a - 1)
+            res = F.hardtanh(res, -inf, a - 1)
             res.div_(a)
             res.add_(zero_point * torch.relu(2 - a))
             assert torch.all(res <= 1)
@@ -196,7 +196,7 @@ class QuantizableConv2d(nn.Conv2d):
         self.double_side = double_side
         self.weight_only = weight_only or getattr(FLAGS, 'weight_only', False)
         self.quant = Quantize_k.apply
-        self.alpha = nn.Parameter(torch.tensor(8.0))
+        self.alpha = nn.Parameter(torch.tensor([8.0]))
         init_bit = getattr(FLAGS, 'init_bit', 7.5)
         if getattr(FLAGS, 'per_channel', False) or getattr(FLAGS, 'per_channel_weight', False):
             self.lamda_w = nn.Parameter(torch.ones(self.out_channels) * init_bit)
@@ -239,13 +239,13 @@ class QuantizableConv2d(nn.Conv2d):
             lamda_w = torch.round(lamda_w + FLAGS.hard_offset).detach()
             lamda_a = torch.round(lamda_a + FLAGS.hard_offset).detach()
         
-        lamda_w = torch.clamp(lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
+        lamda_w = F.hardtanh(lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
         if self.lamda_w_min is not None:
-            lamda_w = torch.clamp(lamda_w, min=self.lamda_w_min)
+            lamda_w = F.hardtanh(lamda_w, self.lamda_w_min, 32)
         act_bits_list = getattr(FLAGS,'act_bits_list',FLAGS.bits_list)
-        lamda_a = torch.clamp(self.lamda_a, min(act_bits_list), max(act_bits_list))
+        lamda_a = F.hardtanh(self.lamda_a, min(act_bits_list), max(act_bits_list))
         if self.lamda_a_min is not None:
-            lamda_a = torch.clamp(lamda_a, min=self.lamda_a_min)
+            lamda_a = F.hardtanh(lamda_a, self.lamda_a_min, 32)
         
         weight_quant_scheme = self.quant_type
         act_quant_scheme = self.quant_type
@@ -307,15 +307,15 @@ class QuantizableConv2d(nn.Conv2d):
             weight.mul_(weight_scale)
 
         ### Activation quantization
+        input_val = input.div(torch.abs(self.alpha))
         if self.weight_only:
-            input_val = input
+            pass
         else:
             if self.double_side:
-                input_val = torch.where(input > -torch.abs(self.alpha), input, -torch.abs(self.alpha))
+                input_val = F.hardtanh(input_val, -1, 1)
             else:
-                input_val = torch.relu(input)
-            input_val = torch.where(input_val < torch.abs(self.alpha), input_val, torch.abs(self.alpha))
-            input_val.div_(torch.abs(self.alpha))
+                input_val = F.hardtanh(input_val, 0, 1)
+            
             if self.double_side:
                 input_val.add_(1.0)
                 input_val.div_(2.0)
@@ -385,13 +385,13 @@ class QuantizableConv2d(nn.Conv2d):
     def comp_cost_loss(self):
         oh, ow = self.output_size
         
-        lamda_w = torch.clamp(self.lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
+        lamda_w = F.hardtanh(self.lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
         if self.lamda_w_min is not None:
-            lamda_w = torch.clamp(lamda_w, min=self.lamda_w_min)
+            lamda_w = F.hardtanh(lamda_w, self.lamda_w_min, 32)
         act_bits_list = getattr(FLAGS,'act_bits_list',FLAGS.bits_list)
-        lamda_a = torch.clamp(self.lamda_a, min(act_bits_list), max(act_bits_list))
+        lamda_a = F.hardtanh(self.lamda_a, min(act_bits_list), max(act_bits_list))
         if self.lamda_a_min is not None:
-            lamda_a = torch.clamp(lamda_a, min=self.lamda_a_min)
+            lamda_a = F.hardtanh(lamda_a, self.lamda_a_min, 32)
         
         if getattr(FLAGS, 'per_channel', False) or getattr(FLAGS, 'per_channel_weight', False):
             lamda_w = lamda_w.view(self.groups, -1, 1)
@@ -418,9 +418,9 @@ class QuantizableConv2d(nn.Conv2d):
 
     @property
     def model_size_loss(self):
-        lamda_w = torch.clamp(self.lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
+        lamda_w = F.hardtanh(self.lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
         if self.lamda_w_min is not None:
-            lamda_w = torch.clamp(lamda_w, min=self.lamda_w_min)
+            lamda_w = F.hardtanh(lamda_w, self.lamda_w_min, 32)
         
         if getattr(FLAGS, 'per_channel', False) or getattr(FLAGS, 'per_channel_weight', False):
             pass
@@ -452,7 +452,7 @@ class QuantizableLinear(nn.Linear):
         self.lamda_a_min = lamda_a_min
         self.weight_only = weight_only or getattr(FLAGS, 'weight_only', False)
         self.quant = Quantize_k.apply
-        self.alpha = nn.Parameter(torch.tensor(10.0))
+        self.alpha = nn.Parameter(torch.tensor([10.0]))
         init_bit = getattr(FLAGS, 'init_bit', 7.5)
         if getattr(FLAGS, 'per_channel', False) or getattr(FLAGS, 'per_channel_weight', False):
             self.lamda_w = nn.Parameter(torch.ones(self.out_features) * init_bit)
@@ -482,13 +482,13 @@ class QuantizableLinear(nn.Linear):
         if getattr(FLAGS, 'hard_assignment',False):
             lamda_w = torch.round(lamda_w+FLAGS.hard_offset).detach()
             lamda_a = torch.round(lamda_a+FLAGS.hard_offset).detach()
-        lamda_w = torch.clamp(lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
+        lamda_w = F.hardtanh(lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
         if self.lamda_w_min is not None:
-            lamda_w = torch.clamp(lamda_w, min=self.lamda_w_min)
+            lamda_w = F.hardtanh(lamda_w, self.lamda_w_min, 32)
         act_bits_list = getattr(FLAGS,'act_bits_list',FLAGS.bits_list)
-        lamda_a = torch.clamp(self.lamda_a, min(act_bits_list), max(act_bits_list))
+        lamda_a = F.hardtanh(self.lamda_a, min(act_bits_list), max(act_bits_list))
         if self.lamda_a_min is not None:
-            lamda_a = torch.clamp(lamda_a, min=self.lamda_a_min)
+            lamda_a = F.hardtanh(lamda_a, self.lamda_a_min, 32)
         
         weight_quant_scheme = self.quant_type
         act_quant_scheme = self.quant_type
@@ -562,11 +562,11 @@ class QuantizableLinear(nn.Linear):
             bias = self.bias
 
         ### Activation quantization
+        input_val = input.div(torch.abs(self.alpha))
         if self.weight_only:
-            input_val = input
+            pass
         else:
-            input_val = torch.where(input < torch.abs(self.alpha), input, torch.abs(self.alpha))
-            input_val.div_(torch.abs(self.alpha))
+            input_val = F.hardtanh(input_val, 0, 1)
             # ------- introduce: general distance-based interpolation (simple ver.) 
             if getattr(FLAGS, 'simple_interpolation', False):
                 act_bits_tensor_list = torch.Tensor(act_bits_list).to(input_val.device)
@@ -611,13 +611,13 @@ class QuantizableLinear(nn.Linear):
     
     @property
     def comp_cost_loss(self):
-        lamda_w = torch.clamp(self.lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
+        lamda_w = F.hardtanh(self.lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
         if self.lamda_w_min is not None:
-            lamda_w = torch.clamp(lamda_w, min=self.lamda_w_min)
+            lamda_w = F.hardtanh(lamda_w, self.lamda_w_min, 32)
         act_bits_list = getattr(FLAGS,'act_bits_list',FLAGS.bits_list)
-        lamda_a = torch.clamp(self.lamda_a, min(act_bits_list), max(act_bits_list))
+        lamda_a = F.hardtanh(self.lamda_a, min(act_bits_list), max(act_bits_list))
         if self.lamda_a_min is not None:
-            lamda_a = torch.clamp(lamda_a, min=self.lamda_a_min)
+            lamda_a = F.hardtanh(lamda_a, self.lamda_a_min, 32)
         
         if getattr(FLAGS, 'per_channel', False) or getattr(FLAGS, 'per_channel_weight', False):
             lamda_w = lamda_w.view(-1, 1)
@@ -644,9 +644,9 @@ class QuantizableLinear(nn.Linear):
 
     @property
     def model_size_loss(self):
-        lamda_w = torch.clamp(self.lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
+        lamda_w = F.hardtanh(self.lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
         if self.lamda_w_min is not None:
-            lamda_w = torch.clamp(lamda_w, min=self.lamda_w_min)
+            lamda_w = F.hardtanh(lamda_w, self.lamda_w_min, 32)
         
         if getattr(FLAGS, 'per_channel', False) or getattr(FLAGS, 'per_channel_weight', False):
             pass
