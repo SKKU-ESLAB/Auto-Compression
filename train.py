@@ -22,7 +22,7 @@ from utils.transforms import Lighting
 from utils.transforms import ImageFolderLMDB
 from ultron_io import UltronIO
 from utils.config import FLAGS
-from utils.meters import ScalarMeter, flush_scalar_meters
+from utils.meters import *
 from utils.model_profiling import compare_models
 from models.quantizable_ops import EMA
 from models.quantizable_ops import QuantizableConv2d, QuantizableLinear
@@ -34,6 +34,7 @@ import datetime
 #parser = argparse.ArgumentParser()
 #parser.add_argument('--log_interval', type=int, default=100)
 #args = parser.parse_args()
+
 
 def timing(f):
     @wraps(f)
@@ -543,18 +544,18 @@ def get_experiment_setting():
     return experiment_setting
 
 
-def forward_loss(model, criterion, input, target, meter):
+def forward_loss(model, criterion, inputs, targets, meter):
     """forward model and return loss"""
     if getattr(FLAGS, 'normalize', False):
-        input = input #(128 * input).round_().clamp_(-128, 127)
+        inputs = inputs #(128 * inputs).round_().clamp_(-128, 127)
     else:
-        input = (255 * input).round_()
-    output = model(input)
-    loss = torch.mean(criterion(output, target))
+        inputs = (255 * inputs).round_()
+    outputs = model(inputs)
+    loss = torch.mean(criterion(outputs, targets))
     # topk
-    _, pred = output.topk(max(FLAGS.topk))
+    _, pred = outputs.topk(max(FLAGS.topk))
     pred = pred.t()
-    correct = pred.eq(target.view(1, -1).expand_as(pred))
+    correct = pred.eq(targets.view(1, -1).expand_as(pred))
     correct_k = []
     for k in FLAGS.topk:
         correct_k.append(correct[:k].float().sum(0))
@@ -601,7 +602,7 @@ def get_model_size_loss(model):
     return loss
 
 
-n_layer = 53
+
 @timing
 def run_one_epoch(
         epoch, loader, model, criterion, optimizer, meters, phase='train', ema=None, scheduler=None):
@@ -614,15 +615,16 @@ def run_one_epoch(
         model.train()
     else:
         model.eval()
-
-
+    
+    eval_loss = AverageMeter()
+    eval_bitops_loss = AverageMeter()
+    top1 = AverageMeter()
+    top5 = AverageMeter()
+    
+    n_layer = 53
     len_loader = len(loader) // FLAGS.log_interval
-    global n_layer
-    lambda_array = np.zeros((2, 53, len_loader)) #len(loader)))
-    acc1_array = np.zeros(len_loader) #len(loader))
 
-
-    for batch_idx, (input, target) in enumerate(loader):
+    for batch_idx, (inputs, targets) in enumerate(loader):
         ######### FAST TEST Start ###########
         # if batch_idx == len_loader :
         #     break
@@ -631,7 +633,7 @@ def run_one_epoch(
         if phase == 'cal':
             if batch_idx == getattr(FLAGS, 'bn_cal_batch_num', -1):
                 break
-        target = target.cuda(non_blocking=True)
+        targets = targets.cuda(non_blocking=True)
         if train:
             if FLAGS.lr_scheduler == 'linear_decaying':
                 linear_decaying_per_step = (
@@ -640,8 +642,15 @@ def run_one_epoch(
                     param_group['lr'] -= linear_decaying_per_step
             
             optimizer.zero_grad()
-            loss = forward_loss(
-                model, criterion, input, target, meters)
+            ############ [Question] what is this block for? #############
+            ##             8-bit quantization?                         ##
+            if getattr(FLAGS, 'normalize', False):
+                inputs = inputs #(128 * inputs).round_().clamp_(-128, 127)
+            else:
+                inputs = (255 * inputs).round_()
+            #############################################################
+            outputs = model(inputs)
+            loss = torch.mean(criterion(outputs, targets))
             if epoch >= FLAGS.warmup_epochs and not getattr(FLAGS,'hard_assignment', False):
                 if getattr(FLAGS,'weight_only', False):
                     loss += getattr(FLAGS, 'kappa', 1.0) * get_model_size_loss(model)
@@ -653,59 +662,55 @@ def run_one_epoch(
             if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
                 scheduler.step()
 
-            #print(100*(1-results["top1_error"]))
+            acc1, acc5 = accuracy(outputs.data, targets.data, top_k=(1,5))
+            eval_loss.update(loss.item(), inputs.size(0))
+
+            top1.update(acc1[0], inputs.size(0))
+            top5.update(acc5[0], inputs.size(0))
+
+            if getattr(FLAGS, 'log_bitwidth', False):
+                log_dict = {'acc1_iter': acc1.item(), 
+                            'acc1_avg': top1.avg}
+                cnt = 0
+                for name, m in model.named_modules():
+                    if hasattr(m, 'lamda_w'):
+                        log_dict[f'{cnt}_lambda_w'] = m.lamda_w.item()
+                        log_dict[f'{cnt}_lambda_a'] = m.lamda_a.item()
+                        cnt += 1
+                wandb.log(log_dict)
+
             if (batch_idx) % FLAGS.log_interval == 0:
-                results = flush_scalar_meters(meters)
-                curr = batch_idx * len(input)
+                curr = batch_idx * len(inputs)
                 total = len(loader.dataset)
-                if getattr(FLAGS, 'log_bitwidth', False):
-                    acc1_array[batch_idx // FLAGS.log_interval] = (100*(1-results["top1_error"]))
-                    for name, m in model.named_modules():
-                        cnt = 0
-                        if hasattr(m, 'lamda_w'):
-                            lambda_array[0, cnt, batch_idx // FLAGS.log_interval] = m.lamda_w.item()
-                            lambda_array[1, cnt, batch_idx // FLAGS.log_interval] = m.lamda_a.item()
-                            cnt += 1
                 print(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Train Epoch: {epoch:4d}  Phase: {phase}  Process: {curr:5d}/{total:5d} '\
-                      f'Loss: {results["loss"]:.3f} | '\
-                      f'top1.avg: {100*(1-results["top1_error"]):.3f} % | '\
-                      f'top5.avg: {100*(1-results["top5_error"]):.3f} % | ')
+                      f'Loss: {eval_loss.avg:.4f} | '\
+                      f'top1.avg: {top1.avg:.4f} % | '\
+                      f'top5.avg: {top5.avg:.4f} % | ')
 
         
         else: #not train
             if ema:
                 print('ema apply')
                 ema.shadow_apply(model)
-            forward_loss(model, criterion, input, target, meters)
+            forward_loss(model, criterion, inputs, targets, meters)
+            outputs = model(inputs)
+            #loss = torch.mean(criterion(outputs, targets))
+            #acc1, acc5 = accuracy(outputs.data, targets.data, top_k=(1,5))
+            #eval_loss.update(loss.item(), inputs.size(0))
+            #top1.update(acc1[0], inputs.size(0))
+            #top5.update(acc5[0], inputs.size(0))
             if ema:
                 print('ema recover')
                 ema.weight_recover(model)
-    
-    ########## save lambda log start ############
-    if train:
-        #np_lambda_wa = np.array([lambda_wlist, lambda_alist])
-        #np_acc1 = np.array(acc1_list)
-        np_lambda_path = os.path.join(log_dir, f'{epoch}ep.npy')
-        np_acc1_path = os.path.join(log_dir, f'{epoch}ep_acc1.npy')
-        np.save(np_lambda_path, lambda_array)
-        np.save(np_acc1_path, acc1_array)
-        print(f'{np_lambda_path} saved.')
-        print('np_lambda_wa shape: ', lambda_array.shape)
-        print('np_acc1 shape: ', acc1_array.shape)
-        exit()
-        
-    ########## save lambda log end ############
 
     val_top1 = None
-    #if is_master():
     try:
-        results = flush_scalar_meters(meters)
-    except:
-        pass
-    print('{:.1f}s\t{}\t{}/{}: '.format(
+        print('{:.1f}s\t{}\t{}/{}: '.format(
         time.time() - t_start, phase, epoch, FLAGS.num_epochs) +
         ', '.join('{}: {}'.format(k, v) for k, v in results.items()))
-    val_top1 = results['top1_error']
+        val_top1 = results['top1_error']
+    except:
+        val_top1 = top1.avg
     return val_top1
 
 
