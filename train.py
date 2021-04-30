@@ -677,6 +677,7 @@ def run_one_epoch(
                         log_dict[f'{cnt}_lambda_w'] = m.lamda_w.item()
                         log_dict[f'{cnt}_lambda_a'] = m.lamda_a.item()
                         cnt += 1
+                log_dict['loss'] = loss.item()
                 wandb.log(log_dict)
 
             if (batch_idx) % FLAGS.log_interval == 0:
