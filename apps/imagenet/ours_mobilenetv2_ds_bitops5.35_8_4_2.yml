@@ -83,3 +83,4 @@ data_transforms: imagenet1k_mobile
 log_interval: 100
 
 simple_interpolation: True
+amp: True

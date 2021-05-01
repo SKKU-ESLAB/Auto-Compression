@@ -1,0 +1,14 @@
+--- Change Log ---
+1. apps 에 cifar10 파일 생성 및 내용수정
+2. train.py에서 cifar10 train_transforms 이상해서 다른코드 참고해서 수정함!
+3. test_ablation.py에도 동일하게 했음
+
+--- 해야하는 것 ---
+1. cifar10 resnet20   -> pretrained 없어서 내가 training 해야함!
+2. cifar100 resnet18 
+
+
+--- 물어볼 것 ---
+1. crop_scale, jitter_param, lighting_param 따로 추가해야하는지? 필요없을듯 ㅇㅇ 
+2. 
+
