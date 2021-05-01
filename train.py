@@ -26,7 +26,7 @@ from utils.meters import *
 from utils.model_profiling import compare_models
 from models.quantizable_ops import EMA
 from models.quantizable_ops import QuantizableConv2d, QuantizableLinear
-import wandb
+#import wandb
 import datetime
 import torch.cuda.amp as amp
 
@@ -121,8 +121,10 @@ def data_transforms():
         else:
             mean = [0.0, 0.0, 0.0]
             std = [1.0, 1.0, 1.0]
+        ### me !! ###
         train_transforms = transforms.Compose([
-            transforms.RandomCrop(224, padding=4),
+            transforms.Pad(4),
+            transforms.RandomCrop(32),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize(mean=mean, std=std),
@@ -687,19 +689,13 @@ def run_one_epoch(
                 log_dict = {'acc1_iter': acc1.item(), 
                             'acc1_avg': top1.avg}
                 cnt = 0
-                lambda_w_list = []
-                lambda_a_list = []
                 for name, m in model.named_modules():
                     if hasattr(m, 'lamda_w'):
-                        #log_dict[f'{cnt}_lambda_w'] = m.lamda_w.item()
-                        #log_dict[f'{cnt}_lambda_a'] = m.lamda_a.item()
-                        lambda_w_list.append(m.lamda_w.item())
-                        lambda_a_list.append(m.lamda_a.item())
+                        log_dict[f'{cnt}_lambda_w'] = m.lamda_w.item()
+                        log_dict[f'{cnt}_lambda_a'] = m.lamda_a.item()
                         cnt += 1
-                log_dict['bitwidth_W'] = np.array(lambda_w_list)
-                log_dict['bitwidth_A'] = np.array(lambda_a_list)
                 log_dict['loss'] = loss.item()
-                wandb.log(log_dict)
+                #wandb.log(log_dict)
 
             if (batch_idx) % FLAGS.log_interval == 0:
                 curr = batch_idx * len(inputs)
@@ -789,6 +785,7 @@ def train_val_test():
     if getattr(FLAGS, 'fp_pretrained_file', None):
         if not os.path.isfile(FLAGS.fp_pretrained_file):
             pretrain_dir = os.path.dirname(FLAGS.fp_pretrained_file)
+            print(FLAGS.fp_pretrained_file)
             os.system(f"wget -P {pretrain_dir} https://download.pytorch.org/models/mobilenet_v2-b0353104.pth")
         checkpoint = torch.load(FLAGS.fp_pretrained_file)
         # update keys from external models
@@ -892,8 +889,8 @@ def train_val_test():
         except OSError:
             pass
     PROJECT_NAME='LBQv2'
-    wandb.init(project=PROJECT_NAME, dir=FLAGS.log_dir)
-    wandb.config.update(FLAGS)
+    #wandb.init(project=PROJECT_NAME, dir=FLAGS.log_dir)
+    #wandb.config.update(FLAGS)
 
     print('Start training.')
     for epoch in range(last_epoch+1, FLAGS.num_epochs):
