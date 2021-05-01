@@ -122,8 +122,9 @@ def data_transforms():
             mean = [0.0, 0.0, 0.0]
             std = [1.0, 1.0, 1.0]
         train_transforms = transforms.Compose([
-            transforms.RandomCrop(224, padding=4),
-            transforms.RandomHorizontalFlip(),
+            transforms.Pad(4),
+            transforms.RandomCrop(32)
+            transforms.RandomHorizontalFilp(),
             transforms.ToTensor(),
             transforms.Normalize(mean=mean, std=std),
             ])
