@@ -687,11 +687,17 @@ def run_one_epoch(
                 log_dict = {'acc1_iter': acc1.item(), 
                             'acc1_avg': top1.avg}
                 cnt = 0
+                lambda_w_list = []
+                lambda_a_list = []
                 for name, m in model.named_modules():
                     if hasattr(m, 'lamda_w'):
-                        log_dict[f'{cnt}_lambda_w'] = m.lamda_w.item()
-                        log_dict[f'{cnt}_lambda_a'] = m.lamda_a.item()
+                        #log_dict[f'{cnt}_lambda_w'] = m.lamda_w.item()
+                        #log_dict[f'{cnt}_lambda_a'] = m.lamda_a.item()
+                        lambda_w_list.append(m.lamda_w.item())
+                        lambda_a_list.append(m.lamda_a.item())
                         cnt += 1
+                log_dict['bitwidth_W'] = np.array(lambda_w_list)
+                log_dict['bitwidth_A'] = np.array(lambda_a_list)
                 log_dict['loss'] = loss.item()
                 wandb.log(log_dict)
 
