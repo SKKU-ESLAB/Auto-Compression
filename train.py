@@ -682,7 +682,8 @@ def run_one_epoch(
 
             top1.update(acc1[0], inputs.size(0))
             top5.update(acc5[0], inputs.size(0))
-
+            ################# for removing wandb ##############
+            '''
             if getattr(FLAGS, 'log_bitwidth', False):
                 log_dict = {'acc1_iter': acc1.item(), 
                             'acc1_avg': top1.avg}
@@ -700,7 +701,8 @@ def run_one_epoch(
                 log_dict['bitwidth_A'] = np.array(lambda_a_list)
                 log_dict['loss'] = loss.item()
                 wandb.log(log_dict)
-
+            '''
+            #################################################
             if (batch_idx) % FLAGS.log_interval == 0:
                 curr = batch_idx * len(inputs)
                 total = len(loader.dataset)
@@ -891,10 +893,11 @@ def train_val_test():
             os.makedirs(log_dir)
         except OSError:
             pass
-    PROJECT_NAME='LBQv2'
-    wandb.init(project=PROJECT_NAME, dir=FLAGS.log_dir)
-    wandb.config.update(FLAGS)
-
+    #################### for removing wandb #################
+    #PROJECT_NAME='LBQv2'
+    #wandb.init(project=PROJECT_NAME, dir=FLAGS.log_dir)
+    #wandb.config.update(FLAGS)
+    #########################################################
     print('Start training.')
     for epoch in range(last_epoch+1, FLAGS.num_epochs):
         if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
