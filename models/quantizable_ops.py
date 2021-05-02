@@ -253,9 +253,9 @@ class QuantizableConv2d(nn.Conv2d):
         weight.add_(1.0)
         weight.div_(2.0)
 
-        # ------- introduce: general distance-based interpolation (simple ver.) 
         if getattr(FLAGS, 'simple_interpolation', False):
-            ### [NOW Doing] window size implementation #################################
+            # ------- introduce: general distance-based interpolation (simple ver.) 
+            #######    window size setting    ######
             window_size = getattr(FLAGS, 'window_size', 2)
             weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(weight.device)
             m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
@@ -263,10 +263,7 @@ class QuantizableConv2d(nn.Conv2d):
             m = m[indices]
             weight_bits_tensor_list = weight_bits_tensor_list[indices]
             p = m / m.sum(dim=0, keepdim=True)
-            #print('\n', m)
-            #print(p)
-            #print(weight_bits_tensor_list, '\n')
-            ############################################################################
+            ########################################
             if self.lamda_w_min == 8:
                 weight = self.quant(weight, lamda_w, 0, 0.5, 0, 'simple_interpolation')
             elif getattr(FLAGS, 'stepsize_aggregation', False):
@@ -284,16 +281,19 @@ class QuantizableConv2d(nn.Conv2d):
             elif getattr(FLAGS, 'nlvs_direct', False):
                 weight = self.quant(weight, torch.zeros(1), 0, 0.5, self.nlvs_w, weight_quant_scheme)
             else:
-                weight_list = []
+                weight_temp = 0
                 for i, bit in enumerate(weight_bits_tensor_list):
-                    weight_list.append(p[i].view(-1, 1, 1, 1) * self.quant(weight, bit, 0, 0.5, 0, weight_quant_scheme))
-                weight = torch.stack(weight_list).sum(dim=0)
+                   weight_temp += p[i].view(-1, 1, 1, 1) * self.quant(weight, bit, 0, 0.5, 0, weight_quant_scheme)
+                weight = weight_temp
+                #weight_list = []
+                #for i, bit in enumerate(weight_bits_tensor_list):
+                #    weight_list.append(p[i].view(-1, 1) * self.quant(weight, bit, 0, 0.5, 0, weight_quant_scheme))
+                #weight = torch.stack(weight_list).sum(dim=0)
             # -------------------------------------------------------
         else:
             p_l = 1 + torch.floor(lamda_w) - lamda_w
             p_h = 1 - p_l
-            print(p_l)
-            print(p_h)
+
             if not getattr(FLAGS, 'hard_assignment', False) and getattr(FLAGS,'gumbel_softmax',False):
                 logits = torch.Tensor([torch.log(p_l)+ self.eps, torch.log(p_h) + self.eps]).view(1,2).cuda()
                 one_hot = gumbel_softmax(logits, getattr(FLAGS, 'temperature',1.0))
@@ -319,12 +319,14 @@ class QuantizableConv2d(nn.Conv2d):
             input_val = input
         else:
             if self.double_side:
-                input_val = torch.where(input > -torch.abs(self.alpha), input, -torch.abs(self.alpha).type(input.type()))
+                input_val = torch.where(input > -torch.abs(self.alpha), input, -torch.abs(self.alpha))
+                #input_val = torch.where(input > -torch.abs(self.alpha), input, -torch.abs(self.alpha).type(input.type()))
                 #print(input > -torch.abs(self.alpha))
                 #exit()
             else:
                 input_val = torch.relu(input)
-            input_val = torch.where(input_val < torch.abs(self.alpha), input_val, torch.abs(self.alpha).type(input.type()))
+            input_val = torch.where(input_val < torch.abs(self.alpha), input_val, torch.abs(self.alpha))
+            #input_val = torch.where(input_val < torch.abs(self.alpha), input_val, torch.abs(self.alpha).type(input.type()))
             input_val.div_(torch.abs(self.alpha))
             if self.double_side:
                 input_val.add_(1.0)
@@ -334,6 +336,9 @@ class QuantizableConv2d(nn.Conv2d):
             if getattr(FLAGS, 'simple_interpolation', False):
                 act_bits_tensor_list = torch.Tensor(act_bits_list).to(input_val.device)
                 m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
+                values, indices = torch.topk(m, window_size, dim=0)
+                m = m[indices]
+                act_bits_tensor_list = act_bits_tensor_list[indices]
                 p = m / m.sum(dim=0, keepdim=True)
                 if self.lamda_a_min == 8:
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, 'simple_interpolation')
@@ -352,10 +357,15 @@ class QuantizableConv2d(nn.Conv2d):
                 elif getattr(FLAGS, 'nlvs_direct', False):
                     input_val = self.quant(input_val, torch.zeros(1), 1, 0, self.nlvs_a, weight_quant_scheme)
                 else:
+                    '''
                     input_val_list = []
+                    for i, bit in enumerate(act_bits_tensor_list):
+                        input_val_list.append(p[i] * self.quant(input_val, bit, 1, 0, 0, act_quant_scheme))
+                    input_val = torch.stack(input_val_list).sum(dim=0)'''
+                    input_temp = 0
                     for i , bit in enumerate(act_bits_tensor_list):
-                        input_val_list.append(p[i].view(-1, 1, 1) * self.quant(input_val, bit, 1, 0, 0, act_quant_scheme))
-                    input_val = torch.stack(input_val_list).sum(dim=0)
+                        input_temp += p[i].view(-1, 1, 1) * self.quant(input_val, bit, 1, 0, 0, act_quant_scheme)
+                    input_val = input_temp
                 # -------------------------------------------------------
             else:
                 p_a_l = 1 + torch.floor(lamda_a) - lamda_a
@@ -519,6 +529,9 @@ class QuantizableLinear(nn.Linear):
                 print('\n\n\n[Error]This shouldn\'t be printed!!!! ')
                 weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(weight.device)
                 m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
+                values, indices = torch.topk(m, window_size, dim=0) 
+                m = m[indices] 
+                weight_bits_tensor_list = weight_bits_tensor_list[indices] 
                 p = m / m.sum(dim=0, keepdim=True)
                 if getattr(FLAGS, 'stepsize_aggregation', False):
                     # lamda_w is 8
@@ -576,12 +589,17 @@ class QuantizableLinear(nn.Linear):
         if self.weight_only:
             input_val = input
         else:
-            input_val = torch.where(input < torch.abs(self.alpha), input, torch.abs(self.alpha).type(input.type()))
+            input_val = torch.where(input < torch.abs(self.alpha), input, torch.abs(self.alpha))
+            #input_val = torch.where(input < torch.abs(self.alpha), input, torch.abs(self.alpha).type(input.type()))
             input_val.div_(torch.abs(self.alpha))
             # ------- introduce: general distance-based interpolation (simple ver.) 
             if getattr(FLAGS, 'simple_interpolation', False):
+                window_size = getattr(FLAGS, 'window_size', 2)
                 act_bits_tensor_list = torch.Tensor(act_bits_list).to(input_val.device)
                 m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
+                values, indices = torch.topk(m, window_size, dim=0)
+                m = m[indices]
+                act_bits_tensor_list = act_bits_tensor_list[indices]
                 p = m / m.sum(dim=0, keepdim=True)
                 if self.lamda_a_min == 8:
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, 'simple_interpolation')
@@ -600,10 +618,14 @@ class QuantizableLinear(nn.Linear):
                 elif getattr(FLAGS, 'nlvs_direct', False):
                     input_val = self.quant(input_val, torch.zeros(1), 1, 0, self.nlvs_a, weight_quant_scheme)
                 else:
-                    input_val_list = []
+                    #input_val_list = []
+                    #for i, bit in enumerate(act_bits_tensor_list):
+                    #    input_val_list.append(p[i] * self.quant(input_val, bit, 1, 0, 0, act_quant_scheme))
+                    #input_val = torch.stack(input_val_list).sum(dim=0)
+                    input_temp = 0
                     for i, bit in enumerate(act_bits_tensor_list):
-                        input_val_list.append(p[i] * self.quant(input_val, bit, 1, 0, 0, act_quant_scheme))
-                    input_val = torch.stack(input_val_list).sum(dim=0)
+                        input_temp += p[i] * self.quant(input_val, bit, 1, 0, 0, act_quant_scheme)
+                    input_val = input_temp
                 # ----------------------------------------------
             else:
                 p_a_l = 1 + torch.floor(lamda_a) - lamda_a

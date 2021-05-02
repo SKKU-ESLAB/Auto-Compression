@@ -82,7 +82,7 @@ model: models.q_mobilenet_v2
 double_side: True
 data_transforms: imagenet1k_mobile
 log_interval: 50
-amp: True
+#amp: True
 window_size: 2
 simple_interpolation: True
-log_bitwidth: True
+#log_bitwidth: True
