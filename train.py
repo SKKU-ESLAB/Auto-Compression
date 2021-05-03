@@ -26,9 +26,11 @@ from utils.meters import *
 from utils.model_profiling import compare_models
 from models.quantizable_ops import EMA
 from models.quantizable_ops import QuantizableConv2d, QuantizableLinear
-#import wandb
+import wandb
 import datetime
 import torch.cuda.amp as amp
+
+torch.autograd.set_detect_anomaly(True)
 
 #import argparse
 
@@ -497,7 +499,6 @@ def set_random_seed(seed=None):
     torch.cuda.manual_seed_all(seed)
 
 
-#@master_only
 def get_meters(phase):
     """util function for meters"""
     def get_single_meter(phase, suffix=''):
@@ -605,7 +606,6 @@ def get_model_size_loss(model):
     return loss
 
 
-torch.autograd.set_detect_anomaly(True)
 @timing
 def run_one_epoch(
         epoch, loader, model, criterion, optimizer, meters, phase='train', ema=None, scheduler=None, scaler=None):
@@ -625,12 +625,14 @@ def run_one_epoch(
     top5 = AverageMeter()
     
     n_layer = 53
-    len_loader = len(loader) // FLAGS.log_interval
+
+    lambda_w_list = []
+    lambda_a_list = []
 
     for batch_idx, (inputs, targets) in enumerate(loader):
         ######### FAST TEST Start ###########
-        # if batch_idx == len_loader :
-        #     break
+        #if batch_idx == 20:
+        #    break
         ######### FAST TEST End ###########
 
         if phase == 'cal':
@@ -684,22 +686,27 @@ def run_one_epoch(
 
             top1.update(acc1[0], inputs.size(0))
             top5.update(acc5[0], inputs.size(0))
-            ################# for removing wandb ##############
-            '''
+            lambda_w_temp = []
+            lambda_a_temp = []
             if getattr(FLAGS, 'log_bitwidth', False):
-                log_dict = {'acc1_iter': acc1.item(), 
-                            'acc1_avg': top1.avg}
-                cnt = 0
+                #cnt = 0
                 for name, m in model.named_modules():
                     if hasattr(m, 'lamda_w'):
-                        log_dict[f'{cnt}_lambda_w'] = m.lamda_w.item()
-                        log_dict[f'{cnt}_lambda_a'] = m.lamda_a.item()
-                        cnt += 1
-                log_dict['loss'] = loss.item()
-                wandb.log(log_dict)
-            '''
-            #################################################
+                        lambda_w_temp.append(m.lamda_w.item())
+                        lambda_a_temp.append(m.lamda_a.item())
+                        #log_dict[f'{cnt}_lambda_w'] = m.lamda_w.item()
+                        #log_dict[f'{cnt}_lambda_a'] = m.lamda_a.item()
+                        #cnt += 1
+            lambda_w_list.append(lambda_w_temp)
+            lambda_a_list.append(lambda_a_temp)
+            
             if (batch_idx) % FLAGS.log_interval == 0:
+                if getattr(FLAGS, 'log_wandb', False):
+                    log_dict = {'acc1_iter': acc1.item(), 
+                                'acc1_avg': top1.avg,
+                                'acc5_avg': top5.avg}
+                    log_dict['loss'] = loss.item()
+                    wandb.log(log_dict)
                 curr = batch_idx * len(inputs)
                 total = len(loader.dataset)
                 print(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Train Epoch: {epoch:4d}  Phase: {phase}  Process: {curr:5d}/{total:5d} '\
@@ -717,7 +724,36 @@ def run_one_epoch(
             if ema:
                 print('ema recover')
                 ema.weight_recover(model)
+    if train:
+        print(np.array(lambda_w_list).shape)
+        print(np.array(lambda_a_list).shape)
+        np.save(f'{FLAGS.log_dir}/lambda_w_ep{epoch}.npy', np.array(lambda_w_list))
+        np.save(f'{FLAGS.log_dir}/lambda_a_ep{epoch}.npy', np.array(lambda_a_list))
+        #print(np.load(f'{FLAGS.log_dir}/lambda_w_ep{epoch}.npy'))
+        #print(np.load(f'{FLAGS.log_dir}/lambda_a_ep{epoch}.npy'))
+        #exit()
+        print('bitwidth numpy file saved!!')
+        
+        print('\ncurrent bitwidth (weight):')
+        lambda_temp = []
+        for name, m in model.named_modules():
+            if hasattr(m, 'lamda_w'):
+                lambda_temp.append(m.lamda_w.item())
+        for idx, value in enumerate(lambda_temp):
+            print(f'{value:.4f}    ', end='')
+            if idx % 10 == 0:
+                print()
 
+        print('\ncurrent bitwidth (activation):')
+        lambda_temp = []
+        for name, m in model.named_modules():
+            if hasattr(m, 'lamda_a'):
+                lambda_temp.append(m.lamda_a.item())
+        for idx, value in enumerate(lambda_temp):
+            print(f'{value:.4f}    ', end='')
+            if idx % 10 == 0:
+                print()
+    
     val_top1 = None
     try:
         print('{:.1f}s\t{}\t{}/{}: '.format(
@@ -891,9 +927,10 @@ def train_val_test():
         except OSError:
             pass
     #################### for removing wandb #################
-    #PROJECT_NAME='LBQv2'
-    #wandb.init(project=PROJECT_NAME, dir=FLAGS.log_dir)
-    #wandb.config.update(FLAGS)
+    if getattr(FLAGS, 'log_wandb', False):
+        PROJECT_NAME='LBQv2'
+        wandb.init(project=PROJECT_NAME, dir=FLAGS.log_dir)
+        wandb.config.update(FLAGS)
     #########################################################
     print('Start training.')
     for epoch in range(last_epoch+1, FLAGS.num_epochs):

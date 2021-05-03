@@ -1,10 +1,9 @@
-
 # =========================== Basic Settings ===========================
 # machine info
 num_gpus_per_job: 1  # number of gpus each job need
 num_cpus_per_job: 4  # number of cpus each job need
 memory_per_job: 200  # memory requirement each job need
-gpu_type: "v100"
+gpu_type: "titan rtx"
 
 # data
 dataset: imagenet1k
@@ -12,13 +11,13 @@ data_transforms: imagenet1k_basic
 data_loader: imagenet1k_basic
 dataset_dir: /data/imagenet
 #dataset_dir: /mnt/cephfs_new_wj/uslabcv/meijieru/data/imagenet_lmdb
-data_loader_workers: 32 #10
+data_loader_workers: 12 #10
 
 # info
 num_classes: 1000
 image_size: 224
 topk: [1, 5]
-num_epochs: 60
+num_epochs: 50
 
 # optimizer
 optimizer: sgd
@@ -27,7 +26,7 @@ weight_decay: 0.00004
 nesterov: True
 
 # lr
-lr: 0.1
+lr: 0.025
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
 #exp_decaying_gamma: 0.98
@@ -44,7 +43,7 @@ test_only: False
 
 #
 random_seed: 1
-batch_size: 128
+batch_size: 64 #512 #256 #1024 #4096 #1024 #256
 model: ''
 reset_parameters: True
 
@@ -74,15 +73,16 @@ weight_quant_scheme: original
 act_quant_scheme: original
 init_bit: 4.5
 target_bitops: 5.35
-hard_assign_epoch: 40
+hard_assign_epoch: 35
 # =========================== Override Settings ===========================
 fp_pretrained_file: /home/lkj004124/logs/mobilenet_v2-b0353104.pth
-log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0501_result_interp_mbv2_bitops5.35_ws4
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0503_bitwidth_direct_mbv2_bitops5.35
 model: models.q_mobilenet_v2
 double_side: True
 data_transforms: imagenet1k_mobile
 log_interval: 50
 amp: False
-window_size: 2
 simple_interpolation: True
-log_bitwidth: False
+bitwidth_direct: True
+log_bitwidth: True
+log_wandb: False

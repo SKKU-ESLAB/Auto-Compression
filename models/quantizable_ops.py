@@ -254,11 +254,14 @@ class QuantizableConv2d(nn.Conv2d):
         weight.div_(2.0)
 
         if getattr(FLAGS, 'simple_interpolation', False):
-            # ------- introduce: general distance-based interpolation (simple ver.) 
+            # ------- introduce: general distance-based interpolation 
             #######    window size setting    ######
             window_size = getattr(FLAGS, 'window_size', 2)
             weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(weight.device)
-            m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
+            # ver 1. (잘안됨)
+            #m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
+            # ver 2. (여전히 잘안됨)
+            m = torch.Tensor([window_size]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
             values, indices = torch.topk(m, window_size, dim=0)
             m = m[indices]
             weight_bits_tensor_list = weight_bits_tensor_list[indices]
@@ -332,14 +335,19 @@ class QuantizableConv2d(nn.Conv2d):
                 input_val.add_(1.0)
                 input_val.div_(2.0)
 
-            # ------- introduce: general distance-based interpolation (simple ver.) 
+            # ------- introduce: general distance-based interpolation
             if getattr(FLAGS, 'simple_interpolation', False):
                 act_bits_tensor_list = torch.Tensor(act_bits_list).to(input_val.device)
-                m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
+                # ver 1. (잘안됨)
+                #m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
+                # ver 2. (여전히 잘안됨)
+                m = torch.Tensor([window_size]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
                 values, indices = torch.topk(m, window_size, dim=0)
                 m = m[indices]
                 act_bits_tensor_list = act_bits_tensor_list[indices]
                 p = m / m.sum(dim=0, keepdim=True)
+                print('alpha:', self.alpha.item())
+                print('lamda_a', self.lamda_a.item())
                 if self.lamda_a_min == 8:
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, 'simple_interpolation')
                 elif getattr(FLAGS, 'stepsize_aggregation', False):
@@ -355,6 +363,8 @@ class QuantizableConv2d(nn.Conv2d):
                 elif getattr(FLAGS, 'bitwidth_direct', False):
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, act_quant_scheme)
                 elif getattr(FLAGS, 'nlvs_direct', False):
+                    print('alpha:', self.alpha.item())
+                    print('nlvs_a:', self.nlvs_a.item())
                     input_val = self.quant(input_val, torch.zeros(1), 1, 0, self.nlvs_a, weight_quant_scheme)
                 else:
                     '''
@@ -519,8 +529,7 @@ class QuantizableLinear(nn.Linear):
         weight.add_(1.0)
         weight.div_(2.0)
 
-        # ------- introduce: general distance-based interpolation (simple ver.) 
-        
+        # ------- introduce: general distance-based interpolation 
         # !! Linear layer use 8-bit weight !! # 
         if getattr(FLAGS, 'simple_interpolation', False):
             if self.lamda_w_min == 8:
@@ -528,7 +537,10 @@ class QuantizableLinear(nn.Linear):
             else:
                 print('\n\n\n[Error]This shouldn\'t be printed!!!! ')
                 weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(weight.device)
-                m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
+                # ver 1. (잘안됨)
+                #m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
+                # ver 2. (여전히 잘안됨)
+                m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
                 values, indices = torch.topk(m, window_size, dim=0) 
                 m = m[indices] 
                 weight_bits_tensor_list = weight_bits_tensor_list[indices] 
@@ -592,11 +604,14 @@ class QuantizableLinear(nn.Linear):
             input_val = torch.where(input < torch.abs(self.alpha), input, torch.abs(self.alpha))
             #input_val = torch.where(input < torch.abs(self.alpha), input, torch.abs(self.alpha).type(input.type()))
             input_val.div_(torch.abs(self.alpha))
-            # ------- introduce: general distance-based interpolation (simple ver.) 
+            # ------- introduce: general distance-based interpolation 
             if getattr(FLAGS, 'simple_interpolation', False):
                 window_size = getattr(FLAGS, 'window_size', 2)
                 act_bits_tensor_list = torch.Tensor(act_bits_list).to(input_val.device)
-                m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
+                # ver 1. (잘안됨)
+                #m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
+                # ver 2. (여전히 잘안됨)
+                m = torch.Tensor([window_size]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
                 values, indices = torch.topk(m, window_size, dim=0)
                 m = m[indices]
                 act_bits_tensor_list = act_bits_tensor_list[indices]

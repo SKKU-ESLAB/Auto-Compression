@@ -598,7 +598,6 @@ def train(epoch, phase=None):
             theta_w_temp = []
             theta_a_temp = []
             for name, module in model.named_modules():
-                #if hasattr(module, name):
                 if isinstance(module, (Q_Conv2d, Q_Linear)):
                     theta_w_temp.append(F.softmax(module.theta / tau, dim = 0).cpu().tolist())
                 elif isinstance(module, (Q_ReLU, Q_ReLU6, Q_Sym)):
@@ -637,6 +636,7 @@ def train(epoch, phase=None):
     print(np.array(theta_a_list).shape)
     np.save(f'{args.save}/theta_w_ep{epoch}.npy', np.array(theta_w_list))
     np.save(f'{args.save}/theta_a_ep{epoch}.npy', np.array(theta_a_list))
+    print('bitwidth numpy file saved!!')
     
     if args.lb_mode:
         _, _, str_select, str_prob = extract_bitwidth(model, weight_or_act="weight", tau=tau)
