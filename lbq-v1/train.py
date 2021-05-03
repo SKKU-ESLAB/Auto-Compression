@@ -27,7 +27,7 @@ from torch.cuda import amp
 ### Common Arguments ----------------------------
 parser = argparse.ArgumentParser(description='PyTorch - Learning Quantization')
 parser.add_argument('--eval', action='store_true', help='evaluation mode')
-parser.add_argument('--log_dir', type=str, default='/home/ubuntu/lkj/wandb_logs/',
+parser.add_argument('--log_dir', type=str, default='/home/lkj004124/wandb_logs/',
                         help='Weights and Bias logging folder path')
 parser.add_argument('--model', default='mobilenetv2', help='select model')
 parser.add_argument('--dir', default='/data', help='data root')
@@ -527,9 +527,11 @@ def train(epoch, phase=None):
     top5 = AverageMeter()
     
     end = t0 = time.time()
+    theta_w_list = []
+    theta_a_list = []
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         ###### DEBUG LINE START ######
-        #if batch_idx == 2:
+        #if batch_idx == 3:
         #    break
         ###### DEBUG LINE END ######
         if (epoch > args.gumbel_epochs) and args.tau_end:
@@ -593,7 +595,19 @@ def train(epoch, phase=None):
                 'tau': tau,
                 }
             )
+            theta_w_temp = []
+            theta_a_temp = []
+            for name, module in model.named_modules():
+                #if hasattr(module, name):
+                if isinstance(module, (Q_Conv2d, Q_Linear)):
+                    theta_w_temp.append(F.softmax(module.theta / tau, dim = 0).cpu().tolist())
+                elif isinstance(module, (Q_ReLU, Q_ReLU6, Q_Sym)):
+                    theta_a_temp.append(F.softmax(module.theta / tau, dim = 0).cpu().tolist())
+            theta_w_list.append(theta_w_temp)
+            theta_a_list.append(theta_a_temp)
+            """
             ###  log theta of several selected modules
+            
             i = 1
             fw_list = []
             fa_list = []
@@ -617,8 +631,13 @@ def train(epoch, phase=None):
                 i += 1
             for f_ in fw_list + fa_list:
                 f_.close()
+            """
         end = time.time()
-
+    print(np.array(theta_w_list).shape)
+    print(np.array(theta_a_list).shape)
+    np.save(f'{args.save}/theta_w_ep{epoch}.npy', np.array(theta_w_list))
+    np.save(f'{args.save}/theta_a_ep{epoch}.npy', np.array(theta_a_list))
+    
     if args.lb_mode:
         _, _, str_select, str_prob = extract_bitwidth(model, weight_or_act="weight", tau=tau)
         logging.info(f'Epoch {epoch}, weight bitwidth selection \n' + \
