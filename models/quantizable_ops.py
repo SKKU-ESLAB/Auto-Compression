@@ -261,10 +261,16 @@ class QuantizableConv2d(nn.Conv2d):
             #######    window size setting    ######
             window_size = getattr(FLAGS, 'window_size', 2)
             weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(weight.device)
-            # ver 1.
-            #m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
-            # ver 2.
-            m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
+            if getattr(FLAGS, 'distance_v1_L1', False): # v1, L1
+                m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
+                m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
+            else: # v2, L1
+                m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
+                if getattr(FLAGS, 'distance_v2_L2', False): # v2, L2
+                    m = torch.square(m)
+                elif getattr(FLAGS, 'distance_v2_softmax', False): # v2, softmax
+                    tau = 0.5
+                    m = F.softmax(m / tau)
             values, indices = torch.topk(m, window_size, dim=0)
             m = m[indices]
             weight_bits_tensor_list = weight_bits_tensor_list[indices]
@@ -325,14 +331,10 @@ class QuantizableConv2d(nn.Conv2d):
             input_val = input
         else:
             if self.double_side:
-                input_val = torch.where(input > -torch.abs(self.alpha), input, -torch.abs(self.alpha))
-                #input_val = torch.where(input > -torch.abs(self.alpha), input, -torch.abs(self.alpha).type(input.type()))
-                #print(input > -torch.abs(self.alpha))
-                #exit()
+                input_val = torch.where(input > -torch.abs(self.alpha), input, -torch.abs(self.alpha).type(input.type()))
             else:
                 input_val = torch.relu(input)
-            input_val = torch.where(input_val < torch.abs(self.alpha), input_val, torch.abs(self.alpha))
-            #input_val = torch.where(input_val < torch.abs(self.alpha), input_val, torch.abs(self.alpha).type(input.type()))
+            input_val = torch.where(input_val < torch.abs(self.alpha), input_val, torch.abs(self.alpha).type(input.type()))
             input_val.div_(torch.abs(self.alpha))
             if self.double_side:
                 input_val.add_(1.0)
@@ -340,20 +342,22 @@ class QuantizableConv2d(nn.Conv2d):
 
             # ------- introduce: general distance-based interpolation
             if getattr(FLAGS, 'simple_interpolation', False):
+                window_size = getattr(FLAGS, 'window_size', 2)
                 act_bits_tensor_list = torch.Tensor(act_bits_list).to(input_val.device)
-                # ver 1.
-                #m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
-                # ver 2.
-                m = torch.Tensor([window_size/2]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
-                #print('m:', m)
+                if getattr(FLAGS, 'distance_v1_L1', False): # v1, L1
+                    m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
+                else: # v2, L1
+                    m = torch.Tensor([window_size/2]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
+                    if getattr(FLAGS, 'distance_v2_L2', False): # v2, L2
+                        m = torch.square(m)
+                    elif getattr(FLAGS, 'distance_v2_softmax', False): # v2, softmax
+                        tau = 0.5
+                        m = F.softmax(m / tau)
                 values, indices = torch.topk(m, window_size, dim=0)
                 m = m[indices]
-                #print('m:', m)
-                act_bits_tensor_list = act_bits_tensor_list[indices]
                 p = m / m.sum(dim=0, keepdim=True)
-                #print('p:', p)
-                #print('alpha:', self.alpha.item())
-                #print('lamda_a', self.lamda_a.item())
+                act_bits_tensor_list = act_bits_tensor_list[indices]
+
                 if self.lamda_a_min == 8:
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, 'simple_interpolation')
                 elif getattr(FLAGS, 'stepsize_aggregation', False):
@@ -518,8 +522,6 @@ class QuantizableLinear(nn.Linear):
     def forward(self, input):
         lamda_w = self.lamda_w
         lamda_a = self.lamda_a
-        #print(input.shape)
-        #print(input.view(-1)[:50])
         if getattr(FLAGS, 'hard_assignment',False):
             lamda_w = torch.round(lamda_w+FLAGS.hard_offset).detach()
             lamda_a = torch.round(lamda_a+FLAGS.hard_offset).detach()
@@ -547,14 +549,21 @@ class QuantizableLinear(nn.Linear):
             else:
                 print('\n\n\n[Error]This shouldn\'t be printed!!!! ')
                 weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(weight.device)
-                # ver 1. (잘안됨)
-                #m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
-                # ver 2. (여전히 잘안됨)
-                m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
-                values, indices = torch.topk(m, window_size, dim=0) 
-                m = m[indices] 
-                weight_bits_tensor_list = weight_bits_tensor_list[indices] 
+                if getattr(FLAGS, 'distance_v1_L1', False): # v1, L1
+                    m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
+                    m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
+                else: # v2, L1
+                    m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
+                    if getattr(FLAGS, 'distance_v2_L2', False): # v2, L2
+                        m = torch.square(m)
+                    elif getattr(FLAGS, 'distance_v2_softmax', False): # v2, softmax
+                        tau = 0.5
+                        m = F.softmax(m / tau)
+                values, indices = torch.topk(m, window_size, dim=0)
+                m = m[indices]
+                weight_bits_tensor_list = weight_bits_tensor_list[indices]
                 p = m / m.sum(dim=0, keepdim=True)
+                
                 if getattr(FLAGS, 'stepsize_aggregation', False):
                     # lamda_w is 8
                     #stepsize_tensor_list = 1/(torch.pow(2, weight_bits_tensor_list)-1)
@@ -611,21 +620,26 @@ class QuantizableLinear(nn.Linear):
         if self.weight_only:
             input_val = input
         else:
-            input_val = torch.where(input < torch.abs(self.alpha), input, torch.abs(self.alpha))
-            #input_val = torch.where(input < torch.abs(self.alpha), input, torch.abs(self.alpha).type(input.type()))
+            input_val = torch.where(input < torch.abs(self.alpha), input, torch.abs(self.alpha).type(input.type()))
             input_val.div_(torch.abs(self.alpha))
             # ------- introduce: general distance-based interpolation 
             if getattr(FLAGS, 'simple_interpolation', False):
                 window_size = getattr(FLAGS, 'window_size', 2)
                 act_bits_tensor_list = torch.Tensor(act_bits_list).to(input_val.device)
-                # ver 1. (잘안됨)
-                #m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
-                # ver 2. (여전히 잘안됨)
-                m = torch.Tensor([window_size/2]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
+                if getattr(FLAGS, 'distance_v1_L1', False): # v1, L1
+                    m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
+                else: # v2, L1
+                    m = torch.Tensor([window_size/2]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
+                    if getattr(FLAGS, 'distance_v2_L2', False): # v2, L2
+                        m = torch.square(m)
+                    elif getattr(FLAGS, 'distance_v2_softmax', False): # v2, softmax
+                        tau = 0.5
+                        m = F.softmax(m / tau)
                 values, indices = torch.topk(m, window_size, dim=0)
                 m = m[indices]
-                act_bits_tensor_list = act_bits_tensor_list[indices]
                 p = m / m.sum(dim=0, keepdim=True)
+                act_bits_tensor_list = act_bits_tensor_list[indices]
+                
                 if self.lamda_a_min == 8:
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, 'simple_interpolation')
                 elif getattr(FLAGS, 'stepsize_aggregation', False):

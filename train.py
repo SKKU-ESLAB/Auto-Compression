@@ -596,9 +596,10 @@ def run_one_epoch(
         model.train()
     else:
         model.eval()
+    bitwidth_learning = epoch >= FLAGS.warmup_epochs and not getattr(FLAGS,'hard_assignment', False)
     
-    eval_loss = AverageMeter()
-    eval_bitops_loss = AverageMeter()
+    eval_acc_loss = AverageMeter()
+    eval_cost_loss = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
     
@@ -606,11 +607,10 @@ def run_one_epoch(
 
     lambda_w_list = []
     lambda_a_list = []
-
     for batch_idx, (inputs, targets) in enumerate(loader):
         ######### FAST TEST Start ###########
-        if batch_idx == 2:# and train:
-            break
+        #if batch_idx == 2:# and train:
+        #    break
         ######### FAST TEST End ###########
 
         if phase == 'cal':
@@ -634,24 +634,26 @@ def run_one_epoch(
                 with amp.autocast():
                     
                     outputs = model(inputs)
-                    loss = torch.mean(criterion(outputs, targets))
-                    if epoch >= FLAGS.warmup_epochs and not getattr(FLAGS,'hard_assignment', False):
+                    loss_acc = torch.mean(criterion(outputs, targets))
+                    if bitwidth_learning:
                         if getattr(FLAGS,'weight_only', False):
-                            loss += getattr(FLAGS, 'kappa', 1.0) * get_model_size_loss(model)
+                            loss_cost = get_model_size_loss(model)
                         else:
-                            loss += getattr(FLAGS, 'kappa', 1.0) * get_comp_cost_loss(model)
+                            loss_cost = get_comp_cost_loss(model)
+                    loss = loss_acc + getattr(FLAGS, 'kappa', 1.0) * loss_cost
                     scaler.scale(loss).backward()
                     scaler.step(optimizer)
                     scaler.update()
 
             else:
                 outputs = model(inputs)
-                loss = torch.mean(criterion(outputs, targets))
-                if epoch >= FLAGS.warmup_epochs and not getattr(FLAGS,'hard_assignment', False):
+                loss_acc = torch.mean(criterion(outputs, targets))
+                if bitwidth_learning:
                     if getattr(FLAGS,'weight_only', False):
-                        loss += getattr(FLAGS, 'kappa', 1.0) * get_model_size_loss(model)
+                        loss_cost = get_model_size_loss(model)
                     else:
-                        loss += getattr(FLAGS, 'kappa', 1.0) * get_comp_cost_loss(model)
+                        loss_cost = get_comp_cost_loss(model)
+                loss = loss_acc + getattr(FLAGS, 'kappa', 1.0) * loss_cost
                 loss.backward()
                 optimizer.step()
 
@@ -659,21 +661,19 @@ def run_one_epoch(
                 scheduler.step()
 
             acc1, acc5 = accuracy(outputs.data, targets.data, top_k=(1,5))
-            eval_loss.update(loss.item(), inputs.size(0))
+            eval_acc_loss.update(loss_acc.item(), inputs.size(0))
+            if bitwidth_learning:
+                eval_cost_loss.update(loss_cost.item(), inputs.size(0))
 
             top1.update(acc1[0], inputs.size(0))
             top5.update(acc5[0], inputs.size(0))
             lambda_w_temp = []
             lambda_a_temp = []
             if getattr(FLAGS, 'log_bitwidth', False):
-                #cnt = 0
                 for name, m in model.named_modules():
                     if hasattr(m, 'lamda_w'):
                         lambda_w_temp.append(m.lamda_w.item())
                         lambda_a_temp.append(m.lamda_a.item())
-                        #log_dict[f'{cnt}_lambda_w'] = m.lamda_w.item()
-                        #log_dict[f'{cnt}_lambda_a'] = m.lamda_a.item()
-                        #cnt += 1
                 lambda_w_list.append(lambda_w_temp)
                 lambda_a_list.append(lambda_a_temp)
             
@@ -688,10 +688,14 @@ def run_one_epoch(
                     wandb.log(log_dict)
                 curr = batch_idx * len(inputs)
                 total = len(loader.dataset)
-                print(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Train Epoch: {epoch:4d}  Phase: {phase}  Process: {curr:5d}/{total:5d} '\
-                    f'Loss: {eval_loss.avg:.4f} | '\
-                    f'top1.avg: {top1.avg:.4f} % | '\
-                    f'top5.avg: {top5.avg:.4f} % | ')
+                if bitwidth_learning:
+                    loss_sentence = f'Loss_acc: {eval_acc_loss.avg:.3f} | Loss_cost: {eval_cost_loss.avg:.3f} | '
+                else:
+                    loss_sentence = f'Loss: {eval_loss.avg:5.3f} | '
+                print(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Train Epoch: {epoch:4d}  Phase: {phase}  Process: {curr:5d}/{total:5d}  '\
+                    + loss_sentence + \
+                    f'top1.avg: {top1.avg:.3f} % | '\
+                    f'top5.avg: {top5.avg:.3f} % | ')
 
         
         else: #not train
@@ -706,15 +710,12 @@ def run_one_epoch(
             acc1, acc5 = accuracy(outputs.data, targets.data, top_k=(1,5))
             top1.update(acc1[0], inputs.size(0))
             top5.update(acc5[0], inputs.size(0))
-            print(top1.avg.item())
 
     if train:
         print(np.array(lambda_w_list).shape)
         print(np.array(lambda_a_list).shape)
         np.save(f'{FLAGS.log_dir}/lambda_w_ep{epoch}.npy', np.array(lambda_w_list))
         np.save(f'{FLAGS.log_dir}/lambda_a_ep{epoch}.npy', np.array(lambda_a_list))
-        #print(np.load(f'{FLAGS.log_dir}/lambda_w_ep{epoch}.npy'))
-        #print(np.load(f'{FLAGS.log_dir}/lambda_a_ep{epoch}.npy'))
         print('bitwidth numpy file saved!!')
         
         print('\ncurrent bitwidth (weight):')
@@ -756,7 +757,7 @@ def train_val_test():
     if getattr(FLAGS, 'amp', False):
         print('\n--------------------------------------')
         print('==> AUTOMATIC MIXED PRECISION Training')
-        print('--------------------------------------\n\n')
+        print('--------------------------------------\n')
     """train and val"""
     torch.backends.cudnn.benchmark = False
     scaler = torch.cuda.amp.GradScaler()
