@@ -231,6 +231,8 @@ class QuantizableConv2d(nn.Conv2d):
             pad_w = max((ow - 1) * self.stride[1] + (kw - 1) * self.dilation[1] + 1 - iw, 0)
             if pad_h > 0 or pad_w > 0:
                 input = nn.functional.pad(input, [pad_w // 2, pad_w - pad_w // 2, pad_h // 2, pad_h - pad_h // 2])
+        #print(input.shape)
+        #print(input.view(-1)[:50])
         lamda_w = self.lamda_w
         lamda_a = self.lamda_a
         if getattr(FLAGS, 'hard_assignment',False):
@@ -261,7 +263,7 @@ class QuantizableConv2d(nn.Conv2d):
             # ver 1. (잘안됨)
             #m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
             # ver 2. (여전히 잘안됨)
-            m = torch.Tensor([window_size]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
+            m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
             values, indices = torch.topk(m, window_size, dim=0)
             m = m[indices]
             weight_bits_tensor_list = weight_bits_tensor_list[indices]
@@ -341,13 +343,16 @@ class QuantizableConv2d(nn.Conv2d):
                 # ver 1. (잘안됨)
                 #m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
                 # ver 2. (여전히 잘안됨)
-                m = torch.Tensor([window_size]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
+                m = torch.Tensor([window_size/2]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
+                #print('m:', m)
                 values, indices = torch.topk(m, window_size, dim=0)
                 m = m[indices]
+                #print('m:', m)
                 act_bits_tensor_list = act_bits_tensor_list[indices]
                 p = m / m.sum(dim=0, keepdim=True)
-                print('alpha:', self.alpha.item())
-                print('lamda_a', self.lamda_a.item())
+                #print('p:', p)
+                #print('alpha:', self.alpha.item())
+                #print('lamda_a', self.lamda_a.item())
                 if self.lamda_a_min == 8:
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, 'simple_interpolation')
                 elif getattr(FLAGS, 'stepsize_aggregation', False):
@@ -363,8 +368,8 @@ class QuantizableConv2d(nn.Conv2d):
                 elif getattr(FLAGS, 'bitwidth_direct', False):
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, act_quant_scheme)
                 elif getattr(FLAGS, 'nlvs_direct', False):
-                    print('alpha:', self.alpha.item())
-                    print('nlvs_a:', self.nlvs_a.item())
+                    #print('alpha:', self.alpha.item())
+                    #print('nlvs_a:', self.nlvs_a.item())
                     input_val = self.quant(input_val, torch.zeros(1), 1, 0, self.nlvs_a, weight_quant_scheme)
                 else:
                     '''
@@ -380,6 +385,7 @@ class QuantizableConv2d(nn.Conv2d):
             else:
                 p_a_l = 1 + torch.floor(lamda_a) - lamda_a
                 p_a_h = 1 - p_a_l
+                #print(f'{lamda_a.item():.4f}, {p_a_l.item():.4f}:{p_a_h.item():.4f}')
                 # The sentences below are not executed in fracbits paper ver.
                 if not getattr(FLAGS, 'hard_assignment', False) and getattr(FLAGS,'gumbel_softmax',False):
                     logits = torch.Tensor([torch.log(p_a_l)+ self.eps, torch.log(p_a_h) + self.eps]).view(1,2).cuda()
@@ -510,6 +516,8 @@ class QuantizableLinear(nn.Linear):
     def forward(self, input):
         lamda_w = self.lamda_w
         lamda_a = self.lamda_a
+        #print(input.shape)
+        #print(input.view(-1)[:50])
         if getattr(FLAGS, 'hard_assignment',False):
             lamda_w = torch.round(lamda_w+FLAGS.hard_offset).detach()
             lamda_a = torch.round(lamda_a+FLAGS.hard_offset).detach()
@@ -611,7 +619,7 @@ class QuantizableLinear(nn.Linear):
                 # ver 1. (잘안됨)
                 #m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
                 # ver 2. (여전히 잘안됨)
-                m = torch.Tensor([window_size]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
+                m = torch.Tensor([window_size/2]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
                 values, indices = torch.topk(m, window_size, dim=0)
                 m = m[indices]
                 act_bits_tensor_list = act_bits_tensor_list[indices]

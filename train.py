@@ -30,7 +30,7 @@ import wandb
 import datetime
 import torch.cuda.amp as amp
 
-torch.autograd.set_detect_anomaly(True)
+#torch.autograd.set_detect_anomaly(True)
 
 #import argparse
 
@@ -57,14 +57,6 @@ def get_model():
     """get model"""
     model_lib = importlib.import_module(FLAGS.model)
     model = model_lib.Model(FLAGS.num_classes)
-    #if getattr(FLAGS, 'distributed', False):
-    #    gpu_id = init_dist()
-    #    if getattr(FLAGS, 'distributed_all_reduce', False):
-    #        model_wrapper = AllReduceDistributedDataParallel(model.cuda())
-    #    else:
-    #        model_wrapper = torch.nn.parallel.DistributedDataParallel(
-    #            model.cuda(), [gpu_id], gpu_id)
-    #else:
     model_wrapper = torch.nn.DataParallel(model).cuda()
     return model, model_wrapper
 
@@ -276,13 +268,6 @@ def data_loader(train_set, val_set, test_set):
         raise ValueError('batch size (per gpu) is not defined')
     batch_size = int(FLAGS.batch_size)# / get_world_size())
     if FLAGS.data_loader in ['imagenet1k_basic','cifar', 'cinic']:
-        #if getattr(FLAGS, 'distributed', False):
-        #    if FLAGS.test_only:
-        #        train_sampler = None
-        #    else:
-        #        train_sampler = DistributedSampler(train_set)
-        #    val_sampler = DistributedSampler(val_set)
-        #else:
         train_sampler = None
         val_sampler = None
         if not FLAGS.test_only:
@@ -646,14 +631,12 @@ def run_one_epoch(
                 for param_group in optimizer.param_groups:
                     param_group['lr'] -= linear_decaying_per_step
             
-            
-            ############ [Question] what is this block for? #############
-            ##                      8-bit quantization?                      
+            space = '\n\n\n\n\n\n\n'
             if getattr(FLAGS, 'normalize', False):
                 inputs = inputs #(128 * inputs).round_().clamp_(-128, 127)
             else:
                 inputs = (255 * inputs).round_()
-            #############################################################
+            optimizer.zero_grad()
             if getattr(FLAGS, 'amp', False):
                 with amp.autocast():
                     outputs = model(inputs)
@@ -697,15 +680,17 @@ def run_one_epoch(
                         #log_dict[f'{cnt}_lambda_w'] = m.lamda_w.item()
                         #log_dict[f'{cnt}_lambda_a'] = m.lamda_a.item()
                         #cnt += 1
-            lambda_w_list.append(lambda_w_temp)
-            lambda_a_list.append(lambda_a_temp)
+                lambda_w_list.append(lambda_w_temp)
+                lambda_a_list.append(lambda_a_temp)
             
             if (batch_idx) % FLAGS.log_interval == 0:
                 if getattr(FLAGS, 'log_wandb', False):
                     log_dict = {'acc1_iter': acc1.item(), 
                                 'acc1_avg': top1.avg,
-                                'acc5_avg': top5.avg}
-                    log_dict['loss'] = loss.item()
+                                'acc5_avg': top5.avg,
+                                'loss': loss.item(),
+                                'lambda_w': np.array(lambda_w_temp),
+                                'lambda_a': np.array(lambda_a_temp)}
                     wandb.log(log_dict)
                 curr = batch_idx * len(inputs)
                 total = len(loader.dataset)
