@@ -32,13 +32,6 @@ import torch.cuda.amp as amp
 
 #torch.autograd.set_detect_anomaly(True)
 
-#import argparse
-
-#parser = argparse.ArgumentParser()
-#parser.add_argument('--log_interval', type=int, default=100)
-#args = parser.parse_args()
-
-
 def timing(f):
     @wraps(f)
     def wrap(*args, **kw):
@@ -616,8 +609,8 @@ def run_one_epoch(
 
     for batch_idx, (inputs, targets) in enumerate(loader):
         ######### FAST TEST Start ###########
-        #if batch_idx == 20:
-        #    break
+        if batch_idx == 2:# and train:
+            break
         ######### FAST TEST End ###########
 
         if phase == 'cal':
@@ -639,6 +632,7 @@ def run_one_epoch(
             optimizer.zero_grad()
             if getattr(FLAGS, 'amp', False):
                 with amp.autocast():
+                    
                     outputs = model(inputs)
                     loss = torch.mean(criterion(outputs, targets))
                     if epoch >= FLAGS.warmup_epochs and not getattr(FLAGS,'hard_assignment', False):
@@ -709,6 +703,11 @@ def run_one_epoch(
             if ema:
                 print('ema recover')
                 ema.weight_recover(model)
+            acc1, acc5 = accuracy(outputs.data, targets.data, top_k=(1,5))
+            top1.update(acc1[0], inputs.size(0))
+            top5.update(acc5[0], inputs.size(0))
+            print(top1.avg.item())
+
     if train:
         print(np.array(lambda_w_list).shape)
         print(np.array(lambda_a_list).shape)
@@ -716,7 +715,6 @@ def run_one_epoch(
         np.save(f'{FLAGS.log_dir}/lambda_a_ep{epoch}.npy', np.array(lambda_a_list))
         #print(np.load(f'{FLAGS.log_dir}/lambda_w_ep{epoch}.npy'))
         #print(np.load(f'{FLAGS.log_dir}/lambda_a_ep{epoch}.npy'))
-        #exit()
         print('bitwidth numpy file saved!!')
         
         print('\ncurrent bitwidth (weight):')
@@ -741,10 +739,11 @@ def run_one_epoch(
     
     val_top1 = None
     try:
-        print('{:.1f}s\t{}\t{}/{}: '.format(
-        time.time() - t_start, phase, epoch, FLAGS.num_epochs) +
-        ', '.join('{}: {}'.format(k, v) for k, v in results.items()))
-        val_top1 = results['top1_error']
+        print('{:.1f}s\t{}\t{}: '.format(
+        time.time() - t_start, phase, epoch, FLAGS.num_epochs)) # +
+        #', '.join('{}: {}'.format(k, v) for k, v in results.items()))
+        val_top1 = top1.avg
+        #val_top1 = results['top1_error']
     except:
         val_top1 = top1.avg
     return val_top1
@@ -755,8 +754,7 @@ def train_val_test():
     if not getattr(FLAGS, 'gumbel', True):
         from models.quantizable_ops_nogumbel import QuantizableConv2d, QuantizableLinear
     if getattr(FLAGS, 'amp', False):
-        print()
-        print('--------------------------------------')
+        print('\n--------------------------------------')
         print('==> AUTOMATIC MIXED PRECISION Training')
         print('--------------------------------------\n\n')
     """train and val"""
@@ -895,7 +893,7 @@ def train_val_test():
         else:
             lr_scheduler = get_lr_scheduler(optimizer)
         last_epoch = lr_scheduler.last_epoch
-        best_val = 1.
+        best_val = 0
         train_meters = get_meters('train')
         val_meters = get_meters('val')
         # if start from scratch, print model and do profiling
@@ -911,20 +909,18 @@ def train_val_test():
             os.makedirs(log_dir)
         except OSError:
             pass
-    #################### for removing wandb #################
     if getattr(FLAGS, 'log_wandb', False):
         PROJECT_NAME='LBQv2'
         wandb.init(project=PROJECT_NAME, dir=FLAGS.log_dir)
         wandb.config.update(FLAGS)
-    #########################################################
+
     print('Start training.')
     for epoch in range(last_epoch+1, FLAGS.num_epochs):
         if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
             lr_sched = lr_scheduler
         else:
             lr_sched = None
-            # For PyTorch 1.1+, comment the following line
-            #lr_scheduler.step()
+
         # train ---------------------------------------------
         print(' train '.center(40, '*')) 
         train_top1 = run_one_epoch(
@@ -938,7 +934,6 @@ def train_val_test():
             val_meters['best_val'].cache(best_val)
         with torch.no_grad():
             if epoch == getattr(FLAGS,'hard_assign_epoch', float('inf')):
-                #################
                 if getattr(FLAGS, 'nlvs_direct', False):
                     FLAGS.nlvs_direct = False
                     for m in model.modules():
@@ -986,18 +981,19 @@ def train_val_test():
                         bitops, bytesize = profiling(model, use_cuda=True)
                 bit_discretizing(model_wrapper)
                 setattr(FLAGS,'hard_offset', 0)
-            top1_error = run_one_epoch(
+            top1_acc = run_one_epoch(
                 epoch, val_loader, model_wrapper, criterion, optimizer,
                 val_meters, phase='val', ema=ema, scaler=scaler)
+            print(f'==> Epoch {epoch} validation accuracy: {top1_acc:.4f} %')
 
-        if top1_error < best_val:
-            best_val = top1_error
+        if top1_acc > best_val:
+            best_val = top1_acc
             torch.save(
                 {
                     'model': model_wrapper.state_dict(),
                 },
                 os.path.join(log_dir, 'best_model.pt'))
-            print('New best validation top1 error: {:.3f}'.format(best_val))
+            print('==> New best validation top1 accuracy: {:.3f} %'.format(best_val))
 
         # save latest checkpoint
         torch.save(

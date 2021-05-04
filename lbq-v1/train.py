@@ -165,10 +165,14 @@ if args.lb_mode:
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'device:{device}')
+
+# Set random seed
 torch.backends.cudnn.benchmark = False
-torch.manual_seed(args.seed)
-np.random.seed(args.seed)
 random.seed(args.seed)
+np.random.seed(args.seed)
+torch.manual_seed(args.seed)
+torch.cuda.manual_seed(args.seed)
+torch.cuda.manual_seed_all(args.seed)
 
 best_acc = 0
 last_epoch = 0

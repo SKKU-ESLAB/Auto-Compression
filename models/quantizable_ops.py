@@ -220,6 +220,7 @@ class QuantizableConv2d(nn.Conv2d):
                 self.nlvs_w = nn.Parameter(torch.tensor(2 ** init_bit))
             if lamda_a_min == None:
                 self.nlvs_a = nn.Parameter(torch.tensor(2 ** init_bit))
+        #self.gamma = nn.Parameter(torch.tensor(1.0))
 
     def forward(self, input):
         if self.same_padding:
@@ -260,9 +261,9 @@ class QuantizableConv2d(nn.Conv2d):
             #######    window size setting    ######
             window_size = getattr(FLAGS, 'window_size', 2)
             weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(weight.device)
-            # ver 1. (잘안됨)
+            # ver 1.
             #m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
-            # ver 2. (여전히 잘안됨)
+            # ver 2.
             m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
             values, indices = torch.topk(m, window_size, dim=0)
             m = m[indices]
@@ -340,9 +341,9 @@ class QuantizableConv2d(nn.Conv2d):
             # ------- introduce: general distance-based interpolation
             if getattr(FLAGS, 'simple_interpolation', False):
                 act_bits_tensor_list = torch.Tensor(act_bits_list).to(input_val.device)
-                # ver 1. (잘안됨)
+                # ver 1.
                 #m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
-                # ver 2. (여전히 잘안됨)
+                # ver 2.
                 m = torch.Tensor([window_size/2]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
                 #print('m:', m)
                 values, indices = torch.topk(m, window_size, dim=0)
@@ -512,6 +513,7 @@ class QuantizableLinear(nn.Linear):
         if getattr(FLAGS, 'nlvs_direct', False):
             self.nlvs_w = nn.Parameter(torch.tensor(2 ** init_bit))
             self.nlvs_a = nn.Parameter(torch.tensor(2 ** init_bit))
+        #self.gamma = nn.Parameter(torch.tensor(1.0))
         
     def forward(self, input):
         lamda_w = self.lamda_w
