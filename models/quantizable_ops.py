@@ -3,6 +3,7 @@ from utils.distributed import master_only_print as mprint
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.autograd import Function
 from torch.nn.modules.utils import _pair
 from utils.gumbel import gumbel_softmax
@@ -220,7 +221,8 @@ class QuantizableConv2d(nn.Conv2d):
                 self.nlvs_w = nn.Parameter(torch.tensor(2 ** init_bit))
             if lamda_a_min == None:
                 self.nlvs_a = nn.Parameter(torch.tensor(2 ** init_bit))
-        #self.gamma = nn.Parameter(torch.tensor(1.0))
+        if getattr(FLAGS, 'L_value', 0) == 'learned':
+            self.gamma = nn.Parameter(torch.tensor(1.0))
 
     def forward(self, input):
         if self.same_padding:
@@ -261,15 +263,20 @@ class QuantizableConv2d(nn.Conv2d):
             #######    window size setting    ######
             window_size = getattr(FLAGS, 'window_size', 2)
             weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(weight.device)
-            if getattr(FLAGS, 'distance_v1_L1', False): # v1, L1
+            if getattr(FLAGS, 'distance_v1', False):
                 m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
-            else: # v2, L1
+            elif getattr(FLAGS, 'distance_v2', False):
                 m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
-                if getattr(FLAGS, 'distance_v2_L2', False): # v2, L2
-                    m = torch.square(m)
-                elif getattr(FLAGS, 'distance_v2_softmax', False): # v2, softmax
-                    tau = 0.5
-                    m = F.softmax(m / tau)
+            else:
+                raise NotImplementedError
+            L = getattr(FLAGS, 'L_value', 0)
+            if L == 'learned':
+                m = torch.pow(m, self.gamma)
+            elif L == 'softmax':
+                tau = getattr(FLAGS, 'tau', 0)
+                m = F.softmax(m / tau, dim=0)
+            else:
+                m = torch.pow(m, L)
             values, indices = torch.topk(m, window_size, dim=0)
             m = m[indices]
             weight_bits_tensor_list = weight_bits_tensor_list[indices]
@@ -343,15 +350,20 @@ class QuantizableConv2d(nn.Conv2d):
             if getattr(FLAGS, 'simple_interpolation', False):
                 window_size = getattr(FLAGS, 'window_size', 2)
                 act_bits_tensor_list = torch.Tensor(act_bits_list).to(input_val.device)
-                if getattr(FLAGS, 'distance_v1_L1', False): # v1, L1
+                if getattr(FLAGS, 'distance_v1', False):
                     m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
-                else: # v2, L1
+                elif getattr(FLAGS, 'distance_v2', False):
                     m = torch.Tensor([window_size/2]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
-                    if getattr(FLAGS, 'distance_v2_L2', False): # v2, L2
-                        m = torch.square(m)
-                    elif getattr(FLAGS, 'distance_v2_softmax', False): # v2, softmax
-                        tau = 0.5
-                        m = F.softmax(m / tau)
+                else:
+                    raise NotImplementedError
+                L = getattr(FLAGS, 'L_value', 0)
+                if L == 'learned':
+                    m = torch.pow(m, self.gamma)
+                elif L == 'softmax':
+                    tau = getattr(FLAGS, 'tau', 0)
+                    m = F.softmax(m / tau, dim=0)
+                else:
+                    m = torch.pow(m, L)
                 values, indices = torch.topk(m, window_size, dim=0)
                 m = m[indices]
                 p = m / m.sum(dim=0, keepdim=True)
@@ -516,7 +528,8 @@ class QuantizableLinear(nn.Linear):
         if getattr(FLAGS, 'nlvs_direct', False):
             self.nlvs_w = nn.Parameter(torch.tensor(2 ** init_bit))
             self.nlvs_a = nn.Parameter(torch.tensor(2 ** init_bit))
-        #self.gamma = nn.Parameter(torch.tensor(1.0))
+        if getattr(FLAGS, 'L_value', 0) == 'learned':
+            self.gamma = nn.Parameter(torch.tensor(1.0))
         
     def forward(self, input):
         lamda_w = self.lamda_w
@@ -548,15 +561,20 @@ class QuantizableLinear(nn.Linear):
             else:
                 print('\n\n\n[Error]This shouldn\'t be printed!!!! ')
                 weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(weight.device)
-                if getattr(FLAGS, 'distance_v1_L1', False): # v1, L1
+                if getattr(FLAGS, 'distance_v1', False):
                     m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
-                else: # v2, L1
+                elif getattr(FLAGS, 'distance_v2', False):
                     m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
-                    if getattr(FLAGS, 'distance_v2_L2', False): # v2, L2
-                        m = torch.square(m)
-                    elif getattr(FLAGS, 'distance_v2_softmax', False): # v2, softmax
-                        tau = 0.5
-                        m = F.softmax(m / tau)
+                else:
+                    raise NotImplementedError
+                L = getattr(FLAGS, 'L_value', 0)
+                if L == 'learned':
+                    m = torch.pow(m, self.gamma)
+                elif L == 'softmax':
+                    tau = getattr(FLAGS, 'tau', 0)
+                    m = F.softmax(m / tau, dim=0)
+                else:
+                    m = torch.pow(m, L)
                 values, indices = torch.topk(m, window_size, dim=0)
                 m = m[indices]
                 weight_bits_tensor_list = weight_bits_tensor_list[indices]
@@ -624,15 +642,20 @@ class QuantizableLinear(nn.Linear):
             if getattr(FLAGS, 'simple_interpolation', False):
                 window_size = getattr(FLAGS, 'window_size', 2)
                 act_bits_tensor_list = torch.Tensor(act_bits_list).to(input_val.device)
-                if getattr(FLAGS, 'distance_v1_L1', False): # v1, L1
+                if getattr(FLAGS, 'distance_v1', False):
                     m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
-                else: # v2, L1
+                elif getattr(FLAGS, 'distance_v2', False):
                     m = torch.Tensor([window_size/2]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
-                    if getattr(FLAGS, 'distance_v2_L2', False): # v2, L2
-                        m = torch.square(m)
-                    elif getattr(FLAGS, 'distance_v2_softmax', False): # v2, softmax
-                        tau = 0.5
-                        m = F.softmax(m / tau)
+                else:
+                    raise NotImplementedError
+                L = getattr(FLAGS, 'L_value', 0)
+                if L == 'learned':
+                    m = torch.pow(m, self.gamma)
+                elif L == 'softmax':
+                    tau = getattr(FLAGS, 'tau', 0)
+                    m = F.softmax(m / tau, dim=0)
+                else:
+                    m = torch.pow(m, L)
                 values, indices = torch.topk(m, window_size, dim=0)
                 m = m[indices]
                 p = m / m.sum(dim=0, keepdim=True)

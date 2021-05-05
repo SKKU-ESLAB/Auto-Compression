@@ -62,7 +62,7 @@ unbiased: False
 #rescale: True #False
 switchbn: False
 clamp: True
-normalize: False
+normalize: True
 bn_calib: False
 rescale_type: constant #[stddev, constant]
 calib_pact: True
@@ -85,7 +85,8 @@ amp: True
 #
 window_size: 2
 simple_interpolation: True
-distance_v2_L1: True
+distance_v2: True
+L_value: 1
 #
 log_interval: 50
 log_bitwidth: False
