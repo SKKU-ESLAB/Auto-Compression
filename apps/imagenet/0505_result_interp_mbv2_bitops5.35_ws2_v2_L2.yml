@@ -27,7 +27,7 @@ weight_decay: 0.00004
 nesterov: True
 
 # lr
-lr: 0.1
+lr: 0.01
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
 #exp_decaying_gamma: 0.98
@@ -77,13 +77,15 @@ target_bitops: 5.35
 hard_assign_epoch: 35
 # =========================== Override Settings ===========================
 fp_pretrained_file: /home/lkj004124/logs/mobilenet_v2-b0353104.pth
-log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0504_result_interp_mbv2_bitops5.35_ws2_v2_sm
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0505_result_interp_mbv2_bitops5.35_ws2_v2_L2
 model: models.q_mobilenet_v2
 double_side: True
 data_transforms: imagenet1k_mobile
-log_interval: 50
 amp: True
+#
 window_size: 2
 simple_interpolation: True
+distance_v2_L2: True
+#
+log_interval: 50
 log_bitwidth: False
-distance_v1_L1: True
