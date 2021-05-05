@@ -49,7 +49,6 @@ class Q_ReLU(nn.Module):
         self.act_func = act_func
         self.inplace = inplace
         self.a = Parameter(Tensor(1))
-        self.c = Parameter(Tensor(1))
         self.theta = Parameter(Tensor([1]))
         self.tau = 1
 
@@ -57,16 +56,13 @@ class Q_ReLU(nn.Module):
         self.bits = Parameter(Tensor(bits), requires_grad=False)
         self.n_lvs = 2 ** self.bits
         self.a = Parameter(Tensor(len(self.bits)))
-        self.c = Parameter(Tensor(len(self.bits)))
 
         #self.theta = Parameter(torch.ones(len(self.bits))/len(self.bits))
         self.theta = Parameter(F.softmax(self.bits ** 2, dim=0))
         self.a.data.fill_(np.log(np.exp(offset + diff)-1))
-        self.c.data.fill_(np.log(np.exp(offset + diff)-1))
     
     def initialize_qonly(self, offset, diff):
         self.a.data.fill_(np.log(np.exp(offset + diff)-1))
-        self.c.data.fill_(np.log(np.exp(offset + diff)-1))
     
     def forward(self, x):
         if self.act_func:
@@ -77,7 +73,6 @@ class Q_ReLU(nn.Module):
             return x#, 32
         else:
             a = F.softplus(self.a)
-            c = F.softplus(self.c)
 
             if self.train:
                 softmask = F.gumbel_softmax(self.theta, tau=self.tau, hard=False, dim=0)
@@ -91,11 +86,10 @@ class Q_ReLU(nn.Module):
                 x_bar = torch.add(x_bar, RoundQuant.apply(x_temp, n_lv) * c[i] * softmask[i])
             '''
             a_mean = (softmask * a).sum()
-            c_mean = (softmask * c).sum()
             n_lv_mean = (softmask * self.n_lvs.to(softmask.device)).sum()
 
             x = F.hardtanh(x / a_mean, 0, 1)
-            x_bar = RoundQuant.apply(x, n_lv_mean) * c_mean
+            x_bar = RoundQuant.apply(x, n_lv_mean) * a_mean
             #act_size = (softmask * self.bits).sum()
             return x_bar#, act_size
 
@@ -108,24 +102,19 @@ class Q_ReLU6(Q_ReLU):
         self.bits = Parameter(Tensor(bits), requires_grad=False)
         self.n_lvs = 2 ** self.bits
         self.a = Parameter(Tensor(len(self.bits)))
-        self.c = Parameter(Tensor(len(self.bits)))
         self.theta = Parameter(torch.ones(len(self.n_lvs))/len(self.n_lvs))
         self.theta = Parameter(F.softmax(self.bits ** 2, dim=0))
 
         if offset + diff > 6:
             self.a.data.fill_(np.log(np.exp(6)-1))
-            self.c.data.fill_(np.log(np.exp(6)-1))
         else:
             self.a.data.fill_(np.log(np.exp(offset + diff)-1))
-            self.c.data.fill_(np.log(np.exp(offset + diff)-1))
 
     def initialize_qonly(self, offset, diff):
         if offset + diff > 6:
             self.a.data.fill_(np.log(np.exp(6)-1))
-            self.c.data.fill_(np.log(np.exp(6)-1))
         else:
             self.a.data.fill_(np.log(np.exp(offset + diff)-1))
-            self.c.data.fill_(np.log(np.exp(offset + diff)-1))
 
 
 class Q_Sym(nn.Module):
@@ -134,7 +123,6 @@ class Q_Sym(nn.Module):
         self.n_lvs = [1]
         self.bits = [32] #Parameter(Tensor([32]), requires_grad=False)
         self.a = Parameter(Tensor(1))
-        self.c = Parameter(Tensor(1))
         self.theta = Parameter(Tensor([1]))
         self.tau = 1
 
@@ -142,16 +130,13 @@ class Q_Sym(nn.Module):
         self.bits = Parameter(Tensor(bits), requires_grad=False)
         self.n_lvs = 2 ** self.bits
         self.a = Parameter(Tensor(len(self.bits)))
-        self.c = Parameter(Tensor(len(self.bits)))
 
         #self.theta = Parameter(torch.ones(len(self.bits))/len(self.bits))
         self.theta = Parameter(F.softmax(self.bits ** 2, dim=0))
         self.a.data.fill_(np.log(np.exp(offset + diff)-1))
-        self.c.data.fill_(np.log(np.exp(offset + diff)-1))
     
     def initialize_qonly(self, offset, diff):
         self.a.data.fill_(np.log(np.exp(offset + diff)-1))
-        self.c.data.fill_(np.log(np.exp(offset + diff)-1))
 
     def forward(self, x):
         if len(self.bits)==1 and self.bits[0]==32:
@@ -159,7 +144,6 @@ class Q_Sym(nn.Module):
             return x#, 32
         else:
             a = F.softplus(self.a)
-            c = F.softplus(self.c)
             
             if self.train:
                 softmask = F.gumbel_softmax(self.theta, tau=self.tau, hard=False, dim=0)
@@ -172,11 +156,10 @@ class Q_Sym(nn.Module):
                 x_bar = torch.add(x_bar, RoundQuant.apply(x_temp, n_lv // 2) * c[i] * softmask[i])
             '''
             a_mean = (softmask * a).sum()
-            c_mean = (softmask * c).sum()
             n_lv_mean = (softmask * self.n_lvs.to(softmask.device)).sum()
 
             x = F.hardtanh(x / a_mean, -1, 1)
-            x_bar = RoundQuant.apply(x, torch.round(n_lv_mean / 2)) * c_mean
+            x_bar = RoundQuant.apply(x, torch.round(n_lv_mean / 2)) * a_mean
             #act_size = (softmask * self.bits).sum()
             return x_bar#, act_size
 
@@ -196,7 +179,6 @@ class Q_HSwish(nn.Module):
     def initialize(self, n_lvs, offset, diff):
         self.n_lvs = n_lvs
         self.a.data.fill_(np.log(np.exp(offset + diff)-1))
-        self.c.data.fill_(np.log(np.exp(offset + diff)-1))
     
     def forward(self, x):
         if self.act_func:
@@ -221,7 +203,6 @@ class Q_Conv2d(nn.Conv2d):
         self.n_lvs = [1]
         self.bits = [32]
         self.a = Parameter(Tensor(1))
-        self.c = Parameter(Tensor(1))
         self.weight_old = None
         self.theta = Parameter(Tensor([1]))
         self.computation = 0
@@ -231,20 +212,18 @@ class Q_Conv2d(nn.Conv2d):
         self.bits = Parameter(Tensor(bits), requires_grad=False)
         self.n_lvs = 2 ** self.bits
         self.a = Parameter(Tensor(len(self.bits)))
-        self.c = Parameter(Tensor(len(self.bits)))
         
         #self.theta = Parameter(torch.ones(len(self.bits))/len(self.bits))
         self.theta = Parameter(F.softmax(self.bits ** 2, dim=0))
         max_val = self.weight.data.abs().max().item()
         self.a.data.fill_(np.log(np.exp(max_val * 0.9)-1))
-        self.c.data.fill_(np.log(np.exp(max_val * 0.9)-1))
 
     def initialize_qonly(self):
         max_val = self.weight.data.abs().max().item()
         self.a.data.fill_(np.log(np.exp(max_val * 0.9)-1))
-        self.c.data.fill_(np.log(np.exp(max_val * 0.9)-1))
 
     def _weight_quant(self):
+        """
         a = F.softplus(self.a)
         c = F.softplus(self.c)
         
@@ -264,8 +243,26 @@ class Q_Conv2d(nn.Conv2d):
 
         w_bar = F.hardtanh(self.weight / a_mean, -1, 1)
         w_bar = RoundQuant.apply(w_bar, torch.round(n_lv_mean / 2)) * c_mean
+        """
+
+        softmask = F.softmax(self.theta/self.tau, dim=0)
+        n_lv_mean = (softmask * self.n_lvs.to(softmask.device)).sum()
+
+        weight = torch.tanh(self.weight)
+        max_w = torch.max(torch.abs(weight))
+        weight = weight / max_w
+        weight.add_(1.0)
+        weight.div_(2.0)
+
+        k = torch.round(n_lv_mean/2)-1
+        weight = torch.round(weight * k)
+        weight.div_(k)
+        weight.mul_(2.0)
+        weight.sub_(1.0)
+        weight.mul_(max_w)
+
         #bitwidth = (softmask * self.bits).sum()
-        return w_bar#, bitwidth
+        return weight#, bitwidth
 
     def forward(self, x):#, cost, act_size=None):
         if len(self.bits)==1 and self.bits[0]==32:
@@ -286,7 +283,6 @@ class Q_Linear(nn.Linear):
         self.n_lvs = [0]
         self.bits = [32]
         self.a = Parameter(Tensor(1))
-        self.c = Parameter(Tensor(1))
         self.weight_old = None
         self.theta = Parameter(Tensor([1]))
         self.computation = 0
@@ -296,20 +292,18 @@ class Q_Linear(nn.Linear):
         self.bits = Parameter(Tensor(bits), requires_grad=False)
         self.n_lvs = 2 ** self.bits
         self.a = Parameter(Tensor(len(self.bits)))
-        self.c = Parameter(Tensor(len(self.bits)))
 
         #self.theta = Parameter(torch.ones(len(self.bits))/len(self.bits))
         self.theta = Parameter(F.softmax(self.bits ** 2, dim=0))
         max_val = self.weight.data.abs().max().item()
         self.a.data.fill_(np.log(np.exp(max_val * 0.9)-1))
-        self.c.data.fill_(np.log(np.exp(max_val * 0.9)-1))
     
     def initialize_qonly(self):
         max_val = self.weight.data.abs().max().item()
         self.a.data.fill_(np.log(np.exp(max_val * 0.9)-1))
-        self.c.data.fill_(np.log(np.exp(max_val * 0.9)-1))
 
     def _weight_quant(self):
+        """
         a = F.softplus(self.a)
         c = F.softplus(self.c)
 
@@ -329,8 +323,26 @@ class Q_Linear(nn.Linear):
 
         w_bar = F.hardtanh(self.weight / a_mean, -1, 1)
         w_bar = RoundQuant.apply(w_bar, torch.round(n_lv_mean / 2)) * c_mean
+        """
+ 
+        softmask = F.softmax(self.theta/self.tau, dim=0)
+        n_lv_mean = (softmask * self.n_lvs.to(softmask.device)).sum()
+
+        weight = torch.tanh(self.weight)
+        max_w = torch.max(torch.abs(weight))
+        weight = weight / max_w
+        weight.add_(1.0)
+        weight.div_(2.0)
+
+        k = torch.round(n_lv_mean/2)-1
+        weight = torch.round(weight * k)
+        weight.div_(k)
+        weight.mul_(2.0)
+        weight.sub_(1.0)
+        weight.mul_(max_w)
+
         #bitwidth = (softmask * self.bits).sum()
-        return w_bar#, bitwidth
+        return weight#, bitwidth
     
 
     def forward(self, x):#, cost, act_size=None):
