@@ -44,7 +44,7 @@ test_only: False
 
 #
 random_seed: 1
-batch_size: 256
+batch_size: 128
 model: ''
 reset_parameters: True
 
