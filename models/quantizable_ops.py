@@ -263,7 +263,6 @@ class QuantizableConv2d(nn.Conv2d):
             weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(weight.device)
             if getattr(FLAGS, 'distance_v1_L1', False): # v1, L1
                 m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
-                m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
             else: # v2, L1
                 m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
                 if getattr(FLAGS, 'distance_v2_L2', False): # v2, L2
@@ -551,7 +550,6 @@ class QuantizableLinear(nn.Linear):
                 weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(weight.device)
                 if getattr(FLAGS, 'distance_v1_L1', False): # v1, L1
                     m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
-                    m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
                 else: # v2, L1
                     m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
                     if getattr(FLAGS, 'distance_v2_L2', False): # v2, L2
