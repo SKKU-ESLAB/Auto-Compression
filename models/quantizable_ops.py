@@ -268,7 +268,7 @@ class QuantizableConv2d(nn.Conv2d):
             elif getattr(FLAGS, 'distance_v2', False):
                 m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
             else:
-                raise NotImplementedError
+                m = torch.zeros_like(weight_bits_tensor_list)
             L = getattr(FLAGS, 'L_value', 0)
             if L == 'learned':
                 m = torch.pow(m, self.gamma)
@@ -355,7 +355,7 @@ class QuantizableConv2d(nn.Conv2d):
                 elif getattr(FLAGS, 'distance_v2', False):
                     m = torch.Tensor([window_size/2]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
                 else:
-                    raise NotImplementedError
+                    m = torch.zeros_like(act_bits_tensor_list)
                 L = getattr(FLAGS, 'L_value', 0)
                 if L == 'learned':
                     m = torch.pow(m, self.gamma)
@@ -566,7 +566,7 @@ class QuantizableLinear(nn.Linear):
                 elif getattr(FLAGS, 'distance_v2', False):
                     m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
                 else:
-                    raise NotImplementedError
+                    m = torch.zeros_like(weight_bits_tensor_list)
                 L = getattr(FLAGS, 'L_value', 0)
                 if L == 'learned':
                     m = torch.pow(m, self.gamma)
@@ -647,7 +647,7 @@ class QuantizableLinear(nn.Linear):
                 elif getattr(FLAGS, 'distance_v2', False):
                     m = torch.Tensor([window_size/2]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
                 else:
-                    raise NotImplementedError
+                    m = torch.zeros_like(act_bits_tensor_list)
                 L = getattr(FLAGS, 'L_value', 0)
                 if L == 'learned':
                     m = torch.pow(m, self.gamma)
