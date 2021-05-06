@@ -298,6 +298,7 @@ class QuantizableConv2d(nn.Conv2d):
                 weight = self.quant(weight, lamda_w, 0, 0.5, 0, weight_quant_scheme)
             elif getattr(FLAGS, 'nlvs_direct', False):
                 weight = self.quant(weight, torch.zeros(1), 0, 0.5, self.nlvs_w, weight_quant_scheme)
+                self.lamda_w.data = torch.log2(self.nlvs_w)
             else:
                 weight_temp = 0
                 for i, bit in enumerate(weight_bits_tensor_list):
@@ -384,9 +385,8 @@ class QuantizableConv2d(nn.Conv2d):
                 elif getattr(FLAGS, 'bitwidth_direct', False):
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, act_quant_scheme)
                 elif getattr(FLAGS, 'nlvs_direct', False):
-                    #print('alpha:', self.alpha.item())
-                    #print('nlvs_a:', self.nlvs_a.item())
                     input_val = self.quant(input_val, torch.zeros(1), 1, 0, self.nlvs_a, weight_quant_scheme)
+                    self.lamda_a.data = torch.log2(self.nlvs_a)
                 else:
                     '''
                     input_val_list = []
@@ -596,6 +596,9 @@ class QuantizableLinear(nn.Linear):
                     weight = self.quant(weight, interpolated_bit, 0, 0.5, 0, weight_quant_scheme)
                 elif getattr(FLAGS, 'bitwidth_direct', False):
                     weight = self.quant(weight, lamda_w, 0, 0.5, 0, weight_quant_scheme)
+                elif getattr(FLAGS, 'nlvs_direct', False):
+                    weight = self.quant(weight, torch.zeros(1), 0, 0.5, self.nlvs_w, weight_quant_scheme)
+                    self.lamda_w.data = torch.log2(self.nlvs_w)
                 else:
                     weight_list = []
                     for i, bit in enumerate(weight_bits_tensor_list):
@@ -677,6 +680,7 @@ class QuantizableLinear(nn.Linear):
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, act_quant_scheme)
                 elif getattr(FLAGS, 'nlvs_direct', False):
                     input_val = self.quant(input_val, torch.zeros(1), 1, 0, self.nlvs_a, weight_quant_scheme)
+                    self.lamda_a.data = torch.log2(self.nlvs_a)
                 else:
                     #input_val_list = []
                     #for i, bit in enumerate(act_bits_tensor_list):
