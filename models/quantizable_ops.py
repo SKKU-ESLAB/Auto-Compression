@@ -709,10 +709,17 @@ class QuantizableLinear(nn.Linear):
     @property
     def comp_cost_loss(self):
         lamda_w = torch.clamp(self.lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
+        if getattr(FLAGS, 'nlvs_direct', False):
+            lamda_w = torch.log2(self.nlvs_w)
+            lamda_w = torch.clamp(lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
         if self.lamda_w_min is not None:
             lamda_w = torch.clamp(lamda_w, min=self.lamda_w_min)
+
         act_bits_list = getattr(FLAGS,'act_bits_list',FLAGS.bits_list)
         lamda_a = torch.clamp(self.lamda_a, min(act_bits_list), max(act_bits_list))
+        if getattr(FLAGS, 'nlvs_direct', False):
+            lamda_a = torch.log2(self.nlvs_a)
+            lamda_a = torch.clamp(lamda_a, min(FLAGS.bits_list), max(FLAGS.bits_list))
         if self.lamda_a_min is not None:
             lamda_a = torch.clamp(lamda_a, min=self.lamda_a_min)
         
