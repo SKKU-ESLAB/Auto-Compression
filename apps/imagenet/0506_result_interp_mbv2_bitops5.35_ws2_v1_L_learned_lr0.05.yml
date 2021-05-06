@@ -85,7 +85,7 @@ amp: True
 #
 window_size: 2
 simple_interpolation: True
-distance_v2: True
+distance_v1: True
 L_value: learned
 #
 log_interval: 50
