@@ -802,13 +802,14 @@ def train_val_test():
     log_dir = FLAGS.log_dir
     log_dir = os.path.join(log_dir, experiment_setting)
 
-
+    model_link = {'models.q_mobilenet_v2': 'https://download.pytorch.org/models/mobilenet_v2-b0353104.pth',
+                'models.q_resnet': 'https://download.pytorch.org/models/resnet18-f37072fd.pth'}
     # full precision pretrained
     if getattr(FLAGS, 'fp_pretrained_file', None):
         if not os.path.isfile(FLAGS.fp_pretrained_file):
             pretrain_dir = os.path.dirname(FLAGS.fp_pretrained_file)
             print(FLAGS.fp_pretrained_file)
-            os.system(f"wget -P {pretrain_dir} https://download.pytorch.org/models/mobilenet_v2-b0353104.pth")
+            os.system(f"wget -P {pretrain_dir} {model_link[FLAGS.model]}")
         checkpoint = torch.load(FLAGS.fp_pretrained_file)
         # update keys from external models
         if type(checkpoint) == dict and 'model' in checkpoint:
