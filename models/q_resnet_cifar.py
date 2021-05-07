@@ -23,6 +23,7 @@ class Block(nn.Module):
             l1,
             nn.BatchNorm2d(outp),
             nn.ReLU(inplace=True),
+
             l2,
             nn.BatchNorm2d(outp),
         ]
@@ -82,12 +83,12 @@ class Model(nn.Module):
             outp = feats[idx]
             for i in range(n):
                 if i == 0 and idx != 0:
-                    setattr(self, 'stage_{}_layer_{}'.format(idx, i),
-                        Block(channels, outp, 2, input_size))
+                    layer = Block(channels, outp, 2, input_size)
                 else:
-                    setattr(self, 'stage_{}_layer_{}'.format(idx, i),
-                        Block(channels, outp, 1, input_size))
+                    layer = Block(channels, outp, 2, input_size)
+                setattr(self, 'stage_{}_layer_{}'.format(idx, i), layer)
                 channels = outp
+                input_size = layer.output_size
 
         self.avgpool = nn.AdaptiveAvgPool2d(1)
         
