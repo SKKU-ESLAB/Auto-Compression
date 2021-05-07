@@ -1,23 +1,24 @@
+
 # =========================== Basic Settings ===========================
 # machine info
 num_gpus_per_job: 1  # number of gpus each job need
 num_cpus_per_job: 4  # number of cpus each job need
 memory_per_job: 200  # memory requirement each job need
-gpu_type: "titan rtx"
+gpu_type: "v100"
 
 # data
-dataset: CIFAR10
-data_transforms: cifar
-data_loader: cifar
-dataset_dir: /data/cifar10
+dataset: imagenet1k
+data_transforms: imagenet1k_basic
+data_loader: imagenet1k_basic
+dataset_dir: /data/imagenet
 #dataset_dir: /mnt/cephfs_new_wj/uslabcv/meijieru/data/imagenet_lmdb
-data_loader_workers: 12 #10
+data_loader_workers: 32 #10
 
 # info
-num_classes: 10
-image_size: 32
+num_classes: 1000
+image_size: 224
 topk: [1, 5]
-num_epochs: 40
+num_epochs: 55
 
 # optimizer
 optimizer: sgd
@@ -26,7 +27,7 @@ weight_decay: 0.00004
 nesterov: True
 
 # lr
-lr: 0.05
+lr: 0.01
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
 #exp_decaying_gamma: 0.98
@@ -58,10 +59,10 @@ min_width: 1
 
 #
 unbiased: False
-rescale: True #False
+#rescale: True #False
 switchbn: False
 clamp: True
-#normalize: False
+normalize: True
 bn_calib: False
 rescale_type: constant #[stddev, constant]
 calib_pact: True
@@ -71,15 +72,21 @@ kappa: 1.0
 bits_list: [8, 7, 6, 5, 4, 3, 2]
 weight_quant_scheme: original
 act_quant_scheme: original
-init_bit: 7.7
+init_bit: 4.5
 target_bitops: 5.35
-hard_assign_epoch: 25
+hard_assign_epoch: 35
 # =========================== Override Settings ===========================
-fp_pretrained_file: /home/kkm0411/logs/resnet20_kkm.pth
-log_dir: /home/kkm0411/logs/frac_bits_new/cifar10/0501_resnet20
-model: models.q_resnet_cifar
-depth: 20
+fp_pretrained_file: /home/lkj004124/logs/mobilenet_v2-b0353104.pth
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0505_result_interp_mbv2_bitops5.35_ws2_v2_L2
+model: models.q_mobilenet_v2
 double_side: True
-data_transforms: cifar
-log_interval: 100
-log_bitwidth: True
+data_transforms: imagenet1k_mobile
+amp: True
+#
+window_size: 2
+simple_interpolation: True
+distance_v2: True
+L_value: 2
+#
+log_interval: 50
+log_bitwidth: False

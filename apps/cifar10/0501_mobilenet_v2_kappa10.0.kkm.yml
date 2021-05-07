@@ -17,7 +17,7 @@ data_loader_workers: 12 #10
 num_classes: 10
 image_size: 32
 topk: [1, 5]
-num_epochs: 120
+num_epochs: 40
 
 # optimizer
 optimizer: sgd
@@ -67,7 +67,7 @@ rescale_type: constant #[stddev, constant]
 calib_pact: True
 
 #
-kappa: 1.0
+kappa: 10.0 #1.0
 bits_list: [8, 7, 6, 5, 4, 3, 2]
 weight_quant_scheme: original
 act_quant_scheme: original

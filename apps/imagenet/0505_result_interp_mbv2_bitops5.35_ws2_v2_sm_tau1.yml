@@ -27,7 +27,7 @@ weight_decay: 0.00004
 nesterov: True
 
 # lr
-lr: 0.1
+lr: 0.01
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
 #exp_decaying_gamma: 0.98
@@ -44,7 +44,7 @@ test_only: False
 
 #
 random_seed: 1
-batch_size: 256
+batch_size: 128
 model: ''
 reset_parameters: True
 
@@ -62,7 +62,7 @@ unbiased: False
 #rescale: True #False
 switchbn: False
 clamp: True
-normalize: False
+normalize: True
 bn_calib: False
 rescale_type: constant #[stddev, constant]
 calib_pact: True
@@ -77,13 +77,17 @@ target_bitops: 5.35
 hard_assign_epoch: 35
 # =========================== Override Settings ===========================
 fp_pretrained_file: /home/lkj004124/logs/mobilenet_v2-b0353104.pth
-log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0504_result_interp_mbv2_bitops5.35_ws2_v2_sm
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0505_result_interp_mbv2_bitops5.35_ws2_v2_sm_tau1
 model: models.q_mobilenet_v2
 double_side: True
 data_transforms: imagenet1k_mobile
-log_interval: 50
 amp: True
+#
 window_size: 2
 simple_interpolation: True
+distance_v2: True
+L_value: softmax
+tau: 1
+#
+log_interval: 50
 log_bitwidth: False
-distance_v1_L1: True

@@ -1,23 +1,24 @@
+
 # =========================== Basic Settings ===========================
 # machine info
 num_gpus_per_job: 1  # number of gpus each job need
 num_cpus_per_job: 4  # number of cpus each job need
 memory_per_job: 200  # memory requirement each job need
-gpu_type: "titan rtx"
+gpu_type: "v100"
 
 # data
-dataset: CIFAR10
-data_transforms: cifar
-data_loader: cifar
-dataset_dir: ~/data/cifar10
+dataset: imagenet1k
+data_transforms: imagenet1k_basic
+data_loader: imagenet1k_basic
+dataset_dir: /data/imagenet
 #dataset_dir: /mnt/cephfs_new_wj/uslabcv/meijieru/data/imagenet_lmdb
-data_loader_workers: 12 #10
+data_loader_workers: 32 #10
 
 # info
-num_classes: 10
-image_size: 32
+num_classes: 1000
+image_size: 224
 topk: [1, 5]
-num_epochs: 120
+num_epochs: 55
 
 # optimizer
 optimizer: sgd
@@ -71,14 +72,23 @@ kappa: 1.0
 bits_list: [8, 7, 6, 5, 4, 3, 2]
 weight_quant_scheme: original
 act_quant_scheme: original
-init_bit: 7.7
-target_bitops: 0.1088 #5.35
-hard_assign_epoch: 25
+init_bit: 4.5
+target_bitops: 5.35
+hard_assign_epoch: 35
 # =========================== Override Settings ===========================
-fp_pretrained_file: /home/ubuntu/logs/mobilenet_v2-b0353104.pth
-log_dir: /home/ubuntu/logs/frac_bits_new/cifar10/0506_mobilenet_v2_kappa10.0
-model: models.q_mobilenet_v2_cifar
+fp_pretrained_file: /home/lkj004124/logs/mobilenet_v2-b0353104.pth
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0506_result_interp_mbv2_bitops5.35_ws2_v1_sm_tau2_lr0.05
+model: models.q_mobilenet_v2
 double_side: True
-data_transforms: cifar
-log_interval: 100
+data_transforms: imagenet1k_mobile
+amp: True
+#
+window_size: 2
+simple_interpolation: True
+distance_v1: True
+L_value: softmax
+tau: 2
+#
+log_interval: 50
 log_bitwidth: True
+log_wandb: True
