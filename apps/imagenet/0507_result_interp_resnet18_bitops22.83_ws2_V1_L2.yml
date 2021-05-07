@@ -75,7 +75,7 @@ target_bitops: 22.83
 hard_assign_epoch: 40
 # =========================== Override Settings ===========================
 fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
-log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0507_fracbits_resnet18_bitops22.83
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0507_result_interp_resnet18_bitops22.83_ws2_V1_L2
 model: models.q_resnet
 depth: 18
 weight_only: False
