@@ -954,7 +954,6 @@ def train_val_test():
         else:
             kappa = FLAGS.kappa
         print(f'epoch: {epoch}, kappa: {kappa}')
-        continue
         # train ---------------------------------------------
         print(' train '.center(40, '*')) 
         train_top1 = run_one_epoch(
