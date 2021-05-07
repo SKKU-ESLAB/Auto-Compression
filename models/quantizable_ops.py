@@ -268,7 +268,7 @@ class QuantizableConv2d(nn.Conv2d):
             elif getattr(FLAGS, 'distance_v2', False):
                 m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
             else:
-                raise NotImplementedError
+                m = torch.zeros_like(weight_bits_tensor_list)
             L = getattr(FLAGS, 'L_value', 0)
             if L == 'learned':
                 m = torch.pow(m, self.gamma)
@@ -298,6 +298,7 @@ class QuantizableConv2d(nn.Conv2d):
                 weight = self.quant(weight, lamda_w, 0, 0.5, 0, weight_quant_scheme)
             elif getattr(FLAGS, 'nlvs_direct', False):
                 weight = self.quant(weight, torch.zeros(1), 0, 0.5, self.nlvs_w, weight_quant_scheme)
+                self.lamda_w.data = torch.log2(self.nlvs_w)
             else:
                 weight_temp = 0
                 for i, bit in enumerate(weight_bits_tensor_list):
@@ -355,7 +356,7 @@ class QuantizableConv2d(nn.Conv2d):
                 elif getattr(FLAGS, 'distance_v2', False):
                     m = torch.Tensor([window_size/2]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
                 else:
-                    raise NotImplementedError
+                    m = torch.zeros_like(act_bits_tensor_list)
                 L = getattr(FLAGS, 'L_value', 0)
                 if L == 'learned':
                     m = torch.pow(m, self.gamma)
@@ -384,9 +385,8 @@ class QuantizableConv2d(nn.Conv2d):
                 elif getattr(FLAGS, 'bitwidth_direct', False):
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, act_quant_scheme)
                 elif getattr(FLAGS, 'nlvs_direct', False):
-                    #print('alpha:', self.alpha.item())
-                    #print('nlvs_a:', self.nlvs_a.item())
                     input_val = self.quant(input_val, torch.zeros(1), 1, 0, self.nlvs_a, weight_quant_scheme)
+                    self.lamda_a.data = torch.log2(self.nlvs_a)
                 else:
                     '''
                     input_val_list = []
@@ -566,7 +566,7 @@ class QuantizableLinear(nn.Linear):
                 elif getattr(FLAGS, 'distance_v2', False):
                     m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
                 else:
-                    raise NotImplementedError
+                    m = torch.zeros_like(weight_bits_tensor_list)
                 L = getattr(FLAGS, 'L_value', 0)
                 if L == 'learned':
                     m = torch.pow(m, self.gamma)
@@ -596,6 +596,9 @@ class QuantizableLinear(nn.Linear):
                     weight = self.quant(weight, interpolated_bit, 0, 0.5, 0, weight_quant_scheme)
                 elif getattr(FLAGS, 'bitwidth_direct', False):
                     weight = self.quant(weight, lamda_w, 0, 0.5, 0, weight_quant_scheme)
+                elif getattr(FLAGS, 'nlvs_direct', False):
+                    weight = self.quant(weight, torch.zeros(1), 0, 0.5, self.nlvs_w, weight_quant_scheme)
+                    self.lamda_w.data = torch.log2(self.nlvs_w)
                 else:
                     weight_list = []
                     for i, bit in enumerate(weight_bits_tensor_list):
@@ -647,7 +650,7 @@ class QuantizableLinear(nn.Linear):
                 elif getattr(FLAGS, 'distance_v2', False):
                     m = torch.Tensor([window_size/2]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)))
                 else:
-                    raise NotImplementedError
+                    m = torch.zeros_like(act_bits_tensor_list)
                 L = getattr(FLAGS, 'L_value', 0)
                 if L == 'learned':
                     m = torch.pow(m, self.gamma)
@@ -677,6 +680,7 @@ class QuantizableLinear(nn.Linear):
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, act_quant_scheme)
                 elif getattr(FLAGS, 'nlvs_direct', False):
                     input_val = self.quant(input_val, torch.zeros(1), 1, 0, self.nlvs_a, weight_quant_scheme)
+                    self.lamda_a.data = torch.log2(self.nlvs_a)
                 else:
                     #input_val_list = []
                     #for i, bit in enumerate(act_bits_tensor_list):
@@ -705,10 +709,17 @@ class QuantizableLinear(nn.Linear):
     @property
     def comp_cost_loss(self):
         lamda_w = torch.clamp(self.lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
+        if getattr(FLAGS, 'nlvs_direct', False):
+            lamda_w = torch.log2(self.nlvs_w)
+            lamda_w = torch.clamp(lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
         if self.lamda_w_min is not None:
             lamda_w = torch.clamp(lamda_w, min=self.lamda_w_min)
+
         act_bits_list = getattr(FLAGS,'act_bits_list',FLAGS.bits_list)
         lamda_a = torch.clamp(self.lamda_a, min(act_bits_list), max(act_bits_list))
+        if getattr(FLAGS, 'nlvs_direct', False):
+            lamda_a = torch.log2(self.nlvs_a)
+            lamda_a = torch.clamp(lamda_a, min(FLAGS.bits_list), max(FLAGS.bits_list))
         if self.lamda_a_min is not None:
             lamda_a = torch.clamp(lamda_a, min=self.lamda_a_min)
         

@@ -26,7 +26,7 @@ from utils.meters import *
 from utils.model_profiling import compare_models
 from models.quantizable_ops import EMA
 from models.quantizable_ops import QuantizableConv2d, QuantizableLinear
-import wandb
+#import wandb
 import datetime
 import torch.cuda.amp as amp
 
@@ -569,7 +569,6 @@ def get_comp_cost_loss(model):
         loss += getattr(m, 'comp_cost_loss', 0.0)
     target_bitops = getattr(FLAGS, 'target_bitops', False)
     if target_bitops:
-
         loss = torch.abs(loss - target_bitops)
     return loss
 
@@ -609,7 +608,7 @@ def run_one_epoch(
     lambda_a_list = []
     for batch_idx, (inputs, targets) in enumerate(loader):
         ######### FAST TEST Start ###########
-        #if batch_idx == 2:# and train:
+        #if batch_idx == 1:# and train:
         #    break
         ######### FAST TEST End ###########
 
@@ -648,6 +647,7 @@ def run_one_epoch(
             else:
                 outputs = model(inputs)
                 loss_acc = torch.mean(criterion(outputs, targets))
+                loss_cost = 0.0 ## me!! ##
                 if bitwidth_learning:
                     if getattr(FLAGS,'weight_only', False):
                         loss_cost = get_model_size_loss(model)
@@ -685,17 +685,17 @@ def run_one_epoch(
                                 'loss': loss.item(),
                                 'lambda_w': np.array(lambda_w_temp),
                                 'lambda_a': np.array(lambda_a_temp)}
-                    wandb.log(log_dict)
+                    #wandb.log(log_dict)
                 curr = batch_idx * len(inputs)
                 total = len(loader.dataset)
                 if bitwidth_learning:
                     loss_sentence = f'Loss_acc: {eval_acc_loss.avg:.3f} | Loss_cost: {eval_cost_loss.avg:.3f} | '
                 else:
-                    loss_sentence = f'Loss: {eval_loss.avg:5.3f} | '
+                    loss_sentence = f'Loss_acc: {eval_acc_loss.avg:5.3f} | '
                 print(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Train Epoch: {epoch:4d}  Phase: {phase}  Process: {curr:5d}/{total:5d}  '\
                     + loss_sentence + \
                     f'top1.avg: {top1.avg:.3f} % | '\
-                    f'top5.avg: {top5.avg:.3f} % | ')
+                    f'top5.avg: {top5.avg:.3f} % | ')   ## me!! eval_loss -> eval_acc_loss ##
 
         
         else: #not train
@@ -912,8 +912,8 @@ def train_val_test():
             pass
     if getattr(FLAGS, 'log_wandb', False):
         PROJECT_NAME='LBQv2'
-        wandb.init(project=PROJECT_NAME, dir=FLAGS.log_dir)
-        wandb.config.update(FLAGS)
+        #wandb.init(project=PROJECT_NAME, dir=FLAGS.log_dir)
+        #wandb.config.update(FLAGS)
 
     print('Start training.')
     for epoch in range(last_epoch+1, FLAGS.num_epochs):
