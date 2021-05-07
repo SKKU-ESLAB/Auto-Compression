@@ -9,7 +9,7 @@ gpu_type: "titan rtx"
 dataset: CIFAR10
 data_transforms: cifar
 data_loader: cifar
-dataset_dir: /data/cifar10
+dataset_dir: ~/data/cifar10
 #dataset_dir: /mnt/cephfs_new_wj/uslabcv/meijieru/data/imagenet_lmdb
 data_loader_workers: 12 #10
 
@@ -17,7 +17,7 @@ data_loader_workers: 12 #10
 num_classes: 10
 image_size: 32
 topk: [1, 5]
-num_epochs: 40
+num_epochs: 120
 
 # optimizer
 optimizer: sgd
@@ -58,27 +58,26 @@ min_width: 1
 
 #
 unbiased: False
-rescale: True #False
+#rescale: True #False
 switchbn: False
 clamp: True
-#normalize: False
+normalize: True
 bn_calib: False
 rescale_type: constant #[stddev, constant]
 calib_pact: True
 
 #
-kappa: 1.0
+kappa: 0.1
 bits_list: [8, 7, 6, 5, 4, 3, 2]
 weight_quant_scheme: original
 act_quant_scheme: original
 init_bit: 7.7
-target_bitops: 5.35
+target_bitops: 0.1088 #5.35
 hard_assign_epoch: 25
 # =========================== Override Settings ===========================
-fp_pretrained_file: /home/kkm0411/logs/resnet20_kkm.pth
-log_dir: /home/kkm0411/logs/frac_bits_new/cifar10/0501_resnet20
-model: models.q_resnet_cifar
-depth: 20
+fp_pretrained_file: /home/ubuntu/logs/mobilenet_v2-b0353104.pth
+log_dir: /home/ubuntu/logs/frac_bits_new/cifar10/0506_mobilenet_v2_lr0.05_k0.1
+model: models.q_mobilenet_v2_cifar
 double_side: True
 data_transforms: cifar
 log_interval: 100
