@@ -26,7 +26,7 @@ from utils.meters import *
 from utils.model_profiling import compare_models
 from models.quantizable_ops import EMA
 from models.quantizable_ops import QuantizableConv2d, QuantizableLinear
-#import wandb
+import wandb
 import datetime
 import torch.cuda.amp as amp
 
@@ -567,6 +567,7 @@ def get_comp_cost_loss(model):
     loss = 0.0
     for m in model.modules():
         loss += getattr(m, 'comp_cost_loss', 0.0)
+    #print(loss) ## me!! ##
     target_bitops = getattr(FLAGS, 'target_bitops', False)
     if target_bitops:
         loss = torch.abs(loss - target_bitops)
@@ -685,7 +686,7 @@ def run_one_epoch(
                                 'loss': loss.item(),
                                 'lambda_w': np.array(lambda_w_temp),
                                 'lambda_a': np.array(lambda_a_temp)}
-                    #wandb.log(log_dict)
+                    wandb.log(log_dict)
                 curr = batch_idx * len(inputs)
                 total = len(loader.dataset)
                 if bitwidth_learning:
@@ -804,7 +805,7 @@ def train_val_test():
 
 
     # full precision pretrained
-    if getattr(FLAGS, 'fp_pretrained_file', None):
+    if getattr(FLAGS, 'fp_pretrained_file', None) and 'mobilenet' in FLAGS.model:  ## me!! ##
         if not os.path.isfile(FLAGS.fp_pretrained_file):
             pretrain_dir = os.path.dirname(FLAGS.fp_pretrained_file)
             print(FLAGS.fp_pretrained_file)
@@ -831,6 +832,9 @@ def train_val_test():
         model_dict.update(checkpoint)
         model_wrapper.load_state_dict(model_dict)
         print('Loaded full precision model {}.'.format(FLAGS.fp_pretrained_file))
+    else:
+        print('Loaded random value model')
+
 
     # check pretrained ----------------------------------
     if FLAGS.pretrained_file and FLAGS.pretrained_dir:
@@ -912,8 +916,8 @@ def train_val_test():
             pass
     if getattr(FLAGS, 'log_wandb', False):
         PROJECT_NAME='LBQv2'
-        #wandb.init(project=PROJECT_NAME, dir=FLAGS.log_dir)
-        #wandb.config.update(FLAGS)
+        wandb.init(project=PROJECT_NAME, dir=FLAGS.log_dir)
+        wandb.config.update(FLAGS)
 
     print('Start training.')
     for epoch in range(last_epoch+1, FLAGS.num_epochs):

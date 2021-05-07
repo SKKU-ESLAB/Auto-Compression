@@ -1,0 +1,97 @@
+# =========================== Basic Settings ===========================
+# machine info
+num_gpus_per_job: 1  # number of gpus each job need
+num_cpus_per_job: 4  # number of cpus each job need
+memory_per_job: 200  # memory requirement each job need
+gpu_type: "v100"
+
+# data
+dataset: CIFAR10
+data_transforms: cifar
+data_loader: cifar
+dataset_dir: ~/data/cifar10
+#dataset_dir: /mnt/cephfs_new_wj/uslabcv/meijieru/data/imagenet_lmdb
+data_loader_workers: 12 #10
+
+# info
+num_classes: 10
+image_size: 32
+topk: [1, 5]
+num_epochs: 120
+
+# optimizer
+optimizer: sgd
+momentum: 0.9
+weight_decay: 0.00004
+nesterov: True
+
+# lr
+lr: 0.05
+lr_scheduler: cos_annealing_iter
+#lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
+#exp_decaying_gamma: 0.98
+
+# model profiling
+profiling: [gpu]
+#model_profiling_verbose: True
+
+# pretrain, resume, test_only
+pretrained_dir: ''
+pretrained_file: ''
+resume: ''
+test_only: False
+
+#
+random_seed: 1
+batch_size: 128
+model: ''
+reset_parameters: True
+
+#
+distributed: True
+distributed_all_reduce: True
+use_diff_seed: True
+
+#
+width_divisor: 8
+min_width: 1
+
+#
+unbiased: False
+#rescale: True #False
+switchbn: False
+clamp: True
+normalize: True
+bn_calib: False
+rescale_type: constant #[stddev, constant]
+calib_pact: True
+
+#
+kappa: 1.0
+bits_list: [8, 7, 6, 5, 4, 3, 2]
+weight_quant_scheme: original
+act_quant_scheme: original
+init_bit: 7.7
+target_bitops: 0.0578
+hard_assign_epoch: 90
+# =========================== Override Settings ===========================
+fp_pretrained_file: /home/ubuntu/logs/resnet20_0507.pth
+log_dir: /home/ubuntu/logs/frac_bits_new/cifar10/0507_rsn20_ws2_v1_L1_lr0.05
+model: models.q_resnet_cifar
+depth: 20
+double_side: True
+data_transforms: cifar
+amp: True
+#
+window_size: 4
+simple_interpolation: True
+distance_v1: True
+L_value: learned
+#
+log_interval: 100
+log_bitwidth: True
+log_wandb: True
+#
+
+
+
