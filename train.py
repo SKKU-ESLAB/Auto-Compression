@@ -32,6 +32,23 @@ import torch.cuda.amp as amp
 
 #torch.autograd.set_detect_anomaly(True)
 
+def get_exp_cycle_annealing(cycle_size_iter: int, temp_step: float, n: float):
+    """
+    This function return the  exp annealing function for the gumbel softmax.
+    :param cycle_size_iter: integer that defies the cycle size
+    :param temp_step: the step size coefficient
+    :param n: a float scaling of the iteration index
+    :return: a function which get an index and return a floating temperature value
+    """
+
+    def temp_func(i):
+        if i < 0:
+            return 1.0
+        i = i % cycle_size_iter
+        return np.maximum(0.5, 1 * np.exp(-temp_step * np.round(i / n)))
+
+    return temp_func
+
 def timing(f):
     @wraps(f)
     def wrap(*args, **kw):
@@ -585,7 +602,7 @@ def get_model_size_loss(model):
 
 @timing
 def run_one_epoch(
-        epoch, loader, model, criterion, optimizer, meters, phase='train', ema=None, scheduler=None, scaler=None):
+        epoch, loader, model, criterion, optimizer, meters, phase='train', ema=None, scheduler=None, scaler=None, kappa=None):
     """run one epoch for train/val/test/cal"""
     t_start = time.time()
     assert phase in ['train', 'val', 'test', 'cal'], "phase not be in train/val/test/cal."
@@ -636,10 +653,12 @@ def run_one_epoch(
                     loss_acc = torch.mean(criterion(outputs, targets))
                     if bitwidth_learning:
                         if getattr(FLAGS,'weight_only', False):
-                            loss_cost = get_model_size_loss(model)
+                            loss_cost = kappa * get_model_size_loss(model)
                         else:
-                            loss_cost = get_comp_cost_loss(model)
-                    loss = loss_acc + getattr(FLAGS, 'kappa', 1.0) * loss_cost
+                            loss_cost = kappa * get_comp_cost_loss(model)
+                        loss = loss_acc + loss_cost #getattr(FLAGS, 'kappa', 1.0) * loss_cost
+                    else:
+                        loss = loss_acc
                     scaler.scale(loss).backward()
                     scaler.step(optimizer)
                     scaler.update()
@@ -650,10 +669,12 @@ def run_one_epoch(
                 loss_cost = 0.0 ## me!! ##
                 if bitwidth_learning:
                     if getattr(FLAGS,'weight_only', False):
-                        loss_cost = get_model_size_loss(model)
+                        loss_cost = kappa * get_model_size_loss(model)
                     else:
-                        loss_cost = get_comp_cost_loss(model)
-                loss = loss_acc + getattr(FLAGS, 'kappa', 1.0) * loss_cost
+                        loss_cost = kappa * get_comp_cost_loss(model)
+                    loss = loss_acc + loss_cost #getattr(FLAGS, 'kappa', 1.0) * loss_cost
+                else:
+                    loss = loss_acc
                 loss.backward()
                 optimizer.step()
 
@@ -917,17 +938,24 @@ def train_val_test():
         #wandb.config.update(FLAGS)
 
     print('Start training.')
-    for epoch in range(last_epoch+1, FLAGS.num_epochs):
+    for epoch in range(last_epoch+1, FLAGS.num_epochs+1):
         if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
             lr_sched = lr_scheduler
         else:
             lr_sched = None
-
+        kappa_cycle_end = getattr(FLAGS, 'kappa_cycle_stop', 15)
+        kappa_fn = get_exp_cycle_annealing(5, 0.2, 1)
+        if epoch-1 < kappa_cycle_end:
+            kappa = FLAGS.kappa * (1 - kappa_fn(epoch-1) + 0.5 * epoch / kappa_cycle_end)
+        else:
+            kappa = FLAGS.kappa
+        print(f'epoch: {epoch}, kappa: {kappa}')
+        continue
         # train ---------------------------------------------
         print(' train '.center(40, '*')) 
         train_top1 = run_one_epoch(
           epoch, train_loader, model_wrapper, criterion, optimizer,
-          train_meters, phase='train', ema=ema, scheduler=lr_sched, scaler=scaler)
+          train_meters, phase='train', ema=ema, scheduler=lr_sched, scaler=scaler, kappa=kappa)
         #print(f'{train_top1} <-> {flush_scalar_meters(train_meters)["top1_error"]}') -> 안되넴
 
         # val -----------------------------------------------
@@ -985,7 +1013,7 @@ def train_val_test():
                 setattr(FLAGS,'hard_offset', 0)
             top1_acc = run_one_epoch(
                 epoch, val_loader, model_wrapper, criterion, optimizer,
-                val_meters, phase='val', ema=ema, scaler=scaler)
+                val_meters, phase='val', ema=ema, scaler=scaler, kappa=1)
             print(f'==> Epoch {epoch} validation accuracy: {top1_acc:.4f} %')
 
         if top1_acc > best_val:
@@ -1012,7 +1040,6 @@ def train_val_test():
         # For PyTorch 1.0 or earlier, comment the following two lines
         if FLAGS.lr_scheduler not in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
             lr_scheduler.step()
-
     profiling(model, use_cuda=True)
     for m in model.modules():
         if hasattr(m, 'alpha'):
