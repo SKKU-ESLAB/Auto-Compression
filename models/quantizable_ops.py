@@ -225,6 +225,7 @@ class QuantizableConv2d(nn.Conv2d):
             self.gamma = nn.Parameter(torch.tensor(getattr(FLAGS, 'L_init', 1.0)))
 
     def forward(self, input):
+        #print(input.shape)  ## me!! ##
         if self.same_padding:
             ih, iw = input.size()[-2:]
             kh, kw = self.weight.size()[-2:]
