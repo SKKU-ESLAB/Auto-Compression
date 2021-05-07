@@ -222,7 +222,7 @@ class QuantizableConv2d(nn.Conv2d):
             if lamda_a_min == None:
                 self.nlvs_a = nn.Parameter(torch.tensor(2 ** init_bit))
         if getattr(FLAGS, 'L_value', 0) == 'learned':
-            self.gamma = nn.Parameter(torch.tensor(1.0))
+            self.gamma = nn.Parameter(torch.tensor(getattr(FLAGS, 'L_init', 1.0)))
 
     def forward(self, input):
         #print(input.shape)  ## me!! ##
@@ -530,7 +530,7 @@ class QuantizableLinear(nn.Linear):
             self.nlvs_w = nn.Parameter(torch.tensor(2 ** init_bit))
             self.nlvs_a = nn.Parameter(torch.tensor(2 ** init_bit))
         if getattr(FLAGS, 'L_value', 0) == 'learned':
-            self.gamma = nn.Parameter(torch.tensor(1.0))
+            self.gamma = nn.Parameter(torch.tensor(getattr(FLAGS, 'L_init', 1.0)))
         
     def forward(self, input):
         lamda_w = self.lamda_w
