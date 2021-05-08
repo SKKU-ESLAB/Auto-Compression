@@ -949,7 +949,7 @@ def train_val_test():
             lr_sched = None
         kappa_cycle_end = getattr(FLAGS, 'kappa_cycle_stop', 15)
         kappa_fn = get_exp_cycle_annealing(5, 0.2, 1)
-        if epoch-1 < kappa_cycle_end:
+        if (epoch-1 < kappa_cycle_end) and getattr(FLAGS, 'kappa_scheduling', False):
             kappa = FLAGS.kappa * (1 - kappa_fn(epoch-1) + 0.5 * epoch / kappa_cycle_end)
         else:
             kappa = FLAGS.kappa
