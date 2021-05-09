@@ -1,0 +1,93 @@
+
+# =========================== Basic Settings ===========================
+# machine info
+num_gpus_per_job: 1  # number of gpus each job need
+num_cpus_per_job: 4  # number of cpus each job need
+memory_per_job: 200  # memory requirement each job need
+gpu_type: "v100"
+
+# data
+dataset: imagenet1k
+data_transforms: imagenet1k_basic
+data_loader: imagenet1k_basic
+dataset_dir: /data/imagenet
+#dataset_dir: /mnt/cephfs_new_wj/uslabcv/meijieru/data/imagenet_lmdb
+data_loader_workers: 32 #10
+
+# info
+num_classes: 1000
+image_size: 224
+topk: [1, 5]
+num_epochs: 40
+
+# optimizer
+optimizer: sgd
+momentum: 0.9
+weight_decay: 0.00004
+nesterov: True
+
+# lr
+lr: 0.05
+lr_scheduler: cos_annealing_iter
+#lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
+#exp_decaying_gamma: 0.98
+
+# model profiling
+profiling: [gpu]
+#model_profiling_verbose: True
+
+# pretrain, resume, test_only
+pretrained_dir: ''
+pretrained_file: ''
+resume: ''
+test_only: False
+
+#
+random_seed: 1
+batch_size: 256
+model: ''
+reset_parameters: True
+
+#
+#width_divisor: 8
+#min_width: 1
+stats_sharing: False
+
+#
+unbiased: False
+#rescale: True #False
+switchbn: False
+clamp: True
+normalize: True
+bn_calib: False
+rescale_type: constant #[stddev, constant]
+rescale_weight_STE: False #True
+rescale_activation_STE: False
+calib_pact: False
+
+#
+kappa: 0.1
+bits_list: [8, 7, 6, 5, 4, 3, 2, 1]
+weight_quant_scheme: original
+act_quant_scheme: original
+init_bit: 7.5
+target_bitops: 22.83
+hard_assign_epoch: 10
+# =========================== Override Settings ===========================
+fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0510_ri_resnet18_bitops22.83_10_40_ws4_v2l3_ld
+model: models.q_resnet
+depth: 18
+weight_only: False
+#
+simple_interpolation: True
+window_size: 4
+distance_v2: True
+L_value: 4
+#
+amp: True
+log_interval: 50
+log_bitwidth: True
+log_wandb: True
+kappa_scheduling: False
+loss_decoupling: True
