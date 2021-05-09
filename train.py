@@ -709,7 +709,7 @@ def run_one_epoch(
             top1.update(acc1[0], inputs.size(0))
             top5.update(acc5[0], inputs.size(0))
             acc1_iter_list.append(acc1.item())
-            acc1_avg_list.append(top1.avg)
+            acc1_avg_list.append(top1.avg.item())
             lambda_w_temp = []
             lambda_a_temp = []
             if getattr(FLAGS, 'log_bitwidth', False):
@@ -762,7 +762,7 @@ def run_one_epoch(
         print(np.array(lambda_a_list).shape)
         np.save(f'{FLAGS.log_dir}/lambda_w_ep{epoch}.npy', np.array(lambda_w_list))
         np.save(f'{FLAGS.log_dir}/lambda_a_ep{epoch}.npy', np.array(lambda_a_list))
-        np.save(f'{FLAGS.log_dir}/acc1_iter_ep_{epoch}.npy', np.array(acc1_iter_list))
+        np.save(f'{FLAGS.log_dir}/acc1_iter_ep{epoch}.npy', np.array(acc1_iter_list))
         np.save(f'{FLAGS.log_dir}/acc1_avg_ep{epoch}.npy', np.array(acc1_avg_list))
         np.save(f'{FLAGS.log_dir}/loss_acc_ep{epoch}.npy', np.array(loss_acc_list))
         print('bitwidth, acc, and loss numpy file saved!!')
