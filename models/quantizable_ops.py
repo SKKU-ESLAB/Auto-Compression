@@ -280,9 +280,11 @@ class QuantizableConv2d(nn.Conv2d):
                 m = torch.pow(m, L)
             values, indices = torch.topk(m, window_size, dim=0)
             m = m[indices]
-            weight_bits_tensor_list = weight_bits_tensor_list[indices]
+            f = m > 0
+            m = m[f]
+            weight_bits_tensor_list = weight_bits_tensor_list[indices].view(-1)[f]
             p = m / m.sum(dim=0, keepdim=True)
-            ########################################
+            ####################################################
             if self.lamda_w_min == 8:
                 weight = self.quant(weight, lamda_w, 0, 0.5, 0, 'simple_interpolation')
             elif getattr(FLAGS, 'stepsize_aggregation', False):
@@ -367,10 +369,12 @@ class QuantizableConv2d(nn.Conv2d):
                 else:
                     m = torch.pow(m, L)
                 values, indices = torch.topk(m, window_size, dim=0)
-                m = m[indices]
+                m = m[indices].view(-1)
+                f = m > 0
+                m = m[f]
+                act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)[f]
                 p = m / m.sum(dim=0, keepdim=True)
-                act_bits_tensor_list = act_bits_tensor_list[indices]
-
+                ##################################################
                 if self.lamda_a_min == 8:
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, 'simple_interpolation')
                 elif getattr(FLAGS, 'stepsize_aggregation', False):
@@ -483,15 +487,20 @@ class QuantizableConv2d(nn.Conv2d):
                 elif getattr(FLAGS, 'distance_v2', False):
                     mw = torch.Tensor([window_size/2]).to(self.weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
                     ma = torch.Tensor([window_size/2]).to(self.weight.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1,1)))
+                
                 values, indices = torch.topk(mw, window_size, dim=0)
                 mw = mw[indices].view(-1)
-                weight_bits_tensor_list = weight_bits_tensor_list[indices].view(-1)
+                f = mw > 0
+                mw = mw[f]
+                weight_bits_tensor_list = weight_bits_tensor_list[indices].view(-1)[f]
                 pw = mw / mw.sum()
                 lamda_w = torch.dot(weight_bits_tensor_list, pw)
 
                 values, indices = torch.topk(ma, window_size, dim=0)
                 ma = ma[indices].view(-1)
-                act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)
+                f = ma > 0
+                ma = ma[f]
+                act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)[f]
                 pa = ma / ma.sum()
                 lamda_a = torch.dot(act_bits_tensor_list, pw)
             #print('lamda_w', lamda_w)
@@ -609,10 +618,12 @@ class QuantizableLinear(nn.Linear):
                 else:
                     m = torch.pow(m, L)
                 values, indices = torch.topk(m, window_size, dim=0)
-                m = m[indices]
-                weight_bits_tensor_list = weight_bits_tensor_list[indices]
+                m = m[indices].view(-1)
+                f = m > 0
+                m = m[f]
+                weight_bits_tensor_list = weight_bits_tensor_list[indices].view(-1)[f]
                 p = m / m.sum(dim=0, keepdim=True)
-                
+                ##################################################
                 if getattr(FLAGS, 'stepsize_aggregation', False):
                     # lamda_w is 8
                     #stepsize_tensor_list = 1/(torch.pow(2, weight_bits_tensor_list)-1)
@@ -693,10 +704,12 @@ class QuantizableLinear(nn.Linear):
                 else:
                     m = torch.pow(m, L)
                 values, indices = torch.topk(m, window_size, dim=0)
-                m = m[indices]
+                m = m[indices].view(-1)
+                f = m > 0
+                m = m[f]
+                act_bits_tensor_list[indices].view(-1)[f]
                 p = m / m.sum(dim=0, keepdim=True)
-                act_bits_tensor_list = act_bits_tensor_list[indices]
-                
+                ####################################################
                 if self.lamda_a_min == 8:
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, 'simple_interpolation')
                 elif getattr(FLAGS, 'stepsize_aggregation', False):
@@ -784,15 +797,20 @@ class QuantizableLinear(nn.Linear):
                 elif getattr(FLAGS, 'distance_v2', False):
                     mw = torch.Tensor([window_size/2]).to(self.weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
                     ma = torch.Tensor([window_size/2]).to(self.weight.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1,1)))
+                
                 values, indices = torch.topk(mw, window_size, dim=0)
                 mw = mw[indices].view(-1)
-                weight_bits_tensor_list = weight_bits_tensor_list[indices].view(-1)
+                f = mw > 0
+                mw = mw[f]
+                weight_bits_tensor_list = weight_bits_tensor_list[indices].view(-1)[f]
                 pw = mw / mw.sum()
                 lamda_w = torch.dot(weight_bits_tensor_list, pw)
 
                 values, indices = torch.topk(ma, window_size, dim=0)
                 ma = ma[indices].view(-1)
-                act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)
+                f = ma > 0
+                ma = ma[f]
+                act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)[f]
                 pa = ma / ma.sum()
                 lamda_a = torch.dot(act_bits_tensor_list, pw)
 
