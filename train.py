@@ -984,6 +984,8 @@ def train_val_test():
         else:
             kappa = FLAGS.kappa
         print(f'epoch: {epoch}, kappa: {kappa}')
+        if epoch > getattr(FLAGS, 'hard_assign_epoch', float('inf')):
+            setattr(FLAGS, 'hard_assignment', True)
         # train ---------------------------------------------
         print(' train '.center(40, '*')) 
         train_top1 = run_one_epoch(
@@ -996,8 +998,8 @@ def train_val_test():
         if val_meters is not None:
             val_meters['best_val'].cache(best_val)
         with torch.no_grad():
-            if epoch > getattr(FLAGS,'hard_assign_epoch', float('inf')) \
-                and not getattr(FLAGS, 'hard_assignment', False):
+            #### 
+            if epoch == getattr(FLAGS,'hard_assign_epoch', float('inf')):
                 if getattr(FLAGS, 'nlvs_direct', False):
                     FLAGS.nlvs_direct = False
                     for m in model.modules():
