@@ -996,7 +996,8 @@ def train_val_test():
         if val_meters is not None:
             val_meters['best_val'].cache(best_val)
         with torch.no_grad():
-            if epoch == getattr(FLAGS,'hard_assign_epoch', float('inf')):
+            if epoch > getattr(FLAGS,'hard_assign_epoch', float('inf')) \
+                and not getattr(FLAGS, 'hard_assignment', False):
                 if getattr(FLAGS, 'nlvs_direct', False):
                     FLAGS.nlvs_direct = False
                     for m in model.modules():
