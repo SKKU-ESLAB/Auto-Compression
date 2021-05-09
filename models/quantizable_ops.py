@@ -280,7 +280,7 @@ class QuantizableConv2d(nn.Conv2d):
             else:
                 m = torch.pow(m, L)
             values, indices = torch.topk(m, window_size, dim=0)
-            m = m[indices]
+            m = m[indices].view(-1)
             f = m > 0
             m = m[f]
             weight_bits_tensor_list = weight_bits_tensor_list[indices].view(-1)[f]
@@ -714,8 +714,11 @@ class QuantizableLinear(nn.Linear):
                 m = m[indices].view(-1)
                 f = m > 0
                 m = m[f]
-                act_bits_tensor_list[indices].view(-1)[f]
-                p = m / m.sum(dim=0, keepdim=True)
+                act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)[f]
+                p = m / m.sum(dim=0)#, keepdim=True)
+                #print(m.shape)
+                #print(act_bits_tensor_list.shape)
+                #print(p.shape)
                 ####################################################
                 if self.lamda_a_min == 8:
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, 'simple_interpolation')
