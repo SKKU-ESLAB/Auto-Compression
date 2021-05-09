@@ -258,8 +258,9 @@ class QuantizableConv2d(nn.Conv2d):
         weight = torch.tanh(self.weight) / torch.max(torch.abs(torch.tanh(self.weight)))
         weight.add_(1.0)
         weight.div_(2.0)
-
-        if getattr(FLAGS, 'simple_interpolation', False):
+        if getattr(FLAGS, 'hard_assignment', False):
+            weight = self.quant(weight, lamda_w.detach(), 0, 0.5, 0, 'original')
+        elif getattr(FLAGS, 'simple_interpolation', False):
             # ------- introduce: general distance-based interpolation 
             #######    window size setting    ######
             window_size = getattr(FLAGS, 'window_size', 2)
@@ -351,7 +352,9 @@ class QuantizableConv2d(nn.Conv2d):
                 input_val.div_(2.0)
 
             # ------- introduce: general distance-based interpolation
-            if getattr(FLAGS, 'simple_interpolation', False):
+            if getattr(FLAGS, 'hard_assignment', False):
+                input_val = self.quant(input_val, lamda_a.detach(), 1, 0, 0, 'original')
+            elif getattr(FLAGS, 'simple_interpolation', False):
                 window_size = getattr(FLAGS, 'window_size', 2)
                 act_bits_tensor_list = torch.Tensor(act_bits_list).to(input_val.device)
                 if getattr(FLAGS, 'distance_v1', False):
@@ -597,7 +600,9 @@ class QuantizableLinear(nn.Linear):
 
         # ------- introduce: general distance-based interpolation 
         # !! Linear layer use 8-bit weight !! # 
-        if getattr(FLAGS, 'simple_interpolation', False):
+        if getattr(FLAGS, 'hard_assignment', True):
+            weight = self.quant(weight, lamda_w.detach(), 0, 0.5, 0, 'original')
+        elif getattr(FLAGS, 'simple_interpolation', False):
             if self.lamda_w_min == 8:
                 weight = self.quant(weight, lamda_w, 0, 0.5, 0, 'simple_interpolation')
             else:
@@ -686,7 +691,9 @@ class QuantizableLinear(nn.Linear):
             input_val = torch.where(input < torch.abs(self.alpha), input, torch.abs(self.alpha).type(input.type()))
             input_val.div_(torch.abs(self.alpha))
             # ------- introduce: general distance-based interpolation 
-            if getattr(FLAGS, 'simple_interpolation', False):
+            if getattr(FLAGS, 'hard_assignment', False):
+                input_val = self.quant(input_val, lamda_a.detach(), 1, 0, 0, 'original')
+            elif getattr(FLAGS, 'simple_interpolation', False):
                 window_size = getattr(FLAGS, 'window_size', 2)
                 act_bits_tensor_list = torch.Tensor(act_bits_list).to(input_val.device)
                 if getattr(FLAGS, 'distance_v1', False):
