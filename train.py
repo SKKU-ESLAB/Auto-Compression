@@ -631,10 +631,13 @@ def run_one_epoch(
 
     lambda_w_list = []
     lambda_a_list = []
+    loss_acc_list = []
+    acc1_iter_list = []
+    acc1_avg_list = []
     for batch_idx, (inputs, targets) in enumerate(loader):
         ######### FAST TEST Start ###########
-        #if batch_idx == 400:# and train:
-        #    break
+        if batch_idx == 23:# and train:
+            break
         ######### FAST TEST End ###########
 
         if phase == 'cal':
@@ -659,6 +662,7 @@ def run_one_epoch(
                     
                     outputs = model(inputs)
                     loss_acc = torch.mean(criterion(outputs, targets))
+                    loss_acc_list.append(loss_acc.item())
                     if bitwidth_learning:
                         if getattr(FLAGS,'weight_only', False):
                             loss_cost = kappa * get_model_size_loss(model)
@@ -676,6 +680,7 @@ def run_one_epoch(
             else:
                 outputs = model(inputs)
                 loss_acc = torch.mean(criterion(outputs, targets))
+                loss_acc_list.append(loss_acc.item())
                 loss_cost = 0.0 ## me!! ##
                 if bitwidth_learning:
                     if getattr(FLAGS,'weight_only', False):
@@ -703,6 +708,8 @@ def run_one_epoch(
 
             top1.update(acc1[0], inputs.size(0))
             top5.update(acc5[0], inputs.size(0))
+            acc1_iter_list.append(acc1.item())
+            acc1_avg_list.append(top1.avg)
             lambda_w_temp = []
             lambda_a_temp = []
             if getattr(FLAGS, 'log_bitwidth', False):
@@ -755,7 +762,10 @@ def run_one_epoch(
         print(np.array(lambda_a_list).shape)
         np.save(f'{FLAGS.log_dir}/lambda_w_ep{epoch}.npy', np.array(lambda_w_list))
         np.save(f'{FLAGS.log_dir}/lambda_a_ep{epoch}.npy', np.array(lambda_a_list))
-        print('bitwidth numpy file saved!!')
+        np.save(f'{FLAGS.log_dir}/acc1_iter_ep_{epoch}.npy', np.array(acc1_iter_list))
+        np.save(f'{FLAGS.log_dir}/acc1_avg_ep{epoch}.npy', np.array(acc1_avg_list))
+        np.save(f'{FLAGS.log_dir}/loss_acc_ep{epoch}.npy', np.array(loss_acc_list))
+        print('bitwidth, acc, and loss numpy file saved!!')
         
         print('\ncurrent bitwidth (weight):')
         lambda_temp = []
