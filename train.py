@@ -559,8 +559,6 @@ def forward_loss(model, criterion, inputs, targets, meter):
     for k in FLAGS.topk:
         correct_k.append(correct[:k].float().sum(0))
     res = torch.cat(correct_k, dim=0)
-    #if getattr(FLAGS, 'distributed', False) and getattr(FLAGS, 'distributed_all_reduce', False):
-    #    res = dist_all_reduce_tensor(res)
     res = res.cpu().detach().numpy()
     bs = (res.size - 1) // len(FLAGS.topk)
     for i, k in enumerate(FLAGS.topk):
@@ -582,18 +580,27 @@ def bit_discretizing(model):
 
 def get_comp_cost_loss(model):
     loss = 0.0
-    for m in model.modules():
+    for name, m in model.named_modules():
         loss += getattr(m, 'comp_cost_loss', 0.0)
-    #print(loss) ## me!! ##
     target_bitops = getattr(FLAGS, 'target_bitops', False)
     if target_bitops:
         loss = torch.abs(loss - target_bitops)
     return loss
 
 
+# NEW loss : bitwidth regularizer
+def get_bitwidth_loss(model):
+    loss = 0.0
+    for name, m in model.named_modules():
+        if hasattr(m, 'lambda_w'):
+            loss += torch.abs(torch.round(m.lambda_w) - m.lambda_w)
+            loss += torch.abs(torch.round(m.lambda_a) - m.lambda_a)
+    return loss
+
+
 def get_model_size_loss(model):
     loss = 0.0
-    for m in model.modules():
+    for name, m in model.named_modules():
         loss += getattr(m, 'model_size_loss', 0.0)
     target_size = getattr(FLAGS, 'target_size', False)
     if target_size:
@@ -658,6 +665,8 @@ def run_one_epoch(
                         else:
                             loss_cost = kappa * get_comp_cost_loss(model)
                         loss = loss_acc + loss_cost #getattr(FLAGS, 'kappa', 1.0) * loss_cost
+                        if epoch+1 > getattr(FLAGS, 'bitwidth_regularize_epoch', 9999):
+                            loss += get_bitwidth_loss(model)
                     else:
                         loss = loss_acc
                     scaler.scale(loss).backward()
@@ -674,6 +683,8 @@ def run_one_epoch(
                     else:
                         loss_cost = kappa * get_comp_cost_loss(model)
                     loss = loss_acc + loss_cost #getattr(FLAGS, 'kappa', 1.0) * loss_cost
+                    if epoch+1 > getattr(FLAGS, 'bitwidth_regularize_epoch', 9999):
+                        loss += get_bitwidth_loss(model)
                 else:
                     loss = loss_acc
                 loss.backward()
@@ -715,9 +726,12 @@ def run_one_epoch(
                 total = len(loader.dataset)
                 if bitwidth_learning:
                     loss_sentence = f'Loss_acc: {eval_acc_loss.avg:.3f} | Loss_cost: {eval_cost_loss.avg:.3f} | '
+                    if epoch+1 > getattr(FLAGS, 'bitwidth_regularize_epoch', 9999):
+                            loss_sentence = loss_sentence + append(f'Loss_bit: {get_bitwidth_loss(model):.3f} | ')
                 else:
                     loss_sentence = f'Loss_acc: {eval_acc_loss.avg:5.3f} | '
-                print(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Train Epoch: {epoch:4d}  Phase: {phase}  Process: {curr:5d}/{total:5d}  '\
+                print(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Train Epoch: '\
+                    f'{epoch:3d} Phase: {phase} Process: {curr:5d}/{total:5d}  '\
                     + loss_sentence + \
                     f'top1.avg: {top1.avg:.3f} % | '\
                     f'top5.avg: {top5.avg:.3f} % | ')   ## me!! eval_loss -> eval_acc_loss ##
@@ -772,6 +786,9 @@ def run_one_epoch(
         #val_top1 = results['top1_error']
     except:
         val_top1 = top1.avg
+    if phase == 'val':
+        wandb.log({'eval_top1': top1.avg,
+                  'eval_top5': top5.avg})
     return val_top1
 
 
