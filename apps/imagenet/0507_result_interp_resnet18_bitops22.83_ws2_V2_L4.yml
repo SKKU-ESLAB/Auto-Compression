@@ -18,7 +18,7 @@ data_loader_workers: 32 #10
 num_classes: 1000
 image_size: 224
 topk: [1, 5]
-num_epochs: 60
+num_epochs: 40
 
 # optimizer
 optimizer: sgd
@@ -70,9 +70,9 @@ kappa: 0.1
 bits_list: [8, 7, 6, 5, 4, 3, 2, 1]
 weight_quant_scheme: original
 act_quant_scheme: original
-init_bit: 5.5
+init_bit: 7.5
 target_bitops: 22.83
-hard_assign_epoch: 40
+hard_assign_epoch: 20
 # =========================== Override Settings ===========================
 fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
 log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0507_result_interp_resnet18_bitops22.83_ws2_V2_L4

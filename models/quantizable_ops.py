@@ -449,12 +449,12 @@ class QuantizableConv2d(nn.Conv2d):
         
         if getattr(FLAGS, 'per_channel', False) or getattr(FLAGS, 'per_channel_weight', False):
             lamda_w = lamda_w.view(self.groups, -1, 1)
-        else:
-            lamda_w = lamda_w.repeat(self.groups, self.out_channels // self.groups, 1)
+        #else:
+        #    lamda_w = lamda_w.repeat(self.groups, self.out_channels // self.groups, 1)
         if getattr(FLAGS, 'per_channel', False) or getattr(FLAGS, 'per_channel_activation', False):
             lamda_a = lamda_a.view(self.groups, 1, -1)
-        else:
-            lamda_a = lamda_a.repeat(self.groups, 1, self.in_channels // self.groups)
+        #else:
+        #    lamda_a = lamda_a.repeat(self.groups, 1, self.in_channels // self.groups)
         
         bw_l = lamda_w.floor()
         bw_h = 1 + bw_l
@@ -462,12 +462,44 @@ class QuantizableConv2d(nn.Conv2d):
         ba_h = 1 + ba_l
         
         cc_  = self.kernel_size[0] * self.kernel_size[1] * oh * ow * 1e-9
-        cc_wh_ah = cc_ * ((lamda_w - bw_l) * (lamda_a - ba_l) * bw_h * ba_h).sum()
-        cc_wh_al = cc_ * ((lamda_w - bw_l) * (ba_h - lamda_a) * bw_h * ba_l).sum()
-        cc_wl_ah = cc_ * ((bw_h - lamda_w) * (lamda_a - ba_l) * bw_l * ba_h).sum()
-        cc_wl_al = cc_ * ((bw_h - lamda_w) * (ba_h - lamda_a) * bw_l * ba_l).sum()
+        #cc_wh_ah = cc_ * ((lamda_w - bw_l) * (lamda_a - ba_l) * bw_h * ba_h).sum()
+        #cc_wh_al = cc_ * ((lamda_w - bw_l) * (ba_h - lamda_a) * bw_h * ba_l).sum()
+        #cc_wl_ah = cc_ * ((bw_h - lamda_w) * (lamda_a - ba_l) * bw_l * ba_h).sum()
+        #cc_wl_al = cc_ * ((bw_h - lamda_w) * (ba_h - lamda_a) * bw_l * ba_l).sum()
         
-        loss =  cc_wh_ah + cc_wh_al + cc_wl_ah + cc_wl_al
+        #loss =  cc_wh_ah + cc_wh_al + cc_wl_ah + cc_wl_al
+
+
+        if getattr(FLAGS, 'loss_decoupling', False):
+            pass
+        else:
+            weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(self.weight.device)
+            act_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(self.weight.device)
+            if getattr(FLAGS, 'distance_v1', False) or getattr(FLAGS, 'distance_v2', False):
+                window_size = getattr(FLAGS, 'window_size', 0)
+                if getattr(FLAGS, 'distance_v1', False):
+                    mw = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
+                    ma = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
+                elif getattr(FLAGS, 'distance_v2', False):
+                    mw = torch.Tensor([window_size/2]).to(self.weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
+                    ma = torch.Tensor([window_size/2]).to(self.weight.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1,1)))
+                values, indices = torch.topk(mw, window_size, dim=0)
+                mw = mw[indices].view(-1)
+                weight_bits_tensor_list = weight_bits_tensor_list[indices].view(-1)
+                pw = mw / mw.sum()
+                lamda_w = torch.dot(weight_bits_tensor_list, pw)
+
+                values, indices = torch.topk(ma, window_size, dim=0)
+                ma = ma[indices].view(-1)
+                act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)
+                pa = ma / ma.sum()
+                lamda_a = torch.dot(act_bits_tensor_list, pw)
+            #print('lamda_w', lamda_w)
+            #print('lamda_a', lamda_a)
+            #print('self.in_channels', self.in_channels)
+            ##print('self.out_channels', self.out_channels)
+            #rint()
+        loss = cc_ * lamda_w * lamda_a * self.in_channels * self.out_channels / self.groups
         return loss
 
     @property
@@ -726,12 +758,12 @@ class QuantizableLinear(nn.Linear):
         
         if getattr(FLAGS, 'per_channel', False) or getattr(FLAGS, 'per_channel_weight', False):
             lamda_w = lamda_w.view(-1, 1)
-        else:
-            lamda_w = lamda_w.repeat(self.out_features, 1)
+        #else:
+        #    lamda_w = lamda_w.repeat(self.out_features, 1)
         if getattr(FLAGS, 'per_channel', False) or getattr(FLAGS, 'per_channel_activation', False):
             lamda_a = lamda_a.view(1, -1)
-        else:
-            lamda_a = lamda_a.repeat(1, self.in_features)
+        #else:
+        #    lamda_a = lamda_a.repeat(1, self.in_features)
 
         bw_l = lamda_w.floor()
         bw_h = 1 + bw_l
@@ -739,12 +771,32 @@ class QuantizableLinear(nn.Linear):
         ba_h = 1 + ba_l
         
         cc_ = 1e-9
-        cc_wh_ah = cc_ * ((lamda_w - bw_l) * (lamda_a - ba_l) * bw_h * ba_h).sum()
-        cc_wh_al = cc_ * ((lamda_w - bw_l) * (ba_h - lamda_a) * bw_h * ba_l).sum()
-        cc_wl_ah = cc_ * ((bw_h - lamda_w) * (lamda_a - ba_l) * bw_l * ba_h).sum()
-        cc_wl_al = cc_ * ((bw_h - lamda_w) * (ba_h - lamda_a) * bw_l * ba_l).sum()
-        
-        loss = cc_wh_ah + cc_wh_al + cc_wl_ah + cc_wl_al
+        if getattr(FLAGS, 'loss_decoupling', False):
+            pass
+        else: 
+            weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(self.weight.device)
+            act_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(self.weight.device)
+            if getattr(FLAGS, 'distance_v1', False) or getattr(FLAGS, 'distance_v2', False):
+                window_size = getattr(FLAGS, 'window_size', 0)
+                if getattr(FLAGS, 'distance_v1', False):
+                    mw = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
+                    ma = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
+                elif getattr(FLAGS, 'distance_v2', False):
+                    mw = torch.Tensor([window_size/2]).to(self.weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
+                    ma = torch.Tensor([window_size/2]).to(self.weight.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1,1)))
+                values, indices = torch.topk(mw, window_size, dim=0)
+                mw = mw[indices].view(-1)
+                weight_bits_tensor_list = weight_bits_tensor_list[indices].view(-1)
+                pw = mw / mw.sum()
+                lamda_w = torch.dot(weight_bits_tensor_list, pw)
+
+                values, indices = torch.topk(ma, window_size, dim=0)
+                ma = ma[indices].view(-1)
+                act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)
+                pa = ma / ma.sum()
+                lamda_a = torch.dot(act_bits_tensor_list, pw)
+
+        loss = cc_ * lamda_w * lamda_a * self.in_features * self.out_features / self.groups
         return loss
 
     @property

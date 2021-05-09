@@ -72,20 +72,22 @@ weight_quant_scheme: original
 act_quant_scheme: original
 init_bit: 7.5
 target_bitops: 22.83
-hard_assign_epoch: 20
+hard_assign_epoch: 10
 # =========================== Override Settings ===========================
 fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
-log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0507_result_interp_resnet18_bitops22.83_ws2_V1_L2
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0509_fracbits_resnet18_bitops22.83_short1
 model: models.q_resnet
 depth: 18
 weight_only: False
 #
-simple_interpolation: True
-window_size: 2
-distance_v1: True
-L_value: 2
+#simple_interpolation: True
+#window_size: 2
+#distance_v2: True
+#L_value: learned
+#L_init: 4.0
 #
 amp: True
 log_interval: 50
 log_bitwidth: True
 log_wandb: True
+kappa_scheduling: False
