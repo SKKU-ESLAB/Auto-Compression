@@ -636,8 +636,8 @@ def run_one_epoch(
     acc1_avg_list = []
     for batch_idx, (inputs, targets) in enumerate(loader):
         ######### FAST TEST Start ###########
-        if batch_idx == 23:# and train:
-            break
+        #if batch_idx == 23:# and train:
+        #    break
         ######### FAST TEST End ###########
 
         if phase == 'cal':
