@@ -1000,6 +1000,17 @@ def train_val_test():
                             print(f'm.lamda_a.data = {m.lamda_a.data}')
                 print('Start to use hard assigment')
                 setattr(FLAGS, 'hard_assignment', True)
+                #####  Ensure appropriate quantizer for finetuning #####
+                setattr(FLAGS, 'simple_interpolation', False)
+                setattr(FLAGS, 'distance_v2', False)
+                setattr(FLAGS, 'window_size', False)
+                setattr(FLAGS, 'bitwidth_aggregation', False)
+                setattr(FLAGS, 'stepsize_aggregation', False)
+                setattr(FLAGS, 'nlvs_aggregation', False)
+                setattr(FLAGS, 'L_value', False)
+                setattr(FLAGS, 'L_init', False)
+                #######################################################
+
                 lower_offset = -1
                 higher_offset = 0
                 setattr(FLAGS, 'hard_offset', 0)
