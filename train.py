@@ -592,9 +592,9 @@ def get_comp_cost_loss(model):
 def get_bitwidth_loss(model):
     loss = 0.0
     for name, m in model.named_modules():
-        if hasattr(m, 'lambda_w'):
-            loss += torch.abs(torch.round(m.lambda_w) - m.lambda_w)
-            loss += torch.abs(torch.round(m.lambda_a) - m.lambda_a)
+        if hasattr(m, 'lamda_w'):
+            loss += torch.square(torch.abs(torch.round(m.lamda_w) - m.lamda_w))
+            loss += torch.square(torch.abs(torch.round(m.lamda_a) - m.lamda_a))
     return loss
 
 
@@ -633,7 +633,7 @@ def run_one_epoch(
     lambda_a_list = []
     for batch_idx, (inputs, targets) in enumerate(loader):
         ######### FAST TEST Start ###########
-        #if batch_idx == 1:# and train:
+        #if batch_idx == 400:# and train:
         #    break
         ######### FAST TEST End ###########
 
@@ -665,8 +665,8 @@ def run_one_epoch(
                         else:
                             loss_cost = kappa * get_comp_cost_loss(model)
                         loss = loss_acc + loss_cost #getattr(FLAGS, 'kappa', 1.0) * loss_cost
-                        if epoch+1 > getattr(FLAGS, 'bitwidth_regularize_epoch', 9999):
-                            loss += get_bitwidth_loss(model)
+                        if epoch+1 > getattr(FLAGS, 'bitwidth_regularize_start_epoch', 9999):
+                            loss += kappa * get_bitwidth_loss(model)
                     else:
                         loss = loss_acc
                     scaler.scale(loss).backward()
@@ -683,8 +683,8 @@ def run_one_epoch(
                     else:
                         loss_cost = kappa * get_comp_cost_loss(model)
                     loss = loss_acc + loss_cost #getattr(FLAGS, 'kappa', 1.0) * loss_cost
-                    if epoch+1 > getattr(FLAGS, 'bitwidth_regularize_epoch', 9999):
-                        loss += get_bitwidth_loss(model)
+                    if epoch+1 > getattr(FLAGS, 'bitwidth_regularize_start_epoch', 9999):
+                        loss += kappa * get_bitwidth_loss(model)
                 else:
                     loss = loss_acc
                 loss.backward()
@@ -726,8 +726,8 @@ def run_one_epoch(
                 total = len(loader.dataset)
                 if bitwidth_learning:
                     loss_sentence = f'Loss_acc: {eval_acc_loss.avg:.3f} | Loss_cost: {eval_cost_loss.avg:.3f} | '
-                    if epoch+1 > getattr(FLAGS, 'bitwidth_regularize_epoch', 9999):
-                            loss_sentence = loss_sentence + append(f'Loss_bit: {get_bitwidth_loss(model):.3f} | ')
+                    if epoch+1 > getattr(FLAGS, 'bitwidth_regularize_start_epoch', 9999):
+                            loss_sentence = loss_sentence + f'Loss_bit: {kappa * get_bitwidth_loss(model):.3f} | '
                 else:
                     loss_sentence = f'Loss_acc: {eval_acc_loss.avg:5.3f} | '
                 print(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Train Epoch: '\
