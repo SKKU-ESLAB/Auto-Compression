@@ -239,9 +239,9 @@ class QuantizableConv2d(nn.Conv2d):
         #print(input.view(-1)[:50])
         lamda_w = self.lamda_w
         lamda_a = self.lamda_a
-        if getattr(FLAGS, 'hard_assignment',False):
-            lamda_w = torch.round(lamda_w + FLAGS.hard_offset).detach()
-            lamda_a = torch.round(lamda_a + FLAGS.hard_offset).detach()
+        #if getattr(FLAGS, 'hard_assignment',False):
+        #    lamda_w = torch.round(lamda_w + FLAGS.hard_offset).detach()
+        #    lamda_a = torch.round(lamda_a + FLAGS.hard_offset).detach()
         
         lamda_w = torch.clamp(lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
         if self.lamda_w_min is not None:
@@ -579,9 +579,9 @@ class QuantizableLinear(nn.Linear):
     def forward(self, input):
         lamda_w = self.lamda_w
         lamda_a = self.lamda_a
-        if getattr(FLAGS, 'hard_assignment',False):
-            lamda_w = torch.round(lamda_w+FLAGS.hard_offset).detach()
-            lamda_a = torch.round(lamda_a+FLAGS.hard_offset).detach()
+        #if getattr(FLAGS, 'hard_assignment',False):
+        #    lamda_w = torch.round(lamda_w+FLAGS.hard_offset).detach()
+        #    lamda_a = torch.round(lamda_a+FLAGS.hard_offset).detach()
         lamda_w = torch.clamp(lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
         if self.lamda_w_min is not None:
             lamda_w = torch.clamp(lamda_w, min=self.lamda_w_min)
