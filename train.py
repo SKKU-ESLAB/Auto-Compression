@@ -680,7 +680,10 @@ def run_one_epoch(
                 optimizer.step()
 
             if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
-                scheduler.step()
+                try:
+                    scheduler.step()
+                except:
+                    pass
 
             acc1, acc5 = accuracy(outputs.data, targets.data, top_k=(1,5))
             eval_acc_loss.update(loss_acc.item(), inputs.size(0))
