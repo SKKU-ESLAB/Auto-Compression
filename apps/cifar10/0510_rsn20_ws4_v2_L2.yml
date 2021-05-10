@@ -53,8 +53,9 @@ distributed_all_reduce: True
 use_diff_seed: True
 
 #
-width_divisor: 8
-min_width: 1
+#width_divisor: 8
+#min_width: 1
+stats_sharing: False
 
 #
 unbiased: False
@@ -64,7 +65,9 @@ clamp: True
 normalize: True
 bn_calib: False
 rescale_type: constant #[stddev, constant]
-calib_pact: True
+rescale_weight_STE: False #True
+rescale_activation_STE: False
+calib_pact: False
 
 #
 kappa: 1.0
@@ -76,22 +79,24 @@ target_bitops: 0.0578
 hard_assign_epoch: 91
 # =========================== Override Settings ===========================
 fp_pretrained_file: /home/ubuntu/logs/resnet20_0507.pth
-log_dir: /home/ubuntu/logs/frac_bits_new/cifar10/0507_rsn20_ws2_v1_sm_tau0.5_lr0.05
+log_dir: /home/ubuntu/logs/frac_bits_new/cifar10/0510_rsn20_ws4_v2_L2
 model: models.q_resnet_cifar
 depth: 20
 double_side: True
 data_transforms: cifar
-amp: True
+weight_only: False
 #
-window_size: 2
+window_size: 4
 simple_interpolation: True
-distance_v1: True
-L_value: softmax
-tau: 0.5
+distance_v2: True
+L_value: 2
 #
+amp: True
 log_interval: 100
 log_bitwidth: True
 log_wandb: True
+kappa_scheduling: False
+loss_decoupling: False
 #
 
 
