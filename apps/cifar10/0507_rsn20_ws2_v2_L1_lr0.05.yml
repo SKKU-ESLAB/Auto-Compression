@@ -71,9 +71,9 @@ kappa: 1.0
 bits_list: [8, 7, 6, 5, 4, 3, 2]
 weight_quant_scheme: original
 act_quant_scheme: original
-init_bit: 7.7
+init_bit: 7.5
 target_bitops: 0.0578
-hard_assign_epoch: 90
+hard_assign_epoch: 91
 # =========================== Override Settings ===========================
 fp_pretrained_file: /home/ubuntu/logs/resnet20_0507.pth
 log_dir: /home/ubuntu/logs/frac_bits_new/cifar10/0507_rsn20_ws2_v2_L1_lr0.05
