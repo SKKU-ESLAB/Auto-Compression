@@ -99,14 +99,14 @@ class Quantize_k(Function):
     """
     @staticmethod
     def forward(ctx, input, bit=torch.tensor([8]), align_dim=0, zero_point=0, val=0, scheme='original'):
-        assert torch.all(bit >= 0)
+        #assert torch.all(bit >= 0)
         #try: 
         #    assert torch.all(input >= 0) 
         #except AssertionError as e:
         #    print(input[input>1].tolist())
         #    exit()
             #and torch.all(input <= 1)
-        assert zero_point >= 0 and zero_point <= 1
+        #assert zero_point >= 0 and zero_point <= 1
 
         if scheme in ['original', 'simple_interpolation', 'bitwidth_aggregation', 'bitwidth_direct']:
             a = torch.pow(2, bit) - 1
@@ -115,8 +115,8 @@ class Quantize_k(Function):
             res = torch.round(a * input)
             res.div_(1 + torch.relu(a - 1))
             res.add_(zero_point * torch.relu(1 - a))
-            if scheme == 'original':
-                assert torch.all(res <= 1)
+            #if scheme == 'original':
+            #    assert torch.all(res <= 1)
 
         elif scheme == 'stepsize_aggregation':
             s = val
