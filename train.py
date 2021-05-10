@@ -998,8 +998,14 @@ def train_val_test():
         if val_meters is not None:
             val_meters['best_val'].cache(best_val)
         with torch.no_grad():
-            #### 
             if epoch == getattr(FLAGS,'hard_assign_epoch', float('inf')):
+                ####  Added validation before hard assignment 
+                top1_acc = run_one_epoch(
+                    epoch, val_loader, model_wrapper, criterion, optimizer,
+                    val_meters, phase='val', ema=ema, scaler=scaler, kappa=1)
+                print('/** validation accruacy before hard assignment **/')
+                print(f'==> Epoch {epoch} validation accuracy: {top1_acc:.4f} %')
+
                 if getattr(FLAGS, 'nlvs_direct', False):
                     FLAGS.nlvs_direct = False
                     for m in model.modules():
