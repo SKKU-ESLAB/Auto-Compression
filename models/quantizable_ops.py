@@ -827,7 +827,7 @@ class QuantizableLinear(nn.Linear):
                 ma = ma[f]
                 act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)[f]
                 pa = ma / ma.sum()
-                lamda_a = torch.dot(act_bits_tensor_list, pw)
+                lamda_a = torch.dot(act_bits_tensor_list, pa)
 
         loss = cc_ * lamda_w * lamda_a * self.in_features * self.out_features / self.groups
         return loss
