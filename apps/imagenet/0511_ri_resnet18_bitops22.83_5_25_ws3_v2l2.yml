@@ -18,7 +18,7 @@ data_loader_workers: 32 #10
 num_classes: 1000
 image_size: 224
 topk: [1, 5]
-num_epochs: 20
+num_epochs: 25
 
 # optimizer
 optimizer: sgd
