@@ -507,7 +507,7 @@ class QuantizableConv2d(nn.Conv2d):
                 ma = ma[f]
                 act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)[f]
                 pa = ma / ma.sum()
-                lamda_a = torch.dot(act_bits_tensor_list, pw)
+                lamda_a = torch.dot(act_bits_tensor_list, pa)
             #print('lamda_w', lamda_w)
             #print('lamda_a', lamda_a)
             #print('self.in_channels', self.in_channels)
