@@ -70,7 +70,7 @@ kappa: 0.1
 bits_list: [8, 7, 6, 5, 4, 3, 2, 1]
 weight_quant_scheme: original
 act_quant_scheme: original
-init_bit: 7.5
+init_bit: 3.
 target_bitops: 22.83
 hard_assign_epoch: 0
 # =========================== Override Settings ===========================
@@ -81,9 +81,9 @@ depth: 18
 weight_only: False
 #
 #simple_interpolation: True
-#window_size: 4
+#window_size: 4.
 #distance_v2: True
-#L_value: 3
+#L_value: 3.
 #
 amp: True
 log_interval: 50
