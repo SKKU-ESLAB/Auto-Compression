@@ -81,7 +81,7 @@ depth: 18
 weight_only: False
 #
 simple_interpolation: True
-window_size: 3.
+window_size: 3
 distance_v2: True
 L_value: 2.0
 #
