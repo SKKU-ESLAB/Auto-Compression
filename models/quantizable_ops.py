@@ -273,9 +273,9 @@ class QuantizableConv2d(nn.Conv2d):
                 window_size = getattr(FLAGS, 'window_size', 2)
                 weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(weight.device)
                 if getattr(FLAGS, 'distance_v1', False):
-                    m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
+                    m = 1. / (torch.abs(lamda_w - weight_bits_tensor_list) + self.eps)
                 elif getattr(FLAGS, 'distance_v2', False):
-                    m = torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)))
+                    m = torch.Tensor([window_size/2]).to(weight.device) - (torch.abs(lamda_w - weight_bits_tensor_list))
                 else:
                     m = torch.zeros_like(weight_bits_tensor_list)
                 L = getattr(FLAGS, 'L_value', 0)
@@ -286,12 +286,16 @@ class QuantizableConv2d(nn.Conv2d):
                     m = F.softmax(m / tau, dim=0)
                 else:
                     m = torch.pow(m, L)
-                values, indices = torch.topk(m, window_size, dim=0)
-                m = m[indices].view(-1)
+                #values, indices = torch.topk(m, window_size, dim=0)
+                #m = m[indices].view(-1)
                 f = m > 0
                 m = m[f]
-                weight_bits_tensor_list = weight_bits_tensor_list[indices].view(-1)[f]
-                p = m / m.sum(dim=0, keepdim=True)
+                #weight_bits_tensor_list = weight_bits_tensor_list[indices].view(-1)[f]
+                weight_bits_tensor_list = weight_bits_tensor_list[f]
+                #############
+                ############# 이거 다 적용해야됨!
+                #############
+                p = m / m.abs().sum(dim=0, keepdim=True)
                 ####################################################
                 if self.lamda_w_min == 8:
                     weight = self.quant(weight, lamda_w, 0, 0.5, 0, 'simple_interpolation')
@@ -366,9 +370,9 @@ class QuantizableConv2d(nn.Conv2d):
                     window_size = getattr(FLAGS, 'window_size', 2)
                     act_bits_tensor_list = torch.Tensor(act_bits_list).to(input_val.device)
                     if getattr(FLAGS, 'distance_v1', False):
-                        m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
+                        m = 1. / (torch.abs(lamda_a - act_bits_tensor_list + self.eps))
                     elif getattr(FLAGS, 'distance_v2', False):
-                        m = torch.relu(torch.Tensor([window_size/2]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1))))
+                        m = torch.relu(torch.Tensor([window_size/2]).to(input_val.device) - (torch.abs(lamda_a - act_bits_tensor_list.view(-1, 1))))
                     else:
                         m = torch.zeros_like(act_bits_tensor_list)
                     L = getattr(FLAGS, 'L_value', 0)
@@ -381,11 +385,12 @@ class QuantizableConv2d(nn.Conv2d):
                         m = torch.pow(m, L)
                         #print('#### m ####')
                         #print(m)
-                    values, indices = torch.topk(m, window_size, dim=0)
-                    m = m[indices].view(-1)
+                    #values, indices = torch.topk(m, window_size, dim=0)
+                    #m = m[indices].view(-1)
                     f = m > 0
                     m = m[f]
-                    act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)[f]
+                    #act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)[f]
+                    act_bits_tensor_list = act_bits_tensor_list[f]
                     p = m / m.sum(dim=0, keepdim=True)
                     ##################################################
                     if self.lamda_a_min == 8:
@@ -614,6 +619,7 @@ class QuantizableLinear(nn.Linear):
             if self.lamda_w_min == 8:
                 weight = self.quant(weight, lamda_w, 0, 0.5, 0, 'simple_interpolation')
             else:
+                window_size = getattr(FLAGS, 'window_size', 2)
                 print('\n\n\n[Error]This shouldn\'t be printed!!!! ')
                 if getattr(FLAGS, 'bitwidth_direct', False):
                     weight = self.quant(weight, lamda_w, 0, 0.5, 0, weight_quant_scheme)
@@ -623,9 +629,9 @@ class QuantizableLinear(nn.Linear):
                 else:
                     weight_bits_tensor_list = torch.Tensor(FLAGS.bits_list).to(weight.device)
                     if getattr(FLAGS, 'distance_v1', False):
-                        m = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
+                        m = 1. / (torch.abs(lamda_w - weight_bits_tensor_list) + self.eps)
                     elif getattr(FLAGS, 'distance_v2', False):
-                        m = torch.relu(torch.Tensor([window_size/2]).to(weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1))))
+                        m = torch.relu(torch.Tensor([window_size/2]).to(weight.device) - (torch.abs(lamda_w - weight_bits_tensor_list)))
                     else:
                         m = torch.zeros_like(weight_bits_tensor_list)
                     L = getattr(FLAGS, 'L_value', 0)
@@ -636,11 +642,9 @@ class QuantizableLinear(nn.Linear):
                         m = F.softmax(m / tau, dim=0)
                     else:
                         m = torch.pow(m, L)
-                    values, indices = torch.topk(m, window_size, dim=0)
-                    m = m[indices].view(-1)
                     f = m > 0
                     m = m[f]
-                    weight_bits_tensor_list = weight_bits_tensor_list[indices].view(-1)[f]
+                    weight_bits_tensor_list = weight_bits_tensor_list[f]
                     p = m / m.sum(dim=0, keepdim=True)
                     ##################################################
                     if getattr(FLAGS, 'stepsize_aggregation', False):
@@ -712,9 +716,9 @@ class QuantizableLinear(nn.Linear):
                     window_size = getattr(FLAGS, 'window_size', 2)
                     act_bits_tensor_list = torch.Tensor(act_bits_list).to(input_val.device)
                     if getattr(FLAGS, 'distance_v1', False):
-                        m = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
+                        m = 1. / (torch.abs(lamda_a - act_bits_tensor_list) + self.eps)
                     elif getattr(FLAGS, 'distance_v2', False):
-                        m = torch.relu(torch.Tensor([window_size/2]).to(input_val.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1))))
+                        m = torch.relu(torch.Tensor([window_size/2]).to(input_val.device) - (torch.abs(lamda_a - act_bits_tensor_list)))
                     else:
                         m = torch.zeros_like(act_bits_tensor_list)
                     L = getattr(FLAGS, 'L_value', 0)
@@ -725,11 +729,12 @@ class QuantizableLinear(nn.Linear):
                         m = F.softmax(m / tau, dim=0)
                     else:
                         m = torch.pow(m, L)
-                    values, indices = torch.topk(m, window_size, dim=0)
-                    m = m[indices].view(-1)
+                    #values, indices = torch.topk(m, window_size, dim=0)
+                    #m = m[indices].view(-1)
                     f = m > 0
                     m = m[f]
-                    act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)[f]
+                    #act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)[f]
+                    act_bits_tensor_list = act_bits_tensor_list[f]
                     p = m / m.sum(dim=0)#, keepdim=True)
                     #print(m.shape)
                     #print(act_bits_tensor_list.shape)
