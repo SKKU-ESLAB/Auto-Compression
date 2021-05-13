@@ -457,16 +457,22 @@ def get_optimizer(model):
         # all depthwise convolution (N, 1, x, x) has no weight decay
         # weight decay only on normal conv and fc
         model_params = []
-        for params in model.parameters():
+        for name, params in model.named_parameters():
             ps = list(params.size())
             if len(ps) == 4 and ps[1] != 1:
                 weight_decay = FLAGS.weight_decay
+                lr = FLAGS.lr
             elif len(ps) == 2:
                 weight_decay = FLAGS.weight_decay
+                lr = FLAGS.lr
+            elif "lamda" in name: 
+                weight_decay = 0
+                lr = getattr(FLAGS, "lr_lamda", FLAGS.lr)
             else:
                 weight_decay = 0
+                lr = FLAGS.lr
             item = {'params': params, 'weight_decay': weight_decay,
-                    'lr': FLAGS.lr, 'momentum': FLAGS.momentum,
+                    'lr': lr, 'momentum': FLAGS.momentum,
                     'nesterov': FLAGS.nesterov}
             model_params.append(item)
         optimizer = torch.optim.SGD(model_params)
