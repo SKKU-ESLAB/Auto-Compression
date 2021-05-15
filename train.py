@@ -979,6 +979,24 @@ def train_val_test():
 
     print('Start training.')
     for epoch in range(last_epoch+1, FLAGS.num_epochs+1):
+        #########    NEW Method             ################
+        if getattr(FLAGS, 'window_schedule', False) == 'custom_1':
+            print('\n\n*** WINDOW SCHEDULE : NEW METHOD ***\n\n')
+            if epoch-1 < 10:
+                FLAGS.window_size = 4
+                FLAGS.L_value = 1/2 + (epoch-1)/20
+
+            elif epoch-1 < 20:
+                FLAGS.window_size = 3
+                FLAGS.L_value = 1/2 + (epoch-11)/20
+            else:
+                FLAGS.window_size = 2
+                FLAGS.L_value = min(1, 1/2 + (epoch-21)/20)
+        print(f'==> [Epoch {epoch}] window size: {FLAGS.window_size}')
+        print(f'==> [Epoch {epoch}] L_value: {FLAGS.L_value}')   
+        #####################################################
+
+        
         if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
             lr_sched = lr_scheduler
         else:
