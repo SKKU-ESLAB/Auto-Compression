@@ -18,7 +18,7 @@ data_loader_workers: 32 #10
 num_classes: 1000
 image_size: 224
 topk: [1, 5]
-hard_assign_epoch: 45
+hard_assign_epoch: 30
 num_epochs: 50
 
 # optimizer
