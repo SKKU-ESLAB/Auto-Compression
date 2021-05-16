@@ -58,7 +58,7 @@ class Q_ReLU(nn.Module):
         self.a = Parameter(Tensor(len(self.bits)))
 
         #self.theta = Parameter(torch.ones(len(self.bits))/len(self.bits))
-        self.theta = Parameter(F.softmax(self.bits ** 2, dim=0))
+        self.theta = Parameter(F.softmax(torch.pow(self.bits, 2), dim=0))
         self.a.data.fill_(np.log(np.exp(offset + diff)-1))
     
     def initialize_qonly(self, offset, diff):
@@ -103,7 +103,7 @@ class Q_ReLU6(Q_ReLU):
         self.n_lvs = 2 ** self.bits
         self.a = Parameter(Tensor(len(self.bits)))
         self.theta = Parameter(torch.ones(len(self.n_lvs))/len(self.n_lvs))
-        self.theta = Parameter(F.softmax(self.bits ** 2, dim=0))
+        self.theta = Parameter(F.softmax(torch.pow(self.bits, 2), dim=0))
 
         if offset + diff > 6:
             self.a.data.fill_(np.log(np.exp(6)-1))
@@ -131,8 +131,7 @@ class Q_Sym(nn.Module):
         self.n_lvs = 2 ** self.bits
         self.a = Parameter(Tensor(len(self.bits)))
 
-        #self.theta = Parameter(torch.ones(len(self.bits))/len(self.bits))
-        self.theta = Parameter(F.softmax(self.bits ** 2, dim=0))
+        self.theta = Parameter(F.softmax(torch.pow(self.bits, 2), dim=0))
         self.a.data.fill_(np.log(np.exp(offset + diff)-1))
     
     def initialize_qonly(self, offset, diff):
@@ -213,8 +212,7 @@ class Q_Conv2d(nn.Conv2d):
         self.n_lvs = 2 ** self.bits
         self.a = Parameter(Tensor(len(self.bits)))
         
-        #self.theta = Parameter(torch.ones(len(self.bits))/len(self.bits))
-        self.theta = Parameter(F.softmax(self.bits ** 2, dim=0))
+        self.theta = Parameter(F.softmax(torch.pow(self.bits, 2), dim=0))
         max_val = self.weight.data.abs().max().item()
         self.a.data.fill_(np.log(np.exp(max_val * 0.9)-1))
 
@@ -294,7 +292,7 @@ class Q_Linear(nn.Linear):
         self.a = Parameter(Tensor(len(self.bits)))
 
         #self.theta = Parameter(torch.ones(len(self.bits))/len(self.bits))
-        self.theta = Parameter(F.softmax(self.bits ** 2, dim=0))
+        self.theta = Parameter(F.softmax(torch.pow(self.bits, 2), dim=0))
         max_val = self.weight.data.abs().max().item()
         self.a.data.fill_(np.log(np.exp(max_val * 0.9)-1))
     
