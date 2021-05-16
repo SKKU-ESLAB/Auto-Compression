@@ -992,9 +992,9 @@ def train_val_test():
             else:
                 FLAGS.window_size = 2
                 FLAGS.L_value = min(1, 1/2 + (epoch-21)/20)
-        print(f'==> [Epoch {epoch}] window size: {FLAGS.window_size}')
-        print(f'==> [Epoch {epoch}] L_value: {FLAGS.L_value}')   
-        #####################################################
+            print(f'==> [Epoch {epoch}] window size: {FLAGS.window_size}')
+            print(f'==> [Epoch {epoch}] L_value: {FLAGS.L_value}')   
+            #####################################################
 
         
         if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
