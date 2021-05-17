@@ -18,7 +18,7 @@ data_loader_workers: 32 #10
 num_classes: 1000
 image_size: 224
 topk: [1, 5]
-hard_assign_epoch: 30
+hard_assign_epoch: 45
 num_epochs: 50
 
 # optimizer
@@ -76,7 +76,7 @@ init_bit: 7.5
 target_bitops: 22.83
 # =========================== Override Settings ===========================
 fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
-log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0517_fracbits_ep30+20
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0517_fracbits_ep45+5
 model: models.q_resnet
 depth: 18
 weight_only: False
