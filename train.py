@@ -616,7 +616,7 @@ def get_model_size_loss(model):
 
 @timing
 def run_one_epoch(
-        epoch, loader, model, criterion, optimizer, meters, phase='train', ema=None, scheduler=None, scaler=None, kappa=None):
+        epoch, loader, model, criterion, optimizer, meters, phase='train', ema=None, scheduler=None, scaler=None, kappa=None, gamma=None):
     """run one epoch for train/val/test/cal"""
     t_start = time.time()
     assert phase in ['train', 'val', 'test', 'cal'], "phase not be in train/val/test/cal."
@@ -641,10 +641,11 @@ def run_one_epoch(
     acc1_iter_list = []
     acc1_avg_list = []
     for batch_idx, (inputs, targets) in enumerate(loader):
-        ######### FAST TEST Start ###########
-        #if batch_idx == 2:# and train:
-        #    break
-        ######### FAST TEST End ###########
+        ######### FAST TEST ###########
+        if getattr(FLAGS, 'debug_cut_batch', False):
+            if batch_idx == FLAGS.debug_cut_batch:
+                break
+        ######### FAST TEST ###########
 
         if phase == 'cal':
             if batch_idx == getattr(FLAGS, 'bn_cal_batch_num', -1):
@@ -676,7 +677,7 @@ def run_one_epoch(
                             loss_cost = kappa * get_comp_cost_loss(model)
                         loss = loss_acc + loss_cost #getattr(FLAGS, 'kappa', 1.0) * loss_cost
                         if epoch+1 > getattr(FLAGS, 'bitwidth_regularize_start_epoch', 9999):
-                            loss += kappa * get_bitwidth_loss(model)
+                            loss += gamma * get_bitwidth_loss(model)
                     else:
                         loss = loss_acc
                     scaler.scale(loss).backward()
@@ -695,7 +696,7 @@ def run_one_epoch(
                         loss_cost = kappa * get_comp_cost_loss(model)
                     loss = loss_acc + loss_cost #getattr(FLAGS, 'kappa', 1.0) * loss_cost
                     if epoch+1 > getattr(FLAGS, 'bitwidth_regularize_start_epoch', 9999):
-                        loss += kappa * get_bitwidth_loss(model)
+                        loss += gamma * get_bitwidth_loss(model)
                 else:
                     loss = loss_acc
                 loss.backward()
@@ -861,7 +862,7 @@ def train_val_test():
     model_link = {'models.q_mobilenet_v2': 'https://download.pytorch.org/models/mobilenet_v2-b0353104.pth',
                 'models.q_resnet': 'https://download.pytorch.org/models/resnet18-f37072fd.pth'}
     # full precision pretrained
-    if getattr(FLAGS, 'fp_pretrained_file', None) and 'mobilenet' in FLAGS.model:  ## me!! ##
+    if getattr(FLAGS, 'fp_pretrained_file', None):  ## me!! ##
         if not os.path.isfile(FLAGS.fp_pretrained_file):
             pretrain_dir = os.path.dirname(FLAGS.fp_pretrained_file)
             print(FLAGS.fp_pretrained_file)
@@ -984,7 +985,7 @@ def train_val_test():
     for epoch in range(last_epoch+1, FLAGS.num_epochs+1):
         #########    NEW Method             ################
         if getattr(FLAGS, 'window_schedule', False) == 'custom_1':
-            print('\n\n*** WINDOW SCHEDULE : NEW METHOD ***\n\n')
+            print('\n*** WINDOW SCHEDULE : CUSTOM_1 ***\n')
             if (epoch-1) < 5:
                 FLAGS.window_size = 4
                 #FLAGS.L_value = 1/2 + (epoch-1)/20
@@ -997,8 +998,71 @@ def train_val_test():
                 FLAGS.L_value = min(1, 1/2 + (epoch-21)/10)
             print(f'==> [Epoch {epoch}] window size: {FLAGS.window_size}')
             print(f'==> [Epoch {epoch}] L_value: {FLAGS.L_value}')   
-            #####################################################
 
+        elif getattr(FLAGS, 'window_schedule', False) == 'custom_2':
+            print('\n*** WINDOW SCHEDULE : CUSTOM_2 ***\n')
+            if (epoch-1) < 3:
+                FLAGS.window_size = 4
+                FLAGS.L_value = 1
+            elif (epoch-1) < 6:
+                FLAGS.window_size = 3
+                FLAGS.L_value = 1
+            elif (epoch-1) < 10:
+                FLAGS.window_size = 2
+                FLAGS.L_value = 1
+            elif (epoch-1) < 13:
+                FLAGS.window_size = 4
+                FLAGS.L_value = 1
+            elif (epoch-1) < 16:
+                FLAGS.window_size = 3
+                FLAGS.L_value = 1
+            elif (epoch-1) < 20:
+                FLAGS.window_size = 2
+                FLAGS.L_value = 1
+            elif (epoch-1) < 23:
+                FLAGS.window_size = 4
+                FLAGS.L_value = 1
+            elif (epoch-1) < 26:
+                FLAGS.window_size = 3
+                FLAGS.L_value = 1
+            else:
+                FLAGS.window_size = 2
+                FLAGS.L_value = 1
+            print(f'==> [Epoch {epoch}] window size: {FLAGS.window_size}')
+            print(f'==> [Epoch {epoch}] L_value: {FLAGS.L_value}')   
+            
+        elif getattr(FLAGS, 'window_schedule', False) == 'custom_3':
+            print('\n*** WINDOW SCHEDULE : CUSTOM_3 ***\n')
+            if (epoch-1) < 3:
+                FLAGS.window_size = 4
+                FLAGS.L_value = 1
+            elif (epoch-1) < 6:
+                FLAGS.window_size = 3
+                FLAGS.L_value = 1
+            elif (epoch-1) < 10:
+                FLAGS.window_size = 2
+                FLAGS.L_value = 1
+            elif (epoch-1) < 13:
+                FLAGS.window_size = 4
+                FLAGS.L_value = 1.5
+            elif (epoch-1) < 16:
+                FLAGS.window_size = 3
+                FLAGS.L_value = 1
+            elif (epoch-1) < 20:
+                FLAGS.window_size = 2
+                FLAGS.L_value = 1
+            elif (epoch-1) < 23:
+                FLAGS.window_size = 4
+                FLAGS.L_value = 2
+            elif (epoch-1) < 26:
+                FLAGS.window_size = 3
+                FLAGS.L_value = 1.5
+            else:
+                FLAGS.window_size = 2
+                FLAGS.L_value = 1
+            print(f'==> [Epoch {epoch}] window size: {FLAGS.window_size}')
+            print(f'==> [Epoch {epoch}] L_value: {FLAGS.L_value}')      
+        ############################################################
         
         if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
             lr_sched = lr_scheduler
@@ -1013,6 +1077,13 @@ def train_val_test():
                 kappa = FLAGS.kappa_base + (FLAGS.kappa - FLAGS.kappa_base) * (epoch-1)/kappa_cycle_end_epoch
         else:
             kappa = FLAGS.kappa
+        
+        # Gamma scheduling
+        gamma = 0
+        if (epoch-1) > getattr(FLAGS, 'bitwidth_regularize_start_epoch', 1000):
+            gamma = FLAGS.gamma * (epoch - FLAGS.bitwidth_regularize_start_epoch) \
+                            / (FLAGS.hard_assign_epoch - FLAGS.bitwidth_regularize_start_epoch)
+            print(f'\nGAMMA: {gamma}\n')
 
         print(f'epoch: {epoch}, kappa: {kappa:.4f}')
         if epoch > getattr(FLAGS, 'hard_assign_epoch', float('inf')):
@@ -1022,7 +1093,8 @@ def train_val_test():
         print(' train '.center(40, '*')) 
         train_top1 = run_one_epoch(
           epoch, train_loader, model_wrapper, criterion, optimizer,
-          train_meters, phase='train', ema=ema, scheduler=lr_sched, scaler=scaler, kappa=kappa)
+          train_meters, phase='train', ema=ema, scheduler=lr_sched, scaler=scaler, 
+          kappa=kappa, gamma=gamma)
         #print(f'{train_top1} <-> {flush_scalar_meters(train_meters)["top1_error"]}') -> 안되넴
 
         # val -----------------------------------------------
@@ -1034,7 +1106,7 @@ def train_val_test():
                 ####  Added validation before hard assignment 
                 top1_acc = run_one_epoch(
                     epoch, val_loader, model_wrapper, criterion, optimizer,
-                    val_meters, phase='val', ema=ema, scaler=scaler, kappa=1)
+                    val_meters, phase='val', ema=ema, scaler=scaler, kappa=1, gamma=1)
                 print('/** validation accruacy before hard assignment **/')
                 print(f'==> Epoch {epoch} validation accuracy: {top1_acc:.4f} %')
 
