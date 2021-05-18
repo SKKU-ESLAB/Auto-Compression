@@ -1101,7 +1101,7 @@ def train_val_test():
         if (epoch-1) > getattr(FLAGS, 'bitwidth_regularize_start_epoch', 1000):
             gamma = FLAGS.gamma * (epoch - FLAGS.bitwidth_regularize_start_epoch) \
                             / (FLAGS.hard_assign_epoch - FLAGS.bitwidth_regularize_start_epoch)
-            print(f'\nGAMMA: {gamma}\n')
+            print(f'\nGAMMA: {gamma:.4f}\n')
 
         print(f'epoch: {epoch}, kappa: {kappa:.4f}')
         if epoch > getattr(FLAGS, 'hard_assign_epoch', float('inf')):
