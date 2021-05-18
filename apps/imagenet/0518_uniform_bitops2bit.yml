@@ -69,7 +69,7 @@ calib_pact: False
 
 #
 kappa: 0.1
-#kappa_base: 0.01
+kappa_base: 0.01
 #kappa_scheduling: linear
 #kappa_cycle_end_epoch: 10
 
