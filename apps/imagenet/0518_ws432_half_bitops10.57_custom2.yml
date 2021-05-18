@@ -73,15 +73,15 @@ kappa_base: 0.01
 kappa_scheduling: linear
 kappa_cycle_end_epoch: 10
 #
-gamma: 0.1
-bitwidth_regularize_start_epoch: 30
+#gamma: 0.1
+#bitwidth_regularize_start_epoch: 30
 
 #
 bits_list: [8, 7, 6, 5, 4, 3, 2, 1]
 weight_quant_scheme: original
 act_quant_scheme: original
 init_bit: 4.5
-target_bitops: 14.34
+target_bitops: 10.57
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
 log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/test0518
@@ -99,4 +99,6 @@ log_bitwidth: True
 log_wandb: True
 channel_half: True
 
+
 #loss_decoupling: True
+#bitwidth_regularize_start_epoch: 9
