@@ -642,7 +642,7 @@ def run_one_epoch(
     acc1_avg_list = []
     for batch_idx, (inputs, targets) in enumerate(loader):
         ######### FAST TEST Start ###########
-        #if batch_idx == 23:# and train:
+        #if batch_idx == 2:# and train:
         #    break
         ######### FAST TEST End ###########
 
@@ -810,8 +810,6 @@ def run_one_epoch(
 
 @timing
 def train_val_test():
-    if not getattr(FLAGS, 'gumbel', True):
-        from models.quantizable_ops_nogumbel import QuantizableConv2d, QuantizableLinear
     if getattr(FLAGS, 'amp', False):
         print('\n--------------------------------------')
         print('==> AUTOMATIC MIXED PRECISION Training')
@@ -976,22 +974,27 @@ def train_val_test():
         PROJECT_NAME='LBQv2'
         wandb.init(project=PROJECT_NAME, dir=FLAGS.log_dir)
         wandb.config.update(FLAGS)
+    
+    # kappa scheduling -- part 1
+    kappa_cycle_end_epoch = getattr(FLAGS, 'kappa_cycle_end_epoch', 15)
+    if getattr(FLAGS, 'kappa_scheduling', False) == "exp_cyclic":
+        kappa_fn = get_exp_cycle_annealing(5, 0.2, 1)
 
     print('Start training.')
     for epoch in range(last_epoch+1, FLAGS.num_epochs+1):
         #########    NEW Method             ################
         if getattr(FLAGS, 'window_schedule', False) == 'custom_1':
             print('\n\n*** WINDOW SCHEDULE : NEW METHOD ***\n\n')
-            if epoch-1 < 10:
+            if (epoch-1) < 5:
                 FLAGS.window_size = 4
-                FLAGS.L_value = 1/2 + (epoch-1)/20
-
-            elif epoch-1 < 20:
+                #FLAGS.L_value = 1/2 + (epoch-1)/20
+                FLAGS.L_value = 1 + (epoch-1)/10
+            elif (epoch-1) < 10:
                 FLAGS.window_size = 3
-                FLAGS.L_value = 1/2 + (epoch-11)/20
+                FLAGS.L_value = 1/2 + (epoch-6)/10
             else:
                 FLAGS.window_size = 2
-                FLAGS.L_value = min(1, 1/2 + (epoch-21)/20)
+                FLAGS.L_value = min(1, 1/2 + (epoch-21)/10)
             print(f'==> [Epoch {epoch}] window size: {FLAGS.window_size}')
             print(f'==> [Epoch {epoch}] L_value: {FLAGS.L_value}')   
             #####################################################
@@ -1001,15 +1004,20 @@ def train_val_test():
             lr_sched = lr_scheduler
         else:
             lr_sched = None
-        kappa_cycle_end = getattr(FLAGS, 'kappa_cycle_stop', 15)
-        kappa_fn = get_exp_cycle_annealing(5, 0.2, 1)
-        if (epoch-1 < kappa_cycle_end) and getattr(FLAGS, 'kappa_scheduling', False):
-            kappa = FLAGS.kappa * (1 - kappa_fn(epoch-1) + 0.5 * epoch / kappa_cycle_end)
+        
+        # Kappa scheudling -- part 2
+        if (epoch-1) < kappa_cycle_end_epoch:
+            if getattr(FLAGS, 'kappa_scheduling', False) == 'exp_cyclic':
+                kappa = FLAGS.kappa * (1 - kappa_fn(epoch-1) + 0.5 * epoch / kappa_cycle_end_epoch)
+            else:
+                kappa = FLAGS.kappa_base + (FLAGS.kappa - FLAGS.kappa_base) * (epoch-1)/kappa_cycle_end_epoch
         else:
             kappa = FLAGS.kappa
-        print(f'epoch: {epoch}, kappa: {kappa}')
+
+        print(f'epoch: {epoch}, kappa: {kappa:.4f}')
         if epoch > getattr(FLAGS, 'hard_assign_epoch', float('inf')):
             setattr(FLAGS, 'hard_assignment', True)
+        
         # train ---------------------------------------------
         print(' train '.center(40, '*')) 
         train_top1 = run_one_epoch(
@@ -1043,7 +1051,7 @@ def train_val_test():
                             print(f'm.lamda_a.data = {m.lamda_a.data}')
                 print('Start to use hard assigment')
                 setattr(FLAGS, 'hard_assignment', True)
-                #####  Ensure appropriate quantizer for finetuning #####
+                #  Ensure appropriate quantizer for finetuning -----
                 setattr(FLAGS, 'simple_interpolation', False)
                 setattr(FLAGS, 'distance_v2', False)
                 setattr(FLAGS, 'window_size', False)
@@ -1052,7 +1060,7 @@ def train_val_test():
                 setattr(FLAGS, 'nlvs_aggregation', False)
                 setattr(FLAGS, 'L_value', False)
                 setattr(FLAGS, 'L_init', False)
-                #######################################################
+                # ----------
 
                 lower_offset = -1
                 higher_offset = 0

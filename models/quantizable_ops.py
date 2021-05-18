@@ -275,7 +275,8 @@ class QuantizableConv2d(nn.Conv2d):
                 if getattr(FLAGS, 'distance_v1', False):
                     m = 1. / (torch.abs(lamda_w - weight_bits_tensor_list) + self.eps)
                 elif getattr(FLAGS, 'distance_v2', False):
-                    m = torch.Tensor([window_size/2]).to(weight.device) - (torch.abs(lamda_w - weight_bits_tensor_list))
+                    m = torch.relu(torch.Tensor([window_size/2]).to(weight.device).view(-1, 1) \
+                            - (torch.abs(lamda_w.view(-1, 1) - weight_bits_tensor_list.view(-1, 1))))
                 else:
                     m = torch.zeros_like(weight_bits_tensor_list)
                 L = getattr(FLAGS, 'L_value', 0)
@@ -286,17 +287,13 @@ class QuantizableConv2d(nn.Conv2d):
                     m = F.softmax(m / tau, dim=0)
                 else:
                     m = torch.pow(m, L)
-                #values, indices = torch.topk(m, window_size, dim=0)
-                #m = m[indices].view(-1)
+                
                 f = m > 0
                 m = m[f]
-                #weight_bits_tensor_list = weight_bits_tensor_list[indices].view(-1)[f]
-                weight_bits_tensor_list = weight_bits_tensor_list[f]
-                #############
-                ############# 이거 다 적용해야됨!
-                #############
-                p = m / m.abs().sum(dim=0, keepdim=True)
-                ####################################################
+                weight_bits_tensor_list = weight_bits_tensor_list.view(-1, 1)[f]
+                p = m / m.sum(dim=0, keepdim=True)
+
+                    ##################################################
                 if self.lamda_w_min == 8:
                     weight = self.quant(weight, lamda_w, 0, 0.5, 0, 'simple_interpolation')
                 elif getattr(FLAGS, 'stepsize_aggregation', False):
@@ -313,11 +310,7 @@ class QuantizableConv2d(nn.Conv2d):
                     weight_temp = 0
                     for i, bit in enumerate(weight_bits_tensor_list):
                         weight_temp += p[i].view(-1, 1, 1, 1) * self.quant(weight, bit, 0, 0.5, 0, weight_quant_scheme)
-                        weight = weight_temp
-                    #weight_list = []
-                    #for i, bit in enumerate(weight_bits_tensor_list):
-                    #    weight_list.append(p[i].view(-1, 1) * self.quant(weight, bit, 0, 0.5, 0, weight_quant_scheme))
-                    #weight = torch.stack(weight_list).sum(dim=0)
+                    weight = weight_temp
             # -------------------------------------------------------
         else:
             p_l = 1 + torch.floor(lamda_w) - lamda_w
@@ -372,7 +365,8 @@ class QuantizableConv2d(nn.Conv2d):
                     if getattr(FLAGS, 'distance_v1', False):
                         m = 1. / (torch.abs(lamda_a - act_bits_tensor_list + self.eps))
                     elif getattr(FLAGS, 'distance_v2', False):
-                        m = torch.relu(torch.Tensor([window_size/2]).to(input_val.device) - (torch.abs(lamda_a - act_bits_tensor_list.view(-1, 1))))
+                        m = torch.relu(torch.Tensor([window_size/2]).to(input_val.device) - (torch.abs(lamda_a - act_bits_tensor_list)))
+                        #m = torch.relu(torch.Tensor([window_size/2]).to(input_val.device).view(-1, 1) - (torch.abs(lamda_a.view(-1,1) - act_bits_tensor_list.view(-1,1))))
                     else:
                         m = torch.zeros_like(act_bits_tensor_list)
                     L = getattr(FLAGS, 'L_value', 0)
@@ -383,15 +377,15 @@ class QuantizableConv2d(nn.Conv2d):
                         m = F.softmax(m / tau, dim=0)
                     else:
                         m = torch.pow(m, L)
-                        #print('#### m ####')
-                        #print(m)
-                    #values, indices = torch.topk(m, window_size, dim=0)
-                    #m = m[indices].view(-1)
+                    #print(m)
                     f = m > 0
                     m = m[f]
-                    #act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)[f]
                     act_bits_tensor_list = act_bits_tensor_list[f]
                     p = m / m.sum(dim=0, keepdim=True)
+                    #print(act_bits_tensor_list)
+                    #print(p)
+                    #print('\n\n')
+
                     ##################################################
                     if self.lamda_a_min == 8:
                         input_val = self.quant(input_val, lamda_a, 1, 0, 0, 'simple_interpolation')
@@ -406,17 +400,10 @@ class QuantizableConv2d(nn.Conv2d):
                         interpolated_bit = sum([p[i] * act_bits_tensor_list[i] for i in range(len(p))])
                         input_val = self.quant(input_val, interpolated_bit, 1, 0, 0, act_quant_scheme)
                     else:
-                        '''
-                        input_val_list = []
-                        for i, bit in enumerate(act_bits_tensor_list):
-                            input_val_list.append(p[i] * self.quant(input_val, bit, 1, 0, 0, act_quant_scheme))
-                        input_val = torch.stack(input_val_list).sum(dim=0)'''
                         input_temp = 0
                         for i , bit in enumerate(act_bits_tensor_list):
                             quant_temp = self.quant(input_val, bit, 1, 0, 0, act_quant_scheme)
                             input_temp += p[i].view(-1, 1, 1) * quant_temp
-                            #print(p[i])
-                            #print(quant_temp)
                         input_val = input_temp
                 # -------------------------------------------------------
             else:
@@ -498,25 +485,25 @@ class QuantizableConv2d(nn.Conv2d):
             if getattr(FLAGS, 'distance_v1', False) or getattr(FLAGS, 'distance_v2', False):
                 window_size = getattr(FLAGS, 'window_size', 0)
                 if getattr(FLAGS, 'distance_v1', False):
-                    mw = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
-                    ma = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
+                    mw = 1. / (torch.abs(lamda_w - weight_bits_tensor_list) + self.eps)
+                    ma = 1. / (torch.abs(lamda_a - act_bits_tensor_list) + self.eps)
                 elif getattr(FLAGS, 'distance_v2', False):
-                    mw = torch.relu(torch.Tensor([window_size/2]).to(self.weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1))))
-                    ma = torch.relu(torch.Tensor([window_size/2]).to(self.weight.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1,1))))
+                    mw = torch.relu(torch.Tensor([window_size/2]).to(self.weight.device) - (torch.abs(lamda_w - weight_bits_tensor_list)))
+                    ma = torch.relu(torch.Tensor([window_size/2]).to(self.weight.device) - (torch.abs(lamda_a - act_bits_tensor_list)))
                 
-                values, indices = torch.topk(mw, window_size, dim=0)
-                mw = mw[indices].view(-1)
+                #values, indices = torch.topk(mw, window_size, dim=0)
+                #mw = mw[indices].view(-1)
                 f = mw > 0
                 mw = mw[f]
-                weight_bits_tensor_list = weight_bits_tensor_list[indices].view(-1)[f]
+                weight_bits_tensor_list = weight_bits_tensor_list[f]
                 pw = mw / mw.sum()
                 lamda_w = torch.dot(weight_bits_tensor_list, pw)
 
-                values, indices = torch.topk(ma, window_size, dim=0)
-                ma = ma[indices].view(-1)
+                #values, indices = torch.topk(ma, window_size, dim=0)
+                #ma = ma[indices].view(-1)
                 f = ma > 0
                 ma = ma[f]
-                act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)[f]
+                act_bits_tensor_list = act_bits_tensor_list[f]
                 pa = ma / ma.sum()
                 lamda_a = torch.dot(act_bits_tensor_list, pa)
             #print('lamda_w', lamda_w)
@@ -729,16 +716,10 @@ class QuantizableLinear(nn.Linear):
                         m = F.softmax(m / tau, dim=0)
                     else:
                         m = torch.pow(m, L)
-                    #values, indices = torch.topk(m, window_size, dim=0)
-                    #m = m[indices].view(-1)
                     f = m > 0
                     m = m[f]
-                    #act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)[f]
                     act_bits_tensor_list = act_bits_tensor_list[f]
-                    p = m / m.sum(dim=0)#, keepdim=True)
-                    #print(m.shape)
-                    #print(act_bits_tensor_list.shape)
-                    #print(p.shape)
+                    p = m / m.sum(dim=0)
                     ####################################################
                     if self.lamda_a_min == 8:
                         input_val = self.quant(input_val, lamda_a, 1, 0, 0, 'simple_interpolation')
@@ -754,10 +735,6 @@ class QuantizableLinear(nn.Linear):
                         input_val = self.quant(input_val, interpolated_bit, 1, 0, 0, act_quant_scheme)
                     
                     else:
-                        #input_val_list = []
-                        #for i, bit in enumerate(act_bits_tensor_list):
-                        #    input_val_list.append(p[i] * self.quant(input_val, bit, 1, 0, 0, act_quant_scheme))
-                        #input_val = torch.stack(input_val_list).sum(dim=0)
                         input_temp = 0
                         for i, bit in enumerate(act_bits_tensor_list):
                             input_temp += p[i] * self.quant(input_val, bit, 1, 0, 0, act_quant_scheme)
@@ -821,22 +798,17 @@ class QuantizableLinear(nn.Linear):
                     mw = 1. / (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1)) + self.eps)
                     ma = 1. / (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1, 1)) + self.eps)
                 elif getattr(FLAGS, 'distance_v2', False):
-                    mw = torch.relu(torch.Tensor([window_size/2]).to(self.weight.device).view(1, -1) - (torch.abs(lamda_w.view(1, -1) - weight_bits_tensor_list.view(-1, 1))))
-                    ma = torch.relu(torch.Tensor([window_size/2]).to(self.weight.device).view(1, -1) - (torch.abs(lamda_a.view(1, -1) - act_bits_tensor_list.view(-1,1))))
-                
-                values, indices = torch.topk(mw, window_size, dim=0)
-                mw = mw[indices].view(-1)
+                    mw = torch.relu(torch.Tensor([window_size/2]).to(self.weight.device) - (torch.abs(lamda_w - weight_bits_tensor_list)))
+                    ma = torch.relu(torch.Tensor([window_size/2]).to(self.weight.device) - (torch.abs(lamda_a - act_bits_tensor_list)))
                 f = mw > 0
                 mw = mw[f]
-                weight_bits_tensor_list = weight_bits_tensor_list[indices].view(-1)[f]
+                weight_bits_tensor_list = weight_bits_tensor_list[f]
                 pw = mw / mw.sum()
                 lamda_w = torch.dot(weight_bits_tensor_list, pw)
 
-                values, indices = torch.topk(ma, window_size, dim=0)
-                ma = ma[indices].view(-1)
                 f = ma > 0
                 ma = ma[f]
-                act_bits_tensor_list = act_bits_tensor_list[indices].view(-1)[f]
+                act_bits_tensor_list = act_bits_tensor_list[f]
                 pa = ma / ma.sum()
                 lamda_a = torch.dot(act_bits_tensor_list, pa)
 
