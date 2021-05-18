@@ -105,6 +105,9 @@ class Model(nn.Module):
 
         # head
         channels = 64
+        if getattr(FLAGS, 'channel_half', False):
+            channels = 32
+        
         l_head = QuantizableConv2d(
             3, channels, 7, 2, 3,
             bias=False,
@@ -131,6 +134,8 @@ class Model(nn.Module):
         self.block_setting = self.block_setting_dict[FLAGS.depth]
 
         feats = [64, 128, 256, 512]
+        if getattr(FLAGS, 'channel_half', False):
+            feats = [32, 64, 128, 256]
 
         # body
         input_size = mp_head.output_size
