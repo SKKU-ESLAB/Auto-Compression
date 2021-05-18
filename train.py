@@ -1025,6 +1025,15 @@ def train_val_test():
             elif (epoch-1) < 26:
                 FLAGS.window_size = 3
                 FLAGS.L_value = 1
+            elif (epoch-1) < 30:
+                FLAGS.window_size = 2
+                FLAGS.L_value = 1
+            elif (epoch-1) < 33:
+                FLAGS.window_size = 4
+                FLAGS.L_value = 1
+            elif (epoch-1) < 36:
+                FLAGS.window_size = 3
+                FLAGS.L_value = 1
             else:
                 FLAGS.window_size = 2
                 FLAGS.L_value = 1
@@ -1053,8 +1062,17 @@ def train_val_test():
                 FLAGS.L_value = 1
             elif (epoch-1) < 23:
                 FLAGS.window_size = 4
-                FLAGS.L_value = 2
+                FLAGS.L_value = 1.5
             elif (epoch-1) < 26:
+                FLAGS.window_size = 3
+                FLAGS.L_value = 1
+            elif (epoch-1) < 30:
+                FLAGS.window_size = 2
+                FLAGS.L_value = 1
+            elif (epoch-1) < 33:
+                FLAGS.window_size = 4
+                FLAGS.L_value = 2.0
+            elif (epoch-1) < 36:
                 FLAGS.window_size = 3
                 FLAGS.L_value = 1.5
             else:
