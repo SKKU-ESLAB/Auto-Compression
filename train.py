@@ -995,7 +995,7 @@ def train_val_test():
                 FLAGS.L_value = 1/2 + (epoch-6)/10
             else:
                 FLAGS.window_size = 2
-                FLAGS.L_value = min(1, 1/2 + (epoch-21)/10)
+                FLAGS.L_value = min(1, 1/2 + (epoch-11)/10)
             print(f'==> [Epoch {epoch}] window size: {FLAGS.window_size}')
             print(f'==> [Epoch {epoch}] L_value: {FLAGS.L_value}')   
 
