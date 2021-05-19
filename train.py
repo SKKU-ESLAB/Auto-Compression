@@ -982,7 +982,15 @@ def train_val_test():
         kappa_fn = get_exp_cycle_annealing(5, 0.2, 1)
 
     print('Start training.')
+
     for epoch in range(last_epoch+1, FLAGS.num_epochs+1):
+        if getattr(FLAGS, 'bitwidth_direct', False):
+            if getattr(FLAGS, 'hard_forward', False):
+                string1 = 'HARD'
+            else:
+                string1 = 'SOFT' 
+            print(f'\n*** BITWIDTH DIRECT ({string1}) ***\n')
+            
         #########    NEW Method             ################
         if getattr(FLAGS, 'window_schedule', False) == 'custom_1':
             print('\n*** WINDOW SCHEDULE : CUSTOM_1 ***\n')

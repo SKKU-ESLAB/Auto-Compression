@@ -27,6 +27,17 @@ def out_shape(i, p, d, k, s):
     return (i + 2 * p - d * (k - 1) - 1) // s + 1
 
 
+class Round(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, input):
+        return torch.round(input)
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        grad_input = grad_output.clone()
+        return grad_input
+
+
 class EMA():
     def __init__(self, decay):
         self.decay = decay
@@ -225,6 +236,7 @@ class QuantizableConv2d(nn.Conv2d):
         if getattr(FLAGS, 'L_value', 0) == 'learned':
             self.gamma = nn.Parameter(torch.tensor(getattr(FLAGS, 'L_init', 1.0)))
 
+
     def forward(self, input):
         #print(input.shape)  ## me!! ##
         if self.same_padding:
@@ -268,6 +280,8 @@ class QuantizableConv2d(nn.Conv2d):
                 weight = self.quant(weight, torch.zeros(1), 0, 0.5, self.nlvs_w, weight_quant_scheme)
                 self.lamda_w.data = torch.log2(self.nlvs_w)
             elif getattr(FLAGS, 'bitwidth_direct', False):
+                if getattr(FLAGS, 'hard_forward', False):
+                    lamda_w = Round.apply(lamda_w)
                 weight = self.quant(weight, lamda_w, 0, 0.5, 0, weight_quant_scheme)
             else:
                 window_size = getattr(FLAGS, 'window_size', 2)
@@ -355,6 +369,8 @@ class QuantizableConv2d(nn.Conv2d):
                 input_val = self.quant(input_val, lamda_a.detach(), 1, 0, 0, 'original')
             elif getattr(FLAGS, 'simple_interpolation', False):
                 if getattr(FLAGS, 'bitwidth_direct', False):
+                    if getattr(FLAGS, 'hard_forward', False):
+                        lamda_a = Round.apply(lamda_a)
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, act_quant_scheme)
                 elif getattr(FLAGS, 'nlvs_direct', False):
                     input_val = self.quant(input_val, torch.zeros(1), 1, 0, self.nlvs_a, weight_quant_scheme)
@@ -609,6 +625,8 @@ class QuantizableLinear(nn.Linear):
                 window_size = getattr(FLAGS, 'window_size', 2)
                 print('\n\n\n[Error]This shouldn\'t be printed!!!! ')
                 if getattr(FLAGS, 'bitwidth_direct', False):
+                    if getattr(FLAGS, 'hard_forward', False):
+                        lamda_w = Round.apply(lamda_w)
                     weight = self.quant(weight, lamda_w, 0, 0.5, 0, weight_quant_scheme)
                 elif getattr(FLAGS, 'nlvs_direct', False):
                     weight = self.quant(weight, torch.zeros(1), 0, 0.5, self.nlvs_w, weight_quant_scheme)
@@ -695,6 +713,8 @@ class QuantizableLinear(nn.Linear):
                 input_val = self.quant(input_val, lamda_a.detach(), 1, 0, 0, 'original')
             elif getattr(FLAGS, 'simple_interpolation', False):
                 if getattr(FLAGS, 'bitwidth_direct', False):
+                    if getattr(FLAGS, 'hard_forward', False):
+                        lamda_a = Round.apply(lamda_a)
                     input_val = self.quant(input_val, lamda_a, 1, 0, 0, act_quant_scheme)
                 elif getattr(FLAGS, 'nlvs_direct', False):
                     input_val = self.quant(input_val, torch.zeros(1), 1, 0, self.nlvs_a, weight_quant_scheme)
