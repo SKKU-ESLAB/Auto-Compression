@@ -18,7 +18,7 @@ data_loader_workers: 16 #10
 num_classes: 1000
 image_size: 224
 topk: [1, 5]
-hard_assign_epoch: 40
+hard_assign_epoch: 20
 num_epochs: 50
 
 # optimizer
@@ -28,8 +28,8 @@ weight_decay: 0.00004
 nesterov: True
 
 # lr
-lr: 0.1
-lr_lamda: 0.01
+lr: 0.2
+lr_lamda: 0.02
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
 #exp_decaying_gamma: 0.98
@@ -46,7 +46,7 @@ test_only: False
 
 #
 random_seed: 1
-batch_size: 256
+batch_size: 512
 model: ''
 reset_parameters: True
 
