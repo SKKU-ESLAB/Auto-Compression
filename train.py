@@ -1123,6 +1123,10 @@ def train_val_test():
                 print("********** SC 44444 ***********")
                 gamma_dict = {21: 1, 22: 0.2, 23: 1, 24: 0.2, 25: 0}
                 gamma = FLAGS.gamma * gamma_dict[epoch]
+            elif getattr(FLAGS, 'gamma_schedule', False) == 'sc5':
+                print("********** SC 55555 ***********")
+                gamma_dict = {21: 1, 22: 0, 23: 1, 24: 0, 25: 0}
+                gamma = FLAGS.gamma * gamma_dict[epoch]
             else:
                 gamma = FLAGS.gamma
             print(f'\nGAMMA: {gamma:.3f}\n')
