@@ -74,7 +74,7 @@ kappa_scheduling: linear
 kappa_cycle_end_epoch: 20
 #
 gamma: 0.1
-#bitwidth_regularize_start_epoch: 30
+bitwidth_regularize_start_epoch: 21
 gamma_schedule: sc2
 #
 bits_list: [8, 7, 6, 5, 4, 3, 2, 1]

@@ -1110,6 +1110,7 @@ def train_val_test():
                 print("********** SC 11111 ***********")
                 gamma_dict = {21: 0.2, 22: 0.6, 23: 1, 24: 1, 25: 1}
                 gamma = FLAGS.gamma * gamma_dict[epoch]
+                
             elif getattr(FLAGS, 'gamma_schedule', False) == 'sc2':
                 print("********** SC 22222 ***********")
                 gamma_dict = {21: 0.2, 22: 1, 23: 0.2, 24: 1, 25: 1}
@@ -1124,9 +1125,9 @@ def train_val_test():
                 gamma = FLAGS.gamma * gamma_dict[epoch]
             else:
                 gamma = FLAGS.gamma
+            print(f'\nGAMMA: {gamma:.3f}\n')
         else:
             gamma = FLAGS.gamma
-        
         
         #gamma = 0
         #if (epoch-1) > getattr(FLAGS, 'bitwidth_regularize_start_epoch', 1000):
