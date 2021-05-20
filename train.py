@@ -1105,11 +1105,35 @@ def train_val_test():
             kappa = FLAGS.kappa
         
         # Gamma scheduling
-        gamma = 0
-        if (epoch-1) > getattr(FLAGS, 'bitwidth_regularize_start_epoch', 1000):
-            gamma = FLAGS.gamma * (epoch - FLAGS.bitwidth_regularize_start_epoch) \
-                            / (FLAGS.hard_assign_epoch - FLAGS.bitwidth_regularize_start_epoch)
-            print(f'\nGAMMA: {gamma:.4f}\n')
+        if epoch in [21, 22, 23, 24, 25]:
+            if getattr(FLAGS, 'gamma_schedule', False) == 'sc1':
+                print("********** SC 11111 ***********")
+                gamma_dict = {21: 0.2, 22: 0.6, 23: 1, 24: 1, 25: 1}
+                gamma = FLAGS.gamma * gamma_dict[epoch]
+            elif getattr(FLAGS, 'gamma_schedule', False) == 'sc2':
+                print("********** SC 22222 ***********")
+                gamma_dict = {21: 0.2, 22: 1, 23: 0.2, 24: 1, 25: 1}
+                gamma = FLAGS.gamma * gamma_dict[epoch]
+            elif getattr(FLAGS, 'gamma_schedule', False) == 'sc3':
+                print("********** SC 33333 ***********")
+                gamma_dict = {21: 0.2, 22: 1, 23: 0.2, 24: 1, 25: 0}
+                gamma = FLAGS.gamma * gamma_dict[epoch]
+            elif getattr(FLAGS, 'gamma_schedule', False) == 'sc4':
+                print("********** SC 44444 ***********")
+                gamma_dict = {21: 1, 22: 0.2, 23: 1, 24: 0.2, 25: 0}
+                gamma = FLAGS.gamma * gamma_dict[epoch]
+            else:
+                gamma = FLAGS.gamma
+        else:
+            gamma = FLAGS.gamma
+        
+        
+        #gamma = 0
+        #if (epoch-1) > getattr(FLAGS, 'bitwidth_regularize_start_epoch', 1000):
+        #    gamma = FLAGS.gamma * (epoch - FLAGS.bitwidth_regularize_start_epoch) \
+        #                    / (FLAGS.hard_assign_epoch - FLAGS.bitwidth_regularize_start_epoch)
+        #    print(f'\nGAMMA: {gamma:.4f}\n')
+
 
         print(f'epoch: {epoch}, kappa: {kappa:.4f}')
         if epoch > getattr(FLAGS, 'hard_assign_epoch', float('inf')):
