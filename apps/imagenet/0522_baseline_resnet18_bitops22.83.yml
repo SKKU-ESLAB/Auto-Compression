@@ -80,11 +80,11 @@ gamma_schedule: False
 bits_list: [8, 7, 6, 5, 4, 3, 2, 1]
 weight_quant_scheme: original
 act_quant_scheme: original
-init_bit: 3
+init_bit: 3.0
 target_bitops: 22.83
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
-log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0522_baseline_resnet18
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0522_baseline_resnet18_bitops22.83
 model: models.q_resnet
 depth: 18
 weight_only: False
@@ -98,7 +98,7 @@ amp: True
 log_interval: 50
 log_bitwidth: True
 log_wandb: True
-channel_half: True
+#channel_half: True
 
 
 #loss_decoupling: True
