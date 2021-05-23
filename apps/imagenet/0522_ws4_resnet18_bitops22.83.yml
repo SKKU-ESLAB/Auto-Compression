@@ -91,6 +91,7 @@ weight_only: False
 #
 simple_interpolation: True
 #window_schedule: custom_2
+L_value: 2.0
 window_size: 4
 distance_v2: True
 #
