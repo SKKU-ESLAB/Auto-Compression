@@ -1128,10 +1128,10 @@ def train_val_test():
                 gamma_dict = {21: 1, 22: 0, 23: 1, 24: 0, 25: 0}
                 gamma = FLAGS.gamma * gamma_dict[epoch]
             else:
-                gamma = FLAGS.gamma
+                gamma = getattr(FLAGS, 'gamma', 0)
             print(f'\nGAMMA: {gamma:.3f}\n')
         else:
-            gamma = FLAGS.gamma
+            gamma = getattr(FLAGS, 'gamma', 0)
         
         #gamma = 0
         #if (epoch-1) > getattr(FLAGS, 'bitwidth_regularize_start_epoch', 1000):
