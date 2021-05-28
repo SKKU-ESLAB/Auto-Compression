@@ -875,17 +875,27 @@ def train_val_test():
             new_checkpoint = {}
             new_keys = list(model_wrapper.state_dict().keys())
             old_keys = list(checkpoint.keys())
+            for key_new in new_keys:
+                for i, key_old in enumerate(old_keys):
+                    if key_old.split('.')[-1] in key_new:
+                        new_checkpoint[key_new] = checkpoint[key_old]
+                        print('remap {} to {}'.format(key_new, key_old))
+                        old_keys.pop(i)
+                        break
+            '''
             for key_new, key_old in zip(new_keys, old_keys):
                 new_checkpoint[key_new] = checkpoint[key_old]
                 print('remap {} to {}'.format(key_new, key_old))
+            '''
             checkpoint = new_checkpoint
         model_dict = model_wrapper.state_dict()
         
-        #checkpoint = {k: v for k, v in checkpoint.items() if k in model_dict}
+        checkpoint = {k: v for k, v in checkpoint.items() if k in model_dict}
         # remove unexpected keys
         for k in list(checkpoint.keys()):
             if k not in model_dict.keys():
                 checkpoint.pop(k)
+        #print(checkpoint.keys())
         model_dict.update(checkpoint)
         model_wrapper.load_state_dict(model_dict)
         print('Loaded full precision model {}.'.format(FLAGS.fp_pretrained_file))
