@@ -29,7 +29,7 @@ nesterov: True
 
 # lr
 lr: 0.05
-lr_lamda: 0.01
+lr_lamda: 0.05
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
 #exp_decaying_gamma: 0.98
@@ -69,9 +69,9 @@ calib_pact: False
 
 #
 kappa: 0.1
-kappa_base: 0.01
+kappa_base: 0.1
 kappa_scheduling: linear
-kappa_cycle_end_epoch: 20
+kappa_cycle_end_epoch: 0
 #
 gamma: 0.1
 #bitwidth_regularize_start_epoch: 21
@@ -80,19 +80,20 @@ gamma_schedule: False
 bits_list: [8, 7, 6, 5, 4, 3, 2, 1]
 weight_quant_scheme: original
 act_quant_scheme: original
-init_bit: 4.5
+init_bit: 3.5
 target_bitops: 22.83
 # =========================== Override Settings ===========================
 fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
-log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0527_ws2_resnet18_bitops22.83_lrld0.01
+pretrained_model_remap_keys: True
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0528_ws3_resnet18_bitops22.83
 model: models.q_resnet
 depth: 18
 weight_only: False
 #
 simple_interpolation: True
 #window_schedule: custom_2
-window_size: 2
-L_value: 1.0
+window_size: 3
+L_value: 1.5
 distance_v2: True
 #
 amp: True
