@@ -83,8 +83,8 @@ act_quant_scheme: original
 init_bit: 7.9
 target_bitops: 22.83
 # =========================== Override Settings ===========================
-fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
-pretrained_model_remap_keys: True
+#fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
+#pretrained_model_remap_keys: True
 log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0601_fracbits_resnet18_bitops22.83_initbit
 model: models.q_resnet
 depth: 18
