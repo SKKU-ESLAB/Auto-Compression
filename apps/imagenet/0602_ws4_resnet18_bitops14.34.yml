@@ -12,14 +12,14 @@ data_transforms: imagenet1k_basic
 data_loader: imagenet1k_basic
 dataset_dir: /data/imagenet
 #dataset_dir: /mnt/cephfs_new_wj/uslabcv/meijieru/data/imagenet_lmdb
-data_loader_workers: 32 #10
+data_loader_workers: 16 #10
 
 # info
 num_classes: 1000
 image_size: 224
 topk: [1, 5]
-hard_assign_epoch: 120
-num_epochs: 150
+hard_assign_epoch: 20
+num_epochs: 50
 
 # optimizer
 optimizer: sgd
@@ -28,8 +28,8 @@ weight_decay: 0.00004
 nesterov: True
 
 # lr
-lr: 0.1
-lr_lamda: 0.01
+lr: 0.005
+lr_lamda: 0.005
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
 #exp_decaying_gamma: 0.98
@@ -70,36 +70,38 @@ calib_pact: False
 #
 kappa: 0.1
 kappa_base: 0.1
-#kappa_base: 0.01
-#kappa_scheduling: linear
+kappa_scheduling: linear
 kappa_cycle_end_epoch: 20
 #
 gamma: 0.1
-#bitwidth_regularize_start_epoch: 30
-
+#bitwidth_regularize_start_epoch: 21
+gamma_schedule: False
 #
 bits_list: [8, 7, 6, 5, 4, 3, 2, 1]
 weight_quant_scheme: original
 act_quant_scheme: original
-init_bit: 4.5
-target_bitops: 10.57
+init_bit: 7.9
+target_bitops: 14.34
 # =========================== Override Settings ===========================
-#fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
-log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0602_fracbits_half_bitops10.57
+fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
+pretrained_model_remap_keys: True
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0602_ws4_resnet18_bitops14.34
 model: models.q_resnet
 depth: 18
 weight_only: False
 #
-#simple_interpolation: True
+simple_interpolation: True
 #window_schedule: custom_2
-#distance_v2: True
+L_value: 2.0
+window_size: 4
+distance_v2: True
 #
 amp: True
 log_interval: 100
 log_bitwidth: True
 log_wandb: True
-channel_half: True
+#channel_half: True
 
 
-#loss_decoupling: True
+loss_decoupling: True
 #bitwidth_regularize_start_epoch: 9
