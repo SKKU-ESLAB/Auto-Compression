@@ -99,7 +99,7 @@ amp: True
 log_interval: 100
 log_bitwidth: True
 log_wandb: True
-#channel_half: True
+channel_half: True
 
 
 #loss_decoupling: True
