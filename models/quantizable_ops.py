@@ -235,6 +235,7 @@ class QuantizableConv2d(nn.Conv2d):
                 self.nlvs_a = nn.Parameter(torch.tensor(2 ** init_bit))
         if getattr(FLAGS, 'L_value', 0) == 'learned':
             self.gamma = nn.Parameter(torch.tensor(getattr(FLAGS, 'L_init', 1.0)))
+        self.sigma = getattr(FLAGS, 'window_size', 2) / 2
 
 
     def forward(self, input):
@@ -291,9 +292,22 @@ class QuantizableConv2d(nn.Conv2d):
                 elif getattr(FLAGS, 'distance_v2', False):
                     m = torch.relu(torch.Tensor([window_size/2]).to(weight.device).view(-1, 1) \
                             - (torch.abs(lamda_w.view(-1, 1) - weight_bits_tensor_list.view(-1, 1))))
+                elif getattr(FLAGS, 'distance_gaussian', False):
+                    # 1. remake bits tensor using ceil and floor
+                    bits_list_new = torch.Tensor(
+                                    [torch.floor(lamda_w-2),
+                                     torch.floor(lamda_w-1), 
+                                     torch.floor(lamda_w), 
+                                     torch.ceil(lamda_w),
+                                     torch.ceil(lamda_w+1),
+                                     torch.ceil(lamda_w+2)]).to(weight.device)
+                    # 2. filter bits_list_new by magnitude
+                    bits_list_new = bits_list_new[bits_list_new > min(FLAGS.bits_list)]
+                    weight_bits_tensor_list = bits_list_new[bits_list_new < max(FLAGS.bits_list)]
+                    m = torch.exp(-torch.pow(weight_bits_tensor_list-lamda_w, 2)/2*(1/self.sigma)*(1/self.sigma))
                 else:
                     m = torch.zeros_like(weight_bits_tensor_list)
-                L = getattr(FLAGS, 'L_value', 0)
+                L = getattr(FLAGS, 'L_value', 1)
                 if L == 'learned':
                     m = torch.pow(m, self.gamma)
                 elif L == 'softmax':
@@ -302,7 +316,7 @@ class QuantizableConv2d(nn.Conv2d):
                 else:
                     m = torch.pow(m, L)
                 
-                f = m > 0
+                f = m > 0.05
                 m = m[f]
                 weight_bits_tensor_list = weight_bits_tensor_list.view(-1, 1)[f]
                 p = m / m.sum(dim=0, keepdim=True)
@@ -383,9 +397,20 @@ class QuantizableConv2d(nn.Conv2d):
                     elif getattr(FLAGS, 'distance_v2', False):
                         m = torch.relu(torch.Tensor([window_size/2]).to(input_val.device) - (torch.abs(lamda_a - act_bits_tensor_list)))
                         #m = torch.relu(torch.Tensor([window_size/2]).to(input_val.device).view(-1, 1) - (torch.abs(lamda_a.view(-1,1) - act_bits_tensor_list.view(-1,1))))
+                    elif getattr(FLAGS, 'distance_gaussian', False):
+                        bits_list_new = torch.Tensor(
+                                        [torch.floor(lamda_a-2),
+                                        torch.floor(lamda_a-1), 
+                                        torch.floor(lamda_a), 
+                                        torch.ceil(lamda_a),
+                                        torch.ceil(lamda_a+1),
+                                        torch.ceil(lamda_a+2)]).to(input_val.device)
+                        bits_list_new = bits_list_new[bits_list_new > min(FLAGS.bits_list)]
+                        act_bits_tensor_list = bits_list_new[bits_list_new < max(FLAGS.bits_list)]
+                        m = torch.exp(-torch.pow(act_bits_tensor_list-lamda_a, 2)/2*(1/self.sigma)*(1/self.sigma))
                     else:
                         m = torch.zeros_like(act_bits_tensor_list)
-                    L = getattr(FLAGS, 'L_value', 0)
+                    L = getattr(FLAGS, 'L_value', 1)
                     if L == 'learned':
                         m = torch.pow(m, self.gamma)
                     elif L == 'softmax':
@@ -393,14 +418,10 @@ class QuantizableConv2d(nn.Conv2d):
                         m = F.softmax(m / tau, dim=0)
                     else:
                         m = torch.pow(m, L)
-                    #print(m)
-                    f = m > 0
+                    f = m > 0.05
                     m = m[f]
                     act_bits_tensor_list = act_bits_tensor_list[f]
                     p = m / m.sum(dim=0, keepdim=True)
-                    #print(act_bits_tensor_list)
-                    #print(p)
-                    #print('\n\n')
 
                     ##################################################
                     if self.lamda_a_min == 8:
@@ -509,7 +530,7 @@ class QuantizableConv2d(nn.Conv2d):
                 
                 #values, indices = torch.topk(mw, window_size, dim=0)
                 #mw = mw[indices].view(-1)
-                f = mw > 0
+                f = mw > 0.005
                 mw = mw[f]
                 weight_bits_tensor_list = weight_bits_tensor_list[f]
                 pw = mw / mw.sum()
@@ -517,7 +538,7 @@ class QuantizableConv2d(nn.Conv2d):
 
                 #values, indices = torch.topk(ma, window_size, dim=0)
                 #ma = ma[indices].view(-1)
-                f = ma > 0
+                f = ma > 0.005
                 ma = ma[f]
                 act_bits_tensor_list = act_bits_tensor_list[f]
                 pa = ma / ma.sum()
@@ -591,6 +612,7 @@ class QuantizableLinear(nn.Linear):
             self.nlvs_a = nn.Parameter(torch.tensor(2 ** init_bit))
         if getattr(FLAGS, 'L_value', 0) == 'learned':
             self.gamma = nn.Parameter(torch.tensor(getattr(FLAGS, 'L_init', 1.0)))
+        self.sigma = getattr(FLAGS, 'window_size', 2) / 2
         
     def forward(self, input):
         lamda_w = self.lamda_w
@@ -637,9 +659,22 @@ class QuantizableLinear(nn.Linear):
                         m = 1. / (torch.abs(lamda_w - weight_bits_tensor_list) + self.eps)
                     elif getattr(FLAGS, 'distance_v2', False):
                         m = torch.relu(torch.Tensor([window_size/2]).to(weight.device) - (torch.abs(lamda_w - weight_bits_tensor_list)))
+                    elif getattr(FLAGS, 'distance_gaussian', False):
+                        # 1. remake bits tensor using ceil and floor
+                        bits_list_new = torch.Tensor(
+                                        [torch.floor(lamda_w-2),
+                                        torch.floor(lamda_w-1), 
+                                        torch.floor(lamda_w), 
+                                        torch.ceil(lamda_w),
+                                        torch.ceil(lamda_w+1),
+                                        torch.ceil(lamda_w+2)]).to(weight.device)
+                        # 2. filter bits_list_new by magnitude
+                        bits_list_new = bits_list_new[bits_list_new > min(FLAGS.bits_list)]
+                        weight_bits_tensor_list = bits_list_new[bits_list_new < max(FLAGS.bits_list)]
+                        m = torch.exp(-torch.pow(weight_bits_tensor_list-lamda_w, 2)/2*(1/self.sigma)*(1/self.sigma))
                     else:
                         m = torch.zeros_like(weight_bits_tensor_list)
-                    L = getattr(FLAGS, 'L_value', 0)
+                    L = getattr(FLAGS, 'L_value', 1)
                     if L == 'learned':
                         m = torch.pow(m, self.gamma)
                     elif L == 'softmax':
@@ -647,7 +682,7 @@ class QuantizableLinear(nn.Linear):
                         m = F.softmax(m / tau, dim=0)
                     else:
                         m = torch.pow(m, L)
-                    f = m > 0
+                    f = m > 0.05
                     m = m[f]
                     weight_bits_tensor_list = weight_bits_tensor_list[f]
                     p = m / m.sum(dim=0, keepdim=True)
@@ -726,9 +761,20 @@ class QuantizableLinear(nn.Linear):
                         m = 1. / (torch.abs(lamda_a - act_bits_tensor_list) + self.eps)
                     elif getattr(FLAGS, 'distance_v2', False):
                         m = torch.relu(torch.Tensor([window_size/2]).to(input_val.device) - (torch.abs(lamda_a - act_bits_tensor_list)))
+                    elif getattr(FLAGS, 'distance_gaussian', False):
+                        bits_list_new = torch.Tensor(
+                                        [torch.floor(lamda_a-2),
+                                        torch.floor(lamda_a-1), 
+                                        torch.floor(lamda_a), 
+                                        torch.ceil(lamda_a),
+                                        torch.ceil(lamda_a+1),
+                                        torch.ceil(lamda_a+2)]).to(input_val.device)
+                        bits_list_new = bits_list_new[bits_list_new > min(FLAGS.bits_list)]
+                        act_bits_tensor_list = bits_list_new[bits_list_new < max(FLAGS.bits_list)]
+                        m = torch.exp(-torch.pow(act_bits_tensor_list-lamda_a, 2)/2*(1/self.sigma)*(1/self.sigma))
                     else:
                         m = torch.zeros_like(act_bits_tensor_list)
-                    L = getattr(FLAGS, 'L_value', 0)
+                    L = getattr(FLAGS, 'L_value', 1)
                     if L == 'learned':
                         m = torch.pow(m, self.gamma)
                     elif L == 'softmax':
@@ -736,7 +782,7 @@ class QuantizableLinear(nn.Linear):
                         m = F.softmax(m / tau, dim=0)
                     else:
                         m = torch.pow(m, L)
-                    f = m > 0
+                    f = m > 0.05
                     m = m[f]
                     act_bits_tensor_list = act_bits_tensor_list[f]
                     p = m / m.sum(dim=0)

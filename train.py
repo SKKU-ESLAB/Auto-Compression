@@ -1097,11 +1097,16 @@ def train_val_test():
                 FLAGS.window_size = 2
                 FLAGS.L_value = 1
             print(f'==> [Epoch {epoch}] window size: {FLAGS.window_size}')
-            print(f'==> [Epoch {epoch}] L_value: {FLAGS.L_value}')      
+            print(f'==> [Epoch {epoch}] L_value: {FLAGS.L_value}')
         
         elif getattr(FLAGS, 'window_schedule', False) == 'custom_4':
             print('\n*** WINDOW SCHEDULE : CUSTOM_4 (2021-06-04) ***\n')
             FLAGS.L_value = 1.5 + epoch // 10 * 0.5
+
+        elif getattr(FLAGS, 'window_schedule', False) == 'custom_5':
+            FLAGS.L_value = 1 + epoch // 10 * 0.2
+            print(f'\n*** WINDOW SCHEDULE : CUSTOM_5 (2021-06-07), L={FLAGS.L_value:.2f} ***\n')
+            
         ############################################################
         
         if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
