@@ -85,7 +85,7 @@ target_bitops: 10.57
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
 #pretrained_model_remap_keys: True
-log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0607_ws4_sm_halfresnet18_bitops10.57
+log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0607_gaus_halfresnet18_bitops10.57
 model: models.q_resnet
 depth: 18
 weight_only: False
