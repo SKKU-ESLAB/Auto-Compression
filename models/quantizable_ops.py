@@ -239,7 +239,11 @@ class QuantizableConv2d(nn.Conv2d):
 
 
     def forward(self, input):
-        #print(input.shape)  ## me!! ##
+        if getattr(FLAGS, 'full_precision', False):
+            return nn.functional.conv2d(
+            input, self.weight, self.bias, self.stride, self.padding,
+            self.dilation, self.groups)
+
         if self.same_padding:
             ih, iw = input.size()[-2:]
             kh, kw = self.weight.size()[-2:]
@@ -615,6 +619,9 @@ class QuantizableLinear(nn.Linear):
         self.sigma = getattr(FLAGS, 'window_size', 2) / 2
         
     def forward(self, input):
+        if getattr(FLAGS, 'full_precision', False):
+            return nn.functional.linear(input, self.weight, self.bias)
+            
         lamda_w = self.lamda_w
         lamda_a = self.lamda_a
         #if getattr(FLAGS, 'hard_assignment',False):
