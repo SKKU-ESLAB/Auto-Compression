@@ -253,19 +253,28 @@ class QuantizableConv2d(nn.Conv2d):
             pad_w = max((ow - 1) * self.stride[1] + (kw - 1) * self.dilation[1] + 1 - iw, 0)
             if pad_h > 0 or pad_w > 0:
                 input = nn.functional.pad(input, [pad_w // 2, pad_w - pad_w // 2, pad_h // 2, pad_h - pad_h // 2])
-        #print(input.shape)
-        #print(input.view(-1)[:50])
+
+        if self.lamda_w < min(FLAGS.bits_list):
+            self.lamda_w.data = nn.Parameter(torch.Tensor([min(FLAGS.bits_list)])).to(self.weight.device)
+        elif self.lamda_w > max(FLAGS.bits_list):
+            self.lamda_w.data = nn.Parameter(torch.Tensor([max(FLAGS.bits_list)])).to(self.weight.device)
+
+        if self.lamda_a < min(FLAGS.bits_list):
+            self.lamda_a.data = nn.Parameter(torch.Tensor([min(FLAGS.bits_list)])).to(input.device)
+        elif self.lamda_a > max(FLAGS.bits_list):
+            self.lamda_a.data = nn.Parameter(torch.Tensor([max(FLAGS.bits_list)])).to(input.device)
+
         lamda_w = self.lamda_w
         lamda_a = self.lamda_a
+
         #if getattr(FLAGS, 'hard_assignment',False):
         #    lamda_w = torch.round(lamda_w + FLAGS.hard_offset).detach()
         #    lamda_a = torch.round(lamda_a + FLAGS.hard_offset).detach()
-        
-        lamda_w = torch.clamp(lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
+        #lamda_w = torch.clamp(lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
         if self.lamda_w_min is not None:
             lamda_w = torch.clamp(lamda_w, min=self.lamda_w_min)
         act_bits_list = getattr(FLAGS,'act_bits_list',FLAGS.bits_list)
-        lamda_a = torch.clamp(self.lamda_a, min(act_bits_list), max(act_bits_list))
+        #lamda_a = torch.clamp(self.lamda_a, min(act_bits_list), max(act_bits_list))
         if self.lamda_a_min is not None:
             lamda_a = torch.clamp(lamda_a, min=self.lamda_a_min)
         
@@ -621,17 +630,27 @@ class QuantizableLinear(nn.Linear):
     def forward(self, input):
         if getattr(FLAGS, 'full_precision', False):
             return nn.functional.linear(input, self.weight, self.bias)
-            
+        if self.lamda_w < min(FLAGS.bits_list):
+            self.lamda_w.data = nn.Parameter(torch.Tensor([min(FLAGS.bits_list)])).to(self.weight.device)
+        elif self.lamda_w > max(FLAGS.bits_list):
+            self.lamda_w.data = nn.Parameter(torch.Tensor([max(FLAGS.bits_list)])).to(self.weight.device)
+
+        if self.lamda_a < min(FLAGS.bits_list):
+            self.lamda_a.data = nn.Parameter(torch.Tensor([min(FLAGS.bits_list)])).to(input.device)
+        elif self.lamda_a > max(FLAGS.bits_list):
+            self.lamda_a.data = nn.Parameter(torch.Tensor([max(FLAGS.bits_list)])).to(input.device)
+        
         lamda_w = self.lamda_w
         lamda_a = self.lamda_a
+
         #if getattr(FLAGS, 'hard_assignment',False):
         #    lamda_w = torch.round(lamda_w+FLAGS.hard_offset).detach()
         #    lamda_a = torch.round(lamda_a+FLAGS.hard_offset).detach()
-        lamda_w = torch.clamp(lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
+        #lamda_w = torch.clamp(lamda_w, min(FLAGS.bits_list), max(FLAGS.bits_list))
         if self.lamda_w_min is not None:
             lamda_w = torch.clamp(lamda_w, min=self.lamda_w_min)
         act_bits_list = getattr(FLAGS,'act_bits_list',FLAGS.bits_list)
-        lamda_a = torch.clamp(self.lamda_a, min(act_bits_list), max(act_bits_list))
+        #lamda_a = torch.clamp(self.lamda_a, min(act_bits_list), max(act_bits_list))
         if self.lamda_a_min is not None:
             lamda_a = torch.clamp(lamda_a, min=self.lamda_a_min)
         
@@ -823,7 +842,12 @@ class QuantizableLinear(nn.Linear):
                     p_a_h = one_hot[0,1]
                 input_val = p_a_h * self.quant(input_val, torch.ceil(lamda_a), 1, 0, 0, act_quant_scheme) \
                     + p_a_l * self.quant(input_val, torch.floor(lamda_a), 1, 0, 0, act_quant_scheme)
-            input_val.mul_(torch.abs(self.alpha))
+            try:
+                input_val.mul_(torch.abs(self.alpha))
+            except:
+                print('act_bits_tensor_list:', act_bits_tensor_list)
+                print('lamda_a',lamda_a)
+                exit()
         
         ### Linear operation
         return nn.functional.linear(input_val, weight, bias)
