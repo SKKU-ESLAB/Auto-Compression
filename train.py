@@ -587,7 +587,12 @@ def bit_discretizing(model):
 def get_comp_cost_loss(model):
     loss = 0.0
     for name, m in model.named_modules():
-        loss += getattr(m, 'comp_cost_loss', 0.0)
+        try:
+            loss += getattr(m, 'comp_cost_loss', 0.0)
+        except:
+            print(f'loss.shape: {loss.shape}')
+            print(f"getattr(m, 'comp_cost_loss', 0.0).shape: {getattr(m, 'comp_cost_loss', 0.0).shape}")
+            exit()
     target_bitops = getattr(FLAGS, 'target_bitops', False)
     if target_bitops:
         loss = torch.abs(loss - target_bitops)
