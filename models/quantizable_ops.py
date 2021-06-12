@@ -255,14 +255,14 @@ class QuantizableConv2d(nn.Conv2d):
                 input = nn.functional.pad(input, [pad_w // 2, pad_w - pad_w // 2, pad_h // 2, pad_h - pad_h // 2])
 
         if self.lamda_w < min(FLAGS.bits_list):
-            self.lamda_w.data = nn.Parameter(torch.Tensor([min(FLAGS.bits_list)])).to(self.weight.device)
+            self.lamda_w.data = nn.Parameter(torch.tensor(float(min(FLAGS.bits_list)))).to(self.weight.device)
         elif self.lamda_w > max(FLAGS.bits_list):
-            self.lamda_w.data = nn.Parameter(torch.Tensor([max(FLAGS.bits_list)])).to(self.weight.device)
+            self.lamda_w.data = nn.Parameter(torch.tensor(float(max(FLAGS.bits_list)))).to(self.weight.device)
 
         if self.lamda_a < min(FLAGS.bits_list):
-            self.lamda_a.data = nn.Parameter(torch.Tensor([min(FLAGS.bits_list)])).to(input.device)
+            self.lamda_a.data = nn.Parameter(torch.tensor(float(min(FLAGS.bits_list)))).to(input.device)
         elif self.lamda_a > max(FLAGS.bits_list):
-            self.lamda_a.data = nn.Parameter(torch.Tensor([max(FLAGS.bits_list)])).to(input.device)
+            self.lamda_a.data = nn.Parameter(torch.tensor(float(max(FLAGS.bits_list)))).to(input.device)
 
         lamda_w = self.lamda_w
         lamda_a = self.lamda_a
@@ -631,14 +631,14 @@ class QuantizableLinear(nn.Linear):
         if getattr(FLAGS, 'full_precision', False):
             return nn.functional.linear(input, self.weight, self.bias)
         if self.lamda_w < min(FLAGS.bits_list):
-            self.lamda_w.data = nn.Parameter(torch.Tensor([min(FLAGS.bits_list)])).to(self.weight.device)
+            self.lamda_w.data = nn.Parameter(torch.tensor(float(min(FLAGS.bits_list)))).to(self.weight.device)
         elif self.lamda_w > max(FLAGS.bits_list):
-            self.lamda_w.data = nn.Parameter(torch.Tensor([max(FLAGS.bits_list)])).to(self.weight.device)
+            self.lamda_w.data = nn.Parameter(torch.tensor(float(max(FLAGS.bits_list)))).to(self.weight.device)
 
         if self.lamda_a < min(FLAGS.bits_list):
-            self.lamda_a.data = nn.Parameter(torch.Tensor([min(FLAGS.bits_list)])).to(input.device)
+            self.lamda_a.data = nn.Parameter(torch.tensor(float(min(FLAGS.bits_list)))).to(input.device)
         elif self.lamda_a > max(FLAGS.bits_list):
-            self.lamda_a.data = nn.Parameter(torch.Tensor([max(FLAGS.bits_list)])).to(input.device)
+            self.lamda_a.data = nn.Parameter(torch.tensor(float(max(FLAGS.bits_list)))).to(input.device)
         
         lamda_w = self.lamda_w
         lamda_a = self.lamda_a
