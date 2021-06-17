@@ -77,7 +77,7 @@ gamma: 0.1
 #bitwidth_regularize_start_epoch: 21
 gamma_schedule: False
 #
-bits_list: [8, 7, 6, 5, 4, 3, 2, 1]
+bits_list: [8, 7, 6, 5, 4, 3, 2]
 weight_quant_scheme: original
 act_quant_scheme: original
 init_bit: 3.5

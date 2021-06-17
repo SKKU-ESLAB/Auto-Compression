@@ -77,7 +77,7 @@ gamma: 0.1
 #bitwidth_regularize_start_epoch: 21
 gamma_schedule: False
 #
-bits_list: [8, 7, 6, 5, 4, 3, 2, 1]
+bits_list: [8, 7, 6, 5, 4, 3, 2]
 weight_quant_scheme: original
 act_quant_scheme: original
 init_bit: 3.5
@@ -85,7 +85,7 @@ target_bitops: 0.64
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
 #pretrained_model_remap_keys: True
-log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0618_fracbits_mbv1_3bit_tune4
+log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0618_fracbits_mbv1_3bit_tune5
 model: models.q_mobilenet_v1_cifar
 #depth: 18
 weight_only: False
