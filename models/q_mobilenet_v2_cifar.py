@@ -66,10 +66,10 @@ class Model(nn.Module):
         # setting of inverted residual blocks
         self.block_setting = [
             # t, c, n, s
-            [1, 16, 1, 1],
-            [6, 24, 2, 2],
+            [1, 16, 1, 2],
+            [6, 24, 2, 1],
             [6, 32, 3, 2],
-            [6, 64, 4, 2],
+            [6, 64, 4, 1],
             [6, 96, 3, 1],
             [6, 160, 3, 2],
             [6, 320, 1, 1],
@@ -78,7 +78,7 @@ class Model(nn.Module):
         # head
         channels = 32
         #self.outp = 1280
-        first_stride = 2
+        first_stride = 1
         l_head = QuantizableConv2d(
             3, channels, 3,
             first_stride, 1, bias=False,
