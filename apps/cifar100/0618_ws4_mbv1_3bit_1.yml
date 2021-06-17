@@ -18,8 +18,8 @@ data_loader_workers: 8 #10
 num_classes: 100
 image_size: 32
 topk: [1, 5]
-hard_assign_epoch: 0
-num_epochs: 200
+hard_assign_epoch: 120
+num_epochs: 150
 
 # optimizer
 optimizer: sgd
@@ -90,11 +90,11 @@ model: models.q_mobilenet_v1_cifar
 #depth: 18
 weight_only: False
 #
-#simple_interpolation: True
+simple_interpolation: True
 #window_schedule: custom_2
-#L_value: 1.0
-#window_size: 4
-#distance_v2: True
+L_value: 1.0
+window_size: 4
+distance_v2: True
 #
 amp: True
 log_interval: 100
