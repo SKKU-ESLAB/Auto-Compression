@@ -28,8 +28,8 @@ weight_decay: 0.00004
 nesterov: True
 
 # lr
-lr: 0.5
-lr_lamda: 0.5
+lr: 0.005
+lr_lamda: 0.005
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
 #exp_decaying_gamma: 0.98
@@ -85,7 +85,7 @@ target_bitops: 1000.
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
 #pretrained_model_remap_keys: True
-log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0617_uniform_mbv1_3bit_5
+log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0617_uniform_mbv1_3bit_6_0
 model: models.q_mobilenet_v1_cifar
 #depth: 18
 weight_only: False
