@@ -1,3 +1,4 @@
+from abc import abstractmethod
 import importlib
 import os
 import time
@@ -604,8 +605,12 @@ def get_bitwidth_loss(model):
     loss = 0.0
     for name, m in model.named_modules():
         if hasattr(m, 'lamda_w'):
-            loss += torch.square(torch.abs(torch.round(m.lamda_w) - m.lamda_w))
-            loss += torch.square(torch.abs(torch.round(m.lamda_a) - m.lamda_a))
+            if FLAGS.gamma_type == 1: #L1
+                loss += torch.abs(torch.round(m.lamda_w) - m.lamda_w)
+                loss += torch.abs(torch.round(m.lamda_a) - m.lamda_a)
+            elif FLAGS.gamma_type == 2: #L2
+                loss += 2 * torch.square(torch.abs(torch.round(m.lamda_w) - m.lamda_w))
+                loss += 2 * torch.square(torch.abs(torch.round(m.lamda_a) - m.lamda_a))
     return loss
 
 
@@ -671,7 +676,6 @@ def run_one_epoch(
             optimizer.zero_grad()
             if getattr(FLAGS, 'amp', False):
                 with amp.autocast():
-                    
                     outputs = model(inputs)
                     loss_acc = torch.mean(criterion(outputs, targets))
                     loss_acc_list.append(loss_acc.item())
@@ -729,6 +733,18 @@ def run_one_epoch(
                     if hasattr(m, 'lamda_w'):
                         lambda_w_temp.append(m.lamda_w.item())
                         lambda_a_temp.append(m.lamda_a.item())
+                        if getattr(FLAGS, 'grad_ema_alpha', False):
+                            if m.lamda_w.grad is not None:
+                                print(type(FLAGS.grad_ema_alpha))
+                                print(type(m.lamda_w.grad))
+                                print(type(m.ema_lamda_w_grad))
+                                m.ema_lamda_w_grad.add_(FLAGS.grad_ema_alpha * (
+                                    torch.abs(m.lamda_w.grad) - m.ema_lamda_w_grad).long())
+                            if m.lamda_a.grad is not None:
+                                m.ema_lamda_a_grad.add_(FLAGS.grad_ema_alpha * (
+                                    torch.abs(m.lamda_a.grad) - m.ema_lamda_a_grad).long())
+                            print(m.lamda_w.grad, m.ema_lamda_w_grad)
+
                 lambda_w_list.append(lambda_w_temp)
                 lambda_a_list.append(lambda_a_temp)
             
@@ -1129,28 +1145,31 @@ def train_val_test():
             kappa = FLAGS.kappa
         
         # Gamma scheduling
-        if epoch in [21, 22, 23, 24, 25]:
-            if getattr(FLAGS, 'gamma_schedule', False) == 'sc1':
-                print("********** SC 11111 ***********")
-                gamma_dict = {21: 0.2, 22: 0.6, 23: 1, 24: 1, 25: 1}
-                gamma = FLAGS.gamma * gamma_dict[epoch]
+        if FLAGS.gamma > 0:
+            if getattr(FLAGS, 'gamma_schedule', False) == '1': # plain
+                print("********** gamma schedule 11111 ***********")
+                gamma = FLAGS.gamma
                 
-            elif getattr(FLAGS, 'gamma_schedule', False) == 'sc2':
-                print("********** SC 22222 ***********")
-                gamma_dict = {21: 0.2, 22: 1, 23: 0.2, 24: 1, 25: 1}
-                gamma = FLAGS.gamma * gamma_dict[epoch]
-            elif getattr(FLAGS, 'gamma_schedule', False) == 'sc3':
-                print("********** SC 33333 ***********")
-                gamma_dict = {21: 0.2, 22: 1, 23: 0.2, 24: 1, 25: 0}
-                gamma = FLAGS.gamma * gamma_dict[epoch]
-            elif getattr(FLAGS, 'gamma_schedule', False) == 'sc4':
-                print("********** SC 44444 ***********")
-                gamma_dict = {21: 1, 22: 0.2, 23: 1, 24: 0.2, 25: 0}
-                gamma = FLAGS.gamma * gamma_dict[epoch]
-            elif getattr(FLAGS, 'gamma_schedule', False) == 'sc5':
-                print("********** SC 55555 ***********")
-                gamma_dict = {21: 1, 22: 0, 23: 1, 24: 0, 25: 0}
-                gamma = FLAGS.gamma * gamma_dict[epoch]
+            elif getattr(FLAGS, 'gamma_schedule', False) == '2': # linear increase
+                print("********** gamma schedule 22222 ***********") 
+                gamma = FLAGS.gamma * (epoch / FLAGS.num_epochs)
+
+            elif getattr(FLAGS, 'gamma_schedule', False) == '3': # linear cyclic
+                print("********** gamma schedule 33333 ***********")
+                gamma = FLAGS.gamma * (((epoch%40)+1) / 40)
+                
+            #elif getattr(FLAGS, 'gamma_schedule', False) == '4': # cosine <-하지말고 내버려두자
+            #    print("********** gamma schedule 44444 ***********")
+            #    gamma_dict = {21: 1, 22: 0.2, 23: 1, 24: 0.2, 25: 0}
+            #    gamma = FLAGS.gamma * gamma_dict[epoch]
+                
+            elif getattr(FLAGS, 'gamma_schedule', False) == '5': # spike
+                print("********** gamma schedule 55555 ***********")
+                if epoch % 10 == 0:
+                    gamma = FLAGS.gamma
+                else:
+                    gamma = 0
+
             else:
                 gamma = getattr(FLAGS, 'gamma', 0)
             print(f'\nGAMMA: {gamma:.3f}\n')
