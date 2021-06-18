@@ -85,7 +85,7 @@ target_bitops: 0.64
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
 #pretrained_model_remap_keys: True
-log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0618_fracbits_mbv1_3bit_int_1_0.001_plain
+log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0618_ws3_mbv1_3bit_int_2_spike_0.01
 model: models.q_mobilenet_v1_cifar
 #depth: 18
 weight_only: False
