@@ -1146,15 +1146,15 @@ def train_val_test():
         
         # Gamma scheduling
         if FLAGS.gamma > 0:
-            if getattr(FLAGS, 'gamma_schedule', False) == '1': # plain
+            if getattr(FLAGS, 'gamma_schedule', False) == 1: # plain
                 print("********** gamma schedule 11111 ***********")
                 gamma = FLAGS.gamma
                 
-            elif getattr(FLAGS, 'gamma_schedule', False) == '2': # linear increase
+            elif getattr(FLAGS, 'gamma_schedule', False) == 2: # linear increase
                 print("********** gamma schedule 22222 ***********") 
                 gamma = FLAGS.gamma * (epoch / FLAGS.num_epochs)
 
-            elif getattr(FLAGS, 'gamma_schedule', False) == '3': # linear cyclic
+            elif getattr(FLAGS, 'gamma_schedule', False) == 3: # linear cyclic
                 print("********** gamma schedule 33333 ***********")
                 gamma = FLAGS.gamma * (((epoch%40)+1) / 40)
                 
@@ -1163,7 +1163,7 @@ def train_val_test():
             #    gamma_dict = {21: 1, 22: 0.2, 23: 1, 24: 0.2, 25: 0}
             #    gamma = FLAGS.gamma * gamma_dict[epoch]
                 
-            elif getattr(FLAGS, 'gamma_schedule', False) == '5': # spike
+            elif getattr(FLAGS, 'gamma_schedule', False) == 5: # spike
                 print("********** gamma schedule 55555 ***********")
                 if epoch % 10 == 0:
                     gamma = FLAGS.gamma
