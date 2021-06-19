@@ -1172,7 +1172,7 @@ def train_val_test():
 
             else:
                 gamma = getattr(FLAGS, 'gamma', 0)
-            print(f'\nGAMMA: {gamma:.3f}\n')
+            print(f'\nGAMMA: {gamma:.6f}\n')
         else:
             gamma = getattr(FLAGS, 'gamma', 0)
         
