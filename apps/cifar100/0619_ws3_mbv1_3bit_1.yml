@@ -73,7 +73,7 @@ kappa_base: 0.1
 #kappa_scheduling: linear
 #kappa_cycle_end_epoch: 20
 #
-#gamma: 0.
+gamma: 0
 #gamma_type: 2
 #gamma_schedule: 3
 #
@@ -104,4 +104,4 @@ log_wandb: True
 
 
 loss_decoupling: True
-bitwidth_regularize_start_epoch: 0
+#bitwidth_regularize_start_epoch: 0
