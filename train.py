@@ -1152,7 +1152,7 @@ def train_val_test():
                 
             elif getattr(FLAGS, 'gamma_schedule', False) == 2: # linear increase
                 print("********** gamma schedule 22222 ***********") 
-                gamma = FLAGS.gamma * (epoch / FLAGS.num_epochs)
+                gamma = FLAGS.gamma * (epoch / FLAGS.hard_assign_epoch)
 
             elif getattr(FLAGS, 'gamma_schedule', False) == 3: # linear cyclic
                 print("********** gamma schedule 33333 ***********")
