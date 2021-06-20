@@ -18,8 +18,8 @@ data_loader_workers: 8 #10
 num_classes: 100
 image_size: 32
 topk: [1, 5]
-hard_assign_epoch: 120
-num_epochs: 150
+hard_assign_epoch: 160
+num_epochs: 200
 
 # optimizer
 optimizer: sgd
@@ -45,7 +45,7 @@ resume: ''
 test_only: False
 
 #
-random_seed: 1
+random_seed: 3
 batch_size: 256
 model: ''
 reset_parameters: True
@@ -73,9 +73,9 @@ kappa_base: 0.1
 #kappa_scheduling: linear
 #kappa_cycle_end_epoch: 20
 #
-gamma: 0.1
-#bitwidth_regularize_start_epoch: 21
-gamma_schedule: False
+gamma: 0.001
+gamma_type: 2
+gamma_schedule: 2
 #
 bits_list: [8, 7, 6, 5, 4, 3, 2]
 weight_quant_scheme: original
@@ -85,15 +85,15 @@ target_bitops: 0.64
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
 #pretrained_model_remap_keys: True
-log_dir: /home/lkj004124/logs/frac_bits_new/imagenet/0618_ws4_g2.0_mbv2_3bit
-model: models.q_mobilenet_v2_cifar
+log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0620_ws3_mbv1_3bit_int_2_lin_inc_0.001_3
+model: models.q_mobilenet_v1_cifar
 #depth: 18
 weight_only: False
 #
 simple_interpolation: True
 #window_schedule: custom_2
-L_value: 2.0
-window_size: 4
+L_value: 1.2
+window_size: 3
 distance_v2: True
 #
 amp: True
@@ -104,4 +104,4 @@ log_wandb: True
 
 
 loss_decoupling: True
-#bitwidth_regularize_start_epoch: 9
+bitwidth_regularize_start_epoch: 0
