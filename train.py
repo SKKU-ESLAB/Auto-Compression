@@ -854,6 +854,7 @@ def train_val_test():
 
     # model
     model, model_wrapper = get_model()
+    print(model)
     criterion = torch.nn.CrossEntropyLoss(reduction='none').cuda()
     if getattr(FLAGS, 'profiling_only', False):
         if 'gpu' in FLAGS.profiling:
