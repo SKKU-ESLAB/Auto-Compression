@@ -55,7 +55,7 @@ class Model(nn.Module):
         ]
 
         # head
-        channels = 32
+        channels = round(32 * getattr(FLAGS, 'width_multiplier', 1))
         first_stride = 1
         l_head = QuantizableConv2d(
             3, channels, 3,
@@ -73,6 +73,7 @@ class Model(nn.Module):
         # body
         input_size = l_head.output_size
         for idx, [c, n, s] in enumerate(self.block_setting):
+            c = round(c * getattr(FLAGS, 'width_multiplier', 1))
             outp = c
             for i in range(n):
                 if i == 0:
