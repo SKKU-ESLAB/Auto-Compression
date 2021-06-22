@@ -645,8 +645,10 @@ def run_one_epoch(
     
     n_layer = 53
 
-    lambda_w_list = []
-    lambda_a_list = []
+    lamda_w_list = []
+    lamda_a_list = []
+    ema_lamda_w_list = []
+    ema_lamda_a_list = []
     loss_acc_list = []
     acc1_iter_list = []
     acc1_avg_list = []
@@ -726,27 +728,28 @@ def run_one_epoch(
             top5.update(acc5[0], inputs.size(0))
             acc1_iter_list.append(acc1.item())
             acc1_avg_list.append(top1.avg.item())
-            lambda_w_temp = []
-            lambda_a_temp = []
+            lamda_w_temp = []
+            lamda_a_temp = []
+            ema_lamda_w_temp = []
+            ema_lamda_a_temp = []
             if getattr(FLAGS, 'log_bitwidth', False):
                 for name, m in model.named_modules():
                     if hasattr(m, 'lamda_w'):
-                        lambda_w_temp.append(m.lamda_w.item())
-                        lambda_a_temp.append(m.lamda_a.item())
+                        lamda_w_temp.append(m.lamda_w.item())
+                        lamda_a_temp.append(m.lamda_a.item())
                         if getattr(FLAGS, 'grad_ema_alpha', False):
                             if m.lamda_w.grad is not None:
-                                print(type(FLAGS.grad_ema_alpha))
-                                print(type(m.lamda_w.grad))
-                                print(type(m.ema_lamda_w_grad))
-                                m.ema_lamda_w_grad.add_(FLAGS.grad_ema_alpha * (
-                                    torch.abs(m.lamda_w.grad) - m.ema_lamda_w_grad).long())
+                                temp1 = torch.abs(m.lamda_w.grad) - m.ema_lamda_w_grad
+                                m.ema_lamda_w_grad.data = m.ema_lamda_w_grad + FLAGS.grad_ema_alpha * temp1
+                                ema_lamda_w_temp.append(m.ema_lamda_w_grad.item())
                             if m.lamda_a.grad is not None:
-                                m.ema_lamda_a_grad.add_(FLAGS.grad_ema_alpha * (
-                                    torch.abs(m.lamda_a.grad) - m.ema_lamda_a_grad).long())
-                            print(m.lamda_w.grad, m.ema_lamda_w_grad)
-
-                lambda_w_list.append(lambda_w_temp)
-                lambda_a_list.append(lambda_a_temp)
+                                temp1 = torch.abs(m.lamda_a.grad) - m.ema_lamda_a_grad
+                                m.ema_lamda_a_grad.data = m.ema_lamda_a_grad + FLAGS.grad_ema_alpha * temp1
+                                ema_lamda_a_temp.append(m.ema_lamda_a_grad.item())
+                lamda_w_list.append(lamda_w_temp)
+                lamda_a_list.append(lamda_a_temp)
+                ema_lamda_w_list.append(ema_lamda_w_temp)
+                ema_lamda_a_list.append(ema_lamda_a_temp)
             
             if (batch_idx) % FLAGS.log_interval == 0:
                 if getattr(FLAGS, 'log_wandb', False):
@@ -754,8 +757,8 @@ def run_one_epoch(
                                 'acc1_avg': top1.avg,
                                 'acc5_avg': top5.avg,
                                 'loss': loss.item(),
-                                'lambda_w': np.array(lambda_w_temp),
-                                'lambda_a': np.array(lambda_a_temp)}
+                                'lamda_w': np.array(lamda_w_temp),
+                                'lamda_a': np.array(lamda_a_temp)}
                     wandb.log(log_dict)
                 curr = batch_idx * len(inputs)
                 total = len(loader.dataset)
@@ -786,31 +789,33 @@ def run_one_epoch(
             top5.update(acc5[0], inputs.size(0))
 
     if train:
-        print(np.array(lambda_w_list).shape)
-        print(np.array(lambda_a_list).shape)
-        np.save(f'{FLAGS.log_dir}/lambda_w_ep{epoch}.npy', np.array(lambda_w_list))
-        np.save(f'{FLAGS.log_dir}/lambda_a_ep{epoch}.npy', np.array(lambda_a_list))
+        print(np.array(lamda_w_list).shape)
+        print(np.array(lamda_a_list).shape)
+        np.save(f'{FLAGS.log_dir}/lamda_w_ep{epoch}.npy', np.array(lamda_w_list))
+        np.save(f'{FLAGS.log_dir}/lamda_a_ep{epoch}.npy', np.array(lamda_a_list))
+        np.save(f'{FLAGS.log_dir}/ema_lamda_w_ep{epoch}.npy', np.array(ema_lamda_w_list))
+        np.save(f'{FLAGS.log_dir}/ema_lamda_a_ep{epoch}.npy', np.array(ema_lamda_a_list))
         np.save(f'{FLAGS.log_dir}/acc1_iter_ep{epoch}.npy', np.array(acc1_iter_list))
         np.save(f'{FLAGS.log_dir}/acc1_avg_ep{epoch}.npy', np.array(acc1_avg_list))
         np.save(f'{FLAGS.log_dir}/loss_acc_ep{epoch}.npy', np.array(loss_acc_list))
         print('bitwidth, acc, and loss numpy file saved!!')
         
         print('\ncurrent bitwidth (weight):')
-        lambda_temp = []
+        lamda_temp = []
         for name, m in model.named_modules():
             if hasattr(m, 'lamda_w'):
-                lambda_temp.append(m.lamda_w.item())
-        for idx, value in enumerate(lambda_temp):
+                lamda_temp.append(m.lamda_w.item())
+        for idx, value in enumerate(lamda_temp):
             print(f'{value:.4f}    ', end='')
             if idx % 10 == 0:
                 print()
 
         print('\ncurrent bitwidth (activation):')
-        lambda_temp = []
+        lamda_temp = []
         for name, m in model.named_modules():
             if hasattr(m, 'lamda_a'):
-                lambda_temp.append(m.lamda_a.item())
-        for idx, value in enumerate(lambda_temp):
+                lamda_temp.append(m.lamda_a.item())
+        for idx, value in enumerate(lamda_temp):
             print(f'{value:.4f}    ', end='')
             if idx % 10 == 0:
                 print()

@@ -237,8 +237,8 @@ class QuantizableConv2d(nn.Conv2d):
             self.gamma = nn.Parameter(torch.tensor(getattr(FLAGS, 'L_init', 1.0)))
         self.sigma = getattr(FLAGS, 'window_size', 2) / 2
         if getattr(FLAGS, 'grad_ema_alpha', False):
-            self.ema_lamda_w_grad = nn.Parameter(torch.tensor(1), requires_grad=False)
-            self.ema_lamda_a_grad = nn.Parameter(torch.tensor(1), requires_grad=False)
+            self.ema_lamda_w_grad = nn.Parameter(torch.tensor(0.01), requires_grad=False)
+            self.ema_lamda_a_grad = nn.Parameter(torch.tensor(0.01), requires_grad=False)
         
 
     def forward(self, input):
@@ -630,8 +630,8 @@ class QuantizableLinear(nn.Linear):
             self.gamma = nn.Parameter(torch.tensor(getattr(FLAGS, 'L_init', 1.0)))
         self.sigma = getattr(FLAGS, 'window_size', 2) / 2
         if getattr(FLAGS, 'grad_ema_alpha', False):
-            self.ema_lamda_w_grad = nn.Parameter(torch.tensor(1), requires_grad=False)
-            self.ema_lamda_a_grad = nn.Parameter(torch.tensor(1), requires_grad=False)
+            self.ema_lamda_w_grad = nn.Parameter(torch.tensor(0.01), requires_grad=False)
+            self.ema_lamda_a_grad = nn.Parameter(torch.tensor(0.01), requires_grad=False)
         
         
     def forward(self, input):
