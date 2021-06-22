@@ -18,8 +18,8 @@ data_loader_workers: 8 #10
 num_classes: 100
 image_size: 32
 topk: [1, 5]
-hard_assign_epoch: 160
-num_epochs: 200
+hard_assign_epoch: 240
+num_epochs: 300
 
 # optimizer
 optimizer: sgd
@@ -29,7 +29,7 @@ nesterov: True
 
 # lr
 lr: 0.5
-lr_lamda: 0.05
+lr_lamda: 0.01
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
 #exp_decaying_gamma: 0.98
@@ -45,7 +45,7 @@ resume: ''
 test_only: False
 
 #
-random_seed: 3
+random_seed: 1
 batch_size: 256
 model: ''
 reset_parameters: True
@@ -68,31 +68,33 @@ rescale_activation_STE: False
 calib_pact: False
 
 #
-kappa: 0.1
-kappa_base: 0.1
+kappa: 0.5
+kappa_base: 0.5
 #kappa_scheduling: linear
 #kappa_cycle_end_epoch: 20
 #
 gamma: 0.001
-gamma_type: 2
+gamma_type: 1
 gamma_schedule: 2
+gamma_period: 40
 #
 bits_list: [8, 7, 6, 5, 4, 3, 2]
 weight_quant_scheme: original
 act_quant_scheme: original
-init_bit: 3.5
-target_bitops: 0.64
+init_bit: 4.5
+target_bitops: 0.29429
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
 #pretrained_model_remap_keys: True
-log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0620_ws3_mbv1_3bit_int_2_lin_inc_0.001_3
+log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0622_ws3_mbv1_x0.5_4bit_int1_cyc_1_0.001
 model: models.q_mobilenet_v1_cifar
 #depth: 18
 weight_only: False
+width_multiplier: 0.5
 #
 simple_interpolation: True
 #window_schedule: custom_2
-L_value: 1.2
+L_value: 1.0
 window_size: 3
 distance_v2: True
 #
