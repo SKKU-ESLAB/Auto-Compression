@@ -375,8 +375,8 @@ def model_profiling(model, height, width, batch=1, channel=3, use_cuda=True,
             '{:,}'.format(model.n_params).rjust(params_space, ' ') +
             '{:,}'.format(model.n_macs).rjust(macs_space, ' ') +
             '{:.2f}'.format(model.n_bytes).rjust(bytes_space, ' ') +
-            '{:.2f}'.format(model.n_bitops).rjust(bitops_space, ' ') +
-            '{:.2f}'.format(model.n_bitops_max).rjust(bitops_space, ' ') +
+            '{:.5f}'.format(model.n_bitops).rjust(bitops_space, ' ') +
+            '{:.5f}'.format(model.n_bitops_max).rjust(bitops_space, ' ') +
             '{:.2f}'.format(model.energy).rjust(energy_space, ' ') +
             '{:.2f}'.format(model.latency).rjust(latency_space, ' ') +
             '{:,}'.format(model.n_seconds).rjust(seconds_space, ' '))
