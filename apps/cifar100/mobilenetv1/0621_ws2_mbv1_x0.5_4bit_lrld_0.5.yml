@@ -68,8 +68,8 @@ rescale_activation_STE: False
 calib_pact: False
 
 #
-kappa: 0.1
-kappa_base: 0.1
+kappa: 0.5
+kappa_base: 0.5
 #kappa_scheduling: linear
 #kappa_cycle_end_epoch: 20
 #
@@ -81,7 +81,7 @@ bits_list: [8, 7, 6, 5, 4, 3, 2]
 weight_quant_scheme: original
 act_quant_scheme: original
 init_bit: 4.5
-target_bitops: 0.29
+target_bitops: 0.29429
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
 #pretrained_model_remap_keys: True
