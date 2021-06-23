@@ -106,4 +106,4 @@ log_wandb: True
 
 
 loss_decoupling: True
-#bitwidth_regularize_start_epoch: 0
+bitwidth_regularize_start_epoch: 0
