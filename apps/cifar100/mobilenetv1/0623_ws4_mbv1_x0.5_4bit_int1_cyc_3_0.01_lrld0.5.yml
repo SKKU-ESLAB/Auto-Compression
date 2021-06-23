@@ -73,7 +73,7 @@ kappa_base: 0.5
 #kappa_scheduling: linear
 #kappa_cycle_end_epoch: 20
 #
-gamma: 0.001
+gamma: 0.01
 gamma_type: 1
 gamma_schedule: 2
 gamma_period: 40
@@ -86,7 +86,7 @@ target_bitops: 0.29429
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
 #pretrained_model_remap_keys: True
-log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0623_ws4_mbv1_x0.5_4bit_int1_cyc_3_0.001_lrld0.5
+log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0623_ws4_mbv1_x0.5_4bit_int1_cyc_3_0.01_lrld0.5
 model: models.q_mobilenet_v1_cifar
 #depth: 18
 weight_only: False
