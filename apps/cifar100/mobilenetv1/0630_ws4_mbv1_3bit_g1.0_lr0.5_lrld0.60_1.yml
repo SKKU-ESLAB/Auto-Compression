@@ -45,7 +45,7 @@ resume: ''
 test_only: False
 
 #
-random_seed: 
+random_seed: 1
 batch_size: 256
 model: ''
 reset_parameters: True
