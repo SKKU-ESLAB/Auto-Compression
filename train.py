@@ -846,10 +846,10 @@ def train_val_test():
         print('==> AUTOMATIC MIXED PRECISION Training')
         print('--------------------------------------\n')
     """train and val"""
+    torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
     scaler = torch.cuda.amp.GradScaler()
-    if True: #else:
-        set_random_seed()
+    set_random_seed()
 
     ####### DEBUG MSG 
     interp_method = 'simple_interpolation (ours)' if getattr(FLAGS, 'simple_interpolation', False) else 'fracbits_original'
