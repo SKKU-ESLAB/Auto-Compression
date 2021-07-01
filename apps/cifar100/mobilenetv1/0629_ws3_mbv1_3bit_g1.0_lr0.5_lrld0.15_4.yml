@@ -29,7 +29,7 @@ nesterov: True
 
 # lr
 lr: 0.5
-lr_lamda: 0.6
+lr_lamda: 0.15
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
 #exp_decaying_gamma: 0.98
@@ -45,7 +45,7 @@ resume: ''
 test_only: False
 
 #
-random_seed: 3
+random_seed: 4
 batch_size: 256
 model: ''
 reset_parameters: True
@@ -86,15 +86,15 @@ target_bitops: 0.63958
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
 #pretrained_model_remap_keys: True
-log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0630_ws4_mbv1_3bit_g1.2_lr0.5_lrld0.60_3
+log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0629_ws3_mbv1_3bit_g1.0_lr0.5_lrld0.15_4
 model: models.q_mobilenet_v1_cifar
 #depth: 18
 weight_only: False
 #
 simple_interpolation: True
 #window_schedule: custom_2
-L_value: 1.2
-window_size: 4
+L_value: 1.0
+window_size: 3
 distance_v2: True
 #
 amp: True
@@ -102,7 +102,7 @@ log_interval: 100
 log_bitwidth: True
 log_wandb: True
 #channel_half: True
-grad_ema_alpha: True
+
 
 loss_decoupling: True
 #bitwidth_regularize_start_epoch: 0
