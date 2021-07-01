@@ -596,7 +596,10 @@ def get_comp_cost_loss(model):
             exit()
     target_bitops = getattr(FLAGS, 'target_bitops', False)
     if target_bitops:
-        loss = torch.abs(loss - target_bitops)
+        if getattr(FLAGS, 'relu_loss', False):
+            loss = torch.relu(loss - target_bitops)
+        else:
+            loss = torch.abs(loss - target_bitops)
     return loss
 
 
@@ -793,8 +796,9 @@ def run_one_epoch(
         print(np.array(lamda_a_list).shape)
         np.save(f'{FLAGS.log_dir}/lamda_w_ep{epoch}.npy', np.array(lamda_w_list))
         np.save(f'{FLAGS.log_dir}/lamda_a_ep{epoch}.npy', np.array(lamda_a_list))
-        np.save(f'{FLAGS.log_dir}/ema_lamda_w_ep{epoch}.npy', np.array(ema_lamda_w_list))
-        np.save(f'{FLAGS.log_dir}/ema_lamda_a_ep{epoch}.npy', np.array(ema_lamda_a_list))
+        if getattr(FLAGS, 'grad_ema_alpha', False):
+            np.save(f'{FLAGS.log_dir}/ema_lamda_w_ep{epoch}.npy', np.array(ema_lamda_w_list))
+            np.save(f'{FLAGS.log_dir}/ema_lamda_a_ep{epoch}.npy', np.array(ema_lamda_a_list))
         np.save(f'{FLAGS.log_dir}/acc1_iter_ep{epoch}.npy', np.array(acc1_iter_list))
         np.save(f'{FLAGS.log_dir}/acc1_avg_ep{epoch}.npy', np.array(acc1_avg_list))
         np.save(f'{FLAGS.log_dir}/loss_acc_ep{epoch}.npy', np.array(loss_acc_list))
