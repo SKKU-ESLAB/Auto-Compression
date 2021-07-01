@@ -45,7 +45,7 @@ resume: ''
 test_only: False
 
 #
-random_seed: 1
+random_seed: 4
 batch_size: 256
 model: ''
 reset_parameters: True
@@ -86,7 +86,7 @@ target_bitops: 0.63958
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
 #pretrained_model_remap_keys: True
-log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0629_ws4_mbv1_3bit_g1.0_lr0.5_lrld0.10_1
+log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0629_ws4_mbv1_3bit_g1.0_lr0.5_lrld0.10_4
 model: models.q_mobilenet_v1_cifar
 #depth: 18
 weight_only: False
