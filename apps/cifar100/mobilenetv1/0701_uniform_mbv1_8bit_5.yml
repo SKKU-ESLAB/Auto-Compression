@@ -96,7 +96,7 @@ weight_only: False
 #L_value: 1.4
 #window_size: 4
 #distance_v2: True
-full_precision: True
+#full_precision: True
 #
 amp: True
 log_interval: 100
