@@ -1143,6 +1143,7 @@ def train_val_test():
                 FLAGS.window_size = 2 + (epoch_d-40)/10
             else:
                 FLAGS.window_size = 2
+            print(f"### CUSTOM_CIFAR_1 : window size = {FLAGS.window_size}###")
             
         ############################################################
         
