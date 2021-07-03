@@ -1137,6 +1137,12 @@ def train_val_test():
         elif getattr(FLAGS, 'window_schedule', False) == 'custom_5':
             FLAGS.L_value = 1 + epoch // 10 * 0.2
             print(f'\n*** WINDOW SCHEDULE : CUSTOM_5 (2021-06-07), L={FLAGS.L_value:.2f} ***\n')
+        elif getattr(FLAGS, 'window_schedule', False) == 'customcf_1':
+            epoch_d = abs(50 - epoch % 100)
+            if epoch_d >= 40:
+                FLAGS.window_size = 2 + (epoch_d-40)/10
+            else:
+                FLAGS.window_size = 2
             
         ############################################################
         
