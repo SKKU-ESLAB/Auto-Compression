@@ -28,7 +28,7 @@ weight_decay: 0.00001
 nesterov: True
 
 # lr
-lr: 0.1
+lr: 0.5
 lr_lamda: 0.
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
