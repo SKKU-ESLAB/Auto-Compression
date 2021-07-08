@@ -24,11 +24,11 @@ num_epochs: 200
 # optimizer
 optimizer: sgd
 momentum: 0.9
-weight_decay: 
+weight_decay: 0.004
 nesterov: True
 
 # lr
-lr: 
+lr: 0.01
 lr_lamda: 0.
 lr_scheduler: cos_annealing_iter
 #lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
@@ -80,12 +80,12 @@ gamma: 0
 bits_list: [8, 7, 6, 5, 4, 3, 2]
 weight_quant_scheme: original
 act_quant_scheme: original
-init_bit: 4.
+init_bit: 3.
 target_bitops: 0.
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
 #pretrained_model_remap_keys: True
-log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/
+log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0708_uniform_rsn20_3bit_lr0.01_wd4e-3_1
 model: models.q_resnet_cifar
 depth: 20
 weight_only: False
