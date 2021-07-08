@@ -10,7 +10,7 @@ gpu_type: "v100"
 dataset: CIFAR100
 data_transforms: cifar
 data_loader: cifar
-dataset_dir: /home/lkj004124/data
+dataset_dir: /data
 #dataset_dir: /mnt/cephfs_new_wj/uslabcv/meijieru/data/imagenet_lmdb
 data_loader_workers: 8 #10
 
