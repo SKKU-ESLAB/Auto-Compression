@@ -80,7 +80,7 @@ gamma: 0
 bits_list: [8, 7, 6, 5, 4, 3, 2]
 weight_quant_scheme: original
 act_quant_scheme: original
-init_bit: 8.
+init_bit: 4.
 target_bitops: 0.
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
