@@ -19,7 +19,7 @@ num_classes: 100
 image_size: 32
 topk: [1, 5]
 hard_assign_epoch: 0
-num_epochs: 300
+num_epochs: 200
 
 # optimizer
 optimizer: sgd
