@@ -24,7 +24,7 @@ num_epochs: 200
 # optimizer
 optimizer: sgd
 momentum: 0.9
-weight_decay: 0.001
+weight_decay: 0.0004
 nesterov: True
 
 # lr
@@ -45,7 +45,7 @@ resume: ''
 test_only: False
 
 #
-random_seed: 3
+random_seed: 1
 batch_size: 256
 model: ''
 reset_parameters: True
@@ -85,7 +85,7 @@ target_bitops: 0.04596
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
 #pretrained_model_remap_keys: True
-log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0709_ws4_rsn20_3bit_lr0.05_wd1e-3_lrld0.05_3
+log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0709_ws4_rsn20_3bit_lr0.05_wd4e-4_lrld0.05_1
 model: models.q_resnet_cifar
 depth: 20
 weight_only: False
