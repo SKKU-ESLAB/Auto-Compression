@@ -76,6 +76,7 @@ kappa_base: 2.
 gamma_type: 1
 gamma_schedule: 3
 gamma: 0.1
+gamma_period: 10
 #
 bits_list: [8, 7, 6, 5, 4, 3, 2]
 weight_quant_scheme: original
