@@ -45,7 +45,7 @@ resume: ''
 test_only: False
 
 #
-random_seed: 1
+random_seed: 3
 batch_size: 256
 model: ''
 reset_parameters: True
@@ -76,7 +76,7 @@ kappa_base: 2.
 gamma_type: 1
 gamma_schedule: 3
 gamma_period: 30
-gamma: 0.0004
+gamma: 0.001
 #
 bits_list: [8, 7, 6, 5, 4, 3, 2]
 weight_quant_scheme: original
@@ -86,7 +86,7 @@ target_bitops: 0.04596
 # =========================== Override Settings ===========================
 #fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
 #pretrained_model_remap_keys: True
-log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0710_ws2_rsn20_3bit_int_cyc30_L1_gam0.0004_1
+log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0710_ws3_rsn20_3bit_int_cyc30_L1_gam0.001_3
 model: models.q_resnet_cifar
 depth: 20
 weight_only: False
@@ -94,7 +94,7 @@ weight_only: False
 simple_interpolation: True
 #window_schedule: custom_2
 L_value: 1.0
-window_size: 2
+window_size: 3
 distance_v2: True
 #
 amp: True
