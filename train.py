@@ -768,7 +768,7 @@ def run_one_epoch(
                 if bitwidth_learning:
                     loss_sentence = f'Loss_acc: {eval_acc_loss.avg:.3f} | Loss_cost: {eval_cost_loss.avg:.3f} | '
                     if epoch+1 > getattr(FLAGS, 'bitwidth_regularize_start_epoch', 9999):
-                            loss_sentence = loss_sentence + f'Loss_bit: {kappa * get_bitwidth_loss(model):.3f} | '
+                            loss_sentence = loss_sentence + f'Loss_bit: {gamma * get_bitwidth_loss(model):.3f} | '
                 else:
                     loss_sentence = f'Loss_acc: {eval_acc_loss.avg:5.3f} | '
                 print(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Train Epoch: '\
@@ -1174,7 +1174,7 @@ def train_val_test():
             elif getattr(FLAGS, 'gamma_schedule', False) == 3: # linear cyclic
                 print("**** gamma schedule: cyclic ****")
                 period = getattr(FLAGS, 'gamma_period', 40)
-                gamma = FLAGS.gamma * (((epoch % period) + 1) / period)
+                gamma = FLAGS.gamma * ((epoch % period) / period)
                 
             #elif getattr(FLAGS, 'gamma_schedule', False) == '4': # cosine <-하지말고 내버려두자
             #    print("********** gamma schedule 44444 ***********")
