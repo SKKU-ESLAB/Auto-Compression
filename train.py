@@ -608,10 +608,10 @@ def get_bitwidth_loss(model):
     loss = 0.0
     for name, m in model.named_modules():
         if hasattr(m, 'lamda_w'):
-            if FLAGS.gamma_type == 1: #L1
+            if getattr(FLAGS, "gamma_type", 0) == 1: #L1
                 loss += torch.abs(torch.round(m.lamda_w) - m.lamda_w)
                 loss += torch.abs(torch.round(m.lamda_a) - m.lamda_a)
-            elif FLAGS.gamma_type == 2: #L2
+            elif getattr(FLAGS, "gamma_type", 0) == 2: #L2
                 loss += 2 * torch.square(torch.abs(torch.round(m.lamda_w) - m.lamda_w))
                 loss += 2 * torch.square(torch.abs(torch.round(m.lamda_a) - m.lamda_a))
     return loss
