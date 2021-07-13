@@ -1023,7 +1023,8 @@ def train_val_test():
         kappa_fn = get_exp_cycle_annealing(5, 0.2, 1)
 
     print('Start training.')
-
+    def relu_(x):
+        return max(0, x)
     for epoch in range(last_epoch+1, FLAGS.num_epochs+1):
         if getattr(FLAGS, 'bitwidth_direct', False):
             if getattr(FLAGS, 'hard_forward', False):
@@ -1145,7 +1146,38 @@ def train_val_test():
                 FLAGS.window_size = 2
             print(f"### CUSTOM_CIFAR_1 : window size = {FLAGS.window_size}###")
             
-        ############################################################
+        elif getattr(FLAGS, 'window_schedule', False) == 'customcf_zigzag': ##### NEED REPAIR!!!! ######
+            epoch_d = abs(20 - epoch % 40)
+            window_cycle_end_epoch = getattr(FLAGS, 'window_cycle_end_epoch', phi * 4)
+            if epoch > window_cycle_end_epoch:
+                FLAGS.window_size = 2
+            else:
+                if epoch_d >= 30:
+                    FLAGS.window_size = 2 + (epoch_d-20)/10
+                else:
+                    FLAGS.window_size = 2
+            print(f"### CUSTOM_CIFAR_ZIGZAG : window size = {FLAGS.window_size} ###")
+        ##########
+
+        elif getattr(FLAGS, 'window_schedule', False) == 'customcf_decrease':
+            phi = getattr(FLAGS, 'window_period', 40)
+            max_window_size = getattr(FLAGS, 'max_window_size', 2)
+            window_cycle_end_epoch = getattr(FLAGS, 'window_cycle_end_epoch', phi * 4)
+            if epoch > window_cycle_end_epoch:
+                FLAGS.window_size = 2
+            else:
+                FLAGS.window_size = 2 + (max_window_size-2) * relu_(phi-epoch) / phi
+            print(f"### CUSTOM_CIFAR_DECREASE : window size = {FLAGS.window_size} ###")
+        
+        elif getattr(FLAGS, 'window_schedule', False) == 'customcf_cyclic_decrease':
+            phi = getattr(FLAGS, 'window_period', 40)
+            max_window_size = getattr(FLAGS, 'max_window_size', 2)
+            window_cycle_end_epoch = getattr(FLAGS, 'window_cycle_end_epoch', phi * 4)
+            if epoch > window_cycle_end_epoch:
+                FLAGS.window_size = 2
+            else:
+                FLAGS.window_size = 2 + (max_window_size-2) * (phi-(epoch%phi)) / phi 
+            print(f"### CUSTOM_CIFAR_CYCLIC_DECREASE : window size = {FLAGS.window_size} ###")
         
         if FLAGS.lr_scheduler in ['exp_decaying_iter', 'gaussian_iter', 'cos_annealing_iter', 'butterworth_iter', 'mixed_iter']:
             lr_sched = lr_scheduler
