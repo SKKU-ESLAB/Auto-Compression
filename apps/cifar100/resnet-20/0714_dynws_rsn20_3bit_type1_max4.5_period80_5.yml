@@ -92,7 +92,7 @@ weight_only: False
 #
 simple_interpolation: True
 window_schedule: customcf_decrease
-window_period: 
+window_period: 80
 max_window_size: 4.5
 window_cycle_end_epoch: 9999
 L_value: 1.0
