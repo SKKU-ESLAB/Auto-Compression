@@ -22,6 +22,20 @@ OPTION(XNNPACK_BUILD_TESTS "Build XNNPACK unit tests" ON)
 OPTION(XNNPACK_BUILD_BENCHMARKS "Build XNNPACK benchmarks" ON)
 OPTION(XNNPACK_USE_SYSTEM_LIBS "Use system-provided dependency libraries" OFF)
 
+# ---[ Build for ODROID
+OPTION(XNNPACK_BUILD_ODROID "Build XNNPACK for ODROID" OFF)
+IF(XNNPACK_BUILD_ODROID)
+  add_compile_definitions(XNN_NO_X32_OPERATORS)
+  add_compile_definitions(XNN_NO_F16_OPERATORS)
+  add_compile_definitions(XNN_NO_QC8_OPERATORS)
+  add_compile_definitions(XNN_NO_QS8_OPERATORS)
+  add_compile_definitions(XNN_NO_QU8_OPERATORS)
+  add_compile_definitions(XNN_NO_S8_OPERATORS)
+  add_compile_definitions(XNN_NO_U8_OPERATORS)
+  add_compile_definitions(XNN_NO_X8_OPERATORS)
+  add_compile_definitions(XNN_NO_CVT_OPERATORS)
+ENDIF()
+
 # --- [ Determine target processor
 SET(XNNPACK_TARGET_PROCESSOR "${CMAKE_SYSTEM_PROCESSOR}")
 IF(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_OSX_ARCHITECTURES MATCHES "^(x86_64|arm64|arm64e)$")
