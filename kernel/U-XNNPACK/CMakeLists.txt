@@ -367,7 +367,9 @@ SET(PROD_SCALAR_MICROKERNEL_SRCS
   src/f32-vunary/gen/vabs-scalar-x4.c
   src/f32-vunary/gen/vneg-scalar-x4.c
   src/f32-vunary/gen/vsqr-scalar-x4.c
-  src/params-init.c
+  src/params-init.c)
+
+SET(PROD_SCALAR_MICROKERNEL_SRCS2
   src/qc8-dwconv/gen/up2x9-minmax-fp32-scalar-magic.c
   src/qc8-dwconv/gen/up2x25-minmax-fp32-scalar-magic.c
   src/qc8-gemm/gen/1x2-minmax-fp32-scalar-magic.c
@@ -832,7 +834,9 @@ SET(ALL_SCALAR_MICROKERNEL_SRCS
   src/math/sigmoid-scalar-rr2-lut64-p2-div.c
   src/math/sigmoid-scalar-rr2-lut2048-p1-div.c
   src/math/sigmoid-scalar-rr2-p5-div.c
-  src/params-init.c
+  src/params-init.c)
+
+SET(ALL_SCALAR_MICROKERNEL_SRCS2
   src/qc8-dwconv/gen/up1x9-minmax-fp32-scalar-lrint.c
   src/qc8-dwconv/gen/up1x9-minmax-fp32-scalar-magic.c
   src/qc8-dwconv/gen/up1x25-minmax-fp32-scalar-lrint.c
@@ -1137,7 +1141,9 @@ SET(PROD_NEON_MICROKERNEL_SRCS
   src/f32-vsigmoid/gen/vsigmoid-neon-rr2-lut64-p2-nr2recps-x8.c
   src/f32-vunary/gen/vabs-neon-x8.c
   src/f32-vunary/gen/vneg-neon-x8.c
-  src/f32-vunary/gen/vsqr-neon-x8.c
+  src/f32-vunary/gen/vsqr-neon-x8.c)
+
+SET(PROD_NEON_MICROKERNEL_SRCS2
   src/qc8-dwconv/gen/up8x25-minmax-fp32-neon-mla8-ld64.c
   src/qc8-dwconv/gen/up16x9-minmax-fp32-neon-mla8-ld64.c
   src/qc8-dwconv/gen/up16x25-minmax-fp32-neon-mla8-ld64.c
@@ -1484,7 +1490,9 @@ SET(ALL_NEON_MICROKERNEL_SRCS
   src/math/sigmoid-neon-rr2-p5-nr2recps.c
   src/math/sqrt-neon-nr1rsqrts.c
   src/math/sqrt-neon-nr2rsqrts.c
-  src/math/sqrt-neon-nr3rsqrts.c
+  src/math/sqrt-neon-nr3rsqrts.c)
+
+SET(ALL_NEON_MICROKERNEL_SRCS2
   src/qc8-dwconv/gen/up8x9-minmax-fp32-neon-mla8-ld64.c
   src/qc8-dwconv/gen/up8x9-minmax-fp32-neon-mul8-ld64.c
   src/qc8-dwconv/gen/up8x9-minmax-fp32-neon-mul16.c
@@ -2246,7 +2254,9 @@ SET(PROD_NEONV8_MICROKERNEL_SRCS
   src/f32-vrnd/gen/vrndd-neonv8-x8.c
   src/f32-vrnd/gen/vrndne-neonv8-x8.c
   src/f32-vrnd/gen/vrndu-neonv8-x8.c
-  src/f32-vrnd/gen/vrndz-neonv8-x8.c
+  src/f32-vrnd/gen/vrndz-neonv8-x8.c)
+
+SET(PROD_NEONV8_MICROKERNEL_SRCS2
   src/qc8-dwconv/gen/up8x25-minmax-fp32-neonv8-mla8-ld64.c
   src/qc8-dwconv/gen/up16x9-minmax-fp32-neonv8-mla8-ld64.c
   src/qc8-dwconv/gen/up16x25-minmax-fp32-neonv8-mla8-ld64.c
@@ -2279,7 +2289,9 @@ SET(ALL_NEONV8_MICROKERNEL_SRCS
   src/math/roundd-neonv8.c
   src/math/roundne-neonv8.c
   src/math/roundu-neonv8.c
-  src/math/roundz-neonv8.c
+  src/math/roundz-neonv8.c)
+
+SET(ALL_NEONV8_MICROKERNEL_SRCS2
   src/qc8-dwconv/gen/up8x9-minmax-fp32-neonv8-mla8-ld64.c
   src/qc8-dwconv/gen/up8x9-minmax-fp32-neonv8-mul8-ld64.c
   src/qc8-dwconv/gen/up8x9-minmax-fp32-neonv8-mul16.c
@@ -2474,7 +2486,8 @@ SET(ALL_AARCH64_NEONFP16ARITH_MICROKERNEL_SRCS
   src/f16-vrelu/gen/vrelu-neonfp16arith-x8.c
   src/f16-vrelu/gen/vrelu-neonfp16arith-x16.c)
 
-SET(PROD_NEONDOT_MICROKERNEL_SRCS
+SET(PROD_NEONDOT_MICROKERNEL_SRCS)
+SET(PROD_NEONDOT_MICROKERNEL_SRCS2
   src/qc8-gemm/gen/1x8c4-minmax-fp32-neondot.c
   src/qc8-gemm/gen/1x16c4-minmax-fp32-neondot.c
   src/qc8-gemm/gen/4x8c4-minmax-fp32-neondot.c
@@ -2500,7 +2513,8 @@ SET(PROD_NEONDOT_MICROKERNEL_SRCS
   src/qu8-igemm/gen/2x16c4-minmax-rndnu-neondot.c
   src/qu8-igemm/gen/4x16c4-minmax-rndnu-neondot.c)
 
-SET(ALL_NEONDOT_MICROKERNEL_SRCS
+SET(ALL_NEONDOT_MICROKERNEL_SRCS)
+SET(ALL_NEONDOT_MICROKERNEL_SRCS2
   src/qc8-gemm/gen/1x8c4-minmax-fp32-neondot.c
   src/qc8-gemm/gen/1x16c4-minmax-fp32-neondot.c
   src/qc8-gemm/gen/4x8c4-minmax-fp32-neondot.c
@@ -4848,6 +4862,7 @@ SET(AARCH32_ASM_MICROKERNEL_SRCS
   src/f32-igemm/gen/4x8-minmax-aarch32-neon-cortex-a75.S
   src/f32-igemm/gen/4x8-minmax-aarch32-neon-ld64.S
   src/f32-igemm/gen/4x8-minmax-aarch32-neon-pld-cortex-a75.S)
+SET(AARCH32_ASM_MICROKERNEL_SRCS2)
 
 SET(AARCH64_ASM_MICROKERNEL_SRCS
   src/f16-gemm/gen-inc/1x8inc-minmax-aarch64-neonfp16arith-ld64.S
@@ -5076,6 +5091,20 @@ SET(AARCH64_ASM_MICROKERNEL_SRCS
   src/qu8-igemm/gen/4x16-minmax-rndnu-aarch64-neon-mlal-lane-prfm-cortex-a75.S
   src/qu8-igemm/gen/4x16c4-minmax-rndnu-aarch64-neondot-cortex-a55.S
   src/qu8-igemm/gen/4x16c4-minmax-rndnu-aarch64-neondot-ld128.S)
+
+IF(NOT XNNPACK_BUILD_ODROID)
+  LIST(APPEND PROD_SCALAR_MICROKERNEL_SRCS ${PROD_SCALAR_MICROKERNEL_SRCS2})
+  LIST(APPEND ALL_SCALAR_MICROKERNEL_SRCS ${ALL_SCALAR_MICROKERNEL_SRCS2})
+  LIST(APPEND PROD_NEON_MICROKERNEL_SRCS ${PROD_NEON_MICROKERNEL_SRCS2})
+  LIST(APPEND ALL_NEON_MICROKERNEL_SRCS ${ALL_NEON_MICROKERNEL_SRCS2})
+  LIST(APPEND PROD_NEONFMA_MICROKERNEL_SRCS ${PROD_NEONFMA_MICROKERNEL_SRCS2})
+  LIST(APPEND ALL_NEONFMA_MICROKERNEL_SRCS ${ALL_NEONFMA_MICROKERNEL_SRCS2})
+  LIST(APPEND PROD_NEONV8_MICROKERNEL_SRCS ${PROD_NEONV8_MICROKERNEL_SRCS2})
+  LIST(APPEND ALL_NEONV8_MICROKERNEL_SRCS ${ALL_NEONV8_MICROKERNEL_SRCS2})
+  LIST(APPEND PROD_NEONDOT_MICROKERNEL_SRCS ${PROD_NEONDOT_MICROKERNEL_SRCS2})
+  LIST(APPEND ALL_NEONDOT_MICROKERNEL_SRCS ${ALL_NEONDOT_MICROKERNEL_SRCS2})
+  LIST(APPEND AARCH32_ASM_MICROKERNEL_SRCS ${AARCH32_MICROKERNEL_SRCS2})
+ENDIF()
 
 SET(PROD_MICROKERNEL_SRCS ${PROD_SCALAR_MICROKERNEL_SRCS})
 SET(ALL_MICROKERNEL_SRCS ${ALL_SCALAR_MICROKERNEL_SRCS})
