@@ -6,6 +6,10 @@
 $assert MR % 4 == 0
 $assert NR in [1, 2, 4]
 $ABC = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+$VMULADD_F32 = "vfma_f32" if FMA else "vmla_f32"
+$VMULADDQ_F32 = "vfmaq_f32" if FMA else "vmlaq_f32"
+$VMULADD_LANE_F32 = "vfma_lane_f32" if FMA else "vmla_lane_f32"
+$VMULADDQ_LANE_F32 = "vfmaq_lane_f32" if FMA else "vmlaq_lane_f32"
 #include <assert.h>
 
 #include <arm_neon.h>
@@ -56,15 +60,26 @@ void xnn_f32_spmm_minmax_ukernel_${MR}x${NR}__${"neonfma" if FMA else "neon"}(
           $elif NR == 2:
             const float32x2_t vw = vld1_f32(w); w += 2;
           $elif NR == 4:
-            const float32x4_t vw = vld1q_f32(w); w += 4;
+            $if FMA == 1:
+              const float32x4_t vw = vld1q_f32(w); w += 4;
+            $else:
+              const float32x2_t vw01 = vld1_f32(w); w += 2;
+              const float32x2_t vw23 = vld1_f32(w); w += 2;
           __builtin_prefetch(w + 32);
           $if NR == 1:
             $for M in range(0, MR, 4):
-              vacc${ABC[M:M+4]}c0 = vfmaq_f32(vacc${ABC[M:M+4]}c0, vi${ABC[M:M+4]}, vw);
-          $else:
+              vacc${ABC[M:M+4]}c0 = ${VMULADDQ_F32}(vacc${ABC[M:M+4]}c0, vi${ABC[M:M+4]}, vw);
+          $elif NR == 2:
             $for N in range(NR):
               $for M in range(0, MR, 4):
-                vacc${ABC[M:M+4]}n${N} = vfmaq_lane${"q" if NR == 4 else ""}_f32(vacc${ABC[M:M+4]}n${N}, vi${ABC[M:M+4]}, vw, ${N});
+                vacc${ABC[M:M+4]}n${N} = ${VMULADDQ_LANE_F32}(vacc${ABC[M:M+4]}n${N}, vi${ABC[M:M+4]}, vw, ${N});
+          $elif NR == 4:
+            $for N in range(NR):
+              $for M in range(0, MR, 4):
+                $if FMA == 1:
+                  vacc${ABC[M:M+4]}n${N} = vfmaq_laneq_f32(vacc${ABC[M:M+4]}n${N}, vi${ABC[M:M+4]}, vw, ${N});
+                $else:
+                  vacc${ABC[M:M+4]}n${N} = vmlaq_lane_f32(vacc${ABC[M:M+4]}n${N}, vi${ABC[M:M+4]}, vw${ABC[int(N/2):int(N/2)+2]}, ${N%2});
         } while (--nnz != 0);
       }
       $for N in range(0, NR, 1):
@@ -101,7 +116,7 @@ void xnn_f32_spmm_minmax_ukernel_${MR}x${NR}__${"neonfma" if FMA else "neon"}(
             const float32x4_t vw = vld1q_dup_f32(w); w += 1;
             __builtin_prefetch(w + 32);
             $for M in range(0, MR, 4):
-              vacc${ABC[M:M+4]} = vfmaq_f32(vacc${ABC[M:M+4]}, vi${ABC[M:M+4]}, vw);
+              vacc${ABC[M:M+4]} = ${VMULADDQ_F32}(vacc${ABC[M:M+4]}, vi${ABC[M:M+4]}, vw);
           } while (--nnz != 0);
         }
         $for M in range(0, MR, 4):
@@ -161,21 +176,38 @@ void xnn_f32_spmm_minmax_ukernel_${MR}x${NR}__${"neonfma" if FMA else "neon"}(
               $elif NR == 2:
                 const float32x2_t vw = vld1_f32(w); w += 2;
               $elif NR == 4:
-                const float32x4_t vw = vld1q_f32(w); w += 4;
+                $if FMA == 1:
+                  const float32x4_t vw = vld1q_f32(w); w += 4;
+                $else:
+                  const float32x2_t vw01 = vld1_f32(w); w += 2;
+                  const float32x2_t vw23 = vld1_f32(w); w += 2;
 
               $if NR == 1:
                 $if SUBMR < 4:
-                    vacc${ABC[0:SUBMR]}c0 = vfmaq_f32(vacc${ABC[0:SUBMR]}c0, vi${ABC[0:SUBMR]}, vw);
+                    vacc${ABC[0:SUBMR]}c0 = ${VMULADDQ_F32}(vacc${ABC[0:SUBMR]}c0, vi${ABC[0:SUBMR]}, vw);
                 $else:
                   $for M in range(0, SUBMR, 4):
-                    vacc${ABC[M:M+4]}c0 = vfmaq_f32(vacc${ABC[M:M+4]}c0, vi${ABC[M:M+4]}, vw);
-              $else:
+                    vacc${ABC[M:M+4]}c0 = ${VMULADDQ_F32}(vacc${ABC[M:M+4]}c0, vi${ABC[M:M+4]}, vw);
+              $elif NR == 2:
                 $for N in range(NR):
                   $if SUBMR < 4:
-                    vacc${ABC[0:SUBMR]}n${N} = vfma_lane${"q" if NR == 4 else ""}_f32(vacc${ABC[0:SUBMR]}n${N}, vi${ABC[0:SUBMR]}, vw, ${N});
+                    vacc${ABC[0:SUBMR]}n${N} = ${VMULADD_LANE_F32}(vacc${ABC[0:SUBMR]}n${N}, vi${ABC[0:SUBMR]}, vw, ${N});
                   $else:
                     $for M in range(0, SUBMR, 4):
-                      vacc${ABC[M:M+4]}n${N} = vfmaq_lane${"q" if NR == 4 else ""}_f32(vacc${ABC[M:M+4]}n${N}, vi${ABC[M:M+4]}, vw, ${N});
+                      vacc${ABC[M:M+4]}n${N} = ${VMULADDQ_LANE_F32}(vacc${ABC[M:M+4]}n${N}, vi${ABC[M:M+4]}, vw, ${N});
+              $elif NR == 4:
+                $for N in range(NR):
+                  $if SUBMR < 4:
+                    $if FMA == 1:
+                      vacc${ABC[0:SUBMR]}n${N} = vfma_laneq_f32(vacc${ABC[0:SUBMR]}n${N}, vi${ABC[0:SUBMR]}, vw, ${N});
+                    $else:
+                      vacc${ABC[0:SUBMR]}n${N} = vmla_lane_f32(vacc${ABC[0:SUBMR]}n${N}, vi${ABC[0:SUBMR]}, vw${ABC[int(N/2):int(N/2)+2]}, ${N%2});
+                  $else:
+                    $for M in range(0, SUBMR, 4):
+                      $if FMA == 1:
+                        vacc${ABC[M:M+4]}n${N} = vfmaq_laneq_f32(vacc${ABC[M:M+4]}n${N}, vi${ABC[M:M+4]}, vw, ${N});
+                      $else:
+                        vacc${ABC[M:M+4]}n${N} = vmlaq_lane_f32(vacc${ABC[M:M+4]}n${N}, vi${ABC[M:M+4]}, vw${ABC[int(N/2):int(N/2)+2]}, ${N%2});
             } while (--nnz != 0);
           }
           $for N in range(0, NR, 1):
@@ -228,11 +260,11 @@ void xnn_f32_spmm_minmax_ukernel_${MR}x${NR}__${"neonfma" if FMA else "neon"}(
                 input = (const float*restrict) ((uintptr_t) input + (uintptr_t) diff);
                 $if SUBMR < 4:
                   const float32x2_t vw = vld1_dup_f32(w); w += 1;
-                  vacc${ABC[0:SUBMR]} = vfma_f32(vacc${ABC[0:SUBMR]}, vi${ABC[0:SUBMR]}, vw);
+                  vacc${ABC[0:SUBMR]} = ${VMULADD_F32}(vacc${ABC[0:SUBMR]}, vi${ABC[0:SUBMR]}, vw);
                 $else:
                   const float32x4_t vw = vld1q_dup_f32(w); w += 1;
                   $for M in range(0, SUBMR, 4):
-                    vacc${ABC[M:M+4]} = vfmaq_f32(vacc${ABC[M:M+4]}, vi${ABC[M:M+4]}, vw);
+                    vacc${ABC[M:M+4]} = ${VMULADDQ_F32}(vacc${ABC[M:M+4]}, vi${ABC[M:M+4]}, vw);
               } while (--nnz != 0);
             }
             $if SUBMR < 4:
