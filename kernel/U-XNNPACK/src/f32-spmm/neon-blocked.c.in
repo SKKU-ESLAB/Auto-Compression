@@ -79,7 +79,7 @@ void xnn_f32_spmm_minmax_ukernel_${MR}x${NR}__${"neonfma" if FMA else "neon"}(
                 $if FMA == 1:
                   vacc${ABC[M:M+4]}n${N} = vfmaq_laneq_f32(vacc${ABC[M:M+4]}n${N}, vi${ABC[M:M+4]}, vw, ${N});
                 $else:
-                  vacc${ABC[M:M+4]}n${N} = vmlaq_lane_f32(vacc${ABC[M:M+4]}n${N}, vi${ABC[M:M+4]}, vw${ABC[int(N/2):int(N/2)+2]}, ${N%2});
+                  vacc${ABC[M:M+4]}n${N} = vmlaq_lane_f32(vacc${ABC[M:M+4]}n${N}, vi${ABC[M:M+4]}, vw${ABC[int(N/2)*2:int(N/2)*2+2]}, ${N%2});
         } while (--nnz != 0);
       }
       $for N in range(0, NR, 1):
@@ -201,13 +201,13 @@ void xnn_f32_spmm_minmax_ukernel_${MR}x${NR}__${"neonfma" if FMA else "neon"}(
                     $if FMA == 1:
                       vacc${ABC[0:SUBMR]}n${N} = vfma_laneq_f32(vacc${ABC[0:SUBMR]}n${N}, vi${ABC[0:SUBMR]}, vw, ${N});
                     $else:
-                      vacc${ABC[0:SUBMR]}n${N} = vmla_lane_f32(vacc${ABC[0:SUBMR]}n${N}, vi${ABC[0:SUBMR]}, vw${ABC[int(N/2):int(N/2)+2]}, ${N%2});
+                      vacc${ABC[0:SUBMR]}n${N} = vmla_lane_f32(vacc${ABC[0:SUBMR]}n${N}, vi${ABC[0:SUBMR]}, vw${ABC[int(N/2)*2:int(N/2)*2+2]}, ${N%2});
                   $else:
                     $for M in range(0, SUBMR, 4):
                       $if FMA == 1:
                         vacc${ABC[M:M+4]}n${N} = vfmaq_laneq_f32(vacc${ABC[M:M+4]}n${N}, vi${ABC[M:M+4]}, vw, ${N});
                       $else:
-                        vacc${ABC[M:M+4]}n${N} = vmlaq_lane_f32(vacc${ABC[M:M+4]}n${N}, vi${ABC[M:M+4]}, vw${ABC[int(N/2):int(N/2)+2]}, ${N%2});
+                        vacc${ABC[M:M+4]}n${N} = vmlaq_lane_f32(vacc${ABC[M:M+4]}n${N}, vi${ABC[M:M+4]}, vw${ABC[int(N/2)*2:int(N/2)*2+2]}, ${N%2});
             } while (--nnz != 0);
           }
           $for N in range(0, NR, 1):
