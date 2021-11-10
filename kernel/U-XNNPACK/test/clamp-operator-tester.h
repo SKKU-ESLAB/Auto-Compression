@@ -110,6 +110,7 @@ class ClampOperatorTester {
     return this->iterations_;
   }
 
+#ifndef XNN_NO_S8_OPERATORS
   void TestS8() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -172,7 +173,9 @@ class ClampOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_U8_OPERATORS
   void TestU8() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -233,7 +236,9 @@ class ClampOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
   void TestF32() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -297,6 +302,7 @@ class ClampOperatorTester {
       }
     }
   }
+#endif
 
  private:
   size_t batch_size_{1};

@@ -197,6 +197,7 @@ class BinaryElementwiseOperatorTester {
     }
   }
 
+#ifndef XNN_NO_QS8_OPERATORS
   void TestQS8() const {
     ASSERT_NE(operation_type(), OperationType::Unknown);
     ASSERT_GE(input1_zero_point(), std::numeric_limits<int8_t>::min());
@@ -378,7 +379,9 @@ class BinaryElementwiseOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_QU8_OPERATORS
   void TestQU8() const {
     ASSERT_NE(operation_type(), OperationType::Unknown);
     ASSERT_GE(input1_zero_point(), std::numeric_limits<uint8_t>::min());
@@ -560,7 +563,9 @@ class BinaryElementwiseOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_F16_OPERATORS
   void TestF16() const {
     ASSERT_NE(operation_type(), OperationType::Unknown);
 
@@ -712,7 +717,9 @@ class BinaryElementwiseOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
   void TestF32() const {
     ASSERT_NE(operation_type(), OperationType::Unknown);
 
@@ -944,6 +951,7 @@ class BinaryElementwiseOperatorTester {
       }
     }
   }
+#endif
 
  private:
   std::vector<size_t> input1_shape_;

@@ -20,6 +20,7 @@
 #include "bench/utils.h"
 
 
+#ifndef XNN_NO_U8_OPERATORS
 void max_pooling_u8(benchmark::State& state, const char* net) {
   const size_t batch_size = state.range(0);
   const size_t input_height = state.range(1);
@@ -96,6 +97,7 @@ void max_pooling_u8(benchmark::State& state, const char* net) {
       batch_size * (input_height * input_width + output_height * output_width) * channels * sizeof(uint8_t),
     benchmark::Counter::kIsRate);
 }
+#endif
 
 void max_pooling_f32(benchmark::State& state, const char* net) {
   const size_t batch_size = state.range(0);
@@ -228,10 +230,12 @@ BENCHMARK_CAPTURE(max_pooling_f32, squeezenet_v10, "SqueezeNet v1.0")->Apply(Squ
 BENCHMARK_CAPTURE(max_pooling_f32, squeezenet_v11, "SqueezeNet v1.1")->Apply(SqueezeNetV11)->UseRealTime();
 BENCHMARK_CAPTURE(max_pooling_f32, vgg, "VGG")->Apply(VGG);
 
+#ifndef XNN_NO_U8_OPERATORS
 BENCHMARK_CAPTURE(max_pooling_u8, shufflenet, "ShuffleNet v1/v2")->Apply(ShuffleNet)->UseRealTime();
 BENCHMARK_CAPTURE(max_pooling_u8, squeezenet_v10, "SqueezeNet v1.0")->Apply(SqueezeNetV10)->UseRealTime();
 BENCHMARK_CAPTURE(max_pooling_u8, squeezenet_v11, "SqueezeNet v1.1")->Apply(SqueezeNetV11)->UseRealTime();
 BENCHMARK_CAPTURE(max_pooling_u8, vgg, "VGG")->Apply(VGG);
+#endif
 
 #ifndef XNNPACK_BENCHMARK_NO_MAIN
 BENCHMARK_MAIN();

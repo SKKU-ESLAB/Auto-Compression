@@ -112,6 +112,7 @@ class SoftMaxOperatorTester {
     return this->iterations_;
   }
 
+#ifndef XNN_NO_QU8_OPERATORS
   void TestQU8() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -177,7 +178,9 @@ class SoftMaxOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
   void TestF32() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -239,6 +242,7 @@ class SoftMaxOperatorTester {
       }
     }
   }
+#endif
 
  private:
   size_t batch_size_{1};

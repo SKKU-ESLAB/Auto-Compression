@@ -277,6 +277,7 @@ class UnpoolingOperatorTester {
     return this->iterations_;
   }
 
+#ifndef XNN_NO_X32_OPERATORS
   void TestX32() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -477,6 +478,7 @@ class UnpoolingOperatorTester {
       }
     }
   }
+#endif
 
  private:
   uint32_t padding_top_{0};

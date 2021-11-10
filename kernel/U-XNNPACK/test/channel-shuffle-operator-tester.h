@@ -97,6 +97,7 @@ class ChannelShuffleOperatorTester {
     return this->iterations_;
   }
 
+#ifndef XNN_NO_X8_OPERATORS
   void TestX8() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -144,7 +145,9 @@ class ChannelShuffleOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_X32_OPERATORS
   void TestX32() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -192,6 +195,7 @@ class ChannelShuffleOperatorTester {
       }
     }
   }
+#endif
 
  private:
   size_t groups_{1};

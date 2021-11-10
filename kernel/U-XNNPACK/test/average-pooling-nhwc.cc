@@ -31,6 +31,7 @@ static std::pair<size_t, size_t> LargePoolSize(size_t min_elements) {
 
 /**************************** AVGPOOL path, unipass ****************************/
 
+#ifndef XNN_NO_QU8_OPERATORS
 TEST(AVERAGE_POOLING_NHWC_QU8, small_pool) {
   ASSERT_EQ(xnn_status_success, xnn_initialize(nullptr /* allocator */));
   const std::pair<size_t, size_t> pooling_size = SmallPoolSize(xnn_params.qu8.avgpool.mr);
@@ -2918,9 +2919,11 @@ TEST(AVERAGE_POOLING_NHWC_QU8, setup_global_to_local) {
     .channels(24)
     .TestSetupQU8();
 }
+#endif
 
 /**************************** AVGPOOL path, unipass ****************************/
 
+#ifndef XNN_NO_F32_OPERATORS
 TEST(AVERAGE_POOLING_NHWC_F32, small_pool) {
   ASSERT_EQ(xnn_status_success, xnn_initialize(nullptr /* allocator */));
   const std::pair<size_t, size_t> pooling_size = SmallPoolSize(xnn_params.f32.avgpool.mr);
@@ -4992,3 +4995,4 @@ TEST(AVERAGE_POOLING_NHWC_F32, setup_global_to_local) {
     .channels(24)
     .TestSetupF32();
 }
+#endif

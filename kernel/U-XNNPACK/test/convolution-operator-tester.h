@@ -506,6 +506,7 @@ class ConvolutionOperatorTester {
     return this->iterations_;
   }
 
+#ifndef XNN_NO_QC8_OPERATORS
   void TestNHWCxQC8() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -699,7 +700,9 @@ class ConvolutionOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_QS8_OPERATORS
   void TestNHWCxQS8() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -871,7 +874,9 @@ class ConvolutionOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_QU8_OPERATORS
   void TestNHWCxQU8() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -1041,7 +1046,9 @@ class ConvolutionOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
   void TestNHWCxF32() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -1200,7 +1207,9 @@ class ConvolutionOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_F16_OPERATORS
   void TestNHWCxF16() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -1359,7 +1368,9 @@ class ConvolutionOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
   void TestNCHWxF32() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -1553,7 +1564,9 @@ class ConvolutionOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_QC8_OPERATORS
   void TestSetupNHWCxQC8() const {
     ASSERT_FALSE(depthwise_layout());
 
@@ -1814,7 +1827,9 @@ class ConvolutionOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_QS8_OPERATORS
   void TestSetupNHWCxQS8() const {
     ASSERT_FALSE(depthwise_layout());
 
@@ -2046,7 +2061,9 @@ class ConvolutionOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_QU8_OPERATORS
   void TestSetupNHWCxQU8() const {
     ASSERT_FALSE(depthwise_layout());
 
@@ -2276,7 +2293,9 @@ class ConvolutionOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_F16_OPERATORS
   void TestSetupNHWCxF16() const {
     ASSERT_FALSE(depthwise_layout());
 
@@ -2489,7 +2508,9 @@ class ConvolutionOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
   void TestSetupNHWCxF32() const {
     ASSERT_FALSE(depthwise_layout());
 
@@ -2706,6 +2727,7 @@ class ConvolutionOperatorTester {
       }
     }
   }
+#endif
 
  private:
   uint32_t padding_top_{0};

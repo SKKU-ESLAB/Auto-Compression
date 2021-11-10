@@ -11,6 +11,7 @@
 #include "leaky-relu-operator-tester.h"
 
 
+#ifndef XNN_NO_QU8_OPERATORS
 TEST(LEAKY_RELU_NC_QU8, unit_batch) {
   for (size_t channels = 1; channels < 100; channels++) {
     LeakyReLUOperatorTester()
@@ -151,8 +152,10 @@ TEST(LEAKY_RELU_NC_QU8, small_batch_with_input_and_output_stride) {
       .TestQU8();
   }
 }
+#endif
 
 
+#ifndef XNN_NO_F32_OPERATORS
 TEST(LEAKY_RELU_NC_F32, unit_batch) {
   for (size_t channels = 1; channels < 100; channels++) {
     LeakyReLUOperatorTester()
@@ -221,3 +224,4 @@ TEST(LEAKY_RELU_NC_F32, small_batch_with_negative_slope) {
     }
   }
 }
+#endif

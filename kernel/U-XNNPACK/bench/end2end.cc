@@ -52,6 +52,7 @@ static void End2EndBenchmark(
   }
 }
 
+#ifndef XNN_NO_F32_OPERATORS
 static void FP32MobileNetV1(benchmark::State& state) {
   End2EndBenchmark(state, models::FP32MobileNetV1);
 }
@@ -91,7 +92,9 @@ static void FP32Sparse80MobileNetV3Small(benchmark::State& state) {
     return models::FP32SparseMobileNetV3Small(0.8f, threadpool);
   });
 }
+#endif
 
+#ifndef XNN_NO_F16_OPERATORS
 static void FP16MobileNetV1(benchmark::State& state) {
   End2EndBenchmark(state, models::FP16MobileNetV1);
 }
@@ -107,7 +110,9 @@ static void FP16MobileNetV3Large(benchmark::State& state) {
 static void FP16MobileNetV3Small(benchmark::State& state) {
   End2EndBenchmark(state, models::FP16MobileNetV3Small);
 }
+#endif
 
+#ifndef XNN_NO_QC8_OPERATORS
 static void QC8MobileNetV1(benchmark::State& state) {
   End2EndBenchmark(state, models::QC8MobileNetV1);
 }
@@ -115,7 +120,9 @@ static void QC8MobileNetV1(benchmark::State& state) {
 static void QC8MobileNetV2(benchmark::State& state) {
   End2EndBenchmark(state, models::QC8MobileNetV2);
 }
+#endif
 
+#ifndef XNN_NO_QS8_OPERATORS
 static void QS8MobileNetV1(benchmark::State& state) {
   End2EndBenchmark(state, models::QS8MobileNetV1);
 }
@@ -123,7 +130,9 @@ static void QS8MobileNetV1(benchmark::State& state) {
 static void QS8MobileNetV2(benchmark::State& state) {
   End2EndBenchmark(state, models::QS8MobileNetV2);
 }
+#endif
 
+#ifndef XNN_NO_QU8_OPERATORS
 static void QU8MobileNetV1(benchmark::State& state) {
   End2EndBenchmark(state, models::QU8MobileNetV1);
 }
@@ -131,7 +140,9 @@ static void QU8MobileNetV1(benchmark::State& state) {
 static void QU8MobileNetV2(benchmark::State& state) {
   End2EndBenchmark(state, models::QU8MobileNetV2);
 }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
 BENCHMARK(FP32MobileNetV1)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
 BENCHMARK(FP32MobileNetV2)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
 BENCHMARK(FP32MobileNetV3Large)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
@@ -141,20 +152,29 @@ BENCHMARK(FP32Sparse80MobileNetV1)->Apply(benchmark::utils::MultiThreadingParame
 BENCHMARK(FP32Sparse80MobileNetV2)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
 BENCHMARK(FP32Sparse80MobileNetV3Large)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
 BENCHMARK(FP32Sparse80MobileNetV3Small)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
+#endif
 
+#ifndef XNN_NO_F16_OPERATORS
 BENCHMARK(FP16MobileNetV1)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
 BENCHMARK(FP16MobileNetV2)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
 BENCHMARK(FP16MobileNetV3Large)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
 BENCHMARK(FP16MobileNetV3Small)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
+#endif
 
+#ifndef XNN_NO_QC8_OPERATORS
 BENCHMARK(QC8MobileNetV1)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
 BENCHMARK(QC8MobileNetV2)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
+#endif
 
+#ifndef XNN_NO_QS8_OPERATORS
 BENCHMARK(QS8MobileNetV1)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
 BENCHMARK(QS8MobileNetV2)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
+#endif
 
+#ifndef XNN_NO_QU8_OPERATORS
 BENCHMARK(QU8MobileNetV1)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
 BENCHMARK(QU8MobileNetV2)->Apply(benchmark::utils::MultiThreadingParameters)->Unit(benchmark::kMicrosecond)->UseRealTime();
+#endif
 
 #ifndef XNNPACK_BENCHMARK_NO_MAIN
 BENCHMARK_MAIN();

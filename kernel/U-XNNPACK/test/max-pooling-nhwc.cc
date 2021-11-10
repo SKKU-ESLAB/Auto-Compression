@@ -13,6 +13,7 @@
 #include <xnnpack/params.h>
 
 
+#ifndef XNN_NO_S8_OPERATORS
 TEST(MAX_POOLING_NHWC_S8, unit_batch_small_1xM_pool) {
   ASSERT_EQ(xnn_status_success, xnn_initialize(nullptr /* allocator */));
   for (size_t channels = 1; channels <= 100; channels += 15) {
@@ -828,7 +829,9 @@ TEST(MAX_POOLING_NHWC_S8, setup_swap_height_and_width) {
     .channels(24)
     .TestSetupS8();
 }
+#endif
 
+#ifndef XNN_NO_U8_OPERATORS
 TEST(MAX_POOLING_NHWC_U8, unit_batch_small_1xM_pool) {
   ASSERT_EQ(xnn_status_success, xnn_initialize(nullptr /* allocator */));
   for (size_t channels = 1; channels <= 100; channels += 15) {
@@ -1644,7 +1647,9 @@ TEST(MAX_POOLING_NHWC_U8, setup_swap_height_and_width) {
     .channels(24)
     .TestSetupU8();
 }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
 TEST(MAX_POOLING_NHWC_F32, unit_batch_small_1xM_pool) {
   ASSERT_EQ(xnn_status_success, xnn_initialize(nullptr /* allocator */));
   for (size_t channels = 1; channels <= 100; channels += 15) {
@@ -2460,3 +2465,4 @@ TEST(MAX_POOLING_NHWC_F32, setup_swap_height_and_width) {
     .channels(24)
     .TestSetupF32();
 }
+#endif

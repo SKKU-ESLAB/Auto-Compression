@@ -11,6 +11,7 @@
 #include "clamp-operator-tester.h"
 
 
+#ifndef XNN_NO_S8_OPERATORS
 TEST(CLAMP_NC_S8, unit_batch) {
   for (size_t channels = 1; channels < 100; channels++) {
     ClampOperatorTester()
@@ -92,7 +93,9 @@ TEST(CLAMP_NC_S8, small_batch_with_input_and_output_stride) {
       .TestS8();
   }
 }
+#endif
 
+#ifndef XNN_NO_U8_OPERATORS
 TEST(CLAMP_NC_U8, unit_batch) {
   for (size_t channels = 1; channels < 100; channels++) {
     ClampOperatorTester()
@@ -174,7 +177,9 @@ TEST(CLAMP_NC_U8, small_batch_with_input_and_output_stride) {
       .TestU8();
   }
 }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
 TEST(CLAMP_NC_F32, unit_batch) {
   for (size_t channels = 1; channels < 100; channels++) {
     ClampOperatorTester()
@@ -266,3 +271,4 @@ TEST(CLAMP_NC_F32, small_batch_with_input_and_output_stride) {
       .TestF32();
   }
 }
+#endif

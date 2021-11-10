@@ -27,6 +27,7 @@ constexpr size_t kDim6PrePad = kDim6 / 2;
 constexpr size_t kDim6PostPad = kDim6 / 2 + 1;
 
 
+#ifndef XNN_NO_X8_OPERATORS
 TEST(CONSTANT_PAD_ND_X8, 0d) {
   ConstantPadOperatorTester()
     .TestX8();
@@ -163,8 +164,10 @@ TEST(CONSTANT_PAD_ND_X8, 6d) {
     }
   }
 }
+#endif
 
 
+#ifndef XNN_NO_X32_OPERATORS
 TEST(CONSTANT_PAD_ND_X32, 0d) {
   ConstantPadOperatorTester()
     .TestX32();
@@ -301,3 +304,4 @@ TEST(CONSTANT_PAD_ND_X32, 6d) {
     }
   }
 }
+#endif

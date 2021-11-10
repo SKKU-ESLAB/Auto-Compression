@@ -8,6 +8,7 @@
 #include "copy-operator-tester.h"
 
 
+#ifndef XNN_NO_X32_OPERATORS
 TEST(CLAMP_NC_X32, unit_batch) {
   for (size_t channels = 1; channels < 100; channels++) {
     CopyOperatorTester()
@@ -61,3 +62,4 @@ TEST(CLAMP_NC_X32, small_batch_with_input_and_output_stride) {
       .TestX32();
   }
 }
+#endif

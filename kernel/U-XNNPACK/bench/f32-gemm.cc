@@ -106,6 +106,7 @@ static void GEMMBenchmark(benchmark::State& state,
     uint64_t(state.iterations()) * 2 * mc * nc * kc, benchmark::Counter::kIsRate);
 }
 
+#ifndef XNN_NO_X32_OPERATORS
 static void PPMM1PBenchmark(benchmark::State& state,
   xnn_f32_ppmm_minmax_ukernel_function ppmm,
   xnn_x32_packx_ukernel_function packx,
@@ -265,6 +266,7 @@ static void PPMM2PBenchmark(benchmark::State& state,
   state.counters["FLOPS"] = benchmark::Counter(
     uint64_t(state.iterations()) * 2 * mc * nc * kc, benchmark::Counter::kIsRate);
 }
+#endif
 
 #ifdef BENCHMARK_RUY
 static void RuyBenchmark(benchmark::State& state, uint32_t threads)
@@ -612,6 +614,7 @@ static void ruy_st(benchmark::State& state, const char* net)
     GEMMBenchmark(state, xnn_f32_gemm_minmax_ukernel_8x8s4__neonfma, 8, 8, 1, 4,
       xnn_init_f32_minmax_scalar_params, benchmark::utils::CheckNEONFMA);
   }
+#ifndef XNN_NO_X32_OPERATORS
   static void f32_ppmm_4x8_unipass__neonfma(benchmark::State& state, const char* net) {
     PPMM1PBenchmark(state, xnn_f32_ppmm_minmax_ukernel_4x8__neonfma, xnn_x32_packx_ukernel_4x__neon_st4, 4, 8,
       xnn_init_f32_minmax_scalar_params, benchmark::utils::CheckNEONFMA);
@@ -620,6 +623,7 @@ static void ruy_st(benchmark::State& state, const char* net)
     PPMM2PBenchmark(state, xnn_f32_ppmm_minmax_ukernel_4x8__neonfma, xnn_x32_packx_ukernel_4x__neon_st4, 4, 8,
       xnn_init_f32_minmax_scalar_params, benchmark::utils::CheckNEONFMA);
   }
+#endif
 
   BENCHMARK_GEMM(f32_gemm_1x8__neon_lane_ld64)
   BENCHMARK_GEMM(f32_gemm_4x8__neon_lane_ld64)
@@ -644,8 +648,10 @@ static void ruy_st(benchmark::State& state, const char* net)
   BENCHMARK_GEMM(f32_gemm_6x8s4__neonfma)
   BENCHMARK_GEMM(f32_gemm_8x8s4__neonfma)
 
+#ifndef XNN_NO_X32_OPERATORS
   BENCHMARK_GEMM(f32_ppmm_4x8_unipass__neonfma)
   BENCHMARK_GEMM(f32_ppmm_4x8_twopass__neonfma)
+#endif
 #endif  // XNN_ARCH_ARM || XNN_ARCH_ARM64
 
 
@@ -1067,6 +1073,7 @@ static void f32_gemm_4x4__scalar(benchmark::State& state, const char* net) {
     xnn_init_f32_minmax_scalar_params);
 }
 
+#ifndef XNN_NO_X32_OPERATORS
 static void f32_ppmm_2x4_unipass__scalar(benchmark::State& state, const char* net) {
   PPMM1PBenchmark(state, xnn_f32_ppmm_minmax_ukernel_2x4__scalar, xnn_x32_packx_ukernel_2x__scalar, 2, 4,
     xnn_init_f32_minmax_scalar_params);
@@ -1100,11 +1107,13 @@ static void f32_ppmm_3x3_twopass__scalar(benchmark::State& state, const char* ne
   PPMM2PBenchmark(state, xnn_f32_ppmm_minmax_ukernel_3x3__scalar, xnn_x32_packx_ukernel_3x__scalar, 3, 3,
     xnn_init_f32_minmax_scalar_params);
 }
+#endif
 
 BENCHMARK_GEMM(f32_gemm_1x4__scalar)
 BENCHMARK_GEMM(f32_gemm_2x4__scalar)
 BENCHMARK_GEMM(f32_gemm_4x4__scalar)
 
+#ifndef XNN_NO_X32_OPERATORS
 BENCHMARK_GEMM(f32_ppmm_2x4_unipass__scalar)
 BENCHMARK_GEMM(f32_ppmm_4x2_unipass__scalar)
 BENCHMARK_GEMM(f32_ppmm_4x4_unipass__scalar)
@@ -1114,6 +1123,7 @@ BENCHMARK_GEMM(f32_ppmm_2x4_twopass__scalar)
 BENCHMARK_GEMM(f32_ppmm_4x2_twopass__scalar)
 BENCHMARK_GEMM(f32_ppmm_4x4_twopass__scalar)
 BENCHMARK_GEMM(f32_ppmm_3x3_twopass__scalar)
+#endif
 
 
 #ifdef BENCHMARK_RUY

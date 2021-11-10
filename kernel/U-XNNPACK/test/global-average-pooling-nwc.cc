@@ -16,6 +16,7 @@
 
 #include <xnnpack/params.h>
 
+#ifndef XNN_NO_QU8_OPERATORS
 TEST(GLOBAL_AVERAGE_POOLING_NWC_QU8, unit_batch_small_width) {
   ASSERT_EQ(xnn_status_success, xnn_initialize(nullptr /* allocator */));
   const uint32_t spatial_tile = std::max<uint32_t>(xnn_params.qu8.gavgpool.mr, 1);
@@ -357,7 +358,9 @@ TEST(GLOBAL_AVERAGE_POOLING_NWC_QU8, small_batch_large_width_with_output_stride)
     }
   }
 }
+#endif
 
+#ifndef XNN_NO_QS8_OPERATORS
 TEST(GLOBAL_AVERAGE_POOLING_NWC_QS8, unit_batch_small_width) {
   ASSERT_EQ(xnn_status_success, xnn_initialize(nullptr /* allocator */));
   const uint32_t spatial_tile = std::max<uint32_t>(xnn_params.qs8.gavgpool.mr, 1);
@@ -699,7 +702,9 @@ TEST(GLOBAL_AVERAGE_POOLING_NWC_QS8, small_batch_large_width_with_output_stride)
     }
   }
 }
+#endif
 
+#ifndef XNN_NO_F16_OPERATORS
 TEST(GLOBAL_AVERAGE_POOLING_NWC_F16, unit_batch_small_width) {
   ASSERT_EQ(xnn_status_success, xnn_initialize(nullptr /* allocator */));
   const uint32_t spatial_tile = std::max<uint32_t>(xnn_params.f16.gavgpool.mr, 1);
@@ -905,7 +910,9 @@ TEST(GLOBAL_AVERAGE_POOLING_NWC_F16, small_batch_large_width_with_output_stride)
     }
   }
 }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
 TEST(GLOBAL_AVERAGE_POOLING_NWC_F32, unit_batch_small_width) {
   ASSERT_EQ(xnn_status_success, xnn_initialize(nullptr /* allocator */));
   const uint32_t spatial_tile = std::max<uint32_t>(xnn_params.f32.gavgpool.mr, 1);
@@ -1111,3 +1118,4 @@ TEST(GLOBAL_AVERAGE_POOLING_NWC_F32, small_batch_large_width_with_output_stride)
     }
   }
 }
+#endif

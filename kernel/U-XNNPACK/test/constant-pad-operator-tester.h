@@ -102,6 +102,7 @@ class ConstantPadOperatorTester {
     return this->iterations_;
   }
 
+#ifndef XNN_NO_X8_OPERATORS
   void TestX8() const {
     ASSERT_EQ(num_dims(), num_pre_paddings());
     ASSERT_EQ(num_dims(), num_post_paddings());
@@ -216,7 +217,9 @@ class ConstantPadOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_X32_OPERATORS
   void TestX32() const {
     ASSERT_EQ(num_dims(), num_pre_paddings());
     ASSERT_EQ(num_dims(), num_post_paddings());
@@ -331,6 +334,7 @@ class ConstantPadOperatorTester {
       }
     }
   }
+#endif
 
  private:
   std::vector<size_t> input_shape_;

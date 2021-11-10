@@ -11,6 +11,7 @@
 #include "softmax-operator-tester.h"
 
 
+#ifndef XNN_NO_QU8_OPERATORS
 TEST(SOFTMAX_NC_QU8, single_class) {
   SoftMaxOperatorTester()
     .batch_size(1)
@@ -142,7 +143,9 @@ TEST(SOFTMAX_NC_QU8, strided_batch_with_input_and_output_stride) {
       .TestQU8();
   }
 }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
 TEST(SOFTMAX_NC_F32, single_class) {
   SoftMaxOperatorTester()
     .batch_size(1)
@@ -248,3 +251,4 @@ TEST(SOFTMAX_NC_F32, strided_batch_with_input_and_output_stride) {
       .TestF32();
   }
 }
+#endif

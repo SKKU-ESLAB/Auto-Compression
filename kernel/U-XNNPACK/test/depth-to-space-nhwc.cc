@@ -8,6 +8,7 @@
 #include <gtest/gtest.h>
 
 
+#ifndef XNN_NO_X32_OPERATORS
 TEST(DEPTH_TO_SPACE_NHWC_X32, one_pixel) {
   DepthToSpaceOperatorTester()
     .input_size(1, 1)
@@ -98,3 +99,4 @@ TEST(DEPTH_TO_SPACE_NHWC_X32, output_channels_stride) {
     .output_channels(17)
     .TestNHWCxX32();
 }
+#endif

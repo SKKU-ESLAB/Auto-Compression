@@ -11,6 +11,7 @@
 #include "convolution-operator-tester.h"
 
 
+#ifndef XNN_NO_QC8_OPERATORS
 TEST(CONVOLUTION_NHWC_QC8, 1x1) {
   ConvolutionOperatorTester()
     .input_size(27, 29)
@@ -1135,8 +1136,10 @@ TEST(CONVOLUTION_NHWC_QC8, setup_swap_height_and_width_depthwise) {
     .group_output_channels(1)
     .TestSetupNHWCxQC8();
 }
+#endif
 
 
+#ifndef XNN_NO_QS8_OPERATORS
 TEST(CONVOLUTION_NHWC_QS8, 1x1) {
   ConvolutionOperatorTester()
     .input_size(27, 29)
@@ -2261,7 +2264,9 @@ TEST(CONVOLUTION_NHWC_QS8, setup_swap_height_and_width_depthwise) {
     .group_output_channels(1)
     .TestSetupNHWCxQS8();
 }
+#endif
 
+#ifndef XNN_NO_QU8_OPERATORS
 TEST(CONVOLUTION_NHWC_QU8, 1x1) {
   ConvolutionOperatorTester()
     .input_size(27, 29)
@@ -3386,7 +3391,9 @@ TEST(CONVOLUTION_NHWC_QU8, setup_swap_height_and_width_depthwise) {
     .group_output_channels(1)
     .TestSetupNHWCxQU8();
 }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
 TEST(CONVOLUTION_NHWC_F32, 1x1) {
   ConvolutionOperatorTester()
     .input_size(27, 29)
@@ -5010,7 +5017,9 @@ TEST(CONVOLUTION_NHWC_F32, setup_swap_height_and_width_depthwise) {
     .group_output_channels(1)
     .TestSetupNHWCxF32();
 }
+#endif
 
+#ifndef XNN_NO_F16_OPERATORS
 TEST(CONVOLUTION_NHWC_F16, 1x1) {
   ConvolutionOperatorTester()
     .input_size(27, 29)
@@ -6616,3 +6625,4 @@ TEST(CONVOLUTION_NHWC_F16, setup_swap_height_and_width_depthwise) {
     .group_output_channels(1)
     .TestSetupNHWCxF16();
 }
+#endif

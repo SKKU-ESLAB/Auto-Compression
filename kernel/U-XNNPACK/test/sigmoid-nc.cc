@@ -11,6 +11,7 @@
 #include "sigmoid-operator-tester.h"
 
 
+#ifndef XNN_NO_QS8_OPERATORS
 TEST(SIGMOID_NC_QS8, unit_batch) {
   for (size_t channels = 1; channels < 100; channels += 15) {
     SigmoidOperatorTester()
@@ -216,7 +217,9 @@ TEST(SIGMOID_NC_QS8, strided_batch_with_input_zero_point) {
     }
   }
 }
+#endif
 
+#ifndef XNN_NO_QU8_OPERATORS
 TEST(SIGMOID_NC_QU8, unit_batch) {
   for (size_t channels = 1; channels < 100; channels += 15) {
     SigmoidOperatorTester()
@@ -422,7 +425,9 @@ TEST(SIGMOID_NC_QU8, strided_batch_with_input_zero_point) {
     }
   }
 }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
 TEST(SIGMOID_NC_F32, unit_batch) {
   for (size_t channels = 1; channels < 100; channels += 15) {
     SigmoidOperatorTester()
@@ -476,3 +481,4 @@ TEST(SIGMOID_NC_F32, strided_batch) {
       .TestF32();
   }
 }
+#endif

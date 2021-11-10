@@ -15,6 +15,7 @@ constexpr size_t kDim5 = 6;
 constexpr size_t kDim6 = 7;
 
 
+#ifndef XNN_NO_QS8_OPERATORS
 TEST(MULTIPLY_ND_QS8, 0d_x_0d) {
   BinaryElementwiseOperatorTester()
     .operation_type(BinaryElementwiseOperatorTester::OperationType::Multiply)
@@ -1338,7 +1339,9 @@ TEST(MULTIPLY_ND_QS8, output_zero_point) {
     }
   }
 }
+#endif
 
+#ifndef XNN_NO_QU8_OPERATORS
 TEST(MULTIPLY_ND_QU8, 0d_x_0d) {
   BinaryElementwiseOperatorTester()
     .operation_type(BinaryElementwiseOperatorTester::OperationType::Multiply)
@@ -2662,7 +2665,9 @@ TEST(MULTIPLY_ND_QU8, output_zero_point) {
     }
   }
 }
+#endif
 
+#ifndef XNN_NO_F16_OPERATORS
 TEST(MULTIPLY_ND_F16, 0d_x_0d) {
   BinaryElementwiseOperatorTester()
     .operation_type(BinaryElementwiseOperatorTester::OperationType::Multiply)
@@ -3800,7 +3805,9 @@ TEST(MULTIPLY_ND_F16, 6d_x_6d) {
     }
   }
 }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
 TEST(MULTIPLY_ND_F32, 0d_x_0d) {
   BinaryElementwiseOperatorTester()
     .operation_type(BinaryElementwiseOperatorTester::OperationType::Multiply)
@@ -4938,3 +4945,4 @@ TEST(MULTIPLY_ND_F32, 6d_x_6d) {
     }
   }
 }
+#endif

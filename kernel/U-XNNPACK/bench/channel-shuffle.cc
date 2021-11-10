@@ -19,6 +19,7 @@
 #include "bench/utils.h"
 
 
+#ifndef XNN_NO_X8_OPERATORS
 static void channel_shuffle_x8(benchmark::State& state, const char* net) {
   const size_t batch_size = static_cast<size_t>(state.range(0));
   const size_t groups = static_cast<size_t>(state.range(1));
@@ -86,7 +87,9 @@ static void channel_shuffle_x8(benchmark::State& state, const char* net) {
   state.counters["bytes"] =
     benchmark::Counter(uint64_t(state.iterations()) * bytes_per_iteration, benchmark::Counter::kIsRate);
 }
+#endif
 
+#ifndef XNN_NO_X32_OPERATORS
 static void channel_shuffle_x32(benchmark::State& state, const char* net) {
   const size_t batch_size = static_cast<size_t>(state.range(0));
   const size_t groups = static_cast<size_t>(state.range(1));
@@ -154,6 +157,7 @@ static void channel_shuffle_x32(benchmark::State& state, const char* net) {
   state.counters["bytes"] =
     benchmark::Counter(uint64_t(state.iterations()) * bytes_per_iteration, benchmark::Counter::kIsRate);
 }
+#endif
 
 static void ShuffleNetV1G2Arguments(benchmark::internal::Benchmark* b)
 {
@@ -303,6 +307,7 @@ static void ShuffleNetV2x2_0Arguments(benchmark::internal::Benchmark* b)
   b->Args({ 7 *  7, 2, 488});
 }
 
+#ifndef XNN_NO_X8_OPERATORS
 BENCHMARK_CAPTURE(channel_shuffle_x8, shufflenet_v1_g2, "ShuffleNet v1 (2 groups)")->Apply(ShuffleNetV1G2Arguments)->UseRealTime();
 BENCHMARK_CAPTURE(channel_shuffle_x8, shufflenet_v1_g3, "ShuffleNet v1 (3 groups)")->Apply(ShuffleNetV1G3Arguments)->UseRealTime();
 BENCHMARK_CAPTURE(channel_shuffle_x8, shufflenet_v1_g4, "ShuffleNet v1 (4 groups)")->Apply(ShuffleNetV1G4Arguments)->UseRealTime();
@@ -311,7 +316,9 @@ BENCHMARK_CAPTURE(channel_shuffle_x8, shufflenet_v2_x05, "ShuffleNet v2 x0.5")->
 BENCHMARK_CAPTURE(channel_shuffle_x8, shufflenet_v2_x10, "ShuffleNet v2 x1.0")->Apply(ShuffleNetV2x1_0Arguments)->UseRealTime();
 BENCHMARK_CAPTURE(channel_shuffle_x8, shufflenet_v2_x15, "ShuffleNet v2 x1.5")->Apply(ShuffleNetV2x1_5Arguments)->UseRealTime();
 BENCHMARK_CAPTURE(channel_shuffle_x8, shufflenet_v2_x20, "ShuffleNet v2 x2.0")->Apply(ShuffleNetV2x2_0Arguments)->UseRealTime();
+#endif
 
+#ifndef XNN_NO_X32_OPERATORS
 BENCHMARK_CAPTURE(channel_shuffle_x32, shufflenet_v1_g2, "ShuffleNet v1 (2 groups)")->Apply(ShuffleNetV1G2Arguments)->UseRealTime();
 BENCHMARK_CAPTURE(channel_shuffle_x32, shufflenet_v1_g3, "ShuffleNet v1 (3 groups)")->Apply(ShuffleNetV1G3Arguments)->UseRealTime();
 BENCHMARK_CAPTURE(channel_shuffle_x32, shufflenet_v1_g4, "ShuffleNet v1 (4 groups)")->Apply(ShuffleNetV1G4Arguments)->UseRealTime();
@@ -320,6 +327,7 @@ BENCHMARK_CAPTURE(channel_shuffle_x32, shufflenet_v2_x05, "ShuffleNet v2 x0.5")-
 BENCHMARK_CAPTURE(channel_shuffle_x32, shufflenet_v2_x10, "ShuffleNet v2 x1.0")->Apply(ShuffleNetV2x1_0Arguments)->UseRealTime();
 BENCHMARK_CAPTURE(channel_shuffle_x32, shufflenet_v2_x15, "ShuffleNet v2 x1.5")->Apply(ShuffleNetV2x1_5Arguments)->UseRealTime();
 BENCHMARK_CAPTURE(channel_shuffle_x32, shufflenet_v2_x20, "ShuffleNet v2 x2.0")->Apply(ShuffleNetV2x2_0Arguments)->UseRealTime();
+#endif
 
 #ifndef XNNPACK_BENCHMARK_NO_MAIN
 BENCHMARK_MAIN();

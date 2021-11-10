@@ -11,6 +11,7 @@
 #include "channel-shuffle-operator-tester.h"
 
 
+#ifndef XNN_NO_X8_OPERATORS
 TEST(CHANNEL_SHUFFLE_NC_X8, two_groups_unit_batch) {
   for (size_t group_channels = 1; group_channels < 100; group_channels += 15) {
     ChannelShuffleOperatorTester()
@@ -256,7 +257,9 @@ TEST(CHANNEL_SHUFFLE_NC_X8, many_groups_small_batch_with_input_and_output_stride
     }
   }
 }
+#endif
 
+#ifndef XNN_NO_X32_OPERATORS
 TEST(CHANNEL_SHUFFLE_NC_X32, two_groups_unit_batch) {
   for (size_t group_channels = 1; group_channels < 100; group_channels += 15) {
     ChannelShuffleOperatorTester()
@@ -502,3 +505,4 @@ TEST(CHANNEL_SHUFFLE_NC_X32, many_groups_small_batch_with_input_and_output_strid
     }
   }
 }
+#endif

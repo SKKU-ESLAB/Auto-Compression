@@ -8,6 +8,7 @@
 #include "unpooling-operator-tester.h"
 
 
+#ifndef XNN_NO_X32_OPERATORS
 TEST(UNPOOLING_NHWC_X32, unit_height_horizontal_pool) {
   ASSERT_EQ(xnn_status_success, xnn_initialize(nullptr /* allocator */));
   for (size_t channels = 1; channels <= 100; channels += 15) {
@@ -295,3 +296,4 @@ TEST(UNPOOLING_NHWC_X32, setup_swap_height_and_width) {
     .channels(24)
     .TestSetupX32();
 }
+#endif

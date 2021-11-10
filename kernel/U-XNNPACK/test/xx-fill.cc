@@ -12,6 +12,7 @@
 #include "fill-microkernel-tester.h"
 
 
+#ifndef XNN_NO_XX_OPERATORS
 #if XNN_ARCH_ARM || XNN_ARCH_ARM64
   TEST(XX_FILL__NEON_X64, channels_eq_1) {
     TEST_REQUIRES_ARM_NEON;
@@ -322,3 +323,4 @@ TEST(XX_FILL__SCALAR_X16, multiple_rows_with_output_stride) {
     }
   }
 }
+#endif

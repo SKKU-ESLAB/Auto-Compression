@@ -420,6 +420,7 @@ class DeconvolutionOperatorTester {
     return this->iterations_;
   }
 
+#ifndef XNN_NO_QS8_OPERATORS
   void TestQS8() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -560,7 +561,9 @@ class DeconvolutionOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_QU8_OPERATORS
   void TestQU8() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -699,7 +702,9 @@ class DeconvolutionOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
   void TestF32() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -829,7 +834,9 @@ class DeconvolutionOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_QS8_OPERATORS
   void TestSetupQS8() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -1062,7 +1069,9 @@ class DeconvolutionOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_QU8_OPERATORS
   void TestSetupQU8() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -1292,7 +1301,9 @@ class DeconvolutionOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
   void TestSetupF32() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -1509,6 +1520,7 @@ class DeconvolutionOperatorTester {
       }
     }
   }
+#endif
 
  private:
   uint32_t padding_top_{0};

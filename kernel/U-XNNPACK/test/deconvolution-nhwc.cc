@@ -18,6 +18,7 @@ constexpr size_t kStridedInputWidth = 5;
 
 /**************************** Future GEMM path ****************************/
 
+#ifndef XNN_NO_QS8_OPERATORS
 TEST(DECONVOLUTION_NHWC_QS8, 1x1) {
   ASSERT_EQ(xnn_status_success, xnn_initialize(nullptr /* allocator */));
   DeconvolutionOperatorTester()
@@ -3918,9 +3919,11 @@ TEST(DECONVOLUTION_NHWC_QS8, 2x2s2_setup_changing_width) {
     .group_output_channels(17)
     .TestSetupQS8();
 }
+#endif
 
 /**************************** Future GEMM path ****************************/
 
+#ifndef XNN_NO_QU8_OPERATORS
 TEST(DECONVOLUTION_NHWC_QU8, 1x1) {
   ASSERT_EQ(xnn_status_success, xnn_initialize(nullptr /* allocator */));
   DeconvolutionOperatorTester()
@@ -7821,9 +7824,11 @@ TEST(DECONVOLUTION_NHWC_QU8, 2x2s2_setup_changing_width) {
     .group_output_channels(17)
     .TestSetupQU8();
 }
+#endif
 
 /**************************** Future GEMM path ****************************/
 
+#ifndef XNN_NO_F32_OPERATORS
 TEST(DECONVOLUTION_NHWC_F32, 1x1) {
   ASSERT_EQ(xnn_status_success, xnn_initialize(nullptr /* allocator */));
   DeconvolutionOperatorTester()
@@ -11721,3 +11726,4 @@ TEST(DECONVOLUTION_NHWC_F32, 2x2s2_setup_changing_width) {
     .group_output_channels(17)
     .TestSetupF32();
 }
+#endif

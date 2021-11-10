@@ -131,6 +131,7 @@ class FullyConnectedOperatorTester {
     return this->iterations_;
   }
 
+#ifndef XNN_NO_QS8_OPERATORS
   void TestQS8() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -251,7 +252,9 @@ class FullyConnectedOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_QU8_OPERATORS
   void TestQU8() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -371,7 +374,9 @@ class FullyConnectedOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
   void TestF32() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -480,7 +485,9 @@ class FullyConnectedOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_F16_OPERATORS
   void TestF16() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -590,6 +597,7 @@ class FullyConnectedOperatorTester {
       }
     }
   }
+#endif
 
  private:
   size_t input_channels_{1};

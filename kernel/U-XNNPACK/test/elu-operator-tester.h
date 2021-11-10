@@ -149,6 +149,7 @@ class ELUOperatorTester {
     return this->iterations_;
   }
 
+#ifndef XNN_NO_F32_OPERATORS
   void TestF32() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -205,7 +206,9 @@ class ELUOperatorTester {
       }
     }
   }
+#endif
 
+#ifndef XNN_NO_QS8_OPERATORS
   void TestQS8() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -269,6 +272,7 @@ class ELUOperatorTester {
       }
     }
   }
+#endif
 
  private:
   size_t batch_size_{1};

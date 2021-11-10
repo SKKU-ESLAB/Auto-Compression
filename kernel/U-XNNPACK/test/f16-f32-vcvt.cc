@@ -16,7 +16,7 @@
 #include <xnnpack/vcvt.h>
 #include "vcvt-microkernel-tester.h"
 
-
+#ifndef XNN_NO_VCVT_OPERATORS
 #if XNN_ARCH_ARM || XNN_ARCH_ARM64
   TEST(F16_F32_VCVT__NEON_INT16_X8, batch_eq_8) {
     TEST_REQUIRES_ARM_NEON;
@@ -1790,3 +1790,4 @@ TEST(F16_F32_VCVT__SCALAR_FLOAT_X4, batch_gt_4) {
       .Test(xnn_f16_f32_vcvt_ukernel__scalar_float_x4);
   }
 }
+#endif

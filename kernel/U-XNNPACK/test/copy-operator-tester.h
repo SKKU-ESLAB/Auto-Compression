@@ -80,6 +80,7 @@ class CopyOperatorTester {
     return this->iterations_;
   }
 
+#ifndef XNN_NO_X32_OPERATORS
   void TestX32() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -132,6 +133,7 @@ class CopyOperatorTester {
       }
     }
   }
+#endif
 
  private:
   size_t batch_size_{1};

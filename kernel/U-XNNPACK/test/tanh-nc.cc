@@ -8,6 +8,7 @@
 #include "tanh-operator-tester.h"
 
 
+#ifndef XNN_NO_QS8_OPERATORS
 TEST(TANH_NC_QS8, unit_batch) {
   for (size_t channels = 1; channels < 100; channels += 15) {
     TanhOperatorTester()
@@ -213,7 +214,9 @@ TEST(TANH_NC_QS8, strided_batch_with_input_zero_point) {
     }
   }
 }
+#endif
 
+#ifndef XNN_NO_QU8_OPERATORS
 TEST(TANH_NC_QU8, unit_batch) {
   for (size_t channels = 1; channels < 100; channels += 15) {
     TanhOperatorTester()
@@ -419,3 +422,4 @@ TEST(TANH_NC_QU8, strided_batch_with_input_zero_point) {
     }
   }
 }
+#endif

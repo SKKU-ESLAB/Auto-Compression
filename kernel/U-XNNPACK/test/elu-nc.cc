@@ -8,6 +8,7 @@
 #include "elu-operator-tester.h"
 
 
+#ifndef XNN_NO_QS8_OPERATORS
 TEST(ELU_NC_QS8, unit_batch) {
   for (size_t channels = 1; channels < 100; channels += 15) {
     ELUOperatorTester()
@@ -241,7 +242,9 @@ TEST(ELU_NC_QS8, strided_batch_with_alpha) {
     }
   }
 }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
 TEST(ELU_NC_F32, unit_batch) {
   for (size_t channels = 1; channels < 100; channels++) {
     ELUOperatorTester()
@@ -310,3 +313,4 @@ TEST(ELU_NC_F32, small_batch_with_alpha) {
     }
   }
 }
+#endif

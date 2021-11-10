@@ -11,6 +11,7 @@
 #include "fully-connected-operator-tester.h"
 
 
+#ifndef XNN_NO_QS8_OPERATORS
 TEST(FULLY_CONNECTED_NC_QS8, unit_batch) {
   FullyConnectedOperatorTester()
     .batch_size(1)
@@ -148,7 +149,9 @@ TEST(FULLY_CONNECTED_NC_QS8, small_batch_without_bias) {
     .iterations(3)
     .TestQS8();
 }
+#endif
 
+#ifndef XNN_NO_QU8_OPERATORS
 TEST(FULLY_CONNECTED_NC_QU8, unit_batch) {
   FullyConnectedOperatorTester()
     .batch_size(1)
@@ -286,7 +289,9 @@ TEST(FULLY_CONNECTED_NC_QU8, small_batch_without_bias) {
     .iterations(3)
     .TestQU8();
 }
+#endif
 
+#ifndef XNN_NO_F32_OPERATORS
 TEST(FULLY_CONNECTED_NC_F32, unit_batch) {
   FullyConnectedOperatorTester()
     .batch_size(1)
@@ -424,8 +429,10 @@ TEST(FULLY_CONNECTED_NC_F32, small_batch_without_bias) {
     .iterations(3)
     .TestF32();
 }
+#endif
 
 
+#ifndef XNN_NO_F16_OPERATORS
 TEST(FULLY_CONNECTED_NC_F16, unit_batch) {
   FullyConnectedOperatorTester()
     .batch_size(1)
@@ -563,3 +570,4 @@ TEST(FULLY_CONNECTED_NC_F16, small_batch_without_bias) {
     .iterations(3)
     .TestF16();
 }
+#endif

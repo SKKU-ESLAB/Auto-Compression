@@ -130,6 +130,7 @@ class DepthToSpaceOperatorTester {
     return this->iterations_;
   }
 
+#ifndef XNN_NO_X32_OPERATORS
   void TestNHWCxX32() const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
@@ -261,6 +262,7 @@ class DepthToSpaceOperatorTester {
       }
     }
   }
+#endif
 
  private:
   size_t input_height_{1};
