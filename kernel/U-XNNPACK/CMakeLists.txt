@@ -1116,6 +1116,8 @@ SET(PROD_NEON_MICROKERNEL_SRCS
   src/f32-raddstoreexpminusmax/gen/neon-lut64-p2-x8.c
   src/f32-rmax/neon.c
   src/f32-spmm/gen/32x1-minmax-neon.c
+  src/f32-spmm/gen/32x2-minmax-neon.c
+  src/f32-spmm/gen/32x4-minmax-neon.c
   src/f32-vbinary/gen/vadd-minmax-neon-x8.c
   src/f32-vbinary/gen/vaddc-minmax-neon-x8.c
   src/f32-vbinary/gen/vmax-neon-x8.c
@@ -1385,6 +1387,8 @@ SET(ALL_NEON_MICROKERNEL_SRCS
   src/f32-spmm/gen/32x1-minmax-neon-pipelined.c
   src/f32-spmm/gen/32x1-minmax-neon-x2.c
   src/f32-spmm/gen/32x1-minmax-neon.c
+  src/f32-spmm/gen/32x2-minmax-neon.c
+  src/f32-spmm/gen/32x4-minmax-neon.c
   src/f32-vbinary/gen/vadd-minmax-neon-x4.c
   src/f32-vbinary/gen/vadd-minmax-neon-x8.c
   src/f32-vbinary/gen/vaddc-minmax-neon-x4.c
