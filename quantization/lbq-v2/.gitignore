@@ -1,0 +1,9 @@
+*__pycache__*
+lbq-v1/logs
+lbq-v1/checkpoint
+test.py
+test2.py
+2021-05-01.ipynb
+*.ipynb
+.vscode/settings.json
+*.sh

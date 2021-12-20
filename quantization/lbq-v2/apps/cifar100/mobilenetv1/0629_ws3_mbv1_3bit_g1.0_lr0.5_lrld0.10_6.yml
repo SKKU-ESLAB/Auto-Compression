@@ -1,0 +1,108 @@
+
+# =========================== Basic Settings ===========================
+# machine info
+num_gpus_per_job: 1  # number of gpus each job need
+num_cpus_per_job: 4  # number of cpus each job need
+memory_per_job: 200  # memory requirement each job need
+gpu_type: "v100"
+
+# data
+dataset: CIFAR100
+data_transforms: cifar
+data_loader: cifar
+dataset_dir: /home/lkj004124/data
+#dataset_dir: /mnt/cephfs_new_wj/uslabcv/meijieru/data/imagenet_lmdb
+data_loader_workers: 8 #10
+
+# info
+num_classes: 100
+image_size: 32
+topk: [1, 5]
+hard_assign_epoch: 320
+num_epochs: 400
+
+# optimizer
+optimizer: sgd
+momentum: 0.9
+weight_decay: 0.00004
+nesterov: True
+
+# lr
+lr: 0.5
+lr_lamda: 0.1
+lr_scheduler: cos_annealing_iter
+#lr_scheduler: butterworth_iter #mixed_iter #gaussian_iter #exp_decaying_iter #cos_annealing_iter
+#exp_decaying_gamma: 0.98
+
+# model profiling
+profiling: [gpu]
+#model_profiling_verbose: True
+
+# pretrain, resume, test_only
+pretrained_dir: ''
+pretrained_file: ''
+resume: ''
+test_only: False
+
+#
+random_seed: 6
+batch_size: 256
+model: ''
+reset_parameters: True
+
+#
+#width_divisor: 8
+#min_width: 1
+stats_sharing: False
+
+#
+unbiased: False
+#rescale: True #False
+switchbn: False
+clamp: True
+normalize: True
+bn_calib: False
+rescale_type: constant #[stddev, constant]
+rescale_weight_STE: False #True
+rescale_activation_STE: False
+calib_pact: False
+
+#
+kappa: 0.1
+kappa_base: 0.1
+#kappa_scheduling: linear
+#kappa_cycle_end_epoch: 20
+#
+gamma: 0.001
+#gamma_type: 1
+#gamma_schedule: 2
+#gamma_period: 40
+#
+bits_list: [8, 7, 6, 5, 4, 3, 2]
+weight_quant_scheme: original
+act_quant_scheme: original
+init_bit: 3.5
+target_bitops: 0.63958
+# =========================== Override Settings ===========================
+#fp_pretrained_file: /home/lkj004124/logs/resnet18-f37072fd.pth
+#pretrained_model_remap_keys: True
+log_dir: /home/lkj004124/logs/frac_bits_new/cifar100/0629_ws3_mbv1_3bit_g1.0_lr0.5_lrld0.10_6
+model: models.q_mobilenet_v1_cifar
+#depth: 18
+weight_only: False
+#
+simple_interpolation: True
+#window_schedule: custom_2
+L_value: 1.0
+window_size: 3
+distance_v2: True
+#
+amp: True
+log_interval: 100
+log_bitwidth: True
+log_wandb: True
+#channel_half: True
+grad_ema_alpha: 0.1
+
+loss_decoupling: True
+#bitwidth_regularize_start_epoch: 0
