@@ -120,6 +120,10 @@ DECLARE_F32_SPMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_spmm_minmax_ukernel_32x2__neonf
 DECLARE_F32_SPMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_spmm_minmax_ukernel_32x4__neonfma)
 DECLARE_F32_SPMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_spmm_minmax_ukernel_32x2__neon)
 DECLARE_F32_SPMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_spmm_minmax_ukernel_32x4__neon)
+DECLARE_F32_SPMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_spmm_minmax_ukernel_16x2__neon)
+DECLARE_F32_SPMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_spmm_minmax_ukernel_16x4__neon)
+DECLARE_F32_SPMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_spmm_minmax_ukernel_64x2__neon)
+DECLARE_F32_SPMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_spmm_minmax_ukernel_64x4__neon)
 
 #define DECLARE_F16_SPMM_MINMAX_UKERNEL_FUNCTION(fn_name) \
   XNN_INTERNAL void fn_name(                              \

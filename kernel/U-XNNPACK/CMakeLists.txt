@@ -1118,6 +1118,16 @@ SET(PROD_NEON_MICROKERNEL_SRCS
   src/f32-spmm/gen/32x1-minmax-neon.c
   src/f32-spmm/gen/32x2-minmax-neon.c
   src/f32-spmm/gen/32x4-minmax-neon.c
+  src/f32-spmm/gen/16x2-minmax-neon.c
+  src/f32-spmm/gen/16x4-minmax-neon.c
+  src/f32-spmm/gen/64x2-minmax-neon.c
+  src/f32-spmm/gen/64x4-minmax-neon.c
+  src/f32-spmm/gen/32x2-minmax-neon-unaligned.c
+  src/f32-spmm/gen/32x4-minmax-neon-unaligned.c
+  src/f32-spmm/gen/16x2-minmax-neon-unaligned.c
+  src/f32-spmm/gen/16x4-minmax-neon-unaligned.c
+  src/f32-spmm/gen/64x2-minmax-neon-unaligned.c
+  src/f32-spmm/gen/64x4-minmax-neon-unaligned.c
   src/f32-vbinary/gen/vadd-minmax-neon-x8.c
   src/f32-vbinary/gen/vaddc-minmax-neon-x8.c
   src/f32-vbinary/gen/vmax-neon-x8.c
@@ -1389,6 +1399,16 @@ SET(ALL_NEON_MICROKERNEL_SRCS
   src/f32-spmm/gen/32x1-minmax-neon.c
   src/f32-spmm/gen/32x2-minmax-neon.c
   src/f32-spmm/gen/32x4-minmax-neon.c
+  src/f32-spmm/gen/16x2-minmax-neon.c
+  src/f32-spmm/gen/16x4-minmax-neon.c
+  src/f32-spmm/gen/64x2-minmax-neon.c
+  src/f32-spmm/gen/64x4-minmax-neon.c
+  src/f32-spmm/gen/32x2-minmax-neon-unaligned.c
+  src/f32-spmm/gen/32x4-minmax-neon-unaligned.c
+  src/f32-spmm/gen/16x2-minmax-neon-unaligned.c
+  src/f32-spmm/gen/16x4-minmax-neon-unaligned.c
+  src/f32-spmm/gen/64x2-minmax-neon-unaligned.c
+  src/f32-spmm/gen/64x4-minmax-neon-unaligned.c
   src/f32-vbinary/gen/vadd-minmax-neon-x4.c
   src/f32-vbinary/gen/vadd-minmax-neon-x8.c
   src/f32-vbinary/gen/vaddc-minmax-neon-x4.c
@@ -7892,4 +7912,13 @@ IF(XNNPACK_BUILD_BENCHMARKS)
     TARGET_INCLUDE_DIRECTORIES(x8-lut-bench PRIVATE . include src)
     TARGET_LINK_LIBRARIES(x8-lut-bench PRIVATE benchmark bench-utils cpuinfo fp16 pthreadpool)
   ENDIF()
+
+  # New Benchmarks
+  ADD_EXECUTABLE(f32-spmm-mbv1-bench bench/f32-spmm-mbv1.cc $<TARGET_OBJECTS:all_microkernels>)
+  SET_TARGET_PROPERTIES(f32-spmm-mbv1-bench PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS YES)
+  TARGET_INCLUDE_DIRECTORIES(f32-spmm-mbv1-bench PRIVATE . include src)
+  TARGET_LINK_LIBRARIES(f32-spmm-mbv1-bench PRIVATE benchmark bench-utils cpuinfo fp16 pthreadpool)
 ENDIF()
