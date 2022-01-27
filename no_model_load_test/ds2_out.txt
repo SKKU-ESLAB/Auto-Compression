@@ -1,0 +1,2 @@
+conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5 
+enter layer to run: 
