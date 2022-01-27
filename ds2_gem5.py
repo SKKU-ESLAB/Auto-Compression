@@ -2,13 +2,17 @@ from unicodedata import bidirectional
 import torch
 import torch.nn as nn
 import time
+import os
 
 option = input("conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5 \nenter layer to run: ")
 
 print("option: ", option)
 
-# conv12
+os.system('m5 exit')
+os.system('echo This is running on O3 CPU cores.')
+print("\n----lets run!----")
 
+# conv12
 if (option == '1' or option == '5'):
     """
     layerCONV = nn.Sequential(
