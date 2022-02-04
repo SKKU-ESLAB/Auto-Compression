@@ -46,15 +46,12 @@ if (option == '1'):
     print("iter\t time")
     for i in range(110):
         x = torch.randn((1, 1, 10, 10))
-        print('1 ', x.shape)
         start = time.time() #####
         x = layerCONV(x)
-        print('2 ', x.shape)
         sizes = x.size()
         x = x.view(sizes[0], sizes[1]*sizes[2], sizes[3])
         x = x.transpose(1,2).transpose(0,1)
         end = time.time()   #####
-        print('3 ', x.shape)
         print(i, "\t", end-start)
         if i >= 10:
             avg_time = avg_time + end - start
@@ -69,11 +66,9 @@ elif (option == '2'):
     for i in range(110):
         #x = torch.randn((576, 1, 1280))
         x = torch.randn((3, 1, 6))
-        print('1 ', x.shape)
         start = time.time() #####
         x, _ = layerLSTM1(x)
         end = time.time()   #####
-        print('2 ', x.shape)
         print(i, "\t", end-start)
         if i >= 10:
             avg_time = avg_time + end - start
@@ -87,7 +82,6 @@ elif (option == '3'):
     print("iter\t time")
     for i in range(110):
         x = torch.randn((3, 1, 4))
-        print('1 ', x.shape)
         start = time.time() #####
         sizes = x.size()
         x = x.view(sizes[0]*sizes[1], -1)
@@ -95,7 +89,6 @@ elif (option == '3'):
         x = x.view(sizes[0], sizes[1], -1)
         x, _ = layerLSTM2(x)
         end = time.time()   #####
-        print('2 ', x.shape)
         print(i, "\t", end-start)
         if i >= 10:
             avg_time = avg_time + end - start
@@ -109,7 +102,6 @@ elif (option == '4'):
     print("iter\t time")
     for i in range(110):
         x = torch.randn((3, 1, 4))
-        print('1 ', x.shape)
         start = time.time() #####
         sizes = x.size()
         x = x.view(sizes[0]*sizes[1], -1)
@@ -117,7 +109,6 @@ elif (option == '4'):
         x = x.view(sizes[0], sizes[1], -1)
         x = layerFC(x)
         end = time.time()   #####
-        print('2 ', x.shape)
         print(i, "\t", end-start)
         if i >= 10:
             avg_time = avg_time + end - start
