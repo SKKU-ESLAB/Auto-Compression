@@ -3,6 +3,8 @@ import torch
 import torch.nn as nn
 import time
 import os
+
+#torch.set_default_dtype(torch.bfloat16)
 torch.set_grad_enabled(False)
 torch.set_num_threads(8)
 

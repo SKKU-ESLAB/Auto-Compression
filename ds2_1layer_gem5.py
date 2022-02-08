@@ -3,6 +3,8 @@ import torch
 import torch.nn as nn
 import time
 import os
+
+#torch.set_default_dtype(torch.bfloat16)
 torch.set_grad_enabled(False)
 torch.set_num_threads(8)
 
@@ -37,24 +39,19 @@ layerFC = nn.Linear(1024, 29)
 # conv12
 if (option == '1'):
     layerCONV = torch.load('./weight/CONV', )
-    layerLSTM1 = torch.load('./weight/LSTM1')
 
 # bi-lstm1
 if (option == '2'):
-    layerCONV = torch.load('./weight/CONV')
     layerLSTM1 = torch.load('./weight/LSTM1')
 
 
 # bi-lstm23456
 if (option == '3'):
-    layerLSTM1 = torch.load('./weight/LSTM1')
     layerBN1 = torch.load('./weight/BN1')
     layerLSTM2 = torch.load('./weight/LSTM2')
 
 # fc1
 if (option == '4'):
-    layerBN1 = torch.load('./weight/BN1')
-    layerLSTM2 = torch.load('./weight/LSTM2')
     layerBN2 = torch.load('./weight/BN2')
     layerFC = torch.load('./weight/FC')
 
@@ -66,6 +63,8 @@ if (option == '5' or option == '6'):
     layerLSTM2 = torch.load('./weight/LSTM2')
     layerBN2 = torch.load('./weight/BN2')
     layerFC = torch.load('./weight/FC')
+
+print(layerFC.weight.dtype)
 
 def run_conv():
     print("compute: convolution layer 1 and 2")
