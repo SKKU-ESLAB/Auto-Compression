@@ -12,9 +12,9 @@ option = input("conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5, all_i
 
 print("option: ", option)
 
-os.system('m5 exit')
-os.system('echo This is running on O3 CPU cores.')
-print("\n----lets run!----")
+max_iter = 10
+warm_iter = 2
+num_iter = max_iter - warm_iter
 
 """
 layerCONV = nn.Sequential(
@@ -38,7 +38,10 @@ layerFC = nn.Linear(1024, 29)
 
 # conv12
 if (option == '1'):
-    layerCONV = torch.load('./weight/CONV', )
+    conv1 = torch.load('./weight/conv1')
+    conv2 = torch.load('./weight/conv2')
+    bn1 = torch.load('./weight/bn1')
+    bn2 = torch.load('./weight/bn2')
 
 # bi-lstm1
 if (option == '2'):
@@ -57,34 +60,40 @@ if (option == '4'):
 
 # full model
 if (option == '5' or option == '6'):
-    layerCONV = torch.load('./weight/CONV')
+    conv1 = torch.load('./weight/conv1')
+    conv2 = torch.load('./weight/conv2')
+    bn1 = torch.load('./weight/bn1')
+    bn2 = torch.load('./weight/bn2')
     layerLSTM1 = torch.load('./weight/LSTM1')
     layerBN1 = torch.load('./weight/BN1')
     layerLSTM2 = torch.load('./weight/LSTM2')
     layerBN2 = torch.load('./weight/BN2')
     layerFC = torch.load('./weight/FC')
+hardtanh = nn.Hardtanh(0, 20, inplace=True)
 
-print(layerFC.weight.dtype)
+os.system('m5 exit')
+os.system('echo CPU Switched!')
+print("\n----lets run!----")
 
 def run_conv():
     print("compute: convolution layer 1 and 2")
 
     avg_time = 0
     print("iter\t time")
-    for i in range(40):
+    for i in range(max_iter):
         x = torch.randn((1, 1, 160, 1151))
 
         start = time.time() #####
-        x = layerCONV(x)
+        x = hardtanh(bn2(conv2(hardtanh(bn1(conv1(x))))))
         sizes = x.size()
         x = x.view(sizes[0], sizes[1]*sizes[2], sizes[3])
         x = x.transpose(1,2).transpose(0,1)
         end = time.time()   #####
 
         print(i, "\t", end-start)
-        if i >= 10:
+        if i >= warm_iter:
             avg_time = avg_time + end - start
-    avg_time = avg_time / 30
+    avg_time = avg_time / num_iter
     print("avg_time: ", avg_time)
     return avg_time
 
@@ -93,7 +102,7 @@ def run_lstm1():
 
     avg_time = 0
     print("iter\t time")
-    for i in range(40):
+    for i in range(max_iter):
         x = torch.randn((576, 1, 1280))
 
         start = time.time() #####
@@ -101,9 +110,9 @@ def run_lstm1():
         end = time.time()   #####
 
         print(i, "\t", end-start)
-        if i >= 10:
+        if i >= warm_iter:
             avg_time = avg_time + end - start
-    avg_time = avg_time / 30
+    avg_time = avg_time / num_iter
     print("avg_time: ", avg_time)
     return avg_time
 
@@ -112,7 +121,7 @@ def run_lstm2():
 
     avg_time = 0
     print("iter\t time")
-    for i in range(40):
+    for i in range(max_iter):
         x = torch.randn((576, 1, 1024))
 
         start = time.time() #####
@@ -124,9 +133,9 @@ def run_lstm2():
         end = time.time()   #####
 
         print(i, "\t", end-start)
-        if i >= 10:
+        if i >= warm_iter:
             avg_time = avg_time + end - start
-    avg_time = avg_time / 30
+    avg_time = avg_time / num_iter
     print("avg_time: ", avg_time)
     return avg_time
 
@@ -135,7 +144,7 @@ def run_fc():
 
     avg_time = 0
     print("iter\t time")
-    for i in range(40):
+    for i in range(max_iter):
         x = torch.randn((576, 1, 1024))
 
         start = time.time() #####
@@ -146,9 +155,9 @@ def run_fc():
         x = layerFC(x)
         end = time.time()   #####
         print(i, "\t", end-start)
-        if i >= 10:
+        if i >= warm_iter:
             avg_time = avg_time + end - start
-    avg_time = avg_time / 30
+    avg_time = avg_time / num_iter
     print("avg_time: ", avg_time)
     return avg_time
 
@@ -157,10 +166,10 @@ def run_full_model():
 
     avg_time = 0
     print("iter\t time")
-    for i in range(40):
+    for i in range(max_iter):
         x = torch.randn((1, 1, 160, 1151))
         start = time.time() #####
-        x = layerCONV(x)
+        x = hardtanh(bn2(conv2(hardtanh(bn1(conv1(x))))))
         sizes = x.size()
         x = x.view(sizes[0], sizes[1]*sizes[2], sizes[3])
         x = x.transpose(1,2).transpose(0,1)
@@ -200,9 +209,9 @@ def run_full_model():
         end = time.time()   #####
 
         print(i, "\t", end-start)
-        if i >= 10:
+        if i >= warm_iter:
             avg_time = avg_time + end - start
-    avg_time = avg_time / 30
+    avg_time = avg_time / num_iter
     print("avg_time: ", avg_time)
     return avg_time
 

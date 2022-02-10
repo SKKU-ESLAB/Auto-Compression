@@ -1,6 +1,7 @@
 from unicodedata import bidirectional
 import torch
 import torch.nn as nn
+import random
 import time
 
 #torch.set_default_dtype(torch.bfloat16)
@@ -30,6 +31,10 @@ layerCONV = nn.Sequential(
     nn.Hardtanh(0, 20, inplace=True)
 )
 
+for i in range(32):
+    bn1.weight[i] = random.random()
+    bn2.weight[i] = random.random()
+
 # bi-lstm1
 layerLSTM1 = nn.LSTM(1280, 512, bidirectional=True, bias=True).eval()
 
@@ -40,6 +45,10 @@ layerLSTM2 = nn.LSTM(1024, 512, bidirectional=True, bias=True).eval()
 # fc1
 layerBN2 = nn.BatchNorm1d(1024).eval()
 layerFC = nn.Linear(1024, 29).eval()
+
+for i in range(1024):
+    layerBN1.weight[i] = random.random()
+    layerBN2.weight[i] = random.random()
 
 for weights in layerLSTM1.all_weights:
     for weight in weights:
@@ -53,10 +62,12 @@ layerBN1.weight.requires_grad = False
 layerBN2.weight.requires_grad = False
 layerFC.weight.requires_grad = False
 
-print(layerFC.weight.dtype)
 
 if 1:
-    torch.save(layerCONV, './weight/CONV')
+    torch.save(conv1, './weight/conv1')
+    torch.save(bn1, './weight/bn1')
+    torch.save(conv2, './weight/conv2')
+    torch.save(bn2, './weight/bn2')
     torch.save(layerLSTM1, './weight/LSTM1')
     torch.save(layerLSTM2, './weight/LSTM2')
     torch.save(layerBN1, './weight/BN1')
