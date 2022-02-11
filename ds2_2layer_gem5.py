@@ -5,39 +5,16 @@ import time
 import os
 
 #torch.set_default_dtype(torch.bfloat16)
-print(0)
+#torch.set_num_threads(8)
 torch.set_grad_enabled(False)
-print(1)
-torch.set_num_threads(8)
-print(2)
 
 option = input("conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5, all_in_one:6 \nenter layer to run: ")
 
 print("option: ", option)
 
-max_iter = 10
-warm_iter = 2
+max_iter = 40
+warm_iter = 5
 num_iter = max_iter - warm_iter
-
-"""
-layerCONV = nn.Sequential(
-    nn.Conv2d(1, 32, kernel_size=(41,11), stride=(2,2), padding=(20,5)),
-    nn.BatchNorm2d(32),
-    nn.Hardtanh(0, 20, inplace=True),
-    nn.Conv2d(32, 32, kernel_size=(21,11), stride=(2,1), padding=(10,5)),
-    nn.BatchNorm2d(32),
-    nn.Hardtanh(0, 20, inplace=True)
-)
-layerLSTM1 = nn.Sequential(
-    nn.LSTM(1280, 512, bidirectional=True, bias=True)
-)
-
-layerBN1 = nn.BatchNorm1d(1024)
-layerLSTM2 = nn.LSTM(1024, 512, bidirectional=True, bias=True)
-
-layerBN2 = nn.BatchNorm1d(1024)
-layerFC = nn.Linear(1024, 29)
-"""
 
 # conv12
 if (option == '1'):
@@ -54,7 +31,6 @@ if (option == '2'):
     bn1 = torch.load('./weight/bn1')
     bn2 = torch.load('./weight/bn2')
     layerLSTM1 = torch.load('./weight/LSTM1')
-
 
 # bi-lstm23456
 if (option == '3'):
@@ -262,3 +238,22 @@ elif (option == '6'):
     print("fc layer:\t", fc_time)
     print("full model:\t", full_model_time)
 
+"""
+layerCONV = nn.Sequential(
+    nn.Conv2d(1, 32, kernel_size=(41,11), stride=(2,2), padding=(20,5)),
+    nn.BatchNorm2d(32),
+    nn.Hardtanh(0, 20, inplace=True),
+    nn.Conv2d(32, 32, kernel_size=(21,11), stride=(2,1), padding=(10,5)),
+    nn.BatchNorm2d(32),
+    nn.Hardtanh(0, 20, inplace=True)
+)
+layerLSTM1 = nn.Sequential(
+    nn.LSTM(1280, 512, bidirectional=True, bias=True)
+)
+
+layerBN1 = nn.BatchNorm1d(1024)
+layerLSTM2 = nn.LSTM(1024, 512, bidirectional=True, bias=True)
+
+layerBN2 = nn.BatchNorm1d(1024)
+layerFC = nn.Linear(1024, 29)
+"""
