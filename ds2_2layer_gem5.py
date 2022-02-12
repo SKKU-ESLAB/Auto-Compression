@@ -8,7 +8,7 @@ import os
 #torch.set_num_threads(8)
 torch.set_grad_enabled(False)
 
-option = input("conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5, all_in_one:6 \nenter layer to run: ")
+option = input("conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5, all_in_one:6 \nenter layer to run: 1")
 
 print("option: ", option)
 
@@ -113,7 +113,10 @@ def run_lstm2():
     print("compute: lstm layer 2 (or 3 4 5 6)")
 
     avg_time = 0
+    bn_avg_time = 0
+    lstm_avg_time = 0
     print("iter\t time")
+    print("total, bn, lstm2")
     for i in range(max_iter):
         x = torch.randn((576, 1, 1280)) ##
         x, _ = layerLSTM1(x)
@@ -121,22 +124,36 @@ def run_lstm2():
         start = time.time() #####
         sizes = x.size()
         x = x.view(sizes[0]*sizes[1], -1)
+        bn_start = time.time() # bn>>
         x = layerBN1(x)
+        bn_end = time.time() # <<bn
         x = x.view(sizes[0], sizes[1], -1)
+        lstm_start = time.time() # lstm>>
         x, _ = layerLSTM2(x)
+        lstm_end = time.time() # <<lstm
         end = time.time()   #####
 
-        print(i, "\t", end-start)
+        print(i, "\t", end-start, "     \t", bn_end-bn_start, "     \t", lstm_end - lstm_start)
         if i >= warm_iter:
             avg_time = avg_time + end - start
+            bn_avg_time = bn_avg_time + bn_end - bn_start
+            lstm_avg_time = lstm_avg_time + lstm_end - lstm_start
+            
     avg_time = avg_time / num_iter
+    bn_avg_time = bn_avg_time / num_iter
+    lstm_avg_time = lstm_avg_time / num_iter
+
     print("avg_time: ", avg_time)
+    print("bn_avg_time: ", bn_avg_time)
+    print("lstm_avg_time: ", lstm_avg_time)
     return avg_time
 
 def run_fc():
     print("compute: fc layer")
 
     avg_time = 0
+    bn_avg_time = 0
+    fc_avg_time = 0
     print("iter\t time")
     for i in range(max_iter):
         x = torch.randn((576, 1, 1024))
@@ -149,15 +166,25 @@ def run_fc():
         start = time.time() #####
         sizes = x.size()
         x = x.view(sizes[0]*sizes[1], -1)
+        bn_start = time.time() # bn>>
         x = layerBN2(x)
+        bn_end = time.time() # <<bn
         x = x.view(sizes[0], sizes[1], -1)
+        fc_start = time.time() # fc>>
         x = layerFC(x)
+        fc_end = time.time() # <<fc
         end = time.time()   #####
-        print(i, "\t", end-start)
+        print(i, "\t", end-start, "     \t", bn_end-bn_start, "     \t", fc_end - fc_start)
         if i >= warm_iter:
             avg_time = avg_time + end - start
+            bn_avg_time = bn_avg_time + bn_end - bn_start
+            fc_avg_time = fc_avg_time + fc_end - fc_start
     avg_time = avg_time / num_iter
+    bn_avg_time = bn_avg_time / num_iter
+    fc_avg_time = fc_avg_time / num_iter
     print("avg_time: ", avg_time)
+    print("bn_avg_time: ", bn_avg_time)
+    print("fc_avg_time: ", fc_avg_time)
     return avg_time
 
 def run_full_model():
