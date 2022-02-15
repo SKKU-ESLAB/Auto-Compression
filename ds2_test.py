@@ -4,7 +4,7 @@ import time
 import os
 
 #torch.set_default_dtype(torch.bfloat16)
-torch.set_num_threads(8)
+#torch.set_num_threads(8)
 torch.set_grad_enabled(False)
 
 option = input("save_fc:0, run_fc:1\nenter layer to run: ")
