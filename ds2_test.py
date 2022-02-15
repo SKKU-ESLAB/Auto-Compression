@@ -17,7 +17,7 @@ num_iter = max_iter - warm_iter
 
 # conv12
 if (option == '0'):
-    fc = nn.Linear(128,32).eval()
+    fc = nn.Linear(512,64).eval()
     fc.weight.requires_grad = False
     torch.save(fc, './weight/superlightfc')
 
@@ -34,7 +34,7 @@ def run_fc():
     avg_time = 0
     print("iter\t time")
     for i in range(max_iter):
-        x = torch.randn(128)
+        x = torch.randn(512)
 
         start = time.time() #####
         x = fc(x)
