@@ -8,7 +8,7 @@ import os
 #torch.set_num_threads(8)
 torch.set_grad_enabled(False)
 
-option = input("conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5, all_in_one:6 \nenter layer to run: 1")
+option = input("conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5, all_in_one:6 \nenter layer to run: ")
 
 print("option: ", option)
 
