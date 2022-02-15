@@ -4,7 +4,7 @@ import time
 import os
 
 #torch.set_default_dtype(torch.bfloat16)
-torch.set_num_threads(8)
+#torch.set_num_threads(8)
 torch.set_grad_enabled(False)
 
 option = input("save_fc:0, run_fc:1\nenter layer to run: ")
@@ -17,7 +17,7 @@ num_iter = max_iter - warm_iter
 
 # conv12
 if (option == '0'):
-    fc = nn.Linear(4096,2048).eval()
+    fc = nn.Linear(1024,512).eval()
     fc.weight.requires_grad = False
     torch.save(fc, './weight/superlightfc')
 
@@ -34,7 +34,7 @@ def run_fc():
     avg_time = 0
     print("iter\t time")
     for i in range(max_iter):
-        x = torch.randn(4096)
+        x = torch.randn(1024)
 
         start = time.time() #####
         x = fc(x)
