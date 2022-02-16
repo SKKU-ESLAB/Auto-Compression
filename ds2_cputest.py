@@ -1,3 +1,4 @@
+from hwcounter import Timer, count, count_end
 import torch
 import torch.nn as nn
 import time
@@ -20,7 +21,7 @@ out_len = 512
 
 # conv12
 if (option == '0'):
-    fc = nn.Linear(in_len, out_len).eval()
+    fc = nn.Linear(in_len,out_len).eval()
     fc.weight.requires_grad = False
     torch.save(fc, './weight/superlightfc')
 
@@ -34,21 +35,21 @@ print("\n----lets run!----")
 def run_fc():
     print("compute: fc layer")
 
-    avg_time = 0
+    avg_clk = 0
     print("iter\t time")
     for i in range(max_iter):
         x = torch.randn(in_len)
 
-        start = time.time() #####
+        start = count() #####
         x = fc(x)
-        end = time.time()   #####
+        end = count()   #####
 
-        print(i, "\t%.6f" %(end-start))
+        print(i, "\t", end-start)
         if i >= warm_iter:
-            avg_time = avg_time + end - start
-    avg_time = avg_time / num_iter
-    print("avg\t%.6f" %avg_time)
-    return avg_time
+            avg_clk = avg_clk + end - start
+    avg_clk = avg_clk / num_iter
+    print("avg\t", avg_clk)
+    return avg_clk
 
 if (option == '1'):
     run_fc()
