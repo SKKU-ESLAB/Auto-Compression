@@ -1,10 +1,9 @@
+from benchmarker import Benchmarker
 import torch
 import torch.nn as nn
 import time
 import os
-import psutil
 
-print("cpu%: ", psutil.cpu_percent(), "%")
 #torch.set_default_dtype(torch.bfloat16)
 #torch.set_num_threads(4)
 torch.set_grad_enabled(False)
@@ -13,7 +12,7 @@ option = input("save_fc:0, run_fc:1\nenter layer to run: ")
 
 print("option: ", option)
 
-max_iter = 4000000
+max_iter = 40
 warm_iter = 10
 num_iter = max_iter - warm_iter
 
@@ -26,7 +25,7 @@ if (option == '0'):
     fc.weight.requires_grad = False
     torch.save(fc, './weight/superlightfc')
 
-if (option == '1'):
+if (option != '0'):
     fc = torch.load('./weight/superlightfc')
 
 os.system('m5 exit')
@@ -46,7 +45,6 @@ def run_fc():
         end = time.time()   #####
 
         print(i, "\t%.6f" %(end-start))
-        print("cpu%: ", psutil.cpu_percent(), "%")
         if i >= warm_iter:
             avg_time = avg_time + end - start
     avg_time = avg_time / num_iter
@@ -55,9 +53,24 @@ def run_fc():
 
 if (option == '1'):
     run_fc()
-    print("cpus: ", psutil.cpu_count())
-    print("cpus: ", len(psutil.Process().cpu_affinity()))
-    print("cpus: ", psutil.cpu_count(logical=False))
-    print("cpus: ", psutil.cpu_count(logical=True))
-    print("cpus: ", os.cpu_count())
-    print("cpus: ", len(os.sched_getaffinity(0)))
+
+with Benchmarker(1, width=20) as bench:
+    @bench("haha")
+    def _(bm):
+        for i in bm:
+            run_fc()
+    
+    @bench("baba")
+    def _(bm):
+        for i in bm:
+            run_fc()
+    
+    @bench("caca")
+    def _(bm):
+        for i in bm:
+            run_fc()
+    
+    @bench("siba")
+    def _(bm):
+        for i in bm:
+            run_fc()
