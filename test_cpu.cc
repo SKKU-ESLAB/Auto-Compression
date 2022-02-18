@@ -21,7 +21,7 @@ void* add_part(void* data) {
     int* idx_ = (int*)data;
     int idx = *idx_;
     
-    for (int j=0; j<1000*1000*10; j++) {
+    for (int j=0; j<1000*1000*300; j++) {
 		if (j%1000 == 0) printf("iter : %d\n", j);
         for (int i=idx; i<len; i+=4) {
             c[i] = a[i] + b[i];
@@ -88,7 +88,7 @@ void add_3() {
     start = clock();
     #pragma omp parallel
     {
-		for(int j=0; j<1000*1000*10; j++) {
+		for(int j=0; j<1000*1000*300; j++) {
 			if (j%1000 == 0) printf("iter : %d\n", j);
 			for(int i=0; i<len; i++)
 				c[i] = a[i] + b[i];
