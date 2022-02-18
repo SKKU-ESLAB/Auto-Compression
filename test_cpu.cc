@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <omp.h>
 
-int len = 1000;
+int len = 100;
 int* a = (int*)malloc(sizeof(int)*len);
 int* b = (int*)malloc(sizeof(int)*len);
 int* c = (int*)malloc(sizeof(int)*len);
@@ -21,11 +21,10 @@ void* add_part(void* data) {
     int* idx_ = (int*)data;
     int idx = *idx_;
     
-    for (int j=0; j<1000*1000; j++) {
+    for (int j=0; j<1000*1000*10; j++) {
+		if (j%1000 == 0) printf("iter : %d\n", j);
         for (int i=idx; i<len; i+=4) {
             c[i] = a[i] + b[i];
-            a[i] = c[i] * b[i];
-            b[i] = a[i] - c[i];
         }
     }
     return (void*)(NULL);
@@ -57,28 +56,18 @@ void add_2() {
     int *data = (int*)malloc(sizeof(int));
 
     *data = 0;
+	printf("fork to pthread0\n");
     thr_id = pthread_create(&pthread[0], NULL, add_part, (void*)(data));
     *data = 1;
+	printf("fork to pthread1\n");
     thr_id = pthread_create(&pthread[1], NULL, add_part, (void*)(data));
     *data = 2;
+	printf("fork to pthread2\n");
     thr_id = pthread_create(&pthread[2], NULL, add_part, (void*)(data));
     *data = 3;
+	printf("fork to pthread3\n");
     thr_id = pthread_create(&pthread[3], NULL, add_part, (void*)(data));
 
-    /*
-    for(int i=0; i<1000*1000; i++) {
-        *data = 0;
-        thr_id = pthread_create(&pthread[0], NULL, add_part, (void*)(data));
-        *data = 1;
-        thr_id = pthread_create(&pthread[1], NULL, add_part, (void*)(data));
-        *data = 2;
-        thr_id = pthread_create(&pthread[2], NULL, add_part, (void*)(data));
-        *data = 3;
-        thr_id = pthread_create(&pthread[3], NULL, add_part, (void*)(data));
-    }
-    */
-
-    
     pthread_join(pthread[0], (void **)&status);
     pthread_join(pthread[1], (void **)&status);
     pthread_join(pthread[2], (void **)&status);
@@ -99,8 +88,11 @@ void add_3() {
     start = clock();
     #pragma omp parallel
     {
-        for(int i=0; i<len; i++)
-            c[i] = a[i] + b[i];
+		for(int j=0; j<1000*1000*10; j++) {
+			if (j%1000 == 0) printf("iter : %d\n", j);
+			for(int i=0; i<len; i++)
+				c[i] = a[i] + b[i];
+		}
     }
     end = clock();
 
