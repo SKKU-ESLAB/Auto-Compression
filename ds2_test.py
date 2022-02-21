@@ -7,7 +7,6 @@ import os
 #print("cpu%: ", psutil.cpu_percent(), "%")
 #torch.set_default_dtype(torch.bfloat16)
 torch.set_grad_enabled(False)
-print("num_threads: ", torch.get_num_threads())
 
 option = input("save_fc:0, run_fc:1\nenter layer to run: ")
 
@@ -31,7 +30,7 @@ if (option == '1'):
 
 os.system('m5 exit')
 os.system('echo CPU Switched!')
-#torch.set_num_threads(4)
+torch.set_num_threads(4)
 
 print("torch.get_num_threads(): ", torch.get_num_threads())
 print("torch.get_num_interop_threads(): ", torch.get_num_interop_threads())
@@ -50,7 +49,7 @@ def run_fc():
         x = fc(x)
         end = time.time()   #####
 
-        print(i, "\t%.6f" %(end-start))
+        #print(i, "\t%.6f" %(end-start))
         #print("cpu%: ", psutil.cpu_percent(), "%")
         if i >= warm_iter:
             avg_time = avg_time + end - start
