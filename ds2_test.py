@@ -35,8 +35,6 @@ os.system('echo CPU Switched!')
 
 print("torch.get_num_threads(): ", torch.get_num_threads())
 print("torch.get_num_interop_threads(): ", torch.get_num_interop_threads())
-print("omp_get_max_threads(): ", omp_get_max_threads())
-
 
 print("\n----lets run!----")
 
