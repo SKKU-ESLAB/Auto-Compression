@@ -5,7 +5,8 @@ print("ha--->", end='')
 os.system('m5 exit')
 print("-->ha")
 
-#print(*torch.__config__.show().split("\n"), sep="\n")
+#torch.set_num_threads(4)
+
 print(*torch.__config__.show().split("\n"), sep="\n")
 
 print("\n*********************************************************\n")
