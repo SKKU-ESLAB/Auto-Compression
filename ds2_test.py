@@ -2,12 +2,12 @@ import torch
 import torch.nn as nn
 import time
 import os
-import psutil
+#import psutil
 
-print("cpu%: ", psutil.cpu_percent(), "%")
+#print("cpu%: ", psutil.cpu_percent(), "%")
 #torch.set_default_dtype(torch.bfloat16)
-#torch.set_num_threads(4)
 torch.set_grad_enabled(False)
+print("num_threads: ", torch.get_num_threads())
 
 option = input("save_fc:0, run_fc:1\nenter layer to run: ")
 
@@ -31,6 +31,13 @@ if (option == '1'):
 
 os.system('m5 exit')
 os.system('echo CPU Switched!')
+#torch.set_num_threads(4)
+
+print("torch.get_num_threads(): ", torch.get_num_threads())
+print("torch.get_num_interop_threads(): ", torch.get_num_interop_threads())
+print("omp_get_max_threads(): ", omp_get_max_threads())
+
+
 print("\n----lets run!----")
 
 def run_fc():
@@ -46,7 +53,7 @@ def run_fc():
         end = time.time()   #####
 
         print(i, "\t%.6f" %(end-start))
-        print("cpu%: ", psutil.cpu_percent(), "%")
+        #print("cpu%: ", psutil.cpu_percent(), "%")
         if i >= warm_iter:
             avg_time = avg_time + end - start
     avg_time = avg_time / num_iter
@@ -55,9 +62,9 @@ def run_fc():
 
 if (option == '1'):
     run_fc()
-    print("cpus: ", psutil.cpu_count())
-    print("cpus: ", len(psutil.Process().cpu_affinity()))
-    print("cpus: ", psutil.cpu_count(logical=False))
-    print("cpus: ", psutil.cpu_count(logical=True))
-    print("cpus: ", os.cpu_count())
-    print("cpus: ", len(os.sched_getaffinity(0)))
+    #print("cpus: ", psutil.cpu_count())
+    #print("cpus: ", len(psutil.Process().cpu_affinity()))
+    #print("cpus: ", psutil.cpu_count(logical=False))
+    #print("cpus: ", psutil.cpu_count(logical=True))
+    #print("cpus: ", os.cpu_count())
+    #print("cpus: ", len(os.sched_getaffinity(0)))
