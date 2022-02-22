@@ -30,7 +30,7 @@ if (option == '1'):
 
 os.system('m5 exit')
 os.system('echo CPU Switched!')
-torch.set_num_threads(4)
+#torch.set_num_threads(4)
 
 print("torch.get_num_threads(): ", torch.get_num_threads())
 print("torch.get_num_interop_threads(): ", torch.get_num_interop_threads())
