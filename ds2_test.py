@@ -2,9 +2,8 @@ import torch
 import torch.nn as nn
 import time
 import os
-#import psutil
 
-#print("cpu%: ", psutil.cpu_percent(), "%")
+
 #torch.set_default_dtype(torch.bfloat16)
 torch.set_grad_enabled(False)
 
@@ -49,8 +48,7 @@ def run_fc():
         x = fc(x)
         end = time.time()   #####
 
-        #print(i, "\t%.6f" %(end-start))
-        #print("cpu%: ", psutil.cpu_percent(), "%")
+        print(i, "\t%.6f" %(end-start))
         if i >= warm_iter:
             avg_time = avg_time + end - start
     avg_time = avg_time / num_iter
@@ -59,9 +57,3 @@ def run_fc():
 
 if (option == '1'):
     run_fc()
-    #print("cpus: ", psutil.cpu_count())
-    #print("cpus: ", len(psutil.Process().cpu_affinity()))
-    #print("cpus: ", psutil.cpu_count(logical=False))
-    #print("cpus: ", psutil.cpu_count(logical=True))
-    #print("cpus: ", os.cpu_count())
-    #print("cpus: ", len(os.sched_getaffinity(0)))

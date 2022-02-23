@@ -7,7 +7,7 @@ option = input("default:0, mkl:1\nenter option to run: ")
 
 print("option: ", option)
 
-max_iter = 2000000000
+max_iter = 20000
 avg_time = 0
 
 fc = torch.nn.Linear(1024,512)
@@ -17,9 +17,13 @@ os.system('m5 exit')
 os.system('echo CPU Switched!')
 #torch.set_num_threads(4)
 
-if option == 1:
+if int(option) == 1:
+    print(fc)
     fc = mkldnn_utils.to_mkldnn(fc)
+    print(fc)
+    print(x)
     x = x.to_mkldnn()
+    print(x)
 
 for i in range(max_iter):
     start = time.time()
