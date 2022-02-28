@@ -166,10 +166,10 @@ def run_fc():
             x = x.to_mkldnn()
 
         start = time.time() #####
-        sizes = x.size()
-        x = x.view(sizes[0]*sizes[1], -1)
-        x = layerBN2(x)
-        x = x.view(sizes[0], sizes[1], -1)
+        #sizes = x.size()
+        #x = x.reshape(sizes[0]*sizes[1], -1)
+        #x = layerBN2(x)
+        #x = x.reshape(sizes[0], sizes[1], -1)
         x = layerFC(x)
         end = time.time()   #####
         print(i, "\t", end-start)
