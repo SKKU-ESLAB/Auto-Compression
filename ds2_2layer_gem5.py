@@ -5,7 +5,6 @@ import time
 import os
 
 #torch.set_default_dtype(torch.bfloat16)
-#torch.set_num_threads(8)
 torch.set_grad_enabled(False)
 
 option = input("conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5, all_in_one:6 \nenter layer to run: ")
@@ -60,6 +59,7 @@ hardtanh = nn.Hardtanh(0, 20, inplace=True)
 
 os.system('m5 exit')
 os.system('echo CPU Switched!')
+#torch.set_num_threads(4)
 print("\n----lets run!----")
 
 def run_conv():
