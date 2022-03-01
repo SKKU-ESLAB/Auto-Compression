@@ -76,16 +76,6 @@ hardtanh = nn.Hardtanh(0, 20, inplace=True)
 if (set_mkl == '2'):
     hardtanh = mkldnn_utils.to_mkldnn(hardtanh)
 
-print(conv1)
-print(conv2)
-print(bn1)
-print(bn2)
-print(layerBN1)
-print(layerBN2)
-print(layerLSTM1)
-print(layerLSTM2)
-print(layerFC)
-
 os.system('m5 exit')
 os.system('echo CPU Switched!')
 #torch.set_num_threads(4)
