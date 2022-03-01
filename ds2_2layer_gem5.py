@@ -24,7 +24,7 @@ if (option == '1'):
     layerLSTM1 = torch.load('./weight/LSTM1')
 
 # bi-lstm1
-if (option == '2'):
+elif (option == '2'):
     conv1 = torch.load('./weight/conv1')
     conv2 = torch.load('./weight/conv2')
     bn1 = torch.load('./weight/bn1')
@@ -32,20 +32,20 @@ if (option == '2'):
     layerLSTM1 = torch.load('./weight/LSTM1')
 
 # bi-lstm23456
-if (option == '3'):
+elif (option == '3'):
     layerLSTM1 = torch.load('./weight/LSTM1')
     layerBN1 = torch.load('./weight/BN1')
     layerLSTM2 = torch.load('./weight/LSTM2')
 
 # fc1
-if (option == '4'):
+elif (option == '4'):
     layerBN1 = torch.load('./weight/BN1')
     layerLSTM2 = torch.load('./weight/LSTM2')
     layerBN2 = torch.load('./weight/BN2')
     layerFC = torch.load('./weight/FC')
 
 # full model
-if (option == '5' or option == '6'):
+elif (option == '5' or option == '6'):
     conv1 = torch.load('./weight/conv1')
     conv2 = torch.load('./weight/conv2')
     bn1 = torch.load('./weight/bn1')
