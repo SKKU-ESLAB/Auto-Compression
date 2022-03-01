@@ -13,7 +13,7 @@ print("option: ", option)
 set_mkl = input("with_default:1, with_mkldnn:2\nenter backend to run: ")
 print("set_mkl: ", set_mkl)
 
-max_iter = 4000
+max_iter = 400
 warm_iter = 5
 num_iter = max_iter - warm_iter
 
@@ -75,6 +75,16 @@ if (option == '5' or option == '6'):
 hardtanh = nn.Hardtanh(0, 20, inplace=True)
 if (set_mkl == '2'):
     hardtanh = mkldnn_utils.to_mkldnn(hardtanh)
+
+print(conv1)
+print(conv2)
+print(bn1)
+print(bn2)
+print(layerBN1)
+print(layerBN2)
+print(layerLSTM1)
+print(layerLSTM2)
+print(layerFC)
 
 os.system('m5 exit')
 os.system('echo CPU Switched!')

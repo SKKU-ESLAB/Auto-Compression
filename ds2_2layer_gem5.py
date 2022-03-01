@@ -11,7 +11,7 @@ option = input("conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5, all_i
 
 print("option: ", option)
 
-max_iter = 40
+max_iter = 4000
 warm_iter = 5
 num_iter = max_iter - warm_iter
 
@@ -59,7 +59,7 @@ hardtanh = nn.Hardtanh(0, 20, inplace=True)
 
 os.system('m5 exit')
 os.system('echo CPU Switched!')
-#torch.set_num_threads(4)
+torch.set_num_threads(8)
 print("\n----lets run!----")
 
 def run_conv():
