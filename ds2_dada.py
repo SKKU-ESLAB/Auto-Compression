@@ -1,17 +1,17 @@
 from unicodedata import bidirectional
-from hwcounter import Timer, count, count_end
 import torch
 import torch.nn as nn
 import time
 import os
+from torch.utils import mkldnn as mkldnn_utils
 
 #torch.set_default_dtype(torch.bfloat16)
-#torch.set_num_threads(8)
 torch.set_grad_enabled(False)
 
 option = input("conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5, all_in_one:6 \nenter layer to run: ")
-
 print("option: ", option)
+set_mkl = input("with_default:1, with_mkldnn:2\nenter backend to run: ")
+print("set_mkl: ", set_mkl)
 
 max_iter = 40
 warm_iter = 5
@@ -23,28 +23,33 @@ if (option == '1'):
     conv2 = torch.load('./weight/conv2')
     bn1 = torch.load('./weight/bn1')
     bn2 = torch.load('./weight/bn2')
-    layerLSTM1 = torch.load('./weight/LSTM1')
+    if (set_mkl == '2'):
+        conv1 = mkldnn_utils.to_mkldnn(conv1)
+        conv2 = mkldnn_utils.to_mkldnn(conv2)
+        bn1 = mkldnn_utils.to_mkldnn(bn1)
+        bn2 = mkldnn_utils.to_mkldnn(bn2)
 
 # bi-lstm1
 if (option == '2'):
-    conv1 = torch.load('./weight/conv1')
-    conv2 = torch.load('./weight/conv2')
-    bn1 = torch.load('./weight/bn1')
-    bn2 = torch.load('./weight/bn2')
     layerLSTM1 = torch.load('./weight/LSTM1')
+    if (set_mkl == '2'):
+        layerLSTM1 = mkldnn_utils.to_mkldnn(layerLSTM1)
 
 # bi-lstm23456
 if (option == '3'):
-    layerLSTM1 = torch.load('./weight/LSTM1')
     layerBN1 = torch.load('./weight/BN1')
     layerLSTM2 = torch.load('./weight/LSTM2')
+    if (set_mkl == '2'):
+        layerBN1 = mkldnn_utils.to_mkldnn(layerBN1)
+        layerLSTM2 = mkldnn_utils.to_mkldnn(layerLSTM2)
 
 # fc1
 if (option == '4'):
-    layerBN1 = torch.load('./weight/BN1')
-    layerLSTM2 = torch.load('./weight/LSTM2')
     layerBN2 = torch.load('./weight/BN2')
     layerFC = torch.load('./weight/FC')
+    if (set_mkl == '2'):
+        layerBN2 = mkldnn_utils.to_mkldnn(layerBN2)
+        layerFC = mkldnn_utils.to_mkldnn(layerFC)
 
 # full model
 if (option == '5' or option == '6'):
@@ -57,36 +62,49 @@ if (option == '5' or option == '6'):
     layerLSTM2 = torch.load('./weight/LSTM2')
     layerBN2 = torch.load('./weight/BN2')
     layerFC = torch.load('./weight/FC')
+    if (set_mkl == '2'):
+        conv1 = mkldnn_utils.to_mkldnn(conv1)
+        conv2 = mkldnn_utils.to_mkldnn(conv2)
+        bn1 = mkldnn_utils.to_mkldnn(bn1)
+        bn2 = mkldnn_utils.to_mkldnn(bn2)
+        layerBN1 = mkldnn_utils.to_mkldnn(layerBN1)
+        layerBN2 = mkldnn_utils.to_mkldnn(layerBN2)
+        layerLSTM1 = mkldnn_utils.to_mkldnn(layerLSTM1)
+        layerLSTM2 = mkldnn_utils.to_mkldnn(layerLSTM2)
+        layerFC = mkldnn_utils.to_mkldnn(layerFC)
 hardtanh = nn.Hardtanh(0, 20, inplace=True)
+if (set_mkl == '2'):
+    hardtanh = mkldnn_utils.to_mkldnn(hardtanh)
 
 os.system('m5 exit')
 os.system('echo CPU Switched!')
+torch.set_num_threads(8)
 print("\n----lets run!----")
 
 def run_conv():
     print("compute: convolution layer 1 and 2")
 
-    avg_cycle = 0
-    print("iter\t cycle")
-    
+    avg_time = 0
+    print("iter\t time")
     for i in range(max_iter):
         x = torch.randn((1, 1, 160, 1151))
+        if (set_mkl == '2'):
+            x = x.to_mkldnn()
 
-        cpu_start = count() #####
-        x = hardtanh(bn2(conv2(hardtanh(bn1(conv1(x))))))
-        sizes = x.size()
-        x = x.view(sizes[0], sizes[1]*sizes[2], sizes[3])
-        x = x.transpose(1,2).transpose(0,1)
-        elapsed = count_end() - cpu_start #####
+        start = time.time() #####
+        #x = hardtanh(bn2(conv2(hardtanh(bn1(conv1(x))))))
+        x = conv1(x)
+        #sizes = x.size()
+        #x = x.view(sizes[0], sizes[1]*sizes[2], sizes[3])
+        #x = x.transpose(1,2).transpose(0,1)
+        end = time.time()   #####
 
-        x, _ = layerLSTM1(x)
-
-        print(i, "\t", elapsed)
+        print(i, "\t", end-start)
         if i >= warm_iter:
-            avg_cycle = avg_cycle + elapsed
-    avg_cycle = avg_cycle / num_iter
-    print("avg_cycle: ", avg_cycle)
-    return avg_cycle
+            avg_time = avg_time + end - start
+    avg_time = avg_time / num_iter
+    print("avg_time: ", avg_time)
+    return avg_time
 
 def run_lstm1():
     print("compute: lstm layer 1")
@@ -94,11 +112,9 @@ def run_lstm1():
     avg_time = 0
     print("iter\t time")
     for i in range(max_iter):
-        x = torch.randn((1, 32, 80, 576))
-        x = hardtanh(bn2(conv2(x)))
-        sizes = x.size()
-        x = x.view(sizes[0], sizes[1]*sizes[2], sizes[3])
-        x = x.transpose(1,2).transpose(0,1)
+        x = torch.randn((576, 1, 1280))
+        if (set_mkl == '2'):
+            x = x.to_mkldnn()
 
         start = time.time() #####
         x, _ = layerLSTM1(x)
@@ -115,78 +131,49 @@ def run_lstm2():
     print("compute: lstm layer 2 (or 3 4 5 6)")
 
     avg_time = 0
-    bn_avg_time = 0
-    lstm_avg_time = 0
     print("iter\t time")
-    print("total, bn, lstm2")
     for i in range(max_iter):
-        x = torch.randn((576, 1, 1280)) ##
-        x, _ = layerLSTM1(x)
+        x = torch.randn((576, 1, 1024))
+        if (set_mkl == '2'):
+            x = x.to_mkldnn()
 
         start = time.time() #####
         sizes = x.size()
         x = x.view(sizes[0]*sizes[1], -1)
-        bn_start = time.time() # bn>>
         x = layerBN1(x)
-        bn_end = time.time() # <<bn
         x = x.view(sizes[0], sizes[1], -1)
-        lstm_start = time.time() # lstm>>
         x, _ = layerLSTM2(x)
-        lstm_end = time.time() # <<lstm
         end = time.time()   #####
 
-        print(i, "\t", end-start, "     \t", bn_end-bn_start, "     \t", lstm_end - lstm_start)
+        print(i, "\t", end-start)
         if i >= warm_iter:
             avg_time = avg_time + end - start
-            bn_avg_time = bn_avg_time + bn_end - bn_start
-            lstm_avg_time = lstm_avg_time + lstm_end - lstm_start
-            
     avg_time = avg_time / num_iter
-    bn_avg_time = bn_avg_time / num_iter
-    lstm_avg_time = lstm_avg_time / num_iter
-
     print("avg_time: ", avg_time)
-    print("bn_avg_time: ", bn_avg_time)
-    print("lstm_avg_time: ", lstm_avg_time)
     return avg_time
 
 def run_fc():
     print("compute: fc layer")
 
     avg_time = 0
-    bn_avg_time = 0
-    fc_avg_time = 0
     print("iter\t time")
     for i in range(max_iter):
         x = torch.randn((576, 1, 1024))
-        sizes = x.size()
-        x = x.view(sizes[0]*sizes[1], -1)
-        x = layerBN1(x)
-        x = x.view(sizes[0], sizes[1], -1)
-        x, _ = layerLSTM2(x)
+        if (set_mkl == '2'):
+            x = x.to_mkldnn()
 
         start = time.time() #####
-        sizes = x.size()
-        x = x.view(sizes[0]*sizes[1], -1)
-        bn_start = time.time() # bn>>
-        x = layerBN2(x)
-        bn_end = time.time() # <<bn
-        x = x.view(sizes[0], sizes[1], -1)
-        fc_start = time.time() # fc>>
+        #sizes = x.size()
+        #x = x.reshape(sizes[0]*sizes[1], -1)
+        #x = layerBN2(x)
+        #x = x.reshape(sizes[0], sizes[1], -1)
         x = layerFC(x)
-        fc_end = time.time() # <<fc
         end = time.time()   #####
-        print(i, "\t", end-start, "     \t", bn_end-bn_start, "     \t", fc_end - fc_start)
+        print(i, "\t", end-start)
         if i >= warm_iter:
             avg_time = avg_time + end - start
-            bn_avg_time = bn_avg_time + bn_end - bn_start
-            fc_avg_time = fc_avg_time + fc_end - fc_start
     avg_time = avg_time / num_iter
-    bn_avg_time = bn_avg_time / num_iter
-    fc_avg_time = fc_avg_time / num_iter
     print("avg_time: ", avg_time)
-    print("bn_avg_time: ", bn_avg_time)
-    print("fc_avg_time: ", fc_avg_time)
     return avg_time
 
 def run_full_model():
@@ -196,6 +183,9 @@ def run_full_model():
     print("iter\t time")
     for i in range(max_iter):
         x = torch.randn((1, 1, 160, 1151))
+        if (set_mkl == '2'):
+            x = x.to_mkldnn()
+
         start = time.time() #####
         x = hardtanh(bn2(conv2(hardtanh(bn1(conv1(x))))))
         sizes = x.size()
@@ -244,10 +234,7 @@ def run_full_model():
     return avg_time
 
 if (option == '1'):
-    cpu_start = count()
     run_conv()
-    elapsed = count_end() - cpu_start
-    print("cpu clock: ", elapsed)
 elif (option == '2'):
     run_lstm1()
 elif (option == '3'):
