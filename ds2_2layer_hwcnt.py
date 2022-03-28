@@ -11,7 +11,7 @@ option = input("conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5, all_i
 
 print("option: ", option)
 
-max_iter = 20
+max_iter = 40
 warm_iter = 5
 num_iter = max_iter - warm_iter
 
