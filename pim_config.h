@@ -73,11 +73,13 @@ enum class PIM_OP {
 
 class PIM_OP_ATTRS {
  public:
-	 PIM_OP_ATTRS(){};
-	 ~PIM_OP_ATTRS(){};
+    PIM_OP_ATTRS(){};
+	~PIM_OP_ATTRS(){};
+	
+	void ADD(uint8_t *x, uint8_t *y, uint8_t *z, int len);
 
-	 void ADD(uint8_t *x, uint8_t *y, uint8_t *z, int len);
-
+	int len_in;
+	int len_out;
 };
 
 class PIMKernel {

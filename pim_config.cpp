@@ -8,5 +8,6 @@
 
 void PIM_OP_ATTRS::ADD(uint8_t* pim_x, uint8_t* pim_y, uint8_t* pim_z, int len) {
 	std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::ADD!\n";
+	len_in = len;
 }
 

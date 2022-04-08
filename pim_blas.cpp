@@ -31,8 +31,8 @@ bool pim_add(uint8_t* pim_mem, int len, uint8_t *x, uint8_t *y, uint8_t *z) {
 	WriteMem(pim_y, y, len);
 	std::cout << "- Test4_ans: " << (int)x[127] << std::endl;
 	std::cout << "- Test4_out: " << (int)pim_mem[127] << std::endl;
-	
-	bool ret = ExecuteKernel(add_kernel);
+
+	bool ret = ExecuteKernel(pim_mem, pim_x, pim_y, pim_z, add_kernel);
 	
 	ReadMem(pim_z, z, len);
 
