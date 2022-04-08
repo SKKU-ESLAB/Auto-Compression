@@ -18,4 +18,9 @@ size_t WriteMem(uint8_t* pim_mem, uint8_t *data, size_t len);
 // PIM Kernel Executor
 bool ExecuteKernel(PIMKernel pim_kernel);
 
+
+// Some tools
+uint64_t Ceiling(uint64_t num, uint64_t stride);
+void TryAddTransaction(uint8_t *pim_mem, uint8_t *data, bool is_write);
+
 #endif  // __PIM_RUNTIME_H_

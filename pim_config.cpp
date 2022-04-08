@@ -7,6 +7,6 @@
 //uint8_t* pmemAddr_ = (uint9_t*)mmap(NULL, LEN_PIM, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0);
 
 void PIM_OP_ATTRS::ADD(uint8_t* pim_x, uint8_t* pim_y, uint8_t* pim_z, int len) {
-	std::cout << "PIM_OP_ATTRS::ADD!\n";
+	std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::ADD!\n";
 }
 

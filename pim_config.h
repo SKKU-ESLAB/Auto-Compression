@@ -7,17 +7,60 @@
 #include <random>		  // random_device
 #include "half.hpp"
 
-typedef uint16_t          unit_t;
+typedef uint16_t			unit_t;
 
 // SIZE IS BYTE
-#define UNIT_SIZE         (int)(sizeof(unit_t))
-#define WORD_SIZE         32
-#define UNITS_PER_WORD    (WORD_SIZE / UNIT_SIZE)
-#define GRF_SIZE          (8 * UNITS_PER_WORD * UNIT_SIZE)
-#define SRF_SIZE          (8 * UNIT_SIZE)
+#define UNIT_SIZE			(int)(sizeof(unit_t))
+#define WORD_SIZE			32
+#define UNITS_PER_WORD		(WORD_SIZE / UNIT_SIZE)
+#define GRF_SIZE			(8 * UNITS_PER_WORD * UNIT_SIZE)
+#define SRF_SIZE			(8 * UNIT_SIZE)
 
-#define LEN_PIM			  0x100000000
-#define BASE_PIM_ADDR	  0x140000000
+#define LEN_PIM				0x100000000
+#define BASE_PIM_ADDR		0x140000000
+
+#define EVEN_BANK 0
+#define ODD_BANK 1
+
+#define NUM_WORD_PER_ROW	  32
+#define NUM_UNIT_PER_WORD	  16
+#define	NUM_CHANNEL			  16
+#define NUM_BANK_PER_CHANNEL  16
+#define NUM_BANK			  (NUM_BANK_PER_CHANNEL * NUM_CHANNEL)
+#define SIZE_WORD			  32
+#define SIZE_ROW			  (SIZE_WORD * NUM_WORD_PER_ROW)
+
+#define MAP_SBMR             0x3fff
+#define MAP_ABMR             0x3ffe
+#define MAP_PIM_OP_MODE      0x3ffd
+#define MAP_CRF              0x3ffc
+#define MAP_GRF              0x3ffb
+#define MAP_SRF              0x3ffa
+
+struct Address {
+    Address()
+        : channel(-1), rank(-1), bankgroup(-1), bank(-1), row(-1), column(-1) {}
+    Address(int channel, int rank, int bankgroup, int bank, int row, int column)
+        : channel(channel),
+          rank(rank),
+          bankgroup(bankgroup),
+          bank(bank),
+          row(row),
+          column(column) {}
+    Address(const Address& addr)
+        : channel(addr.channel),
+          rank(addr.rank),
+          bankgroup(addr.bankgroup),
+          bank(addr.bank),
+          row(addr.row),
+          column(addr.column) {}
+    int channel;
+    int rank;
+    int bankgroup;
+    int bank;
+    int row;
+    int column;
+};
 
 enum class PIM_OP {
     ADD = 0,
