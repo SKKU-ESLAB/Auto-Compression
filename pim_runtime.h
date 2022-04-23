@@ -17,7 +17,12 @@ size_t WriteMem(uint8_t* pim_mem, uint8_t *data, size_t len);
 
 // PIM Kernel Executor
 bool ExecuteKernel(uint8_t* pim_mem, uint8_t* pim_x, uint8_t* pim_y, uint8_t* pim_z, PIMKernel pim_kernel);
-void AddExecute(uint8_t* pim_mem, uint8_t* pim_x, uint8_t* pim_y, uint8_t* pim_z);
+void ElementWiseExecute(uint8_t* pim_mem, uint8_t* pim_x, uint8_t* pim_y, uint8_t* pim_z, PIMKernel pim_kernel);
+void BnExecute(uint8_t* pim_mem, uint8_t* pim_x, uint8_t* pim_y, uint8_t* pim_z, PIMKernel pim_kernel);
+void GemvExecute(uint8_t* pim_mem, uint8_t* pim_x, uint8_t* pim_y, uint8_t* pim_z, PIMKernel pim_kernel);
+void GemvExecuteBank(bool bank, uint8_t* pim_mem, uint8_t* pim_x, uint8_t* pim_y, uint8_t* pim_z, PIMKernel pim_kernel);
+void LstmExecute(uint8_t* pim_mem, uint8_t* pim_x, uint8_t* pim_y, uint8_t* pim_z, PIMKernel pim_kernel);
+void LstmExecuteBank(bool bank, uint8_t* pim_mem, uint8_t* pim_x, uint8_t* pim_y, uint8_t* pim_z, PIMKernel pim_kernel);
 
 // Some tools
 uint64_t Ceiling(uint64_t num, uint64_t stride);
