@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import time
 import os
+from custom_lstm import LSTM
 
 #torch.set_default_dtype(torch.bfloat16)
 torch.set_grad_enabled(False)
@@ -21,7 +22,7 @@ if (option == '1'):
     conv2 = torch.load('./weight/conv2')
     bn1 = torch.load('./weight/bn1')
     bn2 = torch.load('./weight/bn2')
-    layerLSTM1 = torch.load('./weight/LSTM1')
+    layerLSTM1 = LSTM(1280, 512, bias=True)
 
 # bi-lstm1
 elif (option == '2'):
