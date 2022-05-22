@@ -1,23 +1,27 @@
 print("start!")
-from unicodedata import bidirectional
+#from unicodedata import bidirectional
 import torch
+print("import torch ended(1)")
 import torch.nn as nn
-print("import torch ended")
+print("import torch ended(2)")
 import time
+print("import time ended")
 import os
+print("import os ended")
 
 print("import ended")
 #torch.set_default_dtype(torch.bfloat16)
 
-option = input("conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5, all_in_one:6 \nenter layer to run: ")
-
-print("option: ", option)
+torch.set_grad_enabled(False)
+print("torch.set_grad_enable(False) ended")
 
 os.system('echo checkpointing...')
 os.system('m5 checkpoint')
 os.system('run from checkpoint')
 
-torch.set_grad_enabled(False)
+option = input("conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5, all_in_one:6 \nenter layer to run: ")
+
+print("option: ", option)
 
 max_iter = 4000
 warm_iter = 5
@@ -64,8 +68,10 @@ elif (option == '5' or option == '6'):
     layerBN2 = torch.load('./weight/BN2')
     layerFC = torch.load('./weight/FC')
 hardtanh = nn.Hardtanh(0, 20, inplace=True)
+print("load_weight ended")
 
 torch.set_num_threads(8)
+print("torch.set_num_threads ended")
 print("\n----lets run!----")
 
 def run_conv():
