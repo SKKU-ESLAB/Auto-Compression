@@ -26,6 +26,10 @@ void PIM_OP_ATTRS::GEMV(uint8_t* pim_y, uint8_t* pim_z, int len_in_, int len_out
 	std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::GEMV!\n";
 	len_in = len_in_;
 	len_out = len_out_;
+	code_iter = (len_out_+4096-1)/4096;
+	code0_iter = len_in_ / 8;
+	//code0_iter = 1; // just for quick testing
+	code1_iter = 1;
 }
 
 void PIM_OP_ATTRS::LSTM(uint8_t* pim_x, uint8_t* pim_y, uint8_t* pim_z, int len) {
