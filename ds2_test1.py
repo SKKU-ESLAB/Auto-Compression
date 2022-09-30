@@ -8,8 +8,8 @@ option = input("5x10:1, 20x40:2, 80x160:3, 320x640:4, 1024x2048:5 \nenter layer 
 
 print("option: ", option)
 
-os.system('m5 exit')
-os.system('echo This is running on O3 CPU cores.')
+os.system('m5 checkpoint')
+os.system('echo CPU Switched!')
 print("\n----lets run!----")
 
 m=0
