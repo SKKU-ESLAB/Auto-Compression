@@ -10,7 +10,6 @@ print("option: ", option)
 
 os.system('m5 checkpoint')
 os.system('echo CPU Switched!')
-torch.set_num_threads(4)
 print("\n----lets run!----")
 
 m=0

@@ -4,9 +4,6 @@ import torch.nn as nn
 import time
 import os
 
-option = input("# words = 32:1, 64:2, 128:3, 256:4, 576:5 \nenter layer to run: ")
-
-print("option: ", option)
 
 os.system('m5 checkpoint')
 os.system('echo CPU Switched!')
