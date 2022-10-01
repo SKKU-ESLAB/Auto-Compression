@@ -37,5 +37,6 @@ elif (option == '5'):
     m = 1024
     n = 2048
     
-FC = nn.Linear(m, n)
+FC = nn.Linear(m, n).eval()
+FC.weight.requiure_grad = False
 torch.save(FC, './weight/fc'+option+'.pt')

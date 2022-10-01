@@ -13,36 +13,12 @@ os.system('echo CPU Switched!')
 torch.set_num_threads(4)
 print("\n----lets run!----")
 
-m=0
-n=0
 itr=5
 
-# fc1
-if (option == '1'):
-    m = 5
-    n = 10
-
-elif (option == '2'):
-    m = 20
-    n = 40
- 
-elif (option == '3'):
-    m = 80
-    n = 160
- 
-elif (option == '4'):
-    m = 320
-    n = 640
- 
-elif (option == '5'):
-    m = 1024
-    n = 2048
-    
-FC = torch.load('./weight/fc'+option+'.pt')
+FC = torch.load('./weight/fc'+option+'.pt').eval()
+avg_time = 0
 
 print("compute: fc layer")
-
-avg_time = 0
 print("iter\t time")
 for i in range(itr):
     x = torch.randn(1, m)

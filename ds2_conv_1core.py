@@ -10,10 +10,9 @@ print("option: ", option)
 
 os.system('m5 checkpoint')
 os.system('echo CPU Switched!')
-torch.set_num_threads(4)
 print("\n----lets run!----")
 
-itr=5
+itr = 5
 
 CONV = torch.load('./weight/conv'+option+'.pt').eval()
 avg_time = 0
