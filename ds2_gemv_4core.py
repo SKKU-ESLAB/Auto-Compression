@@ -38,7 +38,7 @@ elif (option == '5'):
     m = 1024
     n = 2048
     
-FC = nn.Linear(m, n)
+FC = torch.load('./weight/fc'+option+'.pt')
 
 print("compute: fc layer")
 

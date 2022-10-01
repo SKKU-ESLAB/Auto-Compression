@@ -37,20 +37,5 @@ elif (option == '5'):
     m = 1024
     n = 2048
     
-FC = torch.load('./weight/fc'+option+'.pt')
-
-print("compute: fc layer")
-
-avg_time = 0
-print("iter\t time")
-for i in range(itr):
-    x = torch.randn(1, m)
-    start = time.time() #####
-    os.system('m5 dumpstats')
-    x = FC(x)
-    os.system('m5 dumpstats')
-    end = time.time()   #####
-    print(i, "\t", end-start)
-    avg_time = avg_time + end - start
-avg_time = avg_time / itr
-print("avg_time: ", avg_time)
+FC = nn.Linear(m, n)
+torch.save(FC, './weight/fc'+option+'.pt')
