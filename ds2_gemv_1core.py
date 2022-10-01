@@ -12,6 +12,17 @@ os.system('m5 checkpoint')
 os.system('echo CPU Switched!')
 print("\n----lets run!----")
 
+m=0
+if (option == '1'):
+    m = 5
+elif (option == '2'):
+    m = 20
+elif (option == '3'):
+    m = 80
+elif (option == '4'):
+    m = 320
+elif (option == '5'):
+    m = 1024
 itr=5
 
 FC = torch.load('./weight/fc'+option+'.pt').eval()
