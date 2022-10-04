@@ -1,3 +1,4 @@
+pim.cpp
 setup.py
 pim_cpp.egg-info/PKG-INFO
 pim_cpp.egg-info/SOURCES.txt
