@@ -40,6 +40,16 @@ avg_time = 0
 print("iter\t time")
 for i in range(itr):
     x = torch.randn(1, m, 1024)
+    
+    start = time.time() #####
+    os.system('m5 dumpstats')
+    FC_F = torch.load('./weight/flush.pt').eval()
+    in_F = torch.randn(2048)
+    out_F = FC_F(in_F)
+    os.system('m5 dumpstats')
+    end = time.time()   #####
+    print("flush\t", end-start)
+
     start = time.time() #####
     os.system('m5 dumpstats')
     x = LSTM(x)
