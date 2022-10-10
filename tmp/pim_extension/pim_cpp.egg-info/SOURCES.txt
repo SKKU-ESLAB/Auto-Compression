@@ -1,4 +1,8 @@
 pim.cpp
+pim_blas.cpp
+pim_config.cpp
+pim_config.h
+pim_runtime.cpp
 setup.py
 pim_cpp.egg-info/PKG-INFO
 pim_cpp.egg-info/SOURCES.txt

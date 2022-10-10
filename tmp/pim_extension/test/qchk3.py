@@ -1,5 +1,5 @@
 import torch
-from cpp.pim import PIM_Linear, PIM_BatchNorm1d, PIM_LSTM
+from pim import PIM_Linear, PIM_BatchNorm1d, PIM_LSTM
 import pim_cpp
 
 # input example

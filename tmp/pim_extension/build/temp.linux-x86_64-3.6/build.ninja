@@ -12,7 +12,10 @@ rule compile
 
 
 
-build /home/kkm0411/pim_extension_cpp/cpp/build/temp.linux-x86_64-3.6/pim.o: compile /home/kkm0411/pim_extension_cpp/cpp/pim.cpp
+build /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/build/temp.linux-x86_64-3.6/pim.o: compile /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/pim.cpp
+build /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/build/temp.linux-x86_64-3.6/pim_blas.o: compile /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/pim_blas.cpp
+build /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/build/temp.linux-x86_64-3.6/pim_runtime.o: compile /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/pim_runtime.cpp
+build /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/build/temp.linux-x86_64-3.6/pim_config.o: compile /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/pim_config.cpp
 
 
 
