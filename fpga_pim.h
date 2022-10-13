@@ -1,3 +1,4 @@
+#pragma once
 #include <fcntl.h>
 #include <getopt.h>
 #include <stdint.h>
@@ -16,5 +17,9 @@
 #include <stdbool.h>
 
 // #include "../xdma/cdev_sgdma.h"
-
-long pimExecution(uint32_t addr, void *data, int iswrite);
+#ifdef __cplusplus
+extern "C"
+{
+    long pimExecution(uint32_t addr, void *data, int iswrite);
+}
+#endif
