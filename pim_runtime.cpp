@@ -458,7 +458,14 @@ static void *TryThreadAddTransaction(void *input_)
 void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write)
 {
 	if (FpgaMode())
-		pimExecution((uint32_t)((uint64_t)(pim_addr - pim_base)), data, 1);
+	{
+		uint64_t hex_addr = (uint64_t)pim_addr - pim_base;
+		Address addr = AddressMapping(hex_addr);
+		int CH = addr.channel;
+		int BA = addr.bank;
+		if (CH == 0 && (BA == 0 || BA == 1))
+			pimExecution((uint32_t)((uint64_t)(pim_addr - pim_base)), data, 1);
+	}
 	else if (ComputeMode())
 		pim_func_sim->AddTransaction((uint64_t)(pim_addr - pim_base), data, is_write);
 	else
