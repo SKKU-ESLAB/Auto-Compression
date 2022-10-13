@@ -6,6 +6,8 @@
 #include <sys/mman.h> // MAP_SHARED, PROT_READ
 #include <random>	  // random_device
 #include "half.hpp"
+#include "../fpga_pim.h"
+
 using half_float::half;
 
 typedef uint16_t unit_t;

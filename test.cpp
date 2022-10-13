@@ -29,7 +29,7 @@ void transpose(uint8_t *w, int m, int n)
 void test_add_blas()
 {
 	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
-	int n = 4096 * 2;
+	int n = 32768;
 	uint8_t *in0 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *in1 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);

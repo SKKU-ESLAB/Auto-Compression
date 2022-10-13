@@ -33,6 +33,10 @@ uint64_t GetAddress(int channel, int rank, int bankgroup, int bank, int row, int
 bool DebugMode();
 bool FpgaMode();
 bool ComputeMode();
-void pimExecution(uint8_t *pim_addr, uint8_t *data, bool is_write);
 
+void GetFpgaAddr_1COL(uint8_t *pim_target, bool is_write, int bank);
+void GetFpgaAddr_8COL(uint8_t *pim_target, bool is_write, int bank);
+bool GetFpgaAddr(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_cmd, int bank);
+void PushFpgaAddr(uint64_t addr);
+void SetFpgaAddr();
 #endif // __PIM_RUNTIME_H_

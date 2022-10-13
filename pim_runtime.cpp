@@ -42,7 +42,28 @@ FILE *fp = fopen("output.txt", "w");
 uint64_t pim_base;
 int clock_ = 0;
 
+// For Compute Mode
 PimFuncSim *pim_func_sim;
+
+// For Fpga Mode
+int num_fpga_addr = 0;
+uint32_t *fpga_addr_queue;
+
+void runtime_init(uint64_t num)
+{
+	pim_mem = (uint8_t *)calloc(LEN_PIM, 1); // Just for a while
+	pim_base = (uint64_t)pim_mem;
+	if (FpgaMode())
+		fpga_addr_queue = (uint32_t *)malloc(sizeof(uint32_t) * 64);
+
+	if (ComputeMode())
+	{
+		pim_func_sim = new PimFuncSim();
+		pim_func_sim->init(pim_mem, LEN_PIM, WORD_SIZE);
+	}
+
+	std::cout << "PIM_BASE_ADDR : " << pim_base << "\n";
+}
 
 // PIM Preprocessor
 bool isSuitableOps(PIM_OP op, int len0, int len1)
@@ -120,7 +141,6 @@ size_t WriteMem(uint8_t *pim_addr, uint8_t *data, size_t size)
 {
 	std::cout << "  PIM_RUNTIME\t WriteMem!\n";
 	uint64_t strided_size = Ceiling(size, WORD_SIZE * NUM_BANK);
-
 	for (int offset = 0; offset < strided_size; offset += WORD_SIZE)
 		TryAddTransaction(pim_addr + offset, data + offset, true);
 }
@@ -283,19 +303,7 @@ void ExecuteKernel_8COL(uint8_t *pim_target, bool is_write, int bank)
 				thr_grp_param[ch].is_write = is_write;
 				pthread_create(&(thr_grp[ch]), NULL, TryThreadGroupAddTransaction, (void*)&thr_grp_param[ch]);
 #else // without multi-thread
-		if (FpgaMode())
-		{
-			for (int co_i = 0; co_i < 8; co_i++)
-			{
-				uint64_t tmp = hex_addr + co_i * step;
-				WriteReg(PIM_REG::ADDR, (uint8_t *)&tmp, is_write);
-			}
-			for (int co_i = 0; co_i < 8; co_i++)
-			{
-				TryAddTransaction(pim_target + hex_addr + co_i * step, data_temp_, is_write);
-			}
-		}
-		else if (ComputeMode())
+		if (ComputeMode())
 		{
 			for (int co_i = 0; co_i < 8; co_i++)
 			{
@@ -317,8 +325,9 @@ void ExecuteKernel_8COL(uint8_t *pim_target, bool is_write, int bank)
 
 bool ExecuteKernel(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_cmd, int bank)
 {
-	uint8_t *pim_target;
-	bool is_write;
+	if (FpgaMode())
+		pimExecution(pim_x, data_temp_, true);
+
 	switch (pim_cmd)
 	{
 	case (PIM_CMD::WRITE_SRF_INPUT):
@@ -393,18 +402,6 @@ bool ExecuteKernel(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_c
 	return 1;
 }
 // Some tool
-void runtime_init(uint64_t num)
-{
-	pim_mem = (uint8_t *)calloc(LEN_PIM, 1); // Just for a while
-	pim_base = (uint64_t)pim_mem;
-	if (ComputeMode())
-	{
-		pim_func_sim = new PimFuncSim();
-		pim_func_sim->init(pim_mem, LEN_PIM, WORD_SIZE);
-	}
-	std::cout << "PIM_BASE_ADDR : " << pim_base << "\n";
-}
-
 uint64_t Ceiling(uint64_t num, uint64_t stride)
 {
 	return ((num + stride - 1) / stride) * stride;
@@ -513,7 +510,93 @@ bool ComputeMode()
 	return false;
 }
 
-void pimExecution(uint8_t *pim_addr, uint8_t *data, bool is_write)
+void GetFpgaAddr_1COL(uint8_t *pim_target, bool is_write, int bank)
 {
-	std::cout << "→ to FPGA\n";
+	int ch = 0;
+	uint64_t hex_addr = GetAddress(ch, 0, 0, bank, 0, 0);
+	uint64_t tmp = (uint64_t)(pim_target + hex_addr);
+	PushFpgaAddr(tmp);
+}
+
+void GetFpgaAddr_8COL(uint8_t *pim_target, bool is_write, int bank)
+{
+	int ch = 0;
+	uint64_t hex_addr = GetAddress(ch, 0, 0, bank, 0, 0);
+	uint64_t step = GetAddress(0, 0, 0, 0, 0, 1);
+	for (int co_i = 0; co_i < 8; co_i++)
+	{
+		uint64_t tmp = hex_addr + co_i * step;
+		PushFpgaAddr(tmp);
+	}
+}
+
+bool GetFpgaAddr(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_cmd, int bank)
+{
+	uint8_t *pim_target;
+	bool is_write;
+	switch (pim_cmd)
+	{
+	case (PIM_CMD::READ_INPUT_1COL):
+		std::cout << "   Execute: READ_INPUT_1COL\n";
+		GetFpgaAddr_1COL(pim_x, false, bank);
+		break;
+	case (PIM_CMD::READ_WEIGHT_1COL):
+		std::cout << "   Execute: READ_WEIGHT_1COL\n";
+		GetFpgaAddr_1COL(pim_y, false, bank);
+		break;
+	case (PIM_CMD::READ_OUTPUT_1COL):
+		std::cout << "   Execute: READ_OUTPUT_1COL\n";
+		GetFpgaAddr_1COL(pim_z, false, bank);
+		break;
+	case (PIM_CMD::WRITE_INPUT_1COL):
+		std::cout << "   Execute: WRITE_INPUT_1COL\n";
+		GetFpgaAddr_1COL(pim_x, true, bank);
+		break;
+	case (PIM_CMD::WRITE_WEIGHT_1COL):
+		std::cout << "   Execute: WRITE_WEIGHT_1COL\n";
+		GetFpgaAddr_1COL(pim_y, true, bank);
+		break;
+	case (PIM_CMD::WRITE_OUTPUT_1COL):
+		std::cout << "   Execute: WRITE_OUTPUT_1COL\n";
+		GetFpgaAddr_1COL(pim_z, true, bank);
+		break;
+	case (PIM_CMD::READ_INPUT_8COL):
+		std::cout << "   Execute: READ_INPUT_8COL\n";
+		GetFpgaAddr_8COL(pim_x, false, bank);
+		break;
+	case (PIM_CMD::READ_WEIGHT_8COL):
+		std::cout << "   Execute: READ_WEIGHT_8COL\n";
+		GetFpgaAddr_8COL(pim_y, false, bank);
+		break;
+	case (PIM_CMD::READ_OUTPUT_8COL):
+		std::cout << "   Execute: READ_OUTPUT_8COL\n";
+		GetFpgaAddr_8COL(pim_z, false, bank);
+		break;
+	case (PIM_CMD::WRITE_INPUT_8COL):
+		std::cout << "   Execute: WRITE_INPUT_8COL\n";
+		GetFpgaAddr_8COL(pim_x, true, bank);
+		break;
+	case (PIM_CMD::WRITE_WEIGHT_8COL):
+		std::cout << "   Execute: WRITE_WEIGHT_8COL\n";
+		GetFpgaAddr_8COL(pim_y, true, bank);
+		break;
+	case (PIM_CMD::WRITE_OUTPUT_8COL):
+		std::cout << "   Execute: WRITE_OUTPUT_8COL\n";
+		GetFpgaAddr_8COL(pim_z, true, bank);
+		break;
+	}
+	return 1;
+}
+
+void PushFpgaAddr(uint64_t addr)
+{
+	fpga_addr_queue[num_fpga_addr] = (uint32_t)addr;
+	num_fpga_addr++;
+}
+
+void SetFpgaAddr()
+{
+	int num_col = (num_fpga_addr + 8 - 1) / 8;
+	WriteReg(PIM_REG::ADDR, (uint8_t *)&num_fpga_addr, WORD_SIZE * num_col);
+	num_fpga_addr = 0;
 }

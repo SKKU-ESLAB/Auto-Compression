@@ -18,20 +18,23 @@ bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 	int idx = 0;
 	int bank = 0;
 	WriteReg(PIM_REG::CRF, (uint8_t *)(micro_kernel.code0), 4 * WORD_SIZE);
-	std::cout << "code  iter 1: " << add_attrs.code_iter << std::endl;
-	std::cout << "code0 iter 2: " << add_attrs.code0_iter << std::endl;
-	std::cout << "step : " << WORD_SIZE * 8 * NUM_BANK << std::endl;
 	for (int i = 0; i < add_attrs.code_iter; i++)
 	{
 		std::cout << "= = = CODE = = =\n";
 		for (int j = 0; j < add_attrs.code0_iter; j++)
 		{
 			std::cout << "- - - CODE0 - - -\n";
+#ifdef fpga_mode
+			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
+				bool ret = GetFpgaAddr(in0 + idx, in1 + idx, pim_out + idx, micro_kernel.code0_cmd[k], bank);
+			SetFpgaAddr();
+			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
+			ExecuteKernel(in0, in1, pim_out, micro_kernel.code0_cmd[0], bank);
+#else
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
-			{
 				bool ret = ExecuteKernel(in0 + idx, in1 + idx, pim_out + idx, micro_kernel.code0_cmd[k], bank);
-			}
+#endif
 			idx += WORD_SIZE * 8 * NUM_BANK;
 		}
 		idx = 0;
