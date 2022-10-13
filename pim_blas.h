@@ -4,11 +4,12 @@
 #include "pim_runtime.h"
 #include "pim_config.h"
 
-void blas_init(uint64_t pim_base);
-bool pim_add(uint8_t* pim_mem, int n, uint8_t *x, uint8_t *y, uint8_t *z);
-bool pim_mul(uint8_t* pim_mem, int n, uint8_t *x, uint8_t *y, uint8_t *z);
-bool pim_bn(uint8_t* pim_mem, int l, int f, uint8_t *x, uint8_t *y, uint8_t *z);
-bool pim_gemv(uint8_t* pim_mem, int m, int n, uint8_t *x, uint8_t *y, uint8_t *z);
-bool pim_lstm(uint8_t* pim_mem, int m, int n, uint8_t *x, uint8_t *y, uint8_t *z);
+void blas_init(uint64_t num);
+bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_t *out);
+bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_t *out);
+// bool pim_mul(uint8_t* pim_mem, int n, uint8_t *x, uint8_t *y, uint8_t *z);
+// bool pim_bn(uint8_t* pim_mem, int l, int f, uint8_t *x, uint8_t *y, uint8_t *z);
+bool pim_gemv(PIMKernel micro_kernel, int m, int n, uint8_t *x, uint8_t *y, uint8_t *z);
+// bool pim_lstm(uint8_t* pim_mem, int m, int n, uint8_t *x, uint8_t *y, uint8_t *z);
 
-#endif  // __PIM_BLAS_H_
+#endif // __PIM_BLAS_H_

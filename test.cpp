@@ -1,149 +1,174 @@
 #include <iostream>
+#include <cstring>
 #include "pim_blas.h"
 using half_float::half;
 typedef unsigned short uint16;
 
-//int fd = open("/dev/PIM", O_RDWR|O_SYNC);
-//int fd = open("./PIM", O_RDWR|O_SYNC);
-//uint8_t* pim_mem = (uint8_t*)mmap(NULL, LEN_PIM, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
-uint8_t* pim_mem = (uint8_t*)calloc(LEN_PIM, 1);
 std::random_device random_device;
 auto rng = std::mt19937(random_device());
 auto f32rng = std::bind(std::normal_distribution<float>(0, 1), std::ref(rng));
 
-void init() {
-	uint64_t pim_base = (uint64_t)pim_mem;
-	blas_init(pim_base);
+void init()
+{
+	blas_init(0);
 }
 
-/*
-void test_add_blas() {
-	int n = 4096;
-	uint8_t *x = (uint8_t *)malloc(sizeof(uint16_t)*n);
-	uint8_t *y = (uint8_t *)malloc(sizeof(uint16_t)*n);
-	uint8_t *z = (uint8_t *)malloc(sizeof(uint16_t)*n);
-
-	for (int i=0; i<n; i++) {
-		half h_x = half(f32rng());
-		half h_y = half(f32rng());
-		((uint16_t*)x)[i] = *reinterpret_cast<uint16_t*>(&h_x);
-		((uint16_t*)y)[i] = *reinterpret_cast<uint16_t*>(&h_y);
+void transpose(uint8_t *w, int m, int n)
+{
+	uint8_t *w_ = (uint8_t *)malloc(sizeof(uint16_t) * m * n);
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < m; j++)
+		{
+			((uint16_t *)w_)[j * n + i] = ((uint16_t *)w)[i * m + j];
+		}
 	}
+	w = w_;
+}
+
+void test_add_blas()
+{
+	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
+	int n = 4096 * 2;
+	uint8_t *in0 = (uint8_t *)malloc(sizeof(uint16_t) * n);
+	uint8_t *in1 = (uint8_t *)malloc(sizeof(uint16_t) * n);
+	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
+
+	for (int i = 0; i < n; i++)
+	{
+		((uint16_t *)in0)[i] = i;
+		((uint16_t *)in1)[i] = 1;
+	}
+
+	std::cout << "///// Preprocessing ADD BLAS... /////\n";
+	PIM_OP pim_op = PIM_OP::ADD;
+	PIM_OP_ATTRS add_attrs = PIM_OP_ATTRS();
+	add_attrs.ADD(n);
+	PIMKernel micro_kernel = GetMicrokernelCode(pim_op, add_attrs);
+	in0 = MapMemory(in0, n * UNIT_SIZE);
+	in1 = MapMemory(in1, n * UNIT_SIZE);
 
 	std::cout << "///// Testing ADD BLAS... /////\n";
-	pim_add(pim_mem, n, x, y, z);
+	pim_add(micro_kernel, n, in0, in1, out);
 
 	std::cout << "///// Test ADD BLAS Ended!! /////\n";
+
+	for (int i = 0; i < n; i++)
+		std::cout << ((uint16_t *)out)[i] << " ";
+	std::cout << std::endl;
 	return;
 }
 
-void test_mul_blas() {
-	int n = 4096;
-	uint8_t *x = (uint8_t *)malloc(sizeof(uint16_t)*n);
-	uint8_t *y = (uint8_t *)malloc(sizeof(uint16_t)*n);
-	uint8_t *z = (uint8_t *)malloc(sizeof(uint16_t)*n);
+void test_mul_blas()
+{
+	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
+	int n = 4096 * 2;
+	uint8_t *in0 = (uint8_t *)malloc(sizeof(uint16_t) * n);
+	uint8_t *in1 = (uint8_t *)malloc(sizeof(uint16_t) * n);
+	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
 
-	for (int i=0; i<n; i++) {
-		half h_x = half(f32rng());
-		half h_y = half(f32rng());
-		((uint16_t*)x)[i] = *reinterpret_cast<uint16_t*>(&h_x);
-		((uint16_t*)y)[i] = *reinterpret_cast<uint16_t*>(&h_y);
+	for (int i = 0; i < n; i++)
+	{
+		((uint16_t *)in0)[i] = i;
+		((uint16_t *)in1)[i] = 2;
 	}
+
+	std::cout << "///// Preprocessing MUL BLAS... /////\n";
+	PIM_OP pim_op = PIM_OP::MUL;
+	PIM_OP_ATTRS mul_attrs = PIM_OP_ATTRS();
+	mul_attrs.MUL(n);
+	PIMKernel micro_kernel = GetMicrokernelCode(pim_op, mul_attrs);
+	in0 = MapMemory(in0, n * UNIT_SIZE);
+	in1 = MapMemory(in1, n * UNIT_SIZE);
 
 	std::cout << "///// Testing MUL BLAS... /////\n";
-	pim_mul(pim_mem, n, x, y, z);
+	pim_mul(micro_kernel, n, in0, in1, out);
 
 	std::cout << "///// Test MUL BLAS Ended!! /////\n";
+
+	for (int i = 0; i < n; i++)
+		std::cout << ((uint16_t *)out)[i] << " ";
+	std::cout << std::endl;
 	return;
 }
 
-void test_bn_blas() {
-	int l = 8;
-	int f = 2048;
-	uint8_t *x = (uint8_t *)malloc(sizeof(uint16_t)*l*f);  // input
-	uint8_t *y = (uint8_t *)malloc(sizeof(uint16_t)*f);    // sig
-	uint8_t *z = (uint8_t *)malloc(sizeof(uint16_t)*f);    // mu
-
-	for (int i=0; i<f; i++) {
-		half h_y = half(f32rng());
-		half h_z = half(f32rng());
-		((uint16_t*)y)[i] = *reinterpret_cast<uint16_t*>(&h_y);
-		((uint16_t*)z)[i] = *reinterpret_cast<uint16_t*>(&h_z);
-		for (int j=0; j<l; j++) {
-			half h_x = half(f32rng());
-			((uint16_t*)x)[j*f+i] = *reinterpret_cast<uint16_t*>(&h_x);
-		}
-	}
-
-	std::cout << "///// Testing BN BLAS... /////\n";
-	pim_bn(pim_mem, l, f, x, y, z);
-
-	std::cout << "///// Test BN BLAS Ended!! /////\n";
-
-	return;
-}
-*/
-
-void test_gemv_blas() {
-	std::cout << "pim_mem addr: " << (long long unsigned)pim_mem << std::endl;
+void test_mac_blas()
+{
 	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
-	std::cout << "pim_mem[LEN_PIM-1]: " << (int)pim_mem[LEN_PIM-1] << std::endl;
-	int m = 32;
-	int n = 4096;
-	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t)*m);
-	uint8_t *w = (uint8_t *)malloc(sizeof(uint16_t)*m*n);
-	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t)*n);
+}
 
-	for (int i=0; i<m; i++) {
-		half h_in = half(f32rng());
-		for (int j=0; j<n; j++) {
-			half h_w = half(f32rng());
-			((uint16_t*)w)[i*n + j] = *reinterpret_cast<uint16_t*>(&h_w);
+void test_bn_blas()
+{
+	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
+}
+
+void test_gemv_blas()
+{
+	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
+	int m = 8;
+	int n = 4096;
+	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t) * m);
+	uint8_t *w = (uint8_t *)malloc(sizeof(uint16_t) * m * n);
+	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
+
+	for (int j = 0; j < m; j++)
+	{
+		for (int i = 0; i < n; i++)
+		{
+			((uint16_t *)w)[i * m + j] = 2;
 		}
-		((uint16_t*)in)[i] = *reinterpret_cast<uint16_t*>(&h_in);
+		((uint16_t *)in)[j] = 1;
 	}
+
+	std::cout << "///// Preprocessing GEMV BLAS... /////\n";
+	PIM_OP pim_op = PIM_OP::GEMV;
+	PIM_OP_ATTRS gemv_attrs = PIM_OP_ATTRS();
+	gemv_attrs.GEMV(m, n);
+	PIMKernel micro_kernel = GetMicrokernelCode(pim_op, gemv_attrs);
+
+	if (micro_kernel.layout == 1)
+		transpose(w, m, n);
+
+	w = MapMemory(w, m * n * UNIT_SIZE);
 
 	std::cout << "///// Testing GEMV BLAS... /////\n";
-	pim_gemv(pim_mem, m, n, in, w, out);
+	pim_gemv(micro_kernel, m, n, in, w, out);
 
 	std::cout << "///// Test GEMV BLAS Ended!! /////\n";
+
+	for (int i = 0; i < n; i++)
+		std::cout << (int)((uint16_t *)out)[i] << " ";
+	std::cout << std::endl;
 	return;
 }
+void test_lstm_blas()
+{
+	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
+}
 
-void test_add_blas() {return;}
-void test_mul_blas() {return;}
-void test_bn_blas() {return;}
-void test_lstm_blas() {return;}
-
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 	init();
-	int option;
-	if (argc >= 2)
-		option= atoi(argv[1]);
-	else {
-		std::cout << "ALL: 0, ADD: 1, MUL: 2, BN: 3, GEMV: 4, LSTM: 5\nEnter: ";
-		std::cin >> option;
+
+	if (argc <= 1)
+	{
+		std::cout << "add, mul, mac, bn, gemv, lstm\n";
+		return -1;
 	}
 
-	if(option == 0) {
-		//test_add_blas();
-		//test_mul_blas();
-		//test_bn_blas();
-		test_gemv_blas();
-		//test_lstm_blas();
-	}
-	else if(option == 1)
+	if (std::string(argv[1]) == "add")
 		test_add_blas();
-	else if(option == 2)
+	else if (std::string(argv[1]) == "mul")
 		test_mul_blas();
-	else if(option == 3)
+	else if (std::string(argv[1]) == "mac")
+		test_mac_blas();
+	else if (std::string(argv[1]) == "bn")
 		test_bn_blas();
-	else if(option == 4)
+	else if (std::string(argv[1]) == "gemv")
 		test_gemv_blas();
-	else if(option == 5)
+	else if (std::string(argv[1]) == "lstm")
 		test_lstm_blas();
 	else
-		std::cout << "ERROR: wrong number\n";
-
+		std::cout << "error... not supported\n";
 	return 0;
 }

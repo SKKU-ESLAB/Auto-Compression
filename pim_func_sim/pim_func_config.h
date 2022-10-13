@@ -9,7 +9,7 @@ using half_float::half;
 /////////////////- set unit size - ///////////////////
 // typedef half              unit_t;
 //#define debug_mode
-#define watch_pimindex 1
+#define watch_pimindex 0
 //////////////////////////////////////////////////////
 
 #define NOP_END 111

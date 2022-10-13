@@ -359,9 +359,16 @@ void PimUnit::SetOperandAddr(uint64_t hex_addr)
         int dst_idx = int(ADDR / pow(2, CRF[PPC].dst_idx)) % 8;
         int src0_idx = int(ADDR / pow(2, CRF[PPC].src0_idx)) % 8;
         int src1_idx = int(ADDR / pow(2, CRF[PPC].src1_idx)) % 8;
-        // std::cout << A_idx << " " << B_idx << " " << dst_idx << " " << src0_idx << " " << src1_idx << std::endl;
 
-        // int CA = addr.column;
+        int CH = addr.channel;
+        int RA = addr.row;
+        int BA = addr.bank;
+        int CA = addr.column;
+        if (DebugMode())
+        {
+            std::cout << "  PU: " << dst_idx << " " << src0_idx << " " << src1_idx << std::endl;
+            std::cout << "  PU: CA=" << CA << ", RA=" << RA << std::endl;
+        }
         // int RA = addr.row;
         // int A_idx = CA % 8;
         // int B_idx = CA / 8 + RA % 2 * 4;
@@ -555,20 +562,16 @@ void PimUnit::_ADD()
     {
         for (int i = 0; i < UNITS_PER_WORD; i++)
         {
-            half h_src0(*reinterpret_cast<half *>(&src0[i]));
-            half h_src1(*reinterpret_cast<half *>(&src1[0]));
-            half h_dst = h_src0 + h_src1;
-            dst[i] = *reinterpret_cast<unit_t *>(&h_dst);
+            dst[i] = src0[i] + src1[0];
         }
     }
     else
     {
         for (int i = 0; i < UNITS_PER_WORD; i++)
         {
-            half h_src0(*reinterpret_cast<half *>(&src0[i]));
-            half h_src1(*reinterpret_cast<half *>(&src1[i]));
-            half h_dst = h_src0 + h_src1;
-            dst[i] = *reinterpret_cast<unit_t *>(&h_dst);
+            if (DebugMode())
+                std::cout << "ADD " << i << "\t" << src0[i] << " " << src1[i] << std::endl;
+            dst[i] = src0[i] + src1[i];
         }
     }
 }
@@ -587,24 +590,16 @@ void PimUnit::_MAC()
     {
         for (int i = 0; i < UNITS_PER_WORD; i++)
         {
-            half h_dst(*reinterpret_cast<half *>(&dst[i]));
-            half h_src0(*reinterpret_cast<half *>(&src0[i]));
-            half h_src1(*reinterpret_cast<half *>(&src1[0]));
-            h_dst = fma(h_src0, h_src1, h_dst);
-            // std::cout << h_dst << " " << h_src0 << " " << h_src1 << std::endl;
-            // std::cout << "(MAC) GRF_B[0]: " << (int)GRF_B_[0] << std::endl;
-            dst[i] = *reinterpret_cast<unit_t *>(&h_dst);
+            if (DebugMode())
+                std::cout << "MAC " << i << "\t" << src0[i] << "x" << src1[0] << "+" << dst[i] << std::endl;
+            dst[i] = src0[i] * src1[0] + dst[i];
         }
     }
     else
     {
         for (int i = 0; i < UNITS_PER_WORD; i++)
         {
-            half h_dst(*reinterpret_cast<half *>(&dst[i]));
-            half h_src0(*reinterpret_cast<half *>(&src0[i]));
-            half h_src1(*reinterpret_cast<half *>(&src1[i]));
-            h_dst = fma(h_src0, h_src1, h_dst);
-            dst[i] = *reinterpret_cast<unit_t *>(&h_dst);
+            dst[i] = src0[i] * src1[i] + dst[i];
         }
     }
 }
@@ -618,7 +613,6 @@ void PimUnit::_MOV()
     // std::cout << "(MOV) GRF_B[0]: " << (int)GRF_B_[0] << std::endl;
     for (int i = 0; i < UNITS_PER_WORD; i++)
     {
-        // std::cout << i << ": " << dst[i] << " " << src0[i] << std::endl;
         dst[i] = src0[i];
     }
 }
