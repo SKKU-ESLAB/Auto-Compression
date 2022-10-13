@@ -326,7 +326,7 @@ void ExecuteKernel_8COL(uint8_t *pim_target, bool is_write, int bank)
 bool ExecuteKernel(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_cmd, int bank)
 {
 	if (FpgaMode())
-		pimExecution(pim_x, data_temp_, true);
+		pimExecution((uint32_t)((uint64_t)pim_x - pim_base), data_temp_, 1);
 
 	switch (pim_cmd)
 	{
@@ -458,7 +458,7 @@ static void *TryThreadAddTransaction(void *input_)
 void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write)
 {
 	if (FpgaMode())
-		pimExecution(pim_addr, data, is_write);
+		pimExecution((uint32_t)((uint64_t)(pim_addr - pim_base)), data, int(is_write));
 	else if (ComputeMode())
 		pim_func_sim->AddTransaction((uint64_t)(pim_addr - pim_base), data, is_write);
 	else

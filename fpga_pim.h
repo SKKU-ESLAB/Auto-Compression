@@ -15,4 +15,6 @@
 #include <sys/ioctl.h>
 #include <stdbool.h>
 
-void pimExecution(uint8_t *pim_addr, uint8_t *data, bool is_write);
+// #include "../xdma/cdev_sgdma.h"
+
+long pimExecution(uint32_t addr, void *data, int iswrite);
