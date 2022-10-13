@@ -485,7 +485,7 @@ void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write)
 		int CH = addr.channel;
 		int BA = addr.bank;
 		int RA = addr.row;
-		std::cout << "PIM_Runtime's RA : " << std::hex << RA << std::dec << std::endl;
+		// std::cout << "PIM_Runtime's RA : " << std::hex << RA << std::dec << std::endl;
 		tmp_change tc;
 		tc.change_body = hex_addr;
 		uint32_t tmp = tc.byte_0;
