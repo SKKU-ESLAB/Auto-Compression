@@ -53,9 +53,9 @@ void test_add_blas()
 
 	std::cout << "///// Test ADD BLAS Ended!! /////\n";
 
-	for (int i = 0; i < n; i++)
-		std::cout << ((uint16_t *)out)[i] << " ";
-	std::cout << std::endl;
+	// for (int i = 0; i < n; i++)
+	//	std::cout << ((uint16_t *)out)[i] << " ";
+	// std::cout << std::endl;
 	return;
 }
 

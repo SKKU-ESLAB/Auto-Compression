@@ -455,6 +455,27 @@ static void *TryThreadAddTransaction(void *input_)
 	return (NULL);
 }
 
+uint32_t change(uint64_t tmp)
+{
+	uint32_t a;
+	for (int i = 0; i < 32; i++)
+	{
+		a = a + tmp % 2;
+		tmp = tmp / 2;
+	}
+}
+
+union tmp_change
+{
+	struct
+	{
+		uint64_t : 5;
+		uint64_t byte_0 : 32;
+		uint64_t byte_1 : 27;
+	};
+	uint64_t change_body;
+};
+
 void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write)
 {
 	if (FpgaMode())
@@ -463,8 +484,13 @@ void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write)
 		Address addr = AddressMapping(hex_addr);
 		int CH = addr.channel;
 		int BA = addr.bank;
+		int RA = addr.row;
+		std::cout << "PIM_Runtime's RA : " << std::hex << RA << std::dec << std::endl;
+		tmp_change tc;
+		tc.change_body = hex_addr;
+		uint32_t tmp = tc.byte_0;
 		if (CH == 0 && (BA == 0 || BA == 1))
-			pimExecution((uint32_t)((uint64_t)(pim_addr - pim_base)), data, 1);
+			pimExecution(tmp, data, 1);
 	}
 	else if (ComputeMode())
 		pim_func_sim->AddTransaction((uint64_t)(pim_addr - pim_base), data, is_write);
