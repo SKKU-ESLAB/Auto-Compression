@@ -326,7 +326,7 @@ void ExecuteKernel_8COL(uint8_t *pim_target, bool is_write, int bank)
 bool ExecuteKernel(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_cmd, int bank)
 {
 	if (FpgaMode())
-		pimExecution((uint32_t)((uint64_t)pim_x - pim_base), data_temp_, 1);
+		pimExecution((uint32_t)0, data_temp_, 1);
 
 	switch (pim_cmd)
 	{
