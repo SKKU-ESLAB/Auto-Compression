@@ -4,6 +4,8 @@
 using half_float::half;
 typedef unsigned short uint16;
 
+#define ABS(x) ((x < 0) ? (-x) : (x))
+
 std::random_device random_device;
 auto rng = std::mt19937(random_device());
 auto f32rng = std::bind(std::normal_distribution<float>(0, 1), std::ref(rng));
@@ -13,7 +15,7 @@ void init()
 	blas_init(0);
 }
 
-void transpose(uint8_t *w, int m, int n)
+uint8_t *transpose(uint8_t *w, int m, int n)
 {
 	uint8_t *w_ = (uint8_t *)malloc(sizeof(uint16_t) * m * n);
 	for (int i = 0; i < n; i++)
@@ -23,7 +25,7 @@ void transpose(uint8_t *w, int m, int n)
 			((uint16_t *)w_)[j * n + i] = ((uint16_t *)w)[i * m + j];
 		}
 	}
-	w = w_;
+	return w_;
 }
 
 void test_add_blas()
@@ -33,11 +35,13 @@ void test_add_blas()
 	uint8_t *in0 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *in1 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
+	uint8_t *ans = (uint8_t *)malloc(sizeof(uint16_t) * n);
 
 	for (int i = 0; i < n; i++)
 	{
-		((uint16_t *)in0)[i] = i;
-		((uint16_t *)in1)[i] = 1;
+		((uint16_t *)in0)[i] = rand();
+		((uint16_t *)in1)[i] = rand();
+		((uint16_t *)ans)[i] = ((uint16_t *)in0)[i] + ((uint16_t *)in1)[i];
 	}
 
 	std::cout << "///// Preprocessing ADD BLAS... /////\n";
@@ -53,9 +57,14 @@ void test_add_blas()
 
 	std::cout << "///// Test ADD BLAS Ended!! /////\n";
 
+	int error = 0;
 	for (int i = 0; i < n; i++)
+	{
 		std::cout << ((uint16_t *)out)[i] << " ";
-	std::cout << std::endl;
+		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
+	}
+	std::cout << "\nERROR: " << error << std::endl;
+
 	return;
 }
 
@@ -66,11 +75,13 @@ void test_mul_blas()
 	uint8_t *in0 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *in1 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
+	uint8_t *ans = (uint8_t *)malloc(sizeof(uint16_t) * n);
 
 	for (int i = 0; i < n; i++)
 	{
-		((uint16_t *)in0)[i] = i;
-		((uint16_t *)in1)[i] = 2;
+		((uint16_t *)in0)[i] = rand();
+		((uint16_t *)in1)[i] = rand();
+		((uint16_t *)ans)[i] = ((uint16_t *)in0)[i] * ((uint16_t *)in1)[i];
 	}
 
 	std::cout << "///// Preprocessing MUL BLAS... /////\n";
@@ -86,9 +97,13 @@ void test_mul_blas()
 
 	std::cout << "///// Test MUL BLAS Ended!! /////\n";
 
+	int error = 0;
 	for (int i = 0; i < n; i++)
+	{
 		std::cout << ((uint16_t *)out)[i] << " ";
-	std::cout << std::endl;
+		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
+	}
+	std::cout << "\nERROR: " << error << std::endl;
 	return;
 }
 
@@ -105,20 +120,23 @@ void test_bn_blas()
 void test_gemv_blas()
 {
 	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
-	int m = 8;
+	int m = 4;
 	int n = 4096;
 	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t) * m);
 	uint8_t *w = (uint8_t *)malloc(sizeof(uint16_t) * m * n);
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
+	uint8_t *ans = (uint8_t *)malloc(sizeof(uint16_t) * n);
+
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++)
+			((uint16_t *)w)[i * m + j] = rand();
 
 	for (int j = 0; j < m; j++)
-	{
-		for (int i = 0; i < n; i++)
-		{
-			((uint16_t *)w)[i * m + j] = 2;
-		}
-		((uint16_t *)in)[j] = 1;
-	}
+		((uint16_t *)in)[j] = rand();
+
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++)
+			((uint16_t *)ans)[i] = ((uint16_t *)ans)[i] + ((uint16_t *)w)[i * m + j] * ((uint16_t *)in)[j];
 
 	std::cout << "///// Preprocessing GEMV BLAS... /////\n";
 	PIM_OP pim_op = PIM_OP::GEMV;
@@ -127,7 +145,7 @@ void test_gemv_blas()
 	PIMKernel micro_kernel = GetMicrokernelCode(pim_op, gemv_attrs);
 
 	if (micro_kernel.layout == 1)
-		transpose(w, m, n);
+		w = transpose(w, m, n);
 
 	w = MapMemory(w, m * n * UNIT_SIZE);
 
@@ -136,11 +154,16 @@ void test_gemv_blas()
 
 	std::cout << "///// Test GEMV BLAS Ended!! /////\n";
 
+	int error = 0;
 	for (int i = 0; i < n; i++)
+	{
 		std::cout << (int)((uint16_t *)out)[i] << " ";
-	std::cout << std::endl;
+		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
+	}
+	std::cout << "\nERROR: " << error << std::endl;
 	return;
 }
+
 void test_lstm_blas()
 {
 	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;

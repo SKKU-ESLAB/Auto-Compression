@@ -4,7 +4,11 @@ pim_config.cpp
 pim_config.h
 pim_runtime.cpp
 setup.py
+../fpga_pim.c
 pim_cpp.egg-info/PKG-INFO
 pim_cpp.egg-info/SOURCES.txt
 pim_cpp.egg-info/dependency_links.txt
 pim_cpp.egg-info/top_level.txt
+pim_func_sim/pim_func_sim.cc
+pim_func_sim/pim_unit.cc
+pim_func_sim/pim_utils.cc

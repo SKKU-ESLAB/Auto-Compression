@@ -591,8 +591,11 @@ void PimUnit::_MAC()
         for (int i = 0; i < UNITS_PER_WORD; i++)
         {
             if (DebugMode())
-                std::cout << "MAC " << i << "\t" << src0[i] << "x" << src1[0] << "+" << dst[i] << std::endl;
-            dst[i] = src0[i] * src1[0] + dst[i];
+            {
+                std::cout << "MAC " << i << "\t" << dst[i] << "+" << src0[i] << "x" << src1[0] << std::endl;
+                std::cout << "TADA : " << (uint64_t)src0 << std::endl;
+            }
+            dst[i] = dst[i] + src0[i] * src1[0];
         }
     }
     else

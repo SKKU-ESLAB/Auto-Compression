@@ -43,7 +43,7 @@ typedef uint16_t unit_t;
 
 #define MAP_ADDR 0x3ff9
 // options //
-#define fpga_mode
+// #define fpga_mode
 #define debug_mode
 #define compute_mode
 
@@ -114,7 +114,11 @@ enum class PIM_OP
 enum class PIM_REG
 {
 	SRF = 0,
+	SRF_A,
+	SRF_M,
 	GRF,
+	GRF_A,
+	GRF_B,
 	CRF,
 	ABMR,
 	SBMR,
@@ -244,20 +248,17 @@ public:
 			code0[1] = 0b00010000000001000000100000000111; // JUMP    -1         7
 			code0[2] = 0b00100000000000000000000000000000; // EXIT
 
-			code1[0] = 0b10100100001000001000100000000000; // MAC(A)  GRF_B[A0]  BANK      SRF_M[A0]
-			code1[1] = 0b00010000000001000000100000000111; // JUMP    -1         7
-			code1[2] = 0b01000000100000000000000000000000; // MOV     BANK       GRF_B[0]
-			code1[3] = 0b00100000000000000000000000000001; // EXIT
+			code1[0] = 0b01000000100000000000000000000000; // MOV     BANK       GRF_B[0]
+			code1[1] = 0b00100000000000000000000000000001; // EXIT
 			layout = 1;
 
 			code0_num_cmds = 1;
 			code0_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code0_num_cmds);
 			code0_cmd[0] = PIM_CMD::READ_WEIGHT_8COL;
 
-			code1_num_cmds = 2;
+			code1_num_cmds = 1;
 			code1_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code1_num_cmds);
-			code1_cmd[0] = PIM_CMD::READ_WEIGHT_8COL;
-			code1_cmd[1] = PIM_CMD::WRITE_OUTPUT_1COL;
+			code1_cmd[0] = PIM_CMD::WRITE_OUTPUT_1COL;
 		}
 		else if (op == (PIM_OP::LSTM))
 		{

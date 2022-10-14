@@ -210,15 +210,34 @@ size_t WriteReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 {
 	std::cout << "  PIM_RUNTIME\t WriteReg!\n";
 	uint64_t strided_size = Ceiling(size, WORD_SIZE * NUM_BANK);
+	uint64_t step = GetAddress(0, 0, 0, 0, 0, 1);
 
 	switch (pim_reg)
 	{
-	case (PIM_REG::SRF):
+	case (PIM_REG::SRF): // TODO Remove SRF
 		std::cout << "   MEM WR → SRF\n";
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
 			uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_SRF, 0);
 			TryAddTransaction(pim_mem + hex_addr, data, true);
+		}
+		break;
+	case (PIM_REG::SRF_A):
+		std::cout << "   MEM WR → SRF_A\n";
+		for (int ch = 0; ch < NUM_CHANNEL; ch++)
+		{
+			uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_SRF, 0);
+			TryAddTransaction(pim_mem + hex_addr, data, true);
+		}
+		break;
+	case (PIM_REG::SRF_M):
+		std::cout << "   MEM WR → SRF_M\n";
+		for (int ch = 0; ch < NUM_CHANNEL; ch++)
+		{
+			uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_SRF, 0);
+			for (int i = 0; i < 16; i++)
+				data_temp_[i + 16] = data[i];
+			TryAddTransaction(pim_mem + hex_addr, data_temp_, true);
 		}
 		break;
 	case (PIM_REG::GRF):
@@ -229,6 +248,25 @@ size_t WriteReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 			TryAddTransaction(pim_mem + hex_addr, data, true);
 		}
 		break;
+	case (PIM_REG::GRF_A):
+		std::cout << "   MEM WR → GRF_A\n";
+		for (int ch = 0; ch < NUM_CHANNEL; ch++)
+		{
+			uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_GRF, 0);
+			for (int co = 0; co < 8; co++)
+				TryAddTransaction(pim_mem + hex_addr + co * step, data + co * step, true);
+		}
+		break;
+	case (PIM_REG::GRF_B):
+		std::cout << "   MEM WR → GRF_B\n";
+		for (int ch = 0; ch < NUM_CHANNEL; ch++)
+		{
+			uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_GRF, 8);
+			for (int co = 0; co < 8; co++)
+				TryAddTransaction(pim_mem + hex_addr + co * step, data + co * step, true);
+		}
+		break;
+
 	case (PIM_REG::CRF):
 		std::cout << "   MEM WR → CRF\n";
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)

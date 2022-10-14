@@ -12,10 +12,14 @@ rule compile
 
 
 
-build /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/build/temp.linux-x86_64-3.6/pim.o: compile /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/pim.cpp
-build /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/build/temp.linux-x86_64-3.6/pim_blas.o: compile /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/pim_blas.cpp
-build /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/build/temp.linux-x86_64-3.6/pim_runtime.o: compile /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/pim_runtime.cpp
-build /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/build/temp.linux-x86_64-3.6/pim_config.o: compile /home/kkm0411/PIM_SoftwareStack/tmp/pim_extension/pim_config.cpp
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/pim.o: compile /home/kkm0411/PIM_SoftwareStack/pim.cpp
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/pim_blas.o: compile /home/kkm0411/PIM_SoftwareStack/pim_blas.cpp
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/pim_runtime.o: compile /home/kkm0411/PIM_SoftwareStack/pim_runtime.cpp
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/pim_config.o: compile /home/kkm0411/PIM_SoftwareStack/pim_config.cpp
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/pim_func_sim/pim_func_sim.o: compile /home/kkm0411/PIM_SoftwareStack/pim_func_sim/pim_func_sim.cc
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/pim_func_sim/pim_unit.o: compile /home/kkm0411/PIM_SoftwareStack/pim_func_sim/pim_unit.cc
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/pim_func_sim/pim_utils.o: compile /home/kkm0411/PIM_SoftwareStack/pim_func_sim/pim_utils.cc
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/../fpga_pim.o: compile /home/kkm0411/fpga_pim.c
 
 
 
