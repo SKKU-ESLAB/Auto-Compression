@@ -50,8 +50,7 @@ uint64_t PimFuncSim::GetPimIndex(Address &addr)
 {
     return (addr.channel * NUM_BANK_PER_CHANNEL +
             addr.bankgroup * NUM_BANK_PER_GROUP +
-            addr.bank) /
-           2;
+            addr.bank) / 2;
 }
 
 // Return to print out debugging information or not
@@ -61,7 +60,7 @@ bool PimFuncSim::DebugMode(uint64_t hex_addr)
 #ifdef debug_mode
     Address addr = AddressMapping(hex_addr);
     int pim_index = GetPimIndex(addr);
-    if (pim_index == watch_pimindex / (NUM_BANK_PER_CHANNEL / 2))
+    if (pim_index == watch_pimindex)
         return true;
 #endif
     return false;
@@ -78,7 +77,7 @@ bool PimFuncSim::ModeChanger(uint64_t hex_addr)
             bankmode[addr.channel] = "SB";
         }
         if (DebugMode(hex_addr))
-            std::cout << " Pim_func_sim: AB → SB mode change\n";
+            std::cout << "   Pim_func_sim: AB → SB mode change\n";
         return true;
     }
     else if (addr.row == 0x3ffe)
@@ -88,14 +87,14 @@ bool PimFuncSim::ModeChanger(uint64_t hex_addr)
             bankmode[addr.channel] = "AB";
         }
         if (DebugMode(hex_addr))
-            std::cout << " Pim_func_sim: SB → AB mode change\n";
+            std::cout << "   Pim_func_sim: SB → AB mode change\n";
         return true;
     }
     else if (addr.row == 0x3ffd)
     {
         PIM_OP_MODE[addr.channel] = true;
         if (DebugMode(hex_addr))
-            std::cout << " Pim_func_sim: AB → PIM mode change\n";
+            std::cout << "   Pim_func_sim: AB → PIM mode change\n";
         return true;
     }
     return false;
@@ -132,7 +131,7 @@ void PimFuncSim::AddTransaction(uint64_t hex_addr, uint8_t *DataPtr, bool is_wri
         {
             // Execute transaction on SB(Single Bank) mode
             if (DebugMode(hex_addr))
-                std::cout << " Pim_func_sim: SB mode → ";
+                std::cout << "   Pim_func_sim: SB mode → ";
 
             // Set PIM registers or RD/WR to Physical memory
             //  Discerned with certain row address
@@ -177,7 +176,7 @@ void PimFuncSim::AddTransaction(uint64_t hex_addr, uint8_t *DataPtr, bool is_wri
             if (!PIM_OP_MODE[addr.channel])
             {
                 if (DebugMode(hex_addr))
-                    std::cout << " Pim_func_sim: AB mode → ";
+                    std::cout << "   Pim_func_sim: AB mode → ";
 
                 // Set (PIM registers or RD/WR to Physical memory) of all
                 // banks in a channel
@@ -237,7 +236,7 @@ void PimFuncSim::AddTransaction(uint64_t hex_addr, uint8_t *DataPtr, bool is_wri
     {
         // Execute transaction on AB-PIM(All Bank PIM) mode
         if (DebugMode(hex_addr))
-            std::cout << " Pim_func_sim: PIM mode → ";
+            std::cout << "   Pim_func_sim: PIM mode → ";
 
         // Same as AB mode except, sends Transaction to proper pim_unit
         // when RD/WR transaction is recieved
@@ -293,7 +292,7 @@ void PimFuncSim::AddTransaction(uint64_t hex_addr, uint8_t *DataPtr, bool is_wri
                 if (ret == EXIT_END)
                 {
                     if (DebugMode(hex_addr))
-                        std::cout << " Pim_func_sim: PIM → AB mode change\n";
+                        std::cout << "   Pim_func_sim: PIM → AB mode change (Automatic)\n";
                     PIM_OP_MODE[addr.channel] = false;
                 }
             }

@@ -156,7 +156,7 @@ void PimUnit::PrintPIM_IST(PimInstruction inst)
 void PimUnit::SetSrf(uint64_t hex_addr, uint8_t *DataPtr)
 {
     if (DebugMode())
-        std::cout << " PU: SetSrf\n";
+        std::cout << "    PU: SetSrf\n";
     memcpy(SRF_A_, DataPtr, SRF_SIZE);
     memcpy(SRF_M_, DataPtr + SRF_SIZE, SRF_SIZE);
 }
@@ -170,7 +170,7 @@ void PimUnit::SetSrf(uint64_t hex_addr, uint8_t *DataPtr)
 void PimUnit::SetGrf(uint64_t hex_addr, uint8_t *DataPtr)
 {
     if (DebugMode())
-        std::cout << "  PU: SetGrf\n";
+        std::cout << "    PU: SetGrf\n";
     Address addr = AddressMapping(hex_addr);
     if (addr.column < 8)
     { // GRF_A
@@ -193,7 +193,7 @@ void PimUnit::SetGrf(uint64_t hex_addr, uint8_t *DataPtr)
 void PimUnit::SetCrf(uint64_t hex_addr, uint8_t *DataPtr)
 {
     if (DebugMode())
-        std::cout << "  PU: SetCrf\n";
+        std::cout << "    PU: SetCrf\n";
     Address addr = AddressMapping(hex_addr);
     int CRF_idx = addr.column * 8;
     for (int i = 0; i < 8; i++)
@@ -251,7 +251,7 @@ void PimUnit::PushCrf(int CRF_idx, uint8_t *DataPtr)
     }
     if (DebugMode())
     {
-        std::cout << "  PU: program  ";
+        std::cout << "    PU: program  ";
         PrintPIM_IST(CRF[CRF_idx]);
     }
 }
@@ -304,7 +304,7 @@ int PimUnit::AddTransaction(uint64_t hex_addr, bool is_write,
         }
         if (DebugMode())
         {
-            std::cout << "  PU: NOP left (" << LC << ")\n";
+            std::cout << "    PU: NOP left (" << LC << ")\n";
         }
         return 0;
     }
@@ -327,7 +327,7 @@ int PimUnit::AddTransaction(uint64_t hex_addr, bool is_write,
         }
         if (DebugMode())
         {
-            std::cout << "  PU: JUMP left (" << LC << ")\n";
+            std::cout << "    PU: JUMP left (" << LC << ")\n";
         }
     }
 
@@ -337,7 +337,7 @@ int PimUnit::AddTransaction(uint64_t hex_addr, bool is_write,
     {
         if (DebugMode())
         {
-            std::cout << "  PU: EXIT\n";
+            std::cout << "    PU: EXIT\n";
         }
         PPC = 0;
 
@@ -366,8 +366,8 @@ void PimUnit::SetOperandAddr(uint64_t hex_addr)
         int CA = addr.column;
         if (DebugMode())
         {
-            std::cout << "  PU: " << dst_idx << " " << src0_idx << " " << src1_idx << std::endl;
-            std::cout << "  PU: CA=" << CA << ", RA=" << RA << std::endl;
+            // std::cout << "    PU: " << dst_idx << " " << src0_idx << " " << src1_idx << std::endl;
+            // std::cout << "    PU: CA=" << CA << ", RA=" << RA << std::endl;
         }
         // int RA = addr.row;
         // int A_idx = CA % 8;
@@ -530,7 +530,7 @@ void PimUnit::Execute()
 {
     if (DebugMode())
     {
-        std::cout << "  PU: execute  ";
+        std::cout << "    PU: execute  ";
         PrintPIM_IST(CRF[PPC]);
     }
     switch (CRF[PPC].PIM_OP)
@@ -570,7 +570,7 @@ void PimUnit::_ADD()
         for (int i = 0; i < UNITS_PER_WORD; i++)
         {
             if (DebugMode())
-                std::cout << "  PU: ADD " << i << "\t" << src0[i] << " " << src1[i] << std::endl;
+                std::cout << "    PU: ADD " << i << "\t" << src0[i] << " " << src1[i] << std::endl;
             dst[i] = src0[i] + src1[i];
         }
     }
@@ -592,7 +592,7 @@ void PimUnit::_MAC()
         {
             if (DebugMode())
             {
-                std::cout << "  PU: MAC " << i << "\t" << dst[i] << "+" << src0[i] << "x" << src1[0] << std::endl;
+                std::cout << "    PU: MAC " << i << "\t" << dst[i] << "+" << src0[i] << "x" << src1[0] << std::endl;
                 // std::cout << "TADA : " << (uint64_t)src0 << std::endl;
             }
             dst[i] = dst[i] + src0[i] * src1[0];

@@ -31,7 +31,7 @@ uint8_t *transpose(uint8_t *w, int m, int n)
 void test_add_blas()
 {
 	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
-	int n = 32768;
+	int n = 4096; // 1024 x 1024 x 32 → Tested OK!
 	uint8_t *in0 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *in1 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
@@ -120,8 +120,8 @@ void test_bn_blas()
 void test_gemv_blas()
 {
 	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
-	int m = 1024;
-	int n = 4096;
+	int m = 8;
+	int n = 8192;
 	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t) * m);
 	uint8_t *w = (uint8_t *)malloc(sizeof(uint16_t) * m * n);
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
@@ -129,10 +129,10 @@ void test_gemv_blas()
 
 	for (int i = 0; i < n; i++)
 		for (int j = 0; j < m; j++)
-			((uint16_t *)w)[i * m + j] = rand();
+			((uint16_t *)w)[i * m + j] = 2;
 
 	for (int j = 0; j < m; j++)
-		((uint16_t *)in)[j] = rand();
+		((uint16_t *)in)[j] = 1;
 
 	for (int i = 0; i < n; i++)
 		for (int j = 0; j < m; j++)

@@ -20,10 +20,10 @@ bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 	WriteReg(PIM_REG::CRF, (uint8_t *)(micro_kernel.code0), 4 * WORD_SIZE);
 	for (int i = 0; i < add_attrs.code_iter; i++)
 	{
-		std::cout << "= = = CODE = = =\n";
+		std::cout << " PIM_BLAS\t Code Start!\n";
 		for (int j = 0; j < add_attrs.code0_iter; j++)
 		{
-			std::cout << "- - - CODE0 - - -\n";
+			std::cout << " PIM_BLAS\t Code0 Start!\n";
 #ifdef fpga_mode
 			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
 				bool ret = GetFpgaAddr(in0 + idx, in1 + idx, pim_out + idx, micro_kernel.code0_cmd[k], bank);
@@ -36,9 +36,11 @@ bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 				bool ret = ExecuteKernel(in0 + idx, in1 + idx, pim_out + idx, micro_kernel.code0_cmd[k], bank);
 #endif
 			idx += WORD_SIZE * 8 * NUM_BANK;
+			std::cout << " PIM_BLAS\t Code0 Finished!\n";
 		}
 		idx = 0;
 		bank = 1 - bank;
+		std::cout << " PIM_BLAS\t Code Finished!\n";
 	}
 	ReadReg(PIM_REG::SBMR, null_ptr, 1);
 
@@ -63,19 +65,21 @@ bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 	std::cout << "step : " << WORD_SIZE * 8 * NUM_BANK << std::endl;
 	for (int i = 0; i < mul_attrs.code_iter; i++)
 	{
-		std::cout << "= = = CODE = = =\n";
+		std::cout << " PIM_BLAS\t Code Start!\n";
 		for (int j = 0; j < mul_attrs.code0_iter; j++)
 		{
-			std::cout << "- - - CODE0 - - -\n";
+			std::cout << " PIM_BLAS\t Code0 Start!\n";
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
 			{
 				bool ret = ExecuteKernel(in0 + idx, in1 + idx, pim_out + idx, micro_kernel.code0_cmd[k], bank);
 			}
 			idx += WORD_SIZE * 8 * NUM_BANK;
+			std::cout << " PIM_BLAS\t Code0 Finished!\n";
 		}
 		idx = 0;
 		bank = 1 - bank;
+		std::cout << " PIM_BLAS\t Code Finished!\n";
 	}
 	ReadReg(PIM_REG::SBMR, null_ptr, 1);
 
