@@ -120,8 +120,8 @@ void test_bn_blas()
 void test_gemv_blas()
 {
 	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
-	int m = 8;
-	int n = 8192;
+	int m = 64;
+	int n = 4096;
 	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t) * m);
 	uint8_t *w = (uint8_t *)malloc(sizeof(uint16_t) * m * n);
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
@@ -129,10 +129,10 @@ void test_gemv_blas()
 
 	for (int i = 0; i < n; i++)
 		for (int j = 0; j < m; j++)
-			((uint16_t *)w)[i * m + j] = 2;
+			((uint16_t *)w)[i * m + j] = rand();
 
 	for (int j = 0; j < m; j++)
-		((uint16_t *)in)[j] = 1;
+		((uint16_t *)in)[j] = rand();
 
 	for (int i = 0; i < n; i++)
 		for (int j = 0; j < m; j++)
@@ -144,8 +144,14 @@ void test_gemv_blas()
 	gemv_attrs.GEMV(m, n);
 	PIMKernel micro_kernel = GetMicrokernelCode(pim_op, gemv_attrs);
 
+	// w [8, 8000]
+
+	// w [8, 8192]
 	if (micro_kernel.layout == 1)
 		w = transpose(w, m, n);
+	// w [8192, 8]
+
+	// w [4096, 8], [4096, 8]
 
 	w = MapMemory(w, m * n * UNIT_SIZE);
 
