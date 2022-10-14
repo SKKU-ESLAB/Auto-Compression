@@ -570,7 +570,7 @@ void PimUnit::_ADD()
         for (int i = 0; i < UNITS_PER_WORD; i++)
         {
             if (DebugMode())
-                std::cout << "ADD " << i << "\t" << src0[i] << " " << src1[i] << std::endl;
+                std::cout << "  PU: ADD " << i << "\t" << src0[i] << " " << src1[i] << std::endl;
             dst[i] = src0[i] + src1[i];
         }
     }
@@ -592,8 +592,8 @@ void PimUnit::_MAC()
         {
             if (DebugMode())
             {
-                std::cout << "MAC " << i << "\t" << dst[i] << "+" << src0[i] << "x" << src1[0] << std::endl;
-                std::cout << "TADA : " << (uint64_t)src0 << std::endl;
+                std::cout << "  PU: MAC " << i << "\t" << dst[i] << "+" << src0[i] << "x" << src1[0] << std::endl;
+                // std::cout << "TADA : " << (uint64_t)src0 << std::endl;
             }
             dst[i] = dst[i] + src0[i] * src1[0];
         }

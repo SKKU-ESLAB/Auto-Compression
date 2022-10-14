@@ -109,27 +109,27 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 	uint8_t *zeros = (uint8_t *)calloc(8 * NUM_UNIT_PER_WORD, UNIT_SIZE);
 	for (int i = 0; i < gemv_attrs.code_iter; i++)
 	{
-		std::cout << "> Code Start!\n";
+		std::cout << " PIM_BLAS\t Code Start!\n";
 		WriteReg(PIM_REG::CRF, (uint8_t *)micro_kernel.code0, WORD_SIZE);
 		for (int j = 0; j < gemv_attrs.code0_iter; j++)
 		{
-			std::cout << "> Code0 Start!\n";
+			std::cout << " PIM_BLAS\t Code0 Start!\n";
 			WriteReg(PIM_REG::SRF_M, in + in_idx, WORD_SIZE);
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
 				bool ret = ExecuteKernel(in + in_idx, pim_w + w_idx, pim_out + out_idx, micro_kernel.code0_cmd[k], bank);
 			w_idx += WORD_SIZE * 8 * NUM_BANK;
 			in_idx += UNIT_SIZE * 8;
-			std::cout << "< Code0 Finished!\n";
+			std::cout << " PIM_BLAS\t Code0 Finished!\n";
 		}
 		WriteReg(PIM_REG::CRF, (uint8_t *)micro_kernel.code1, WORD_SIZE);
 		for (int j = 0; j < gemv_attrs.code1_iter; j++)
 		{
-			std::cout << "> Code1 Start!\n";
+			std::cout << " PIM_BLAS\t Code1 Start!\n";
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			for (int k = 0; k < micro_kernel.code1_num_cmds; k++)
 				bool ret = ExecuteKernel(in + in_idx, pim_w + w_idx, pim_out + out_idx, micro_kernel.code1_cmd[k], bank);
-			std::cout << "< Code1 Finished!\n";
+			std::cout << " PIM_BLAS\t Code1 Finished!\n";
 		}
 		WriteReg(PIM_REG::GRF_B, zeros, WORD_SIZE * 8);
 		in_idx = 0;
@@ -137,7 +137,7 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 		// out_idx += WORD_SIZE * NUM_BANK;
 		out_idx = 0;
 		bank = 1 - bank;
-		std::cout << "< Code Finished!\n";
+		std::cout << " PIM_BLAS\t Code Finished!\n";
 	}
 	ReadReg(PIM_REG::SBMR, null_ptr, WORD_SIZE);
 

@@ -63,7 +63,7 @@ void test_add_blas()
 		std::cout << ((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
-	std::cout << "\nERROR: " << error << std::endl;
+	std::cout << "\n\nERROR: " << error << std::endl;
 
 	return;
 }
@@ -103,7 +103,7 @@ void test_mul_blas()
 		std::cout << ((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
-	std::cout << "\nERROR: " << error << std::endl;
+	std::cout << "\n\nERROR: " << error << std::endl;
 	return;
 }
 
@@ -120,7 +120,7 @@ void test_bn_blas()
 void test_gemv_blas()
 {
 	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
-	int m = 4;
+	int m = 1024;
 	int n = 4096;
 	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t) * m);
 	uint8_t *w = (uint8_t *)malloc(sizeof(uint16_t) * m * n);
@@ -160,7 +160,7 @@ void test_gemv_blas()
 		std::cout << (int)((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
-	std::cout << "\nERROR: " << error << std::endl;
+	std::cout << "\n\nERROR: " << error << std::endl;
 	return;
 }
 
