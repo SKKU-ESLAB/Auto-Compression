@@ -9,6 +9,7 @@ void blas_init(uint64_t num)
 
 bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_t *out)
 {
+	InitFpgaTime();
 	std::cout << " PIM_BLAS\t pim_add!\n";
 	uint8_t *pim_out = AllocMem(out, len);
 
@@ -53,6 +54,7 @@ bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 
 bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_t *out)
 {
+	InitFpgaTime();
 	std::cout << " PIM_BLAS\t pim_mul!\n";
 	uint8_t *pim_out = AllocMem(out, len);
 
@@ -102,6 +104,7 @@ bool pim_bn(uint8_t *pim_mem, int len_in0, int len_in1, uint8_t *x, uint8_t *y, 
 
 bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint8_t *weight, uint8_t *out)
 {
+	InitFpgaTime();
 	std::cout << " PIM_BLAS\t pim_gemv!\n";
 
 	// will be deleted later (Executed outside blas library)

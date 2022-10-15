@@ -673,6 +673,11 @@ void SetFpgaAddr()
 	num_fpga_addr = 0;
 }
 
+void InitFpgaTime()
+{
+	spend_time_ns = 0;
+}
+
 void PrintFpgaTime()
 {
 	std::cout << "Spend Time : " << spend_time_ns << " ns\n";
