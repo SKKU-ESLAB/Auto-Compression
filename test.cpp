@@ -60,7 +60,7 @@ void test_add_blas()
 	int error = 0;
 	for (int i = 0; i < n; i++)
 	{
-		std::cout << ((uint16_t *)out)[i] << " ";
+		// std::cout << ((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
 	std::cout << "\n\nERROR: " << error << std::endl;
@@ -100,7 +100,7 @@ void test_mul_blas()
 	int error = 0;
 	for (int i = 0; i < n; i++)
 	{
-		std::cout << ((uint16_t *)out)[i] << " ";
+		// std::cout << ((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
 	std::cout << "\n\nERROR: " << error << std::endl;
@@ -163,7 +163,7 @@ void test_gemv_blas()
 	int error = 0;
 	for (int i = 0; i < n; i++)
 	{
-		std::cout << (int)((uint16_t *)out)[i] << " ";
+		// std::cout << (int)((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
 	std::cout << "\n\nERROR: " << error << std::endl;

@@ -48,6 +48,7 @@ PimFuncSim *pim_func_sim;
 // For Fpga Mode
 int num_fpga_addr = 0;
 uint32_t *fpga_addr_queue;
+uint64_t spend_time_ns = 0;
 
 void runtime_init(uint64_t num)
 {
@@ -364,7 +365,7 @@ void ExecuteKernel_8COL(uint8_t *pim_target, bool is_write, int bank)
 bool ExecuteKernel(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_cmd, int bank)
 {
 	if (FpgaMode())
-		pimExecution((uint32_t)0, data_temp_, 1);
+		spend_time_ns = spend_time_ns + (uint64_t)pimExecution((uint32_t)0, data_temp_, 1);
 
 	switch (pim_cmd)
 	{
@@ -528,7 +529,7 @@ void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write)
 		tc.change_body = hex_addr;
 		uint32_t tmp = tc.byte_0;
 		if (CH == 0 && (BA == 0 || BA == 1))
-			pimExecution(tmp, data, 1);
+			spend_time_ns = spend_time_ns + (uint64_t)pimExecution(tmp, data, 1);
 	}
 	else if (ComputeMode())
 		pim_func_sim->AddTransaction((uint64_t)(pim_addr - pim_base), data, is_write);
@@ -670,4 +671,9 @@ void SetFpgaAddr()
 	int num_col = (num_fpga_addr + 8 - 1) / 8;
 	WriteReg(PIM_REG::ADDR, (uint8_t *)&num_fpga_addr, WORD_SIZE * num_col);
 	num_fpga_addr = 0;
+}
+
+void PrintFpgaTime()
+{
+	std::cout << "Spend Time : " << spend_time_ns << " ns\n";
 }

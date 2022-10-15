@@ -46,6 +46,8 @@ bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 
 	ReadMem(pim_out, out, len * UNIT_SIZE);
 
+	PrintFpgaTime();
+
 	return 1;
 }
 
@@ -84,6 +86,8 @@ bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 	ReadReg(PIM_REG::SBMR, null_ptr, 1);
 
 	ReadMem(pim_out, out, len * UNIT_SIZE);
+
+	PrintFpgaTime();
 
 	return 1;
 }
@@ -146,6 +150,8 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 	ReadReg(PIM_REG::SBMR, null_ptr, WORD_SIZE);
 
 	ReadMem(pim_out, out, len_out * UNIT_SIZE);
+
+	PrintFpgaTime();
 
 	return 1;
 }
