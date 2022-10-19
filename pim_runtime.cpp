@@ -48,14 +48,16 @@ PimFuncSim *pim_func_sim;
 // For Fpga Mode
 int num_fpga_addr = 0;
 uint32_t *fpga_addr_queue;
-uint64_t spend_time_ns = 0;
+uint64_t compute_time_ns = 0, BM_time_ns = 0, CRF_time_ns = 0, GRF_time_ns = 0, SRF_time_ns = 0,
+		 PimExec_time_ns = 0, ADDR_time_ns = 0;
+int BM_cnt = 0, CRF_cnt = 0, GRF_cnt = 0, SRF_cnt = 0, PimExec_cnt = 0, ADDR_cnt = 0;
 
 void runtime_init(uint64_t num)
 {
 	pim_mem = (uint8_t *)calloc(LEN_PIM, 1); // Just for a while
 	pim_base = (uint64_t)pim_mem;
 	if (FpgaMode())
-		fpga_addr_queue = (uint32_t *)malloc(sizeof(uint32_t) * 64);
+		fpga_addr_queue = (uint32_t *)calloc(64, sizeof(uint32_t));
 
 	if (ComputeMode())
 	{
@@ -155,6 +157,7 @@ size_t ReadReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 	{
 	case (PIM_REG::SRF):
 		std::cout << "  MEM RD → SRF \n";
+		SRF_cnt = SRF_cnt + 1;
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
 			uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_SRF, 0);
@@ -164,6 +167,7 @@ size_t ReadReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 		break;
 	case (PIM_REG::GRF):
 		std::cout << "  MEM RD → GRF\n";
+		GRF_cnt = GRF_cnt + 16;
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
 			uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_GRF, 0);
@@ -173,6 +177,7 @@ size_t ReadReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 		break;
 	case (PIM_REG::CRF):
 		std::cout << "  MEM RD → CRF\n";
+		CRF_cnt = CRF_cnt + 4;
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
 			uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_CRF, 0);
@@ -181,6 +186,7 @@ size_t ReadReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 		}
 		break;
 	case (PIM_REG::SBMR):
+		BM_cnt = BM_cnt + 1;
 		std::cout << "  MEM RD → SRMR\n";
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
@@ -189,6 +195,7 @@ size_t ReadReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 		}
 		break;
 	case (PIM_REG::ABMR):
+		BM_cnt = BM_cnt + 1;
 		std::cout << "  MEM RD → ABMR\n";
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
@@ -197,6 +204,7 @@ size_t ReadReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 		}
 		break;
 	case (PIM_REG::PIM_OP_MODE):
+		BM_cnt = BM_cnt + 1;
 		std::cout << "  MEM RD → PIM_OP_MODE\n";
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
@@ -217,6 +225,7 @@ size_t WriteReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 	{
 	case (PIM_REG::SRF): // TODO Remove SRF
 		std::cout << "  MEM WR → SRF\n";
+		SRF_cnt = SRF_cnt + 1;
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
 			uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_SRF, 0);
@@ -225,6 +234,7 @@ size_t WriteReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 		break;
 	case (PIM_REG::SRF_A):
 		std::cout << "  MEM WR → SRF_A\n";
+		SRF_cnt = SRF_cnt + 1;
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
 			uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_SRF, 0);
@@ -233,6 +243,7 @@ size_t WriteReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 		break;
 	case (PIM_REG::SRF_M):
 		std::cout << "  MEM WR → SRF_M\n";
+		SRF_cnt = SRF_cnt + 1;
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
 			uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_SRF, 0);
@@ -242,6 +253,7 @@ size_t WriteReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 		}
 		break;
 	case (PIM_REG::GRF):
+		GRF_cnt = GRF_cnt + 16;
 		std::cout << "  MEM WR → GRF\n";
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
@@ -251,6 +263,7 @@ size_t WriteReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 		break;
 	case (PIM_REG::GRF_A):
 		std::cout << "  MEM WR → GRF_A\n";
+		GRF_cnt = GRF_cnt + 8;
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
 			uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_GRF, 0);
@@ -260,6 +273,7 @@ size_t WriteReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 		break;
 	case (PIM_REG::GRF_B):
 		std::cout << "  MEM WR → GRF_B\n";
+		GRF_cnt = GRF_cnt + 8;
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
 			uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_GRF, 8);
@@ -267,33 +281,32 @@ size_t WriteReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 				TryAddTransaction(pim_mem + hex_addr + co * step, data + co * step, true);
 		}
 		break;
-
 	case (PIM_REG::CRF):
 		std::cout << "  MEM WR → CRF\n";
+		CRF_cnt = CRF_cnt + 4;
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
 			uint64_t hex_addr;
 			if (ch == 0)
-				std::cout << "  CRF-0\n";
+				std::cout << "  CRF-0~7\n";
 			hex_addr = GetAddress(ch, 0, 0, 0, MAP_CRF, 0);
 			TryAddTransaction(pim_mem + hex_addr, data, true);
 			if (ch == 0)
-				std::cout << "  CRF-1\n";
+				std::cout << "  CRF-8~15\n";
 			hex_addr = GetAddress(ch, 0, 0, 0, MAP_CRF, 1);
 			TryAddTransaction(pim_mem + hex_addr, data + 32, true);
 			if (ch == 0)
-				std::cout << "  CRF-2\n";
+				std::cout << "  CRF-16~23\n";
 			hex_addr = GetAddress(ch, 0, 0, 0, MAP_CRF, 2);
 			TryAddTransaction(pim_mem + hex_addr, data + 64, true);
 			if (ch == 0)
-				std::cout << "  CRF-3\n";
+				std::cout << "  CRF-24~31\n";
 			hex_addr = GetAddress(ch, 0, 0, 0, MAP_CRF, 3);
 			TryAddTransaction(pim_mem + hex_addr, data + 96, true);
-			if (ch == 0)
-				std::cout << "  CRF-4\n";
 		}
 		break;
 	case (PIM_REG::SBMR):
+		BM_cnt = BM_cnt + 1;
 		std::cout << "  MEM WR → SBMR\n";
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
@@ -302,6 +315,7 @@ size_t WriteReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 		}
 		break;
 	case (PIM_REG::ABMR):
+		BM_cnt = BM_cnt + 1;
 		std::cout << "  MEM WR → ABMR\n";
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
@@ -310,6 +324,7 @@ size_t WriteReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 		}
 		break;
 	case (PIM_REG::PIM_OP_MODE):
+		BM_cnt = BM_cnt + 1;
 		std::cout << "  MEM WR → PIM_OP_MODE\n";
 		for (int ch = 0; ch < NUM_CHANNEL; ch++)
 		{
@@ -317,6 +332,16 @@ size_t WriteReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 			TryAddTransaction(pim_mem + hex_addr, data, true);
 		}
 		break;
+	case (PIM_REG::ADDR):
+		std::cout << "  MEM WR → ADDR_REG\n";
+		for (int ch = 0; ch < NUM_CHANNEL; ch++)
+		{
+			for (int co = 0; co < size / WORD_SIZE; co++)
+			{
+				uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_ADDR, co);
+				TryAddTransaction(pim_mem + hex_addr, data + WORD_SIZE * co, true);
+			}
+		}
 	}
 }
 
@@ -365,7 +390,12 @@ void ExecuteKernel_8COL(uint8_t *pim_target, bool is_write, int bank)
 bool ExecuteKernel(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_cmd, int bank)
 {
 	if (FpgaMode())
-		spend_time_ns = spend_time_ns + (uint64_t)pimExecution((uint32_t)0, data_temp_, 1);
+	{
+		uint64_t tmp = (uint64_t)pimExecution((uint32_t)0, data_temp_, 1);
+		compute_time_ns = compute_time_ns + tmp;
+		PimExec_time_ns = PimExec_time_ns + tmp;
+		PimExec_cnt = PimExec_cnt + 1;
+	}
 
 	switch (pim_cmd)
 	{
@@ -528,8 +558,13 @@ void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write)
 		tmp_change tc;
 		tc.change_body = hex_addr;
 		uint32_t tmp = tc.byte_0;
+		uint64_t tmp_time = 0;
 		if (CH == 0 && (BA == 0 || BA == 1))
-			spend_time_ns = spend_time_ns + (uint64_t)pimExecution(tmp, data, 1);
+		{
+			tmp_time = (uint64_t)pimExecution(tmp, data, 1);
+			compute_time_ns = compute_time_ns + tmp_time;
+			AddDebugTime(hex_addr, tmp_time);
+		}
 	}
 	else if (ComputeMode())
 		pim_func_sim->AddTransaction((uint64_t)(pim_addr - pim_base), data, is_write);
@@ -669,16 +704,47 @@ void PushFpgaAddr(uint64_t addr)
 void SetFpgaAddr()
 {
 	int num_col = (num_fpga_addr + 8 - 1) / 8;
-	WriteReg(PIM_REG::ADDR, (uint8_t *)&num_fpga_addr, WORD_SIZE * num_col);
+	std::cout << "num_fpga_addr : " << num_fpga_addr << std::endl;
+	ADDR_cnt = ADDR_cnt + num_col;
+	WriteReg(PIM_REG::ADDR, (uint8_t *)fpga_addr_queue, num_col * WORD_SIZE);
 	num_fpga_addr = 0;
 }
 
 void InitFpgaTime()
 {
-	spend_time_ns = 0;
+	compute_time_ns = 0;
+	BM_cnt = 0;
+	CRF_cnt = 0;
+	GRF_cnt = 0;
+	SRF_cnt = 0;
+	PimExec_cnt = 0;
+	ADDR_cnt = 0;
 }
 
 void PrintFpgaTime()
 {
-	std::cout << "Spend Time : " << spend_time_ns << " ns\n";
+	std::cout << "BM : " << BM_time_ns << " ns(" << BM_cnt << ")\n";
+	std::cout << "CRF : " << CRF_time_ns << " ns(" << CRF_cnt << ")\n";
+	std::cout << "GRF : " << GRF_time_ns << " ns(" << GRF_cnt << ")\n";
+	std::cout << "SRF : " << SRF_time_ns << " ns(" << SRF_cnt << ")\n";
+	std::cout << "PimExec : " << PimExec_time_ns << " ns(" << PimExec_cnt << ")\n";
+	std::cout << "ADDR : " << ADDR_time_ns << " ns(" << ADDR_cnt << ")\n";
+	std::cout << "Compute Time : " << compute_time_ns << " ns\n";
+}
+
+void AddDebugTime(uint64_t hex_addr, uint64_t time_ns)
+{
+	Address addr = AddressMapping(hex_addr);
+	int row = addr.row;
+
+	if (row == MAP_SBMR || row == MAP_ABMR || row == MAP_PIM_OP_MODE)
+		BM_time_ns = BM_time_ns + time_ns;
+	else if (row == MAP_CRF)
+		CRF_time_ns = CRF_time_ns + time_ns;
+	else if (row == MAP_GRF)
+		GRF_time_ns = GRF_time_ns + time_ns;
+	else if (row == MAP_SRF)
+		SRF_time_ns = SRF_time_ns + time_ns;
+	else if (row == MAP_ADDR)
+		ADDR_time_ns = ADDR_time_ns + time_ns;
 }

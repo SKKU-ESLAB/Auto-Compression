@@ -41,5 +41,6 @@ void PushFpgaAddr(uint64_t addr);
 void SetFpgaAddr();
 void InitFpgaTime();
 void PrintFpgaTime();
+void AddDebugTime(uint64_t hex_addr, uint64_t time_ns);
 
 #endif // __PIM_RUNTIME_H_

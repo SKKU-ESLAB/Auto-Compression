@@ -107,8 +107,6 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 	InitFpgaTime();
 	std::cout << " PIM_BLAS\t pim_gemv!\n";
 
-	// will be deleted later (Executed outside blas library)
-	// uint8_t *pim_w = MapMemory(weight, len_in * len_out);
 	uint8_t *pim_w = weight;
 	uint8_t *pim_out = AllocMem(out, len_out);
 
@@ -122,13 +120,25 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 	{
 		std::cout << " PIM_BLAS\t Code Start!\n";
 		WriteReg(PIM_REG::CRF, (uint8_t *)micro_kernel.code0, WORD_SIZE);
+
 		for (int j = 0; j < gemv_attrs.code0_iter; j++)
 		{
 			std::cout << " PIM_BLAS\t Code0 Start!\n";
 			WriteReg(PIM_REG::SRF_M, in + in_idx, WORD_SIZE);
+
+#ifdef fpga_mode
+			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
+				bool ret = GetFpgaAddr(in + in_idx, pim_w + w_idx, pim_out + out_idx, micro_kernel.code0_cmd[k], bank);
+			SetFpgaAddr();
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
+			ExecuteKernel(in, pim_w, pim_out, micro_kernel.code0_cmd[0], bank); // 1 Trash Mem CMD
+#else
+			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
+			BM_cnt = BM_cnt + 1;
+
 			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
 				bool ret = ExecuteKernel(in + in_idx, pim_w + w_idx, pim_out + out_idx, micro_kernel.code0_cmd[k], bank);
+#endif
 			w_idx += WORD_SIZE * 8 * NUM_BANK;
 			in_idx += UNIT_SIZE * 8;
 			std::cout << " PIM_BLAS\t Code0 Finished!\n";
@@ -137,10 +147,18 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 		for (int j = 0; j < gemv_attrs.code1_iter; j++)
 		{
 			std::cout << " PIM_BLAS\t Code1 Start!\n";
+#ifdef fpga_mode
+			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
+				bool ret = GetFpgaAddr(in + in_idx, pim_w + w_idx, pim_out + out_idx, micro_kernel.code1_cmd[k], bank);
+			SetFpgaAddr();
+			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
+			ExecuteKernel(in, pim_w, pim_out, micro_kernel.code0_cmd[0], bank); // 1 Trash Mem CMD
+#else
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			for (int k = 0; k < micro_kernel.code1_num_cmds; k++)
 				bool ret = ExecuteKernel(in + in_idx, pim_w + w_idx, pim_out + out_idx, micro_kernel.code1_cmd[k], bank);
 			std::cout << " PIM_BLAS\t Code1 Finished!\n";
+#endif
 		}
 		WriteReg(PIM_REG::GRF_B, zeros, WORD_SIZE * 8);
 		in_idx = 0;

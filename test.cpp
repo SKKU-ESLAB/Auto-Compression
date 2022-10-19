@@ -160,13 +160,14 @@ void test_gemv_blas()
 
 	std::cout << "///// Test GEMV BLAS Ended!! /////\n";
 
+	std::cout << "///// Calculate Error /////\n";
 	int error = 0;
 	for (int i = 0; i < n; i++)
 	{
 		// std::cout << (int)((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
-	std::cout << "\n\nERROR: " << error << std::endl;
+	std::cout << "ERROR: " << error << std::endl;
 	return;
 }
 
