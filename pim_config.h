@@ -5,8 +5,12 @@
 #include <fcntl.h>	  // O_RDWR, O_SYNC
 #include <sys/mman.h> // MAP_SHARED, PROT_READ
 #include <random>	  // random_device
+#include "fpga_pim.h"
 #include "half.hpp"
-#include "../fpga_pim.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 using half_float::half;
 
@@ -43,8 +47,8 @@ typedef uint16_t unit_t;
 
 #define MAP_ADDR 0x3ff9
 // options //
-#define fpga_mode
-#define debug_mode
+// #define fpga_mode
+// #define debug_mode
 #define compute_mode
 
 int LogBase2(int power_of_two);
@@ -274,5 +278,13 @@ public:
 		}
 	}
 };
+
+bool DebugMode();
+bool FpgaMode();
+bool ComputeMode();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __PIM_CONFIG_H_

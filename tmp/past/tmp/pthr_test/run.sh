@@ -2,4 +2,4 @@
 
 echo "I'm building C++"
 
-make clean && make
+make clean && make && ./test

@@ -30,7 +30,8 @@ uint8_t *transpose(uint8_t *w, int m, int n)
 
 void test_add_blas()
 {
-	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
+	if (DebugMode())
+		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
 	int n = 131072; // 1024 x 1024 x 32 → Tested OK!
 	uint8_t *in0 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *in1 = (uint8_t *)malloc(sizeof(uint16_t) * n);
@@ -44,7 +45,8 @@ void test_add_blas()
 		((uint16_t *)ans)[i] = ((uint16_t *)in0)[i] + ((uint16_t *)in1)[i];
 	}
 
-	std::cout << "///// Preprocessing ADD BLAS... /////\n";
+	if (DebugMode())
+		std::cout << "///// Preprocessing ADD BLAS... /////\n";
 	PIM_OP pim_op = PIM_OP::ADD;
 	PIM_OP_ATTRS add_attrs = PIM_OP_ATTRS();
 	add_attrs.ADD(n);
@@ -52,10 +54,12 @@ void test_add_blas()
 	in0 = MapMemory(in0, n * UNIT_SIZE);
 	in1 = MapMemory(in1, n * UNIT_SIZE);
 
-	std::cout << "///// Testing ADD BLAS... /////\n";
+	if (DebugMode())
+		std::cout << "///// Testing ADD BLAS... /////\n";
 	pim_add(micro_kernel, n, in0, in1, out);
 
-	std::cout << "///// Test ADD BLAS Ended!! /////\n";
+	if (DebugMode())
+		std::cout << "///// Test ADD BLAS Ended!! /////\n";
 
 	int error = 0;
 	for (int i = 0; i < n; i++)
@@ -63,14 +67,16 @@ void test_add_blas()
 		// std::cout << ((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
-	std::cout << "\n\nERROR: " << error << std::endl;
+	if (DebugMode())
+		std::cout << "\n\nERROR: " << error << std::endl;
 
 	return;
 }
 
 void test_mul_blas()
 {
-	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
+	if (DebugMode())
+		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
 	int n = 131072;
 	uint8_t *in0 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *in1 = (uint8_t *)malloc(sizeof(uint16_t) * n);
@@ -84,7 +90,8 @@ void test_mul_blas()
 		((uint16_t *)ans)[i] = ((uint16_t *)in0)[i] * ((uint16_t *)in1)[i];
 	}
 
-	std::cout << "///// Preprocessing MUL BLAS... /////\n";
+	if (DebugMode())
+		std::cout << "///// Preprocessing MUL BLAS... /////\n";
 	PIM_OP pim_op = PIM_OP::MUL;
 	PIM_OP_ATTRS mul_attrs = PIM_OP_ATTRS();
 	mul_attrs.MUL(n);
@@ -92,10 +99,12 @@ void test_mul_blas()
 	in0 = MapMemory(in0, n * UNIT_SIZE);
 	in1 = MapMemory(in1, n * UNIT_SIZE);
 
-	std::cout << "///// Testing MUL BLAS... /////\n";
+	if (DebugMode())
+		std::cout << "///// Testing MUL BLAS... /////\n";
 	pim_mul(micro_kernel, n, in0, in1, out);
 
-	std::cout << "///// Test MUL BLAS Ended!! /////\n";
+	if (DebugMode())
+		std::cout << "///// Test MUL BLAS Ended!! /////\n";
 
 	int error = 0;
 	for (int i = 0; i < n; i++)
@@ -103,23 +112,27 @@ void test_mul_blas()
 		// std::cout << ((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
-	std::cout << "\n\nERROR: " << error << std::endl;
+	if (DebugMode())
+		std::cout << "\n\nERROR: " << error << std::endl;
 	return;
 }
 
 void test_mac_blas()
 {
-	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
+	if (DebugMode())
+		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
 }
 
 void test_bn_blas()
 {
-	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
+	if (DebugMode())
+		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
 }
 
 void test_gemv_blas()
 {
-	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
+	if (DebugMode())
+		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
 	int m = 1024;
 	int n = 4096;
 	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t) * m);
@@ -138,7 +151,8 @@ void test_gemv_blas()
 		for (int j = 0; j < m; j++)
 			((uint16_t *)ans)[i] = ((uint16_t *)ans)[i] + ((uint16_t *)w)[i * m + j] * ((uint16_t *)in)[j];
 
-	std::cout << "///// Preprocessing GEMV BLAS... /////\n";
+	if (DebugMode())
+		std::cout << "///// Preprocessing GEMV BLAS... /////\n";
 	PIM_OP pim_op = PIM_OP::GEMV;
 	PIM_OP_ATTRS gemv_attrs = PIM_OP_ATTRS();
 	gemv_attrs.GEMV(m, n);
@@ -155,25 +169,30 @@ void test_gemv_blas()
 
 	w = MapMemory(w, m * n * UNIT_SIZE);
 
-	std::cout << "///// Testing GEMV BLAS... /////\n";
+	if (DebugMode())
+		std::cout << "///// Testing GEMV BLAS... /////\n";
 	pim_gemv(micro_kernel, m, n, in, w, out);
 
-	std::cout << "///// Test GEMV BLAS Ended!! /////\n";
+	if (DebugMode())
+		std::cout << "///// Test GEMV BLAS Ended!! /////\n";
 
-	std::cout << "///// Calculate Error /////\n";
+	if (DebugMode())
+		std::cout << "///// Calculate Error /////\n";
 	int error = 0;
 	for (int i = 0; i < n; i++)
 	{
 		// std::cout << (int)((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
-	std::cout << "ERROR: " << error << std::endl;
+	if (DebugMode())
+		std::cout << "ERROR: " << error << std::endl;
 	return;
 }
 
 void test_lstm_blas()
 {
-	std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
+	if (DebugMode())
+		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
 }
 
 int main(int argc, char **argv)
@@ -182,7 +201,8 @@ int main(int argc, char **argv)
 
 	if (argc <= 1)
 	{
-		std::cout << "add, mul, mac, bn, gemv, lstm\n";
+		if (DebugMode())
+			std::cout << "add, mul, mac, bn, gemv, lstm\n";
 		return -1;
 	}
 

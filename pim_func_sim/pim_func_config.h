@@ -3,12 +3,16 @@
 
 #include "../pim_config.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //#include "./half.hpp"
 using half_float::half;
 
 /////////////////- set unit size - ///////////////////
 // typedef half              unit_t;
-//#define debug_mode
+// #define debug_mode
 #define watch_pimindex 0
 //////////////////////////////////////////////////////
 
@@ -52,5 +56,9 @@ enum class PIM_OPERAND
     SRF_M,
     NONE
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __CONFIG_H_

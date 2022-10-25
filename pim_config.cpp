@@ -31,7 +31,8 @@ Address AddressMapping(uint64_t hex_addr)
 
 void PIM_OP_ATTRS::ADD(int len)
 {
-	std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::ADD!\n";
+	if (DebugMode())
+		std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::ADD!\n";
 	// 256 elements for each ukernel
 	// total 128 PUs = NUM_BANK / 2
 	pim_op = PIM_OP::ADD;
@@ -43,7 +44,8 @@ void PIM_OP_ATTRS::ADD(int len)
 
 void PIM_OP_ATTRS::MUL(int len)
 {
-	std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::MUL!\n";
+	if (DebugMode())
+		std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::MUL!\n";
 	// 256 elements for each ukernel
 	// total 128 PUs = NUM_BANK / 2
 	pim_op = PIM_OP::MUL;
@@ -55,13 +57,15 @@ void PIM_OP_ATTRS::MUL(int len)
 
 void PIM_OP_ATTRS::BN(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, int len)
 {
-	std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::BN!\n";
+	if (DebugMode())
+		std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::BN!\n";
 	len_in = len;
 }
 
 void PIM_OP_ATTRS::GEMV(int len_in_, int len_out_)
 {
-	std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::GEMV!\n";
+	if (DebugMode())
+		std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::GEMV!\n";
 	len_in = len_in_;
 	len_out = len_out_;
 	code_iter = 2 * ((len_out_ + 4096 - 1) / 4096);
@@ -72,6 +76,31 @@ void PIM_OP_ATTRS::GEMV(int len_in_, int len_out_)
 
 void PIM_OP_ATTRS::LSTM(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, int len)
 {
-	std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::LSTM!\n";
+	if (DebugMode())
+		std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::LSTM!\n";
 	len_in = len;
+}
+
+bool DebugMode()
+{
+#ifdef debug_mode
+	return true;
+#endif
+	return false;
+}
+
+bool FpgaMode()
+{
+#ifdef fpga_mode
+	return true;
+#endif
+	return false;
+}
+
+bool ComputeMode()
+{
+#ifdef compute_mode
+	return true;
+#endif
+	return false;
 }

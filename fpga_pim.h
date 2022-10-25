@@ -17,9 +17,4 @@
 #include <stdbool.h>
 
 // #include "../xdma/cdev_sgdma.h"
-#ifdef __cplusplus
-extern "C"
-{
-    long pimExecution(uint32_t addr, void *data, int iswrite);
-}
-#endif
+long pimExecution(uint32_t addr, void *data, int iswrite);

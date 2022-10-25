@@ -7,6 +7,10 @@
 #include <string>
 #include "pim_func_config.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 PIM_OPERATION BitToPIM_OP(uint8_t *DataPtr);
 PIM_OPERAND BitToDst(uint8_t *DataPtr);
 PIM_OPERAND BitToSrc0(uint8_t *DataPtr);
@@ -22,5 +26,9 @@ bool CheckDstFix(uint8_t *DataPtr);
 bool CheckSrc0Fix(uint8_t *DataPtr);
 bool CheckSrc1Fix(uint8_t *DataPtr);
 bool CheckReLU(uint8_t *DataPtr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __UTILS_H_

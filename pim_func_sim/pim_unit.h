@@ -15,6 +15,10 @@
 // #include "./common.h"
 // #include "./half.hpp"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 class PimInstruction
 {
 public:
@@ -83,5 +87,9 @@ public:
    uint64_t pmemAddr_size_;
    unsigned int burstSize_;
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // PIMUNIT_H_
