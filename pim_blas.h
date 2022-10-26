@@ -9,11 +9,24 @@ extern "C" {
 #endif
 
 void blas_init(uint64_t num);
+bool pimblasAddPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in0, uint8_t **in1);
+bool pimblasMulPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in0, uint8_t **in1);
+bool pimblasGemvPreprocess(PIMKernel *micro_kernel, int len_in, int len_out, uint8_t **w);
 bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_t *out);
 bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_t *out);
 // bool pim_bn(uint8_t* pim_mem, int l, int f, uint8_t *x, uint8_t *y, uint8_t *z);
 bool pim_gemv(PIMKernel micro_kernel, int m, int n, uint8_t *x, uint8_t *y, uint8_t *z);
 // bool pim_lstm(uint8_t* pim_mem, int m, int n, uint8_t *x, uint8_t *y, uint8_t *z);
+
+uint8_t *GemvReshape(uint8_t *w, int m, int n);
+uint8_t *Transpose(uint8_t *w, int m, int n);
+
+bool C_pimblasAddPreprocess(int len, uint8_t **in0, uint8_t **in1);
+bool C_pimblasMulPreprocess(int len, uint8_t **in0, uint8_t **in1);
+bool C_pimblasGemvPreprocess(int len_in, int len_out, uint8_t **w);
+bool C_pim_add(int len, uint8_t *in0, uint8_t *in1, uint8_t *out);
+bool C_pim_mul(int len, uint8_t *in0, uint8_t *in1, uint8_t *out);
+bool C_pim_gemv(int len_in, int len_out, uint8_t *in, uint8_t *w, uint8_t *out);
 
 #ifdef __cplusplus
 }

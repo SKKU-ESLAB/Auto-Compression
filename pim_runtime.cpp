@@ -82,7 +82,7 @@ PIMKernel GetMicrokernelCode(PIM_OP op, PIM_OP_ATTRS op_attrs)
 {
 	if (DebugMode())
 		std::cout << "  PIM_RUNTIME\t GetMicrokernelCode!\n";
-	PIMKernel new_kernel;
+	PIMKernel new_kernel = PIMKernel();
 	ukernel_count_per_pim_ = Ceiling(op_attrs.len_in * UNIT_SIZE, ukernel_access_size_) / ukernel_access_size_;
 	// For now, Make same ukernel without considering op_attrs
 	new_kernel.SetMicrokernelCode(op, op_attrs);
@@ -109,16 +109,20 @@ uint8_t *MapMemory(uint8_t *data, size_t size)
 // PIM Memory Manager
 uint8_t *AllocMem(uint8_t *data, size_t size)
 {
+	std::cout << "hi1\n";
 	if (DebugMode())
 		std::cout << "  PIM_RUNTIME\t AllocMem!\n";
 	uint64_t addr = next_addr;
 	uint64_t alloc_size = Ceiling(size, 8 * WORD_SIZE * NUM_BANK);
 
+	std::cout << "hi2\n";
 	PIMAllocList[PIMAllocList_idx].addr = addr;
 	PIMAllocList[PIMAllocList_idx].size = alloc_size;
 	PIMAllocList_idx++;
 
+	std::cout << "hi3\n";
 	next_addr += alloc_size;
+	std::cout << "hi4\n";
 	return (uint8_t *)(pim_mem + addr);
 }
 
@@ -143,7 +147,7 @@ size_t ReadMem(uint8_t *pim_addr, uint8_t *data, size_t size)
 {
 	if (DebugMode())
 		std::cout << "  PIM_RUNTIME\t ReadMem!\n";
-	uint64_t strided_size = Ceiling(size, WORD_SIZE * NUM_BANK);
+	uint64_t strided_size = Ceiling(size, WORD_SIZE);
 	for (int offset = 0; offset < strided_size; offset += WORD_SIZE)
 		TryAddTransaction(pim_addr + offset, data + offset, false);
 }

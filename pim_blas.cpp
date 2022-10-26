@@ -6,11 +6,42 @@ void blas_init(uint64_t num) {
 	runtime_init(0);
 }
 
+bool C_pimblasAddPreprocess(int len, uint8_t **in0, uint8_t **in1) {
+	*in0 = MapMemory(*in0, len * UNIT_SIZE);
+	*in1 = MapMemory(*in1, len * UNIT_SIZE);
+	return true;
+}
+
+bool C_pim_add(int len, uint8_t *in0, uint8_t *in1, uint8_t *out) {
+	PIM_OP pim_op = PIM_OP::ADD;
+	PIM_OP_ATTRS add_attrs = PIM_OP_ATTRS();
+	add_attrs.ADD(len);
+	PIMKernel micro_kernel = PIMKernel();
+	micro_kernel = GetMicrokernelCode(pim_op, add_attrs);
+
+	return pim_add(micro_kernel, len, in0, in1, out);	
+}
+
+bool pimblasAddPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in0, uint8_t **in1) {
+	PIM_OP pim_op = PIM_OP::ADD;
+	PIM_OP_ATTRS add_attrs = PIM_OP_ATTRS();
+	add_attrs.ADD(len);
+	std::cout << "blas 0\n";
+	*micro_kernel = GetMicrokernelCode(pim_op, add_attrs);
+	*in0 = MapMemory(*in0, len * UNIT_SIZE);
+	*in1 = MapMemory(*in1, len * UNIT_SIZE);
+	std::cout << "blas 1\n";
+	std::cout << micro_kernel->code0_num_cmds << std::endl;
+	return true;
+}
+
 bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_t *out) {
 	InitFpgaTime();
 	if (DebugMode())
 		std::cout << " PIM_BLAS\t pim_add!\n";
-	uint8_t *pim_out = AllocMem(out, len);
+	std::cout << "blas hi1\n";
+	uint8_t *pim_out = AllocMem(out, len * UNIT_SIZE);
+	std::cout << "blas hi2\n";
 
 	PIM_OP_ATTRS add_attrs = micro_kernel.pim_op_attrs;
 	ReadReg(PIM_REG::ABMR, null_ptr, WORD_SIZE);
@@ -48,10 +79,83 @@ bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 
 	ReadMem(pim_out, out, len * UNIT_SIZE);
 
-	if (DebugMode())
+	if (DebugMode() && FpgaMode())
 		PrintFpgaTime();
 
 	return 1;
+}
+
+bool C_pimblasMulPreprocess(int len, uint8_t **in0, uint8_t **in1) {
+	*in0 = MapMemory(*in0, len * UNIT_SIZE);
+	*in1 = MapMemory(*in1, len * UNIT_SIZE);
+	return true;
+}
+
+bool C_pim_mul(int len, uint8_t *in0, uint8_t *in1, uint8_t *out) {
+	PIM_OP pim_op = PIM_OP::MUL;
+	PIM_OP_ATTRS mul_attrs = PIM_OP_ATTRS();
+	mul_attrs.MUL(len);
+	PIMKernel micro_kernel = PIMKernel();
+	micro_kernel = GetMicrokernelCode(pim_op, mul_attrs);
+
+	return pim_mul(micro_kernel, len, in0, in1, out);	
+}
+
+bool pimblasMulPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in0, uint8_t **in1) {
+	PIM_OP pim_op = PIM_OP::MUL;
+	PIM_OP_ATTRS mul_attrs = PIM_OP_ATTRS();
+	mul_attrs.MUL(len);
+	*micro_kernel = GetMicrokernelCode(pim_op, mul_attrs);
+	*in0 = MapMemory(*in0, len * UNIT_SIZE);
+	*in1 = MapMemory(*in1, len * UNIT_SIZE);
+	return true;
+}
+
+bool C_pimblasGemvPreprocess(int len_in, int len_out, uint8_t **w) {
+	int len_in_ = Ceiling(len_in, 8);
+	int len_out_ = Ceiling(len_out, 4096);
+	// w [8150, 1020]
+	*w = GemvReshape(*w, len_in, len_out);
+	// w [8192, 1024]
+	*w = Transpose(*w, len_in, len_out);
+	// w [2048, 4096]
+
+	// w [4096, 8], [4096, 8]
+
+	*w = MapMemory(*w, len_in_ * len_out_ * UNIT_SIZE);
+	return true;
+}
+
+bool C_pim_gemv(int len_in, int len_out, uint8_t *in, uint8_t *w, uint8_t *out) {
+	PIM_OP pim_op = PIM_OP::GEMV;
+	PIM_OP_ATTRS gemv_attrs = PIM_OP_ATTRS();
+	gemv_attrs.GEMV(len_in, len_out);
+	PIMKernel micro_kernel = PIMKernel();
+	micro_kernel = GetMicrokernelCode(pim_op, gemv_attrs);
+	
+	return pim_gemv(micro_kernel, len_in, len_out, in, w, out);
+}
+
+bool pimblasGemvPreprocess(PIMKernel *micro_kernel, int len_in, int len_out, uint8_t **w) {
+	PIM_OP pim_op = PIM_OP::GEMV;
+	PIM_OP_ATTRS gemv_attrs = PIM_OP_ATTRS();
+	gemv_attrs.GEMV(len_in, len_out);
+	*micro_kernel = GetMicrokernelCode(pim_op, gemv_attrs);
+
+	int len_in_ = Ceiling(len_in, 8);
+	int len_out_ = Ceiling(len_out, 4096);
+	// w [8150, 1020]
+	*w = GemvReshape(*w, len_in, len_out);
+	// w [8192, 1024]
+	if (micro_kernel->layout == 1) {
+		*w = Transpose(*w, len_in, len_out);
+	}
+	// w [2048, 4096]
+
+	// w [4096, 8], [4096, 8]
+
+	*w = MapMemory(*w, len_in_ * len_out_ * UNIT_SIZE);
+	return true;
 }
 
 bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_t *out)
@@ -59,7 +163,7 @@ bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 	InitFpgaTime();
 	if (DebugMode())
 		std::cout << " PIM_BLAS\t pim_mul!\n";
-	uint8_t *pim_out = AllocMem(out, len);
+	uint8_t *pim_out = AllocMem(out, len * UNIT_SIZE);
 
 	PIM_OP_ATTRS mul_attrs = micro_kernel.pim_op_attrs;
 	ReadReg(PIM_REG::ABMR, null_ptr, WORD_SIZE);
@@ -98,7 +202,7 @@ bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 
 	ReadMem(pim_out, out, len * UNIT_SIZE);
 
-	if (DebugMode())
+	if (DebugMode() && FpgaMode())
 		PrintFpgaTime();
 
 	return 1;
@@ -119,7 +223,7 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 		std::cout << " PIM_BLAS\t pim_gemv!\n";
 
 	uint8_t *pim_w = weight;
-	uint8_t *pim_out = AllocMem(out, len_out);
+	uint8_t *pim_out = AllocMem(out, Ceiling(len_out, 4096) * UNIT_SIZE);
 
 	PIM_OP_ATTRS gemv_attrs = micro_kernel.pim_op_attrs;
 	ReadReg(PIM_REG::ABMR, null_ptr, WORD_SIZE);
@@ -189,9 +293,32 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 
 	ReadMem(pim_out, out, len_out * UNIT_SIZE);
 
-	if (DebugMode())
+	if (DebugMode() && FpgaMode())
 		PrintFpgaTime();
 
 	return 1;
 }
 
+uint8_t *GemvReshape(uint8_t *w, int m, int n) {
+	int m_ = Ceiling(m, 8);
+	int n_ = Ceiling(n, 4096);
+	uint8_t *w_ = (uint8_t *)malloc(sizeof(uint16_t) * m_ * n_);
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			((uint16_t *)w_)[i * m_ + j] = ((uint16_t *)w)[i * m + j];
+		}
+	}
+	return w_;
+}
+
+uint8_t *Transpose(uint8_t *w, int m, int n) {
+	m = Ceiling(m, 8);
+	n = Ceiling(n, 4096);
+	uint8_t *w_ = (uint8_t *)malloc(sizeof(uint16_t) * m * n);
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			((uint16_t *)w_)[j * n + i] = ((uint16_t *)w)[i * m + j];
+		}
+	}
+	return w_;
+}

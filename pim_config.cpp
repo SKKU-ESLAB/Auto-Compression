@@ -81,6 +81,20 @@ void PIM_OP_ATTRS::LSTM(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, int len)
 	len_in = len;
 }
 
+PIMKernel CPIMKernel::get_micro_kernel() {
+	return micro_kernel;
+}
+
+void CPIMKernel::init_micro_kernel() {
+	micro_kernel = PIMKernel();
+}
+
+void* CPIMKernel_getInstance() {
+	CPIMKernel *c_micro_kernel = new CPIMKernel;
+	c_micro_kernel->init_micro_kernel();
+	return (void*)c_micro_kernel;
+}
+
 bool DebugMode()
 {
 #ifdef debug_mode

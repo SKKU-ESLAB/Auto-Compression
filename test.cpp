@@ -15,24 +15,11 @@ void init()
 	blas_init(0);
 }
 
-uint8_t *transpose(uint8_t *w, int m, int n)
-{
-	uint8_t *w_ = (uint8_t *)malloc(sizeof(uint16_t) * m * n);
-	for (int i = 0; i < n; i++)
-	{
-		for (int j = 0; j < m; j++)
-		{
-			((uint16_t *)w_)[j * n + i] = ((uint16_t *)w)[i * m + j];
-		}
-	}
-	return w_;
-}
-
 void test_add_blas()
 {
 	if (DebugMode())
 		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
-	int n = 131072; // 1024 x 1024 x 32 → Tested OK!
+	int n = 65536; // 1024 x 1024 x 32 → Tested OK!
 	uint8_t *in0 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *in1 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
@@ -47,12 +34,9 @@ void test_add_blas()
 
 	if (DebugMode())
 		std::cout << "///// Preprocessing ADD BLAS... /////\n";
-	PIM_OP pim_op = PIM_OP::ADD;
-	PIM_OP_ATTRS add_attrs = PIM_OP_ATTRS();
-	add_attrs.ADD(n);
-	PIMKernel micro_kernel = GetMicrokernelCode(pim_op, add_attrs);
-	in0 = MapMemory(in0, n * UNIT_SIZE);
-	in1 = MapMemory(in1, n * UNIT_SIZE);
+	
+	PIMKernel micro_kernel = PIMKernel();
+	pimblasAddPreprocess(&micro_kernel, n, &in0, &in1);
 
 	if (DebugMode())
 		std::cout << "///// Testing ADD BLAS... /////\n";
@@ -63,10 +47,8 @@ void test_add_blas()
 
 	int error = 0;
 	for (int i = 0; i < n; i++)
-	{
-		// std::cout << ((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
-	}
+	
 	if (DebugMode())
 		std::cout << "\n\nERROR: " << error << std::endl;
 
@@ -77,7 +59,7 @@ void test_mul_blas()
 {
 	if (DebugMode())
 		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
-	int n = 131072;
+	int n = 65536;
 	uint8_t *in0 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *in1 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
@@ -92,12 +74,9 @@ void test_mul_blas()
 
 	if (DebugMode())
 		std::cout << "///// Preprocessing MUL BLAS... /////\n";
-	PIM_OP pim_op = PIM_OP::MUL;
-	PIM_OP_ATTRS mul_attrs = PIM_OP_ATTRS();
-	mul_attrs.MUL(n);
-	PIMKernel micro_kernel = GetMicrokernelCode(pim_op, mul_attrs);
-	in0 = MapMemory(in0, n * UNIT_SIZE);
-	in1 = MapMemory(in1, n * UNIT_SIZE);
+	
+	PIMKernel micro_kernel = PIMKernel();
+	pimblasMulPreprocess(&micro_kernel, n, &in0, &in1);
 
 	if (DebugMode())
 		std::cout << "///// Testing MUL BLAS... /////\n";
@@ -133,7 +112,7 @@ void test_gemv_blas()
 {
 	if (DebugMode())
 		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
-	int m = 1024;
+	int m = 16;
 	int n = 4096;
 	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t) * m);
 	uint8_t *w = (uint8_t *)malloc(sizeof(uint16_t) * m * n);
@@ -153,21 +132,9 @@ void test_gemv_blas()
 
 	if (DebugMode())
 		std::cout << "///// Preprocessing GEMV BLAS... /////\n";
-	PIM_OP pim_op = PIM_OP::GEMV;
-	PIM_OP_ATTRS gemv_attrs = PIM_OP_ATTRS();
-	gemv_attrs.GEMV(m, n);
-	PIMKernel micro_kernel = GetMicrokernelCode(pim_op, gemv_attrs);
 
-	// w [8, 8000]
-
-	// w [8, 8192]
-	if (micro_kernel.layout == 1)
-		w = transpose(w, m, n);
-	// w [8192, 8]
-
-	// w [4096, 8], [4096, 8]
-
-	w = MapMemory(w, m * n * UNIT_SIZE);
+	PIMKernel micro_kernel = PIMKernel();
+	pimblasGemvPreprocess(&micro_kernel, m, n, &w);
 
 	if (DebugMode())
 		std::cout << "///// Testing GEMV BLAS... /////\n";
@@ -199,8 +166,7 @@ int main(int argc, char **argv)
 {
 	init();
 
-	if (argc <= 1)
-	{
+	if (argc <= 1) {
 		if (DebugMode())
 			std::cout << "add, mul, mac, bn, gemv, lstm\n";
 		return -1;

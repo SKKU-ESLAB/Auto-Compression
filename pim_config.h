@@ -48,7 +48,7 @@ typedef uint16_t unit_t;
 #define MAP_ADDR 0x3ff9
 // options //
 // #define fpga_mode
-// #define debug_mode
+#define debug_mode
 #define compute_mode
 
 int LogBase2(int power_of_two);
@@ -177,6 +177,11 @@ public:
 class PIMKernel
 {
 public:
+	PIMKernel(){
+		pim_op_attrs = PIM_OP_ATTRS();
+	};
+	~PIMKernel(){};
+
 	PIM_OP pim_op;
 	PIM_OP_ATTRS pim_op_attrs;
 	uint32_t code0[32];
@@ -278,6 +283,17 @@ public:
 		}
 	}
 };
+
+class CPIMKernel {
+ public:
+	CPIMKernel() {};
+	~CPIMKernel() {};
+	PIMKernel micro_kernel;
+	void init_micro_kernel();
+	PIMKernel get_micro_kernel();
+};
+
+void* CPIMKernel_getInstance();
 
 bool DebugMode();
 bool FpgaMode();

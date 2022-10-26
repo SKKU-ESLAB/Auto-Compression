@@ -1,5 +1,5 @@
 CC=g++ -pthread
-CFLAGS= -Wall -O3 -fPIC -std=c++11
+CFLAGS= -Wall -O3 -fPIC -std=c++11 
 CXXFLAGS= -Wall -O3 -fPIC -std=c++11
 OBJS= test.o pim_blas.o pim_runtime.o pim_config.o pim_func_sim/pim_func_sim.o pim_func_sim/pim_unit.o pim_func_sim/pim_utils.o pim_func_sim/pim_func_config.h fpga_pim.o
 SH_OBJS= pim_blas.o pim_runtime.o pim_config.o pim_func_sim/pim_func_sim.o pim_func_sim/pim_unit.o pim_func_sim/pim_utils.o pim_func_sim/pim_func_config.h fpga_pim.o
