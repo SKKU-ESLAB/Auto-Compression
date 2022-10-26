@@ -109,20 +109,16 @@ uint8_t *MapMemory(uint8_t *data, size_t size)
 // PIM Memory Manager
 uint8_t *AllocMem(uint8_t *data, size_t size)
 {
-	std::cout << "hi1\n";
 	if (DebugMode())
 		std::cout << "  PIM_RUNTIME\t AllocMem!\n";
 	uint64_t addr = next_addr;
 	uint64_t alloc_size = Ceiling(size, 8 * WORD_SIZE * NUM_BANK);
 
-	std::cout << "hi2\n";
 	PIMAllocList[PIMAllocList_idx].addr = addr;
 	PIMAllocList[PIMAllocList_idx].size = alloc_size;
 	PIMAllocList_idx++;
 
-	std::cout << "hi3\n";
 	next_addr += alloc_size;
-	std::cout << "hi4\n";
 	return (uint8_t *)(pim_mem + addr);
 }
 

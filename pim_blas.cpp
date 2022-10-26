@@ -26,11 +26,9 @@ bool pimblasAddPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in0, uint8
 	PIM_OP pim_op = PIM_OP::ADD;
 	PIM_OP_ATTRS add_attrs = PIM_OP_ATTRS();
 	add_attrs.ADD(len);
-	std::cout << "blas 0\n";
 	*micro_kernel = GetMicrokernelCode(pim_op, add_attrs);
 	*in0 = MapMemory(*in0, len * UNIT_SIZE);
 	*in1 = MapMemory(*in1, len * UNIT_SIZE);
-	std::cout << "blas 1\n";
 	std::cout << micro_kernel->code0_num_cmds << std::endl;
 	return true;
 }
@@ -39,9 +37,7 @@ bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 	InitFpgaTime();
 	if (DebugMode())
 		std::cout << " PIM_BLAS\t pim_add!\n";
-	std::cout << "blas hi1\n";
 	uint8_t *pim_out = AllocMem(out, len * UNIT_SIZE);
-	std::cout << "blas hi2\n";
 
 	PIM_OP_ATTRS add_attrs = micro_kernel.pim_op_attrs;
 	ReadReg(PIM_REG::ABMR, null_ptr, WORD_SIZE);
