@@ -42,7 +42,7 @@ void PushFpgaAddr(uint64_t addr);
 void SetFpgaAddr();
 
 void InitFpgaData(int op_num);
-void PushFpgaData(uint8_t* data, size_t size);
+void PushFpgaData(uint32_t* data);
 void SetFpgaData();
 
 void InitFpgaTime();

@@ -50,7 +50,7 @@ bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 			std::cout << " PIM_BLAS\t Code Start!\n";
 		for (int j = 0; j < add_attrs.code0_iter; j++) {
 			if (DebugMode())
-			std::cout << " PIM_BLAS\t Code0 Start!\n";
+				std::cout << " PIM_BLAS\t Code0 Start!\n";
 #ifdef fpga_mode
 			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
 				bool ret = GetFpgaAddr(in0 + idx, in1 + idx, pim_out + idx, micro_kernel.code0_cmd[k], bank);

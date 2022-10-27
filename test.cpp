@@ -19,7 +19,7 @@ void test_add_blas()
 {
 	if (DebugMode())
 		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
-	int n = 65536; // 1024 x 1024 x 32 → Tested OK!
+	int n = 131072; // 1024 x 1024 x 32 → Tested OK!
 	uint8_t *in0 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *in1 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
@@ -59,7 +59,7 @@ void test_mul_blas()
 {
 	if (DebugMode())
 		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
-	int n = 65536;
+	int n = 131072;
 	uint8_t *in0 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *in1 = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
@@ -112,7 +112,7 @@ void test_gemv_blas()
 {
 	if (DebugMode())
 		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
-	int m = 16;
+	int m = 1024;
 	int n = 4096;
 	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t) * m);
 	uint8_t *w = (uint8_t *)malloc(sizeof(uint16_t) * m * n);

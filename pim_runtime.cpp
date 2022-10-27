@@ -49,7 +49,7 @@ PimFuncSim *pim_func_sim;
 int num_fpga_addr = 0;
 int num_fpga_data = 0;
 uint32_t *fpga_addr_queue;
-uint8_t *fpga_data_queue;
+uint32_t *fpga_data_queue;
 uint64_t compute_time_ns = 0, BM_time_ns = 0, CRF_time_ns = 0, GRF_time_ns = 0, SRF_time_ns = 0,
 		 PimExec_time_ns = 0, ADDR_time_ns = 0;
 int BM_cnt = 0, CRF_cnt = 0, GRF_cnt = 0, SRF_cnt = 0, PimExec_cnt = 0, ADDR_cnt = 0;
@@ -69,7 +69,7 @@ void runtime_init(uint64_t num)
 	pim_base = (uint64_t)pim_mem;
 	if (FpgaMode()) {
 		fpga_addr_queue = (uint32_t *)calloc(64, sizeof(uint32_t));
-		fpga_data_queue = (uint8_t *)calloc(32*2000, sizeof(uint8_t));
+		fpga_data_queue = (uint32_t *)calloc(5000, sizeof(uint32_t));
 	}
 
 	if (ComputeMode())
@@ -449,10 +449,11 @@ void ExecuteKernel_8COL(uint8_t *pim_target, bool is_write, int bank)
 bool ExecuteKernel(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_cmd, int bank)
 {
 #ifdef fpga_mode
-		PushFpgaData(data_temp_, 1);
+		PushFpgaData((uint32_t*)data_temp_);
 		// compute_time_ns = compute_time_ns + tmp;
 		// PimExec_time_ns = PimExec_time_ns + tmp;
 		PimExec_cnt = PimExec_cnt + 1;
+		return true;
 #endif
 
 	switch (pim_cmd)
@@ -626,7 +627,7 @@ void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write)
 		uint64_t tmp_time = 0;
 		if (CH == 0 && (BA == 0 || BA == 1))
 		{
-			PushFpgaData(data, 32);
+			PushFpgaData((uint32_t*)data);
 			// AddDebugTime(hex_addr, tmp_time);
 		}
 	}
@@ -764,20 +765,28 @@ void SetFpgaAddr()
 }
 
 void InitFpgaData(int op_num) {
-	((uint32_t*)fpga_data_queue)[0] = (uint32_t)op_num;
-	num_fpga_data = num_fpga_data + 4;
+	fpga_data_queue[0] = (uint32_t)op_num;
+	num_fpga_data = num_fpga_data + 1;
 }
 
-void PushFpgaData(uint8_t* data, size_t size)
+void PushFpgaData(uint32_t* data)
 {
-	for (int i=0; i<size; i++) {
-		num_fpga_data++;
+	std::cout << "[Push Data 32B]\n";
+	for (int i=0; i<8; i++) {
 		fpga_data_queue[num_fpga_data] = data[i];
+		num_fpga_data++;
 	}
 }
 
 void SetFpgaData()
 {
+	for (int i=0; i<num_fpga_data/8; i++) {
+		for (int j=0; j<8; j++)
+			std::cout << fpga_data_queue[i*8 + j] << " ";
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+
 	if (DebugMode())
 		std::cout << "Data Packet Size : " << num_fpga_data << std::endl;
 	uint64_t hex_addr = GetAddress(0, 0, 0, 0, MAP_PACKET, 0);
@@ -789,7 +798,7 @@ void SetFpgaData()
 
 	if (DebugMode())
 		std::cout << "Send Data Packet!\n";
-	uint64_t time = pimExecution(tmp, (uint32_t*)fpga_data_queue, 1);
+	uint64_t time = pimExecution(tmp, fpga_data_queue, 1);
 	compute_time_ns = time;
 	std::cout << "Total time for PIM Computation by Data Packet : " << time << " ns\n";
 
