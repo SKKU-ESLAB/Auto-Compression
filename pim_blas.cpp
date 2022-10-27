@@ -34,6 +34,7 @@ bool pimblasAddPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in0, uint8
 
 bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_t *out) {
 	InitFpgaTime();
+	InitFpgaData(1);
 	if (DebugMode())
 		std::cout << " PIM_BLAS\t pim_add!\n";
 	uint8_t *pim_out = AllocMem(out, len * UNIT_SIZE);
@@ -220,6 +221,7 @@ bool pim_bn(uint8_t *pim_mem, int len_in0, int len_in1, uint8_t *x, uint8_t *y, 
 bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint8_t *weight, uint8_t *out)
 {
 	InitFpgaTime();
+	InitFpgaData(2);
 	if (DebugMode())
 		std::cout << " PIM_BLAS\t pim_gemv!\n";
 

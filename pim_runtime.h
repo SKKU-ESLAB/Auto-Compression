@@ -40,8 +40,11 @@ void GetFpgaAddr_8COL(uint8_t *pim_target, bool is_write, int bank);
 bool GetFpgaAddr(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_cmd, int bank);
 void PushFpgaAddr(uint64_t addr);
 void SetFpgaAddr();
+
+void InitFpgaData(int op_num);
 void PushFpgaData(uint8_t* data, size_t size);
 void SetFpgaData();
+
 void InitFpgaTime();
 void PrintFpgaTime();
 void AddDebugTime(uint64_t hex_addr, uint64_t time_ns);

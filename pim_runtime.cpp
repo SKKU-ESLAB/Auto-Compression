@@ -763,6 +763,11 @@ void SetFpgaAddr()
 	num_fpga_addr = 0;
 }
 
+void InitFpgaData(int op_num) {
+	((uint32_t*)fpga_data_queue)[0] = (uint32_t)op_num;
+	num_fpga_data = num_fpga_data + 4;
+}
+
 void PushFpgaData(uint8_t* data, size_t size)
 {
 	for (int i=0; i<size; i++) {
