@@ -771,7 +771,7 @@ void InitFpgaData(int op_num) {
 
 void PushFpgaData(uint32_t* data)
 {
-	std::cout << "[Push Data 32B]\n";
+	// std::cout << "[Push Data 32B]\n";
 	for (int i=0; i<8; i++) {
 		fpga_data_queue[num_fpga_data] = data[i];
 		num_fpga_data++;
@@ -780,9 +780,11 @@ void PushFpgaData(uint32_t* data)
 
 void SetFpgaData()
 {
+	std::cout << fpga_data_queue[0] << std::endl;
+	num_fpga_data--;
 	for (int i=0; i<num_fpga_data/8; i++) {
 		for (int j=0; j<8; j++)
-			std::cout << fpga_data_queue[i*8 + j] << " ";
+			std::cout << fpga_data_queue[i*8 + j + 1] << " ";
 		std::cout << std::endl;
 	}
 	std::cout << std::endl;
