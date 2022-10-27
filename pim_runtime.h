@@ -10,7 +10,6 @@
 extern "C" {
 #endif
 
-
 void runtime_init(uint64_t num);
 
 // PIM Preprocessor
@@ -36,12 +35,13 @@ uint64_t Ceiling(uint64_t num, uint64_t stride);
 void TryAddTransaction(uint8_t *pim_mem, uint8_t *data, bool is_write);
 uint64_t GetAddress(int channel, int rank, int bankgroup, int bank, int row, int column);
 
-
 void GetFpgaAddr_1COL(uint8_t *pim_target, bool is_write, int bank);
 void GetFpgaAddr_8COL(uint8_t *pim_target, bool is_write, int bank);
 bool GetFpgaAddr(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_cmd, int bank);
 void PushFpgaAddr(uint64_t addr);
 void SetFpgaAddr();
+void PushFpgaData(uint8_t* data, size_t size);
+void SetFpgaData();
 void InitFpgaTime();
 void PrintFpgaTime();
 void AddDebugTime(uint64_t hex_addr, uint64_t time_ns);

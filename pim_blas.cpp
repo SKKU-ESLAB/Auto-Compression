@@ -29,7 +29,6 @@ bool pimblasAddPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in0, uint8
 	*micro_kernel = GetMicrokernelCode(pim_op, add_attrs);
 	*in0 = MapMemory(*in0, len * UNIT_SIZE);
 	*in1 = MapMemory(*in1, len * UNIT_SIZE);
-	std::cout << micro_kernel->code0_num_cmds << std::endl;
 	return true;
 }
 
@@ -71,6 +70,9 @@ bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 		if (DebugMode())
 			std::cout << " PIM_BLAS\t Code Finished!\n";
 	}
+#ifdef fpga_mode
+	SetFpgaData();
+#endif
 	ReadReg(PIM_REG::SBMR, null_ptr, 1);
 
 	ReadMem(pim_out, out, len * UNIT_SIZE);
@@ -194,6 +196,9 @@ bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 		if (DebugMode())
 			std::cout << " PIM_BLAS\t Code Finished!\n";
 	}
+#ifdef fpga_mode
+	SetFpgaData();
+#endif
 	ReadReg(PIM_REG::SBMR, null_ptr, 1);
 
 	ReadMem(pim_out, out, len * UNIT_SIZE);
@@ -285,6 +290,11 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 		if (DebugMode())
 			std::cout << " PIM_BLAS\t Code Finished!\n";
 	}
+
+#ifdef fpga_mode
+	SetFpgaData();
+#endif
+
 	ReadReg(PIM_REG::SBMR, null_ptr, WORD_SIZE);
 
 	ReadMem(pim_out, out, len_out * UNIT_SIZE);
