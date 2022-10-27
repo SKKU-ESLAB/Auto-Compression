@@ -178,7 +178,7 @@ size_t WriteMem(uint8_t *pim_addr, uint8_t *data, size_t size)
 		tc.change_body = hex_addr;
 		uint32_t tmp = tc.byte_0;
 		if (CH == 0 && (BA == 0 || BA == 1)) {
-			uint64_t tmp_time = pimExecution(tmp, (uint32_t*)data, 1);
+			uint64_t tmp_time = pimExecution(tmp, data, 1);
 			compute_time_ns = compute_time_ns + tmp_time;
 			AddDebugTime(hex_addr, tmp_time);
 		}
@@ -784,7 +784,7 @@ void SetFpgaData()
 
 	if (DebugMode())
 		std::cout << "Send Data Packet!\n";
-	uint64_t time = pimExecution(tmp, (uint32_t*)fpga_data_queue, 1);
+	uint64_t time = pimExecution(tmp, fpga_data_queue, 1);
 	compute_time_ns = time;
 	std::cout << "Total time for PIM Computation by Data Packet : " << time << " ns\n";
 
