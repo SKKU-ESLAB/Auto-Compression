@@ -15,7 +15,6 @@ clean:
 
 fpga:
 	gcc -c ../fpga_pim.c
-	$(CC) -o $@ $(OBJS)
 
 so:	$(OBJS)
 	$(CC) -shared -o libpimss.so $(SH_OBJS)
