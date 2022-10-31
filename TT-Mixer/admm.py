@@ -10,7 +10,7 @@ import numpy as np
 
 from torch import svd_lowrank as svd
 from tqdm import tqdm
-from torchmetrics import Accuracy 
+from models.mlp_mixer import CONFIGS
 
 logger = logging.getLogger(__name__)
 
@@ -97,11 +97,10 @@ class TT_SVD:
         
         print("MSE loss: ", loss)
 
-
 class TTAdmmTrainer:
-    def __init__(self, model, device, args):
-        self.model = model.to(device)
-        self.device = device
+    def __init__(self, model, args):
+        self.model = model
+        self.device = args.device
 
         self.block_name = "channel_mlp_block"
         self.target_list = []
@@ -118,14 +117,19 @@ class TTAdmmTrainer:
         for name in self.target_list:
             param = self.model.get_parameter(name)
             self.Z.append(param.detach().cpu().clone())
-            self.U.append(param.detach().cpu().clone())
+            self.U.append(torch.zeros_like(param).cpu().clone())
             
-        self.dict_shape = {1024 : [16, 8, 8], 4096 : [16, 16, 16]}
+        self.dict_shape = {768 : [12, 8, 8],  3072 : [24, 16, 16]}
         
-        logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
-                            datefmt='%m/%d/%Y %H:%M:%S',
-                            filename='./admm.log',
-                            level=logging.INFO)        
+        num_params = self.count_params()
+        
+        logger.info("{}".format(CONFIGS[args.model_type]))
+        logger.info("Trining Hyperparams %s", args)
+        logger.info("Total Params: \t%2.1fM" % num_params)
+    
+    def count_params(self):
+        params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
+        return params/1000000
     
     def update_X(self, args):
         self.X = []
@@ -153,8 +157,8 @@ class TTAdmmTrainer:
         loss = F.nll_loss(output, target)
         for idx, name in enumerate(self.target_list):
             param = self.model.get_parameter(name)
-            u = self.U[idx].to(self.devices)
-            z = self.Z[idx].to(self.devices)
+            u = self.U[idx].to(self.device)
+            z = self.Z[idx].to(self.device)
             
             loss += args.rho / 2 * (param - z + u).norm()
         
@@ -175,12 +179,13 @@ class TTAdmmTrainer:
             x, z = self.X[idx], self.Z[idx]
             print("({}): {:.4f}".format(name, (x-z).norm().item() / x.norm().item()))
     
+    def simple_accuracy(self, preds, labels):
+        return (preds == labels).mean()
+    
     def test(self, test_loader, args):
         self.model.eval()
         avg_loss = 0
-        acc1, acc5 = 0, 0
-        ACC1 = Accuracy()
-        ACC5 = Accuracy(top_k=5)
+        all_preds, all_labels = [], []
         
         epoch_iterator = tqdm(test_loader,
                         desc="Validating... (loss=X.X)",
@@ -191,32 +196,42 @@ class TTAdmmTrainer:
             for batch_idx, (inputs, labels) in enumerate(epoch_iterator):
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
                 output = self.model(inputs)
-                test_loss = F.nll_loss(output, labels).item()
+                test_loss = F.nll_loss(F.log_softmax(output, dim=-1), labels).item()
                 avg_loss += test_loss
-                acc1 += ACC1(output, labels)
-                acc5 += ACC5(output, labels)
+                
+                preds = torch.argmax(output, dim=-1)
+                
+                if len(all_preds) == 0:
+                    all_preds.append(preds.detach().cpu().numpy())
+                    all_labels.append(labels.detach().cpu().numpy())
+                else:
+                    all_preds[0] = np.append(all_preds[0],
+                                             preds.detach().cpu().numpy(), axis=0)
+                    all_labels[0] = np.append(all_labels[0],
+                                              labels.detach().cpu().numpy(), axis=0)
 
                 epoch_iterator.set_description("Validating... (loss=%2.5f)" % test_loss)
-            
-        avg_loss /= len(test_loader.dataset)
         
-        logger.info("Test Average Loss: %2.5f", avg_loss)
-        logger.info("Test Top1 Accuracy: %2.5f %", (100. * acc1 / len(test_loader.dataset)))
-        logger.info("Test Top5 Accuracy: %2.5f %", (100. * acc5 / len(test_loader.dataset)))
+        avg_loss = avg_loss / len(test_loader)
+        top1 = self.simple_accuracy(all_preds[0], all_labels[0])
 
-        return (100. * acc1 / len(test_loader.dataset))
+        logger.info("Test Average Loss: %2.5f"  % avg_loss)
+        logger.info("Test Top1 Accuracy: %2.5f" % top1)
+
+        return top1
     
     def warmup_train(self, train_loader, test_loader, optimizer, args):
         
         if args.decay_type == "cosine":
             scheduler = sch.CosineAnnealingLR(optimizer=optimizer,
                                               T_max=args.warmup_epochs,
-                                              eta_min=0.0001)
+                                              eta_min=0.001)
         else:
             scheduler = sch.ExponentialLR(optimizer=optimizer,
                                           gamma=0.95)
             
         self.best_acc = 0
+        self.model.zero_grad()
         
         for epoch in range(args.warmup_epochs):
             logger.info("Warm up Epoch: %d", (epoch + 1))
@@ -230,12 +245,14 @@ class TTAdmmTrainer:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
                 optimizer.zero_grad()
                 output = self.model(inputs)
-                loss = self.regularized_nll_loss(output, labels)
+                loss = self.regularized_nll_loss(F.log_softmax(output, dim=-1), labels, args)
                 loss.backward()
+
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), args.max_grad_norm)
                 optimizer.step()
                 
                 epoch_iterator.set_description(
-                    "Warmup Training (%d / %d Steps) (loss=%2.5f)" % (batch_idx, len(train_loader.dataset), loss)
+                    "Warmup Training (%d / %d Steps) (loss=%2.5f)" % (batch_idx, len(train_loader), loss)
                 )
                 
             acc = self.test(test_loader, args)
@@ -247,11 +264,13 @@ class TTAdmmTrainer:
         
     def admm_train(self, train_loader, test_loader, optimizer, args):
         self.best_acc = 0
+        
+        self.model.zero_grad()
 
         if args.decay_type == "cosine":
             scheduler = sch.CosineAnnealingLR(optimizer=optimizer,
                                               T_max=args.admm_epochs,
-                                              eta_min=0.0001)
+                                              eta_min=0.001)
         else:
             scheduler = sch.ExponentialLR(optimizer=optimizer,
                                           gamma=0.95)        
@@ -267,12 +286,14 @@ class TTAdmmTrainer:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
                 optimizer.zero_grad()
                 output = self.model(inputs)
-                loss = self.admm_loss(output, labels, args)
+                loss = self.admm_loss(F.log_softmax(output, dim=-1), labels, args)
                 loss.backward()
+
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), args.max_grad_norm)
                 optimizer.step()
 
                 epoch_iterator.set_description(
-                    "Warmup Training (%d / %d Steps) (loss=%2.5f)" % (batch_idx, len(train_loader.dataset), loss)
+                    "ADMM Training (%d / %d Steps) (loss=%2.5f)" % (batch_idx, len(train_loader), loss)
                 )
                 
             self.update_X(args)
@@ -289,13 +310,29 @@ class TTAdmmTrainer:
             scheduler.step()       
             
     def save_warmup_model(self, args):
-        model_checkpoint = os.path.join("warmup_models", "%s.py" % args.name)
+        model_checkpoint = os.path.join("saved_models/warmup_models", "%s.py" % args.name)
         torch.save(self.model.state_dict(), model_checkpoint)
         
         logger.info("Saved Warmup model checkpoint to [DIR: warmup_models]")
         
     def save_admm_model(self, args):
-        model_checkpoint = os.path.join("admm_models", "%s.pt" % args.name)
+        model_checkpoint = os.path.join("saved_models/admm_models", "%s.pt" % args.name)
         torch.save(self.model.state_dict(), model_checkpoint)
         
         logger.info("Saved ADMM model checkpoint to [DIR: admm_models]")
+        
+    def fit(self, train_loader, test_loader, args):
+        if args.use_adam:
+            optimizer = torch.optim.Adam(self.model.parameters(),
+                                        lr=args.learning_rate,
+                                        weight_decay=args.weight_decay)
+        else:
+            optimizer = torch.optim.SGD(self.model.parameters(),
+                                        lr=args.learning_rate,
+                                        momentum=0.9,
+                                        weight_decay=args.weight_decay)
+
+        if args.warmup_training:                 
+            self.warmup_train(train_loader, test_loader, optimizer, args)
+
+        self.admm_train(train_loader, test_loader, optimizer, args)
