@@ -14,6 +14,7 @@ torch.set_num_threads(4)
 print("\n----lets run!----")
 
 m=0
+itr=5
 if (option == '1'):
     m = 65536
 elif (option == '2'):
