@@ -1,0 +1,157 @@
+#===============================================================================
+#                      Default Configuration for LSQ-Net
+#===============================================================================
+# Please do NOT modify this file directly. If you want to modify configurations,
+# please:
+# 1. Create a new YAML file and copy some bellowing options to it.
+# 2. Modify these options in your YAML file.
+# 3. run main.py with your configuration file in the command line, like this:
+#       $ python main.py path/to/your/config/file
+# The options modified in your configuration file will overwrite those in this
+# file.
+#============================ Environment ======================================
+
+# Experiment name
+name: MyProject
+
+# Name of output directory. Checkpoints and logs will be saved at `pwd`/output_dir
+output_dir: out
+
+# Device to be used
+device:
+  # Use CPU or GPU (choices: cpu, cuda)
+  type: cuda
+  # GPU device IDs to be used. Only valid when device.type is 'cuda'
+  gpu: [0]
+
+# Dataset loader
+dataloader:
+  # Dataset to train/validate (choices: imagenet, cifar10)
+  dataset: imagenet
+  # Number of categories in the specified dataset (choices: 1000, 10)
+  num_classes: 1000
+  # Path to dataset directory
+  path: /localhome/fair/Dataset/imagenet
+  # Size of mini-batch
+  batch_size: 64
+  # Number of data loading workers
+  workers: 32
+  # Seeds random generators in a deterministic way (i.e., set all the seeds 0).
+  # Please keep it true when resuming the experiment from a checkpoint
+  deterministic: true
+  # Load the model without DataParallel wrapping it
+  serialized: false
+  # Portion of training dataset to set aside for validation (range: [0, 1))
+  val_split: 0.05
+
+resume:
+  # Path to a checkpoint to be loaded. Leave blank to skip
+  path:
+  # Resume model parameters only
+  lean: false
+
+log:
+  # Number of best scores to track and report
+  num_best_scores: 3
+  # Print frequency
+  print_freq: 20
+
+#============================ Model ============================================
+
+# Supported model architecture
+# choices:
+#   ImageNet:
+#     resnet18, resnet34, resnet50, resnet101, resnet152
+#   CIFAR10:
+#     resnet20, resnet32, resnet44, resnet56, resnet110, resnet1202
+arch: resnet18
+
+# Use pre-trained model
+pre_trained: true
+
+#============================ Quantization =====================================
+
+quan:
+  act: # (default for all layers)
+    # Quantizer type (choices: lsq)
+    mode: lsq
+    # Bit width of quantized activation
+    bit: 3
+    # Each output channel uses its own scaling factor
+    per_channel: false
+    # Whether to use symmetric quantization
+    symmetric: false
+    # Quantize all the numbers to non-negative
+    all_positive: true
+  weight: # (default for all layers)
+    # Quantizer type (choices: lsq)
+    mode: lsq
+    # Bit width of quantized weight
+    bit: 3
+    # Each output channel uses its own scaling factor
+    per_channel: true
+    # Whether to use symmetric quantization
+    symmetric: false
+    # Whether to quantize all the numbers to non-negative
+    all_positive: false
+  excepts:
+    # Specify quantized bit width for some layers, like this:
+    conv1:
+      act:
+        all_positive: false
+      weight:
+        bit:
+    fc:
+      act:
+        bit:
+      weight:
+        bit:
+
+#============================ Training / Evaluation ============================
+
+# Evaluate the model without training
+# If this field is true, all the bellowing options will be ignored
+eval: false
+
+epochs: 90
+
+optimizer:
+  learning_rate: 0.01
+  momentum: 0.9
+  weight_decay: 0.0001
+
+# Learning rate scheduler
+lr_scheduler:
+  # Update learning rate per batch or epoch
+  update_per_batch: true
+
+  # Uncomment one of bellowing options to activate a learning rate scheduling
+
+  # Fixed learning rate
+  mode: fixed
+
+  # Step decay
+  # mode: step
+  # step_size: 30
+  # gamma: 0.1
+
+  # Multi-step decay
+  # mode: multi_step
+  # milestones: [30, ]
+  # gamma: 0.1
+
+  # Exponential decay
+  # mode: exp
+  # gamma: 0.95
+
+  # Cosine annealing
+  # mode: cos
+  # lr_min: 0
+  # cycle: 0.95
+
+  # Cosine annealing with warm restarts
+  # mode: cos_warm_restarts
+  # lr_min: 0
+  # cycle: 5
+  # cycle_scale: 2
+  # amp_scale: 0.5
