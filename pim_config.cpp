@@ -38,12 +38,11 @@ void PIM_OP_ATTRS::ADD(int len)
 	pim_op = PIM_OP::ADD;
 	len_in = len;
 	code_iter = 2;
-	code0_iter = (len + 32768 - 1) / 32768; // 32768 = 8*WORD_SIZE*NUM_BANK
+	code0_iter = (len + 32768 - 1) / 32768; // 32768 = 8 x UNITS_PER_WORD x NUM_BANK
 	code1_iter = 0;
 }
 
-void PIM_OP_ATTRS::MUL(int len)
-{
+void PIM_OP_ATTRS::MUL(int len) {
 	if (DebugMode())
 		std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::MUL!\n";
 	// 256 elements for each ukernel
@@ -51,34 +50,41 @@ void PIM_OP_ATTRS::MUL(int len)
 	pim_op = PIM_OP::MUL;
 	len_in = len;
 	code_iter = 2;
-	code0_iter = (len + 32768 - 1) / 32768; // 32768 = 8*WORD_SIZE*NUM_BANK
+	code0_iter = (len + 32768 - 1) / 32768; // 32768 = 8 x UNITS_PER_WORD x NUM_BANK
 	code1_iter = 0;
 }
 
-void PIM_OP_ATTRS::BN(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, int len)
-{
+void PIM_OP_ATTRS::BN(int len_batch_, int len_feature_) {
 	if (DebugMode())
 		std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::BN!\n";
-	len_in = len;
+	pim_op = PIM_OP::BN;
+	len_batch = len_batch_;
+	len_feature = len_feature_;
+	code_iter = 2;
+	code0_iter = (len_batch * len_feature + 32768 - 1) / 32768; // 32768 = 8 x UNITS_PER_WORD x NUM_BANK
+	code1_iter = 0;
 }
 
-void PIM_OP_ATTRS::GEMV(int len_in_, int len_out_)
-{
+void PIM_OP_ATTRS::GEMV(int len_in_, int len_out_) {
 	if (DebugMode())
 		std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::GEMV!\n";
+	pim_op = PIM_OP::GEMV;
 	len_in = len_in_;
 	len_out = len_out_;
 	code_iter = 2 * ((len_out_ + 4096 - 1) / 4096);
 	code0_iter = (len_in_ + 8 - 1) / 8;
-	// code0_iter = 1; // just for quick testing
 	code1_iter = 1;
 }
 
-void PIM_OP_ATTRS::LSTM(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, int len)
-{
+void PIM_OP_ATTRS::LSTM(int len_in_, int len_out_) {
 	if (DebugMode())
 		std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::LSTM!\n";
-	len_in = len;
+	pim_op = PIM_OP::LSTM;
+	len_in = len_in_;
+	len_out = len_out_;
+	code_iter = 2 * ((len_out_ + 4096 - 1) / 4096);
+	code0_iter = (len_in_ + 8 - 1) / 8;
+	code1_iter = 1;
 }
 
 PIMKernel CPIMKernel::get_micro_kernel() {

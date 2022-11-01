@@ -750,7 +750,11 @@ bool GetFpgaAddr(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_cmd
 
 void PushFpgaAddr(uint64_t addr)
 {
-	fpga_addr_queue[num_fpga_addr] = (uint32_t)addr;
+	uint64_change tc;
+	tc.change_body = addr;
+	uint32_t tmp = tc.byte_0;
+
+	fpga_addr_queue[num_fpga_addr] = tmp;
 	num_fpga_addr++;
 }
 
@@ -780,17 +784,20 @@ void PushFpgaData(uint32_t* data)
 
 void SetFpgaData()
 {
+	std::cout << "\nFPGA Debug Start\n";
 	std::cout << fpga_data_queue[0] << std::endl;
-	num_fpga_data--;
-	for (int i=0; i<num_fpga_data/8; i++) {
-		for (int j=0; j<8; j++)
-			std::cout << fpga_data_queue[i*8 + j + 1] << " ";
-		std::cout << std::endl;
-	}
-	std::cout << std::endl;
 
-	if (DebugMode())
-		std::cout << "Data Packet Size : " << num_fpga_data << std::endl;
+	if (DebugMode()) {
+		for (int i=0; i<(num_fpga_data-1)/8; i++) {
+			for (int j=0; j<8; j++)
+				std::cout << fpga_data_queue[i*8 + j + 1] << " ";
+			std::cout << std::endl;
+		}
+		std::cout << std::endl;
+		std::cout << "Total # of 32b Data Packet : " << num_fpga_data << std::endl;
+		std::cout << "Total # of 32B Mem CMD : " << (num_fpga_data-1)/8 << std::endl;
+	}
+
 	uint64_t hex_addr = GetAddress(0, 0, 0, 0, MAP_PACKET, 0);
 	Address addr = AddressMapping(hex_addr);
 	

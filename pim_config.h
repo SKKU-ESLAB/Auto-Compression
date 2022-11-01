@@ -48,9 +48,9 @@ typedef uint16_t unit_t;
 #define MAP_ADDR   0x3ff9
 #define MAP_PACKET 0x3ff8
 // options //
-#define fpga_mode
+// #define fpga_mode
 #define debug_mode
-// #define compute_mode
+#define compute_mode
 
 int LogBase2(int power_of_two);
 
@@ -161,12 +161,14 @@ public:
 
 	void ADD(int len);
 	void MUL(int len);
-	void BN(uint8_t *x, uint8_t *y, uint8_t *z, int len);
+	void BN(int len_batch_, int len_feature_);
 	void GEMV(int len0, int len1);
-	void LSTM(uint8_t *x, uint8_t *y, uint8_t *z, int len);
+	void LSTM(int len0, int len1);
 
 	int len_in;
 	int len_out;
+	int len_batch;
+	int len_feature;
 	bool input_is_pim;
 	PIM_OP pim_op;
 
@@ -241,16 +243,15 @@ public:
 			code0[5] = 0b00010000000001000000100000000111;	// JUMP    -1        7
 			code0[6] = 0b01000000010000001000000000000000;	// MOV(A)  BANK      GRF_A[A0]
 			code0[7] = 0b00010000000001000000100000000111;	// JUMP    -1        7
-			code0[8] = 0b01000010000000001000000000000000;	// MOV(A)  GRF_A[A0] BANK
-			code0[9] = 0b00010000000001000000100000000111;	// JUMP    -1        7
-			code0[10] = 0b10010010000010001000000000000000; // MUL(A)  GRF_A[A0] BANK      GRF_A[A0]
-			code0[11] = 0b00010000000001000000100000000111; // JUMP    -1        7
-			code0[12] = 0b10000010000010001000000000000000; // ADD(A)  GRF_A[A0] BANK      GRF_A[A0]
-			code0[13] = 0b00010000000001000000100000000111; // JUMP    -1        7
-			code0[14] = 0b01000000010000001000000000000000; // MOV(A)  BANK      GRF_A[A0]
-			code0[15] = 0b00010000000001000000100000000111; // JUMP    -1        7
-			code0[16] = 0b00100000000000000000000000000000; // EXIT
+			code0[8] = 0b00100000000000000000000000000000; // EXIT
 			layout = 0;
+
+			code0_num_cmds = 4;
+			code0_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code0_num_cmds);
+			code0_cmd[0] = PIM_CMD::READ_INPUT_8COL;
+			code0_cmd[1] = PIM_CMD::READ_WEIGHT_8COL;
+			code0_cmd[2] = PIM_CMD::READ_WEIGHT_8COL;
+			code0_cmd[3] = PIM_CMD::WRITE_OUTPUT_8COL;
 		}
 		else if (op == (PIM_OP::GEMV))
 		{
@@ -272,15 +273,23 @@ public:
 		}
 		else if (op == (PIM_OP::LSTM))
 		{
-			code0[0] = 0b10100100001000001000100000000000; // MAC(A)  GRF_B[0]  BANK  SRF_M[A0]
-			code0[1] = 0b00010000000001000000100000000111; // JUMP    -1         7
+			code0[0] = 0b10100100001000001000100000000000; // MAC(AAM)   GRF_B[0]  BANK  SRF_M
+			code0[1] = 0b00010000000001000000100000000111; // JUMP       -1        7
 			code0[2] = 0b00100000000000000000000000000000; // EXIT
 
 			code1[0] = 0b10000010100000000000100010000000; // ADD     GRF_A[0]  GRF_B[0]  BANK
-			code1[1] = 0b10000100010000000000100110000000; // ADD     GRF_B[1]  GRF_A[0]  BANK
-			code1[2] = 0b01000000100000000000000000010000; // MOV     BANK      GRF_B[1]
-			code1[3] = 0b00100000000000000000000000000000; // EXIT
+			code1[1] = 0b01000000010000000000000000000000; // MOV     BANK      GRF_A[0]
+			code1[2] = 0b00100000000000000000000000000000; // EXIT
 			layout = 1;
+
+			code0_num_cmds = 1;
+			code0_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code0_num_cmds);
+			code0_cmd[0] = PIM_CMD::READ_WEIGHT_8COL;
+
+			code1_num_cmds = 2;
+			code1_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code1_num_cmds);
+			code1_cmd[0] = PIM_CMD::READ_WEIGHT_1COL;
+			code1_cmd[1] = PIM_CMD::WRITE_OUTPUT_1COL;
 		}
 	}
 };

@@ -106,6 +106,47 @@ void test_bn_blas()
 {
 	if (DebugMode())
 		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
+	int l = 64;
+	int f = 512;
+	
+	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t) * l * f);
+	uint8_t *w0 = (uint8_t *)malloc(sizeof(uint16_t) * f);
+	uint8_t *w1 = (uint8_t *)malloc(sizeof(uint16_t) * f);
+	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * l * f);
+	uint8_t *ans = (uint8_t *)malloc(sizeof(uint16_t) * l * f);
+
+	for (int fi = 0; fi < f; fi++) {
+		for (int li=0; li < l; li++)
+			((uint16_t*)in)[li*f + fi] = rand();
+		((uint16_t*)w0)[fi] = rand();
+		((uint16_t*)w1)[fi] = rand();
+	}
+
+	for (int fi = 0; fi < f; fi++)
+		for (int li=0; li < l; li++)
+			((uint16_t*)ans)[li*f + fi] = ((uint16_t*)in)[li*f + fi] * ((uint16_t*)w0)[fi] + ((uint16_t*)w1)[fi];
+
+	if (DebugMode())
+		std::cout << "///// Preprocessing BN BLAS... /////\n";
+	
+	PIMKernel micro_kernel = PIMKernel();
+	pimblasBn1dPreprocess(&micro_kernel, l, f, &w0, &w1);
+
+	if (DebugMode())
+		std::cout << "///// Testing BN BLAS... /////\n";
+	pim_bn1d(micro_kernel, l, f, in, w0, w1, out);
+
+	if (DebugMode())
+		std::cout << "///// Test BN BLAS Ended!! /////\n";
+
+	int error = 0;
+	for (int li = 0; li < l; li++)
+		for (int fi = 0; fi < f; fi++)
+			error = error + ABS(((uint16_t *)out)[li*f + fi] - ((uint16_t *)ans)[li*f + fi]);
+	
+	if (DebugMode())
+		std::cout << "\n\nERROR: " << error << std::endl;
+	return;
 }
 
 void test_gemv_blas()
@@ -160,6 +201,54 @@ void test_lstm_blas()
 {
 	if (DebugMode())
 		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
+	int m = 1024;
+	int n = 4096;
+	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t) * m);
+	uint8_t *w = (uint8_t *)malloc(sizeof(uint16_t) * m * n);
+	uint8_t *b = (uint8_t *)malloc(sizeof(uint16_t) * n);
+	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
+	uint8_t *ans = (uint8_t *)malloc(sizeof(uint16_t) * n);
+
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++)
+			((uint16_t *)w)[i * m + j] = 0;
+
+	for (int j = 0; j < m; j++)
+		((uint16_t *)in)[j] = 0;
+
+	for (int i = 0; i < n; i++)
+		((uint16_t *)b)[i] = 1;
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++)
+			((uint16_t *)ans)[i] = ((uint16_t *)ans)[i] + ((uint16_t *)w)[i * m + j] * ((uint16_t *)in)[j];
+		((uint16_t *)ans)[i] = ((uint16_t*)ans)[i] + ((uint16_t*)b)[i];
+	}
+
+	if (DebugMode())
+		std::cout << "///// Preprocessing LSTM BLAS... /////\n";
+
+	PIMKernel micro_kernel = PIMKernel();
+	pimblasLstmPreprocess(&micro_kernel, m, n, &w, &b);
+
+	if (DebugMode())
+		std::cout << "///// Testing LSTM BLAS... /////\n";
+	pim_lstm(micro_kernel, m, n, in, w, b, out);
+
+	if (DebugMode())
+		std::cout << "///// Test LSTM BLAS Ended!! /////\n";
+
+	if (DebugMode())
+		std::cout << "///// Calculate Error /////\n";
+	int error = 0;
+	for (int i = 0; i < n; i++)
+	{
+		// std::cout << (int)((uint16_t *)out)[i] << " ";
+		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
+	}
+	if (DebugMode())
+		std::cout << "ERROR: " << error << std::endl;
+	return;
 }
 
 int main(int argc, char **argv)
