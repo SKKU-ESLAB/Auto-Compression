@@ -80,3 +80,4 @@ The quantization framework will automatically replace layers specified in `quan/
 I am not a professional algorithm researcher, and I only have very limited GPU resources. Thus, I may not spend too much time continuing to optimize its accuracy.
 
 However, if you find any bugs in my code or have any ideas to improve the quantization results, please feel free to open an issue. I will be glad to join the discussion.
+# LSQ
