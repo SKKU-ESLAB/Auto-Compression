@@ -21,7 +21,7 @@ avg_time = 0
 print("compute: conv layer")
 print("iter\t time")
 for i in range(itr):
-    x = torch.randn((1, 1, 160, 1151))
+    x = torch.randn((1, 1, 160, 300))
     
     start = time.time() #####
     os.system('m5 dumpstats')
