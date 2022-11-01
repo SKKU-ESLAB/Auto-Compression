@@ -22,7 +22,7 @@ bool pim_bn1d(PIMKernel micro_kernel, int len_batch, int len_feature, uint8_t *i
 bool pim_gemv(PIMKernel micro_kernel, int m, int n, uint8_t *x, uint8_t *y, uint8_t *z);
 bool pim_lstm(PIMKernel micro_kernel, int m, int n, uint8_t *in, uint8_t *w, uint8_t *b, uint8_t *out);
 
-uint8_t *Bn1dReshape(uint8_t *w, int f);
+uint8_t *Bn1dReshape(uint8_t *w, int l, int f);
 uint8_t *GemvReshape(uint8_t *w, int m, int n);
 uint8_t *LstmReshape(uint8_t *w, int m, int n);
 uint8_t *Transpose(uint8_t *w, int m, int n);

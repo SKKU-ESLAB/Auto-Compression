@@ -106,8 +106,8 @@ void test_bn_blas()
 {
 	if (DebugMode())
 		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
-	int l = 64;
-	int f = 512;
+	int l = 576;
+	int f = 1024;
 	
 	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t) * l * f);
 	uint8_t *w0 = (uint8_t *)malloc(sizeof(uint16_t) * f);
@@ -201,7 +201,7 @@ void test_lstm_blas()
 {
 	if (DebugMode())
 		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
-	int m = 1024;
+	int m = 512;
 	int n = 4096;
 	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t) * m);
 	uint8_t *w = (uint8_t *)malloc(sizeof(uint16_t) * m * n);
@@ -211,13 +211,13 @@ void test_lstm_blas()
 
 	for (int i = 0; i < n; i++)
 		for (int j = 0; j < m; j++)
-			((uint16_t *)w)[i * m + j] = 0;
+			((uint16_t *)w)[i * m + j] = rand();
 
 	for (int j = 0; j < m; j++)
-		((uint16_t *)in)[j] = 0;
+		((uint16_t *)in)[j] = rand();
 
 	for (int i = 0; i < n; i++)
-		((uint16_t *)b)[i] = 1;
+		((uint16_t *)b)[i] = rand();
 
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++)

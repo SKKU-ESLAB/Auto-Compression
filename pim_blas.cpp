@@ -90,11 +90,12 @@ bool pimblasBn1dPreprocess(PIMKernel *micro_kernel, int len_batch, int len_featu
 	bn_attrs.BN(len_batch, len_feature);
 	*micro_kernel = GetMicrokernelCode(pim_op, bn_attrs);
 	
-	*w_mul = Bn1dReshape(*w_mul, len_feature);
-	*w_add = Bn1dReshape(*w_add, len_feature);
+	*w_mul = Bn1dReshape(*w_mul, len_batch, len_feature);
+	*w_add = Bn1dReshape(*w_add, len_batch, len_feature);
 
-	*w_mul = MapMemory(*w_mul, NUM_BANK * WORD_SIZE * 8);
-	*w_add = MapMemory(*w_add, NUM_BANK * WORD_SIZE * 8);
+	*w_mul = MapMemory(*w_mul, len_batch * len_feature * UNIT_SIZE);
+	*w_add = MapMemory(*w_add, len_batch * len_feature * UNIT_SIZE);
+
 	return true;
 }
 
@@ -200,9 +201,11 @@ bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 	return 1;
 }
 
-bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_t *out)
-{
+bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_t *out) {
+#ifdef fpga_mode
 	InitFpgaTime();
+	InitFpgaData(1);
+#endif
 	if (DebugMode())
 		std::cout << " PIM_BLAS\t pim_mul!\n";
 	uint8_t *pim_out = AllocMem(out, len * UNIT_SIZE);
@@ -218,19 +221,15 @@ bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 		std::cout << "code0 iter 2: " << mul_attrs.code0_iter << std::endl;
 		std::cout << "step : " << WORD_SIZE * 8 * NUM_BANK << std::endl;
 	}
-	for (int i = 0; i < mul_attrs.code_iter; i++)
-	{
+	for (int i = 0; i < mul_attrs.code_iter; i++) {
 		if (DebugMode())
 			std::cout << " PIM_BLAS\t Code Start!\n";
-		for (int j = 0; j < mul_attrs.code0_iter; j++)
-		{
+		for (int j = 0; j < mul_attrs.code0_iter; j++) {
 			if (DebugMode())
 				std::cout << " PIM_BLAS\t Code0 Start!\n";
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
-			{
 				bool ret = ExecuteKernel(in0 + idx, in1 + idx, pim_out + idx, micro_kernel.code0_cmd[k], bank);
-			}
 			idx += WORD_SIZE * 8 * NUM_BANK;
 			if (DebugMode())
 				std::cout << " PIM_BLAS\t Code0 Finished!\n";
@@ -255,7 +254,10 @@ bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 
 bool pim_bn1d(PIMKernel micro_kernel, int len_batch, int len_feature, uint8_t *in, uint8_t *w_mul,
 			  uint8_t *w_add, uint8_t *out) {
+#ifdef fpga_mode
 	InitFpgaTime();
+	InitFpgaData(1);
+#endif
 	if (DebugMode())
 		std::cout << " PIM_BLAS\t pim_bn!\n";
 
@@ -280,9 +282,24 @@ bool pim_bn1d(PIMKernel micro_kernel, int len_batch, int len_feature, uint8_t *i
 	for (int i = 0; i < bn_attrs.code_iter; i++) {
 		if (DebugMode())
 			std::cout << " PIM_BLAS\t Code Start!\n";
+
 		for (int j = 0; j < bn_attrs.code0_iter; j++) {
 			if (DebugMode())
 				std::cout << " PIM_BLAS\t Code0 Start!\n";
+
+#ifdef fpga_mode
+			for (int k = 0; k < micro_kernel.code0_num_cmds; k++) {
+				if (k <= 1)
+					bool ret = GetFpgaAddr(pim_in + idx, w_mul + idx, pim_out + idx,
+											 micro_kernel.code0_cmd[k], bank);
+				else
+					bool ret = GetFpgaAddr(pim_in + idx, w_add + idx, pim_out + idx,
+											 micro_kernel.code0_cmd[k], bank);
+			}
+			SetFpgaAddr();
+			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
+			ExecuteKernel(pim_in, w_mul, pim_out, micro_kernel.code0_cmd[0], bank);
+#else
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			for (int k = 0; k < micro_kernel.code0_num_cmds; k++) {
 				if (k <= 1)
@@ -292,10 +309,15 @@ bool pim_bn1d(PIMKernel micro_kernel, int len_batch, int len_feature, uint8_t *i
 					bool ret = ExecuteKernel(pim_in + idx, w_add + idx, pim_out + idx,
 											 micro_kernel.code0_cmd[k], bank);
 			}
+#endif
 			idx += WORD_SIZE * 8 * NUM_BANK;
 			if (DebugMode())
 				std::cout << " PIM_BLAS\t Code0 Finished!\n";
 		}
+#ifdef fpga_mode
+		if (bank == 0)
+			SetFpgaData();
+#endif
 		idx = 0;
 		bank = 1 - bank;
 		if (DebugMode())
@@ -454,13 +476,12 @@ bool pim_lstm(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 				std::cout << " PIM_BLAS\t Code0 Finished!\n";
 		}
 		WriteReg(PIM_REG::CRF, (uint8_t *)micro_kernel.code1, WORD_SIZE);
-		for (int j = 0; j < lstm_attrs.code1_iter; j++)
-		{
+		for (int j = 0; j < lstm_attrs.code1_iter; j++) {
 			if (DebugMode())
 				std::cout << " PIM_BLAS\t Code1 Start!\n";
 #ifdef fpga_mode
 			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
-				bool ret = GetFpgaAddr(in + in_idx, pim_w + w_idx, pim_out + out_idx, micro_kernel.code1_cmd[k], bank);
+				bool ret = GetFpgaAddr(in + in_idx, pim_b, pim_out + out_idx, micro_kernel.code1_cmd[k], bank);
 			SetFpgaAddr();
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			ExecuteKernel(in, pim_w, pim_out, micro_kernel.code0_cmd[0], bank); // 1 Trash Mem CMD
@@ -472,7 +493,12 @@ bool pim_lstm(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 				std::cout << " PIM_BLAS\t Code1 Finished!\n";
 #endif
 		}
+#ifdef fpga_mode
+		if (bank == 0)
+			SetFpgaData();
+#endif
 		WriteReg(PIM_REG::GRF_B, zeros, WORD_SIZE * 8);
+
 		in_idx = 0;
 		w_idx = 0;
 		// out_idx += WORD_SIZE * NUM_BANK;
@@ -481,10 +507,6 @@ bool pim_lstm(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 		if (DebugMode())
 			std::cout << " PIM_BLAS\t Code Finished!\n";
 	}
-
-#ifdef fpga_mode
-	SetFpgaData();
-#endif
 	ReadReg(PIM_REG::SBMR, null_ptr, WORD_SIZE);
 
 	ReadMem(pim_out, out, len_out * UNIT_SIZE);
@@ -495,16 +517,12 @@ bool pim_lstm(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 	return 1;
 }
 
+uint8_t *Bn1dReshape(uint8_t *w, int l, int f) {
+	uint8_t *w_ = (uint8_t*)calloc(l * f, UNIT_SIZE);
 
-uint8_t *Bn1dReshape(uint8_t *w, int f) {
-	int num_duplicate = NUM_BANK * UNITS_PER_WORD / f;
-	uint8_t *w_ = (uint8_t*)calloc(NUM_BANK * UNITS_PER_WORD * 8, UNIT_SIZE);
-
-	for (int fi=0; fi<f; fi++) {
-		for (int coi=0; coi<num_duplicate*8; coi++) {
-			((uint16_t*)w_)[fi + coi*f] = ((uint16_t*)w)[fi];
-		}
-	}
+	for (int fi=0; fi<f; fi++)
+		for (int li=0; li<l; li++)
+			((uint16_t*)w_)[fi + li*f] = ((uint16_t*)w)[fi];
 
 	return w_;	
 }
