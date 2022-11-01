@@ -4,7 +4,7 @@ from pathlib import Path
 import torch as t
 import yaml
 
-import process
+import process_distil as process
 import quan
 import util
 from model import create_model
@@ -60,9 +60,13 @@ def main():
     tbmonitor.writer.add_graph(model, input_to_model=train_loader.dataset[0][0].unsqueeze(0))
     logger.info('Inserted quantizers into the original model')
     
+    teacher_model = create_model(args)
+
     if args.device.gpu and not args.dataloader.serialized:
         model = t.nn.DataParallel(model, device_ids=args.device.gpu)
     model.to(args.device.type)
+    print(model)
+    teacher_model.to(args.device.type)
 
     start_epoch = 0
     if args.hard_pruning:
@@ -97,13 +101,16 @@ def main():
         process.validate(test_loader, model, criterion, -1, monitors, args)
     else:  # training
         if args.resume.path or args.pre_trained:
+            '''
             logger.info('>>>>>>>> Epoch -1 (pre-trained model evaluation)')
             top1, top5, _,sparsity = process.validate(val_loader, model, criterion,
                                              start_epoch - 1, monitors, args)
             perf_scoreboard.update(top1, top5, start_epoch - 1, sparsity)
+            '''
+            pass
         for epoch in range(start_epoch, args.epochs):
             logger.info('>>>>>>>> Epoch %3d' % epoch)
-            t_top1, t_top5, t_loss = process.train(train_loader, model, criterion, optimizer,
+            t_top1, t_top5, t_loss = process.train(train_loader, model, teacher_model, criterion, optimizer,
                                                    lr_scheduler, epoch, monitors, args)
             v_top1, v_top5, v_loss,sparsity = process.validate(val_loader, model, criterion, epoch, monitors, args)
 

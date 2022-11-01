@@ -10,7 +10,7 @@ dataloader:
   # Path to dataset directory
   path: /data/imagenet
   # Size of mini-batch
-  batch_size: 256
+  batch_size: 128
   # Portion of training dataset to set aside for validation (range: [0, 1))
   val_split: 0.
 
