@@ -31,9 +31,10 @@ def accuracy(output, target, topk=(1,)):
 def train(train_loader, model, teacher_model, criterion, optimizer, lr_scheduler, epoch, monitors, args):
 
     def soft_cross_entropy(predicts, targets):
-        student_likelihood = t.nn.functional.log_softmax(predicts, dim = -1)
-        targets_prob = t.nn.functional.softmax(targets, dim = -1)
-        return (-targets_prob * student_likelihood).mean()
+        student_likelihood = t.nn.functional.log_softmax(predicts, dim=-1)
+        targets_prob = t.nn.functional.softmax(targets, dim=-1)
+        return (- targets_prob * student_likelihood).mean()
+
 
     losses = AverageMeter()
     top1 = AverageMeter()
@@ -49,38 +50,43 @@ def train(train_loader, model, teacher_model, criterion, optimizer, lr_scheduler
 
     end_time = time.time()
     for batch_idx, (inputs, targets) in enumerate(train_loader):
+        if args.init_mode:
+            for n, m in model.named_modules():
+                if hasattr(m, "init_mode"):
+                    m.init_mode = True
+            args.init_mode = False
         inputs = inputs.to(args.device.type)
         targets = targets.to(args.device.type)
 
         outputs = model(inputs)
         loss = criterion(outputs, targets)
-        with torch.no_grad():
+        with t.no_grad():
             teacher_output = teacher_model(inputs)
+        
         distil_loss = soft_cross_entropy(outputs, teacher_output)
         loss += distil_loss
 
         acc1, acc5 = accuracy(outputs.data, targets.data, topk=(1, 5))
-        losses.update(loss.item(), inputs.size(0))
-        top1.update(acc1.item(), inputs.size(0))
-        top5.update(acc5.item(), inputs.size(0))
 
         if lr_scheduler is not None:
             lr_scheduler.step(epoch=epoch, batch=batch_idx)
 
         optimizer.zero_grad()
 
+        masking_loss = 0.
         masking_loss_list = []
         if regularizer:
             for n, m in model.named_modules():
                 if hasattr(m, "soft_mask") and m.soft_mask is not None:
                     masking_loss_list.append(m.soft_mask.mean())
-                    print(m.p)
-            masking_loss = t.stack(masking_loss_list).mean()
-            print("{:.8f}".format(masking_loss))
-            masking_loss = masking_loss  
-            loss += masking_loss * args.lamb
+            masking_loss = t.stack(masking_loss_list).mean() * args.lamb
+            loss += masking_loss
         loss.backward()
         optimizer.step()
+        
+        losses.update(loss.item(), inputs.size(0))
+        top1.update(acc1.item(), inputs.size(0))
+        top5.update(acc5.item(), inputs.size(0))
 
         batch_time.update(time.time() - end_time)
         end_time = time.time()
@@ -93,6 +99,8 @@ def train(train_loader, model, teacher_model, criterion, optimizer, lr_scheduler
                     'BatchTime': batch_time,
                     'LR': optimizer.param_groups[0]['lr'],
                 })   
+            logger.info(' ==> masking_loss: %.3f\n', masking_loss)
+            logger.info(' ==> distillation_loss: %.4f\n', distil_loss)
     logger.info('==> Top1: %.3f    Top5: %.3f    Loss: %.3f\n',
                 top1.avg, top5.avg, losses.avg)
     return top1.avg, top5.avg, losses.avg
@@ -149,7 +157,7 @@ def validate(data_loader, model, criterion, epoch, monitors, args):
             print(n, sparsity)
             total_zero += weight_zero
             total_numel += weight_numel
-    sparsity = total_zero / total_numel
+    sparsity = total_zero / (total_numel + 1e-12)
     logger.info('==> Sparsity : %.3f\n', sparsity)
     return top1.avg, top5.avg, losses.avg, sparsity
 

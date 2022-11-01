@@ -65,9 +65,7 @@ def main():
     if args.device.gpu and not args.dataloader.serialized:
         model = t.nn.DataParallel(model, device_ids=args.device.gpu)
     model.to(args.device.type)
-    print(model)
     teacher_model.to(args.device.type)
-
     start_epoch = 0
     if args.hard_pruning:
         resume_path = os.path.join(script_dir, args.resume.path)
@@ -100,14 +98,13 @@ def main():
     if args.eval:
         process.validate(test_loader, model, criterion, -1, monitors, args)
     else:  # training
+        '''
         if args.resume.path or args.pre_trained:
-            '''
-            logger.info('>>>>>>>> Epoch -1 (pre-trained model evaluation)')
-            top1, top5, _,sparsity = process.validate(val_loader, model, criterion,
+            logger.info('>>>>>>>> Epoch -1 (pre-trained teacher model evaluation)')
+            top1, top5, _,sparsity = process.validate(val_loader, teacher_model, criterion,
                                              start_epoch - 1, monitors, args)
             perf_scoreboard.update(top1, top5, start_epoch - 1, sparsity)
-            '''
-            pass
+        '''
         for epoch in range(start_epoch, args.epochs):
             logger.info('>>>>>>>> Epoch %3d' % epoch)
             t_top1, t_top5, t_loss = process.train(train_loader, model, teacher_model, criterion, optimizer,

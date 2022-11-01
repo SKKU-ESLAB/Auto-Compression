@@ -33,7 +33,7 @@ def create_model(args):
         model = resnet1202(pretrained=args.pre_trained)
     
     if args.arch == 'MobileNetv2' or args.arch == 'mobilenetv2':
-        model = mobilenetv2(pretrained = args.pre_trained)
+        model = mobilenetv2_100(pretrained = args.pre_trained)
     elif args.arch == 'mobilenetv2_0.1':
         model = mobilenetv2_01(pretrained=args.pre_trained)
     elif args.arch == 'mobilenetv2_0.25':

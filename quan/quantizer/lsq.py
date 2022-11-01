@@ -72,7 +72,7 @@ class weight_quant(t.autograd.Function):
 
         #grad_input = ((1. - s_mask) + s_mask * thd * v_t * ste_constant) * grad_output.clone()
         return grad_input, grad_c, grad_p, None
-'''
+
 class SLsqQuan(Quantizer):
     def __init__(self, bit, per_channel=False, symmetric = False, all_positive = False, hard_pruning = False, block_size = 4, temperature = 1e-3):
         super().__init__(bit)
@@ -100,8 +100,8 @@ class SLsqQuan(Quantizer):
         if not self.hard_pruning:
             _soft_mask = t.nn.functional.sigmoid(score/ self.temperature)
             self.soft_mask = _soft_mask
-            _soft_mask = _soft_mask.repeat(1, self.block_size, 1, 1, 1).reshape(co,ci,kh,kw)
-            return _soft_mask
+            self.soft_mask = self.soft_mask.repeat(1, self.block_size, 1, 1, 1).reshape(co,ci,kh,kw)
+            return self.soft_mask
         
         hard_mask = (score > 0).float()
         hard_mask = hard_mask.repeat(1, self.block_size, 1, 1, 1).reshape(co,ci,kh,kw)
@@ -127,13 +127,12 @@ class SLsqQuan(Quantizer):
         p_scale = grad_scale(self.p, s_grad_scale)
         #c_scale = self.c
         #p_scale = self.p
-        
         quant_x = self.weight_quantizer(x, c_scale, p_scale, self.thd_pos)
         if (len(x.shape) == 4):
             mask = self.soft_pruner(x, p_scale)
             quant_x = quant_x * mask
         return quant_x
-'''
+
 class LsqQuan(Quantizer):
     def __init__(self, bit, all_positive=False, symmetric=False, per_channel=True):
         super().__init__(bit)
@@ -155,7 +154,7 @@ class LsqQuan(Quantizer):
 
         self.per_channel = per_channel
         self.s = t.nn.Parameter(t.ones(1))
-    
+        self.init_mode = False
     def init_from(self, x, *args, **kwargs):
         if self.per_channel:
             self.s = t.nn.Parameter(
@@ -164,6 +163,9 @@ class LsqQuan(Quantizer):
             self.s = t.nn.Parameter(x.detach().abs().mean() * 2 / (self.thd_pos ** 0.5))
 
     def forward(self, x):
+        if self.init_mode:
+            self.init_from(x)
+            self.init_mode = False
         if self.per_channel:
             s_grad_scale = 1.0 / ((self.thd_pos * x.numel()) ** 0.5)
         else:
@@ -175,7 +177,7 @@ class LsqQuan(Quantizer):
         x = round_pass(x)
         x = x * s_scale
         return x
-
+'''
 class SLsqQuan(Quantizer):
     def __init__(self, bit, per_channel=False, symmetric = False, all_positive = False, hard_pruning = False, block_size = 4, temperature = 1e-3):
         super().__init__(bit)
@@ -245,6 +247,7 @@ class SLsqQuan(Quantizer):
             mask = self.soft_pruner(x, p_scale)
             quant_x = quant_x * mask
         return quant_x
+'''
 if __name__ == "__main__":
     module = SLsqQuan(bit = 8)
     x = t.randn((100,4,3,3))
