@@ -12,13 +12,14 @@ from ray import tune
 from ray.tune import CLIReporter
 from ray.tune.schedulers import ASHAScheduler
 import os
-
+import random
+import numpy as np
 def set_seed(seed: int):
     random.seed(seed)
     np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.device_count() > 0:
-        torch.cuda.manual_seed_all(seed)
+    t.manual_seed(seed)
+    if t.cuda.device_count() > 0:
+        t.cuda.manual_seed_all(seed)
 
 def main():
     set_seed(42)

@@ -84,6 +84,7 @@ hard_pruning: false
 lamb : 5
 epochs: 50
 init_mode: true
+eta: 10
 optimizer:
   learning_rate: 0.01
   momentum: 0.9
@@ -106,17 +107,17 @@ lr_scheduler:
 
   # Multi-step decay
   #mode: multi_step
-  #milestones: [30, 60, 90]
-  #gamma: 0.1
+  milestones: [20, 30, 40]
+  gamma: 0.1
 
   # Exponential decay
   # mode: exp
   # gamma: 0.95
 
   # Cosine annealing
-  mode: cos
-  lr_min: 0
-  cycle: 0.95
+  #mode: cos
+  #lr_min: 0
+  #cycle: 0.95
 
   # Cosine annealing with warm restarts
   # mode: cos_warm_restarts

@@ -64,7 +64,7 @@ def train(train_loader, model, teacher_model, criterion, optimizer, lr_scheduler
             teacher_output = teacher_model(inputs)
         
         distil_loss = soft_cross_entropy(outputs, teacher_output)
-        loss += distil_loss
+        loss += distil_loss * args.eta
 
         acc1, acc5 = accuracy(outputs.data, targets.data, topk=(1, 5))
 
