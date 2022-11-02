@@ -29,5 +29,6 @@ elif (option == '3'):
     n = 4096
  
 FC = nn.Linear(m, n).eval()
-FC.weight.requiure_grad = False
+FC.weight.require_grad = False
 torch.save(FC, './weight/fc'+option+'.pt')
+
