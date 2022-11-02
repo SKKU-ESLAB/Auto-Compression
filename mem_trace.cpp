@@ -65,6 +65,9 @@ int main(int argc, char **argv) {
 
 	set_trace_file(argv, option);
 
+	system("sudo m5 checkpoint");
+	system("echo CPU Switched!");
+
 	set_pim_device();
 
 	trace_and_send();
