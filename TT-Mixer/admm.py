@@ -10,93 +10,12 @@ import numpy as np
 
 from torch import svd_lowrank as svd
 from tqdm import tqdm
+
 from models.mlp_mixer import CONFIGS
+from utils.infer import Inference
+from utils.tt_format import TT_SVD
 
 logger = logging.getLogger(__name__)
-
-class TT_SVD:
-    def __init__(self, original_weights: torch.Tensor, in_shapes: list, out_shapes: list, tt_ranks: list):
-        
-        self.weights = original_weights.cpu()
-        self.in_features = self.weights.shape[0]
-        self.out_features = self.weights.shape[1]
-        
-        self.in_shapes = in_shapes
-        self.out_shapes = out_shapes
-        self.ranks = [1] + tt_ranks + [1]
-        self.tt_dims = len(in_shapes)
-        
-        assert self.tt_dims == len(self.ranks) - 1
-        
-        self.mat_to_ten()
-        self.ten_to_tt()
-        self.tt_to_ten()
-        self.ten_to_mat()
-    
-    # Original weight to Tensorized weight for TT    
-    def mat_to_ten(self):
-        
-        permute_shape = []
-        self.tensorized_shape = []
-        for i in range(self.tt_dims):
-            permute_shape.append(i)
-            permute_shape.append(self.tt_dims + i)
-            self.tensorized_shape.append(self.in_shapes[i] * self.out_shapes[i])
-
-        weight = self.weights.view(*self.in_shapes, *self.out_shapes)
-        weight = torch.permute(weight, permute_shape)
-        
-        self.original_tensor = weight.reshape(*self.tensorized_shape)
-        
-    # Tensorized original weight to TT-format
-    def ten_to_tt(self):
-        tensor = self.original_tensor
-        
-        self.tt_cores = []
-        for i in range(self.tt_dims -1):
-            tensor = tensor.view(self.ranks[i]*self.tensorized_shape[i], -1)
-            u, s, v = svd(tensor, q=self.ranks[i+1], niter=10)
-            self.tt_cores.append(u.view(self.ranks[i], self.tensorized_shape[i], self.ranks[i+1]))
-
-            tensor = torch.matmul(torch.diag(s), v.T)
-            
-        self.tt_cores.append(tensor.view(self.ranks[-2], self.tensorized_shape[-1], self.ranks[-1]))
-
-        self.tt_weights = []
-        for i in range(self.tt_dims):
-            self.tt_weights.append(self.tt_cores[i].view(self.ranks[i], self.in_shapes[i], self.out_shapes[i], self.ranks[i+1]))
-    
-    # Reconstructing TT-format to Tensorized approximated weight        
-    def tt_to_ten(self):
-        tensor = self.tt_cores[0]
-        for i in range(self.tt_dims -1):
-            tensor = torch.matmul(tensor.reshape(-1, self.ranks[i+1]), self.tt_cores[i+1].reshape(self.ranks[i+1], -1))
-        self.approx_tensor = tensor.view(*self.tensorized_shape)
-
-    def ten_to_mat(self):
-        
-        permute_shape = []
-        for i in range(self.tt_dims):
-            permute_shape.append(2*i)
-            
-        for i in range(self.tt_dims):
-            permute_shape.append(2*i + 1)
-            
-        temp = []    
-        for i in range(self.tt_dims):
-            temp.append(self.in_shapes[i])
-            temp.append(self.out_shapes[i])
-            
-        temp_mat = self.approx_tensor.view(*temp)
-        self.approx_weights = torch.permute(temp_mat, permute_shape).reshape(self.in_features, self.out_features)
-
-    # Just testing approximation error
-    def loss(self):
-        criterion = nn.MSELoss()
-        loss = criterion(self.weights, self.approx_weights)
-        
-        print("MSE loss: ", loss)
-
 class TTAdmmTrainer:
     def __init__(self, model, args):
         self.model = model
@@ -107,10 +26,10 @@ class TTAdmmTrainer:
         
         for name, param in model.named_parameters():
             name_list = name.split('.')
-            if name_list[0] == "layer" and name_list[-1] == "weight":
+            if (name_list[0] == "layer") and (int(name_list[1]) in args.target_layer) and (name_list[-1] == "weight"):
                 if name_list[2] == self.block_name:
                     self.target_list.append(name)
-            
+
         self.Z = []
         self.U = []
                 
@@ -119,7 +38,7 @@ class TTAdmmTrainer:
             self.Z.append(param.detach().cpu().clone())
             self.U.append(torch.zeros_like(param).cpu().clone())
             
-        self.dict_shape = {768 : [12, 8, 8],  3072 : [24, 16, 16]}
+        self.dict_shape = {768 : [8, 8, 12],  3072 : [12, 16, 16]}
         
         num_params = self.count_params()
         
@@ -148,10 +67,11 @@ class TTAdmmTrainer:
             self.Z.append(tt_svd.approx_weights)
             
     def update_U(self, args):
-        self.U = []
+        new_U = []
         for u, x, z in zip(self.U, self.X, self.Z):
             u = u + x - z
-            self.U.append(u)
+            new_U.append(u)
+        self.U = new_U
             
     def admm_loss(self, output, target, args):
         loss = F.nll_loss(output, target)
@@ -178,9 +98,6 @@ class TTAdmmTrainer:
         for idx, name in enumerate(self.target_list):
             x, z = self.X[idx], self.Z[idx]
             print("({}): {:.4f}".format(name, (x-z).norm().item() / x.norm().item()))
-    
-    def simple_accuracy(self, preds, labels):
-        return (preds == labels).mean()
     
     def test(self, test_loader, args):
         self.model.eval()
@@ -237,7 +154,7 @@ class TTAdmmTrainer:
             logger.info("Warm up Epoch: %d", (epoch + 1))
             self.model.train()
             epoch_iterator = tqdm(train_loader,
-                                  desc="Warmup Training (X / X Steps) (loss=X.X)",
+                                  desc="Warmup Training (X / X Epochs) (loss=X.X)",
                                   bar_format="{l_bar}{r_bar}",
                                   dynamic_ncols=True)
             
@@ -252,7 +169,7 @@ class TTAdmmTrainer:
                 optimizer.step()
                 
                 epoch_iterator.set_description(
-                    "Warmup Training (%d / %d Steps) (loss=%2.5f)" % (batch_idx, len(train_loader), loss)
+                    "Warmup Training (%d / %d Epochs) (loss=%2.5f)" % (epoch, args.warmup_epochs, loss)
                 )
                 
             acc = self.test(test_loader, args)
@@ -264,6 +181,7 @@ class TTAdmmTrainer:
         
     def admm_train(self, train_loader, test_loader, optimizer, args):
         self.best_acc = 0
+        args.test_tt_model = 1
         
         self.model.zero_grad()
 
@@ -278,7 +196,7 @@ class TTAdmmTrainer:
         for epoch in range(args.admm_epochs):
             self.model.train()
             epoch_iterator = tqdm(train_loader,
-                        desc="ADMM Training (X / X Steps) (loss=X.X)",
+                        desc="ADMM Training (X / X Epochs) (loss=X.X)",
                         bar_format="{l_bar}{r_bar}",
                         dynamic_ncols=True)
             logger.info("ADMM Epoch: %d", (epoch + 1))
@@ -289,11 +207,11 @@ class TTAdmmTrainer:
                 loss = self.admm_loss(F.log_softmax(output, dim=-1), labels, args)
                 loss.backward()
 
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), args.max_grad_norm)
+                #torch.nn.utils.clip_grad_norm_(self.model.parameters(), args.max_grad_norm)
                 optimizer.step()
 
                 epoch_iterator.set_description(
-                    "ADMM Training (%d / %d Steps) (loss=%2.5f)" % (batch_idx, len(train_loader), loss)
+                    "ADMM Training (%d / %d Epochs) (loss=%2.5f)" % (epoch, args.admm_epochs, loss)
                 )
                 
             self.update_X(args)
@@ -302,15 +220,23 @@ class TTAdmmTrainer:
             
             self.print_convergence()
             
-            acc = self.test(test_loader, args)
-            if self.best_acc < acc:
+            args.test_original = 1
+            infer = Inference(self.model, args)
+            original_acc = infer.test(test_loader, args)
+            
+            args.test_original = 0
+            infer = Inference(self.model, args)
+            tt_acc = infer.test(test_loader, args)
+            logger.info("TT-Mixer (ADMM epoch %d) (Accuracy=%2.5f)" %(epoch, tt_acc))
+            
+            if self.best_acc < original_acc:
                 self.save_admm_model(args)
-                self.best_acc = acc
+                self.best_acc = original_acc
 
             scheduler.step()       
             
     def save_warmup_model(self, args):
-        model_checkpoint = os.path.join("saved_models/warmup_models", "%s.py" % args.name)
+        model_checkpoint = os.path.join("saved_models/warmup_models", "%s.pt" % args.name)
         torch.save(self.model.state_dict(), model_checkpoint)
         
         logger.info("Saved Warmup model checkpoint to [DIR: warmup_models]")
@@ -324,11 +250,11 @@ class TTAdmmTrainer:
     def fit(self, train_loader, test_loader, args):
         if args.use_adam:
             optimizer = torch.optim.Adam(self.model.parameters(),
-                                        lr=args.learning_rate,
+                                        lr=args.admm_learning_rate,
                                         weight_decay=args.weight_decay)
         else:
             optimizer = torch.optim.SGD(self.model.parameters(),
-                                        lr=args.learning_rate,
+                                        lr=args.admm_learning_rate,
                                         momentum=0.9,
                                         weight_decay=args.weight_decay)
 

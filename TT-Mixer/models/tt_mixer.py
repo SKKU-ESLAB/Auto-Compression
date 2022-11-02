@@ -8,20 +8,19 @@ from os.path import join as pjoin
 
 from torch import nn
 from torch.nn.modules.utils import _pair
-import torch.nn.functional as F
-from tt_mlp import TTLinear
+from models.tt_mlp import TTLinear
 
 class TTBlock(nn.Module):
     def __init__(self, hidden_shape, ff_shape, config):
         super(TTBlock, self).__init__()
-        self.tt_fc0 = TTLinear(hidden_shape, ff_shape, config.tt_ranks, bias=True)
-        self.tt_fc1 = TTLinear(ff_shape, hidden_shape, config.tt_ranks, bias=True)
+        self.fc0 = TTLinear(hidden_shape, ff_shape, config.tt_ranks, bias=True)
+        self.fc1 = TTLinear(ff_shape, hidden_shape, config.tt_ranks, bias=True)
         self.act_fn = nn.GELU()
         
     def forward(self, x):
-        x = self.tt_fc0(x)
+        x = self.fc0(x)
         x = self.act_fn(x)
-        x = self.tt_fc1(x)
+        x = self.fc1(x)
         return x
 
 class MlpBlock(nn.Module):
@@ -61,7 +60,7 @@ class TTMixerBlock(nn.Module):
     
 class PrunBlock(nn.Module):
     def __init__(self, config):
-        super(MixerBlock, self).__init__()
+        super(PrunBlock, self).__init__()
         self.token_mlp_block = MlpBlock(config.n_patches, config.tokens_mlp_dim)
         self.pre_norm = nn.LayerNorm(config.hidden_dim, eps=1e-6)
         self.post_norm = nn.LayerNorm(config.hidden_dim, eps=1e-6)
@@ -74,9 +73,6 @@ class PrunBlock(nn.Module):
         x = x.transpose(-1, -2)
         x = x + h
 
-        h = x
-        x = self.post_norm(x)
-        x = x + h
         return x
 class MixerBlock(nn.Module):
     def __init__(self, config):
@@ -101,7 +97,7 @@ class MixerBlock(nn.Module):
         return x
 
 class TTMixer(nn.Module):
-    def __init__(self, config, img_size=224, num_classes=1000, patch_size=16, zero_head=False, target_list=None):
+    def __init__(self, config, img_size=224, num_classes=1000, patch_size=16, zero_head=False, target_layer=None):
         super(TTMixer, self).__init__()
         self.zero_head = zero_head
         self.num_classes = num_classes
@@ -119,8 +115,8 @@ class TTMixer(nn.Module):
 
         self.layer = nn.ModuleList()
         for i in range(config.num_blocks):
-            if (target_list is not None) and (i == target_list):
-                layer = TTBlock(config)
+            if (target_layer is not None) and (i in target_layer):
+                layer = TTMixerBlock(config)
             else:
                 layer = MixerBlock(config)
                 
@@ -140,8 +136,8 @@ class TTMixer(nn.Module):
         return logits
 
 class PrunMixer(nn.Module):
-    def __init__(self, config, img_size=224, num_classes=1000, patch_size=16, zero_head=False, target_list=None):
-        super(TTMixer, self).__init__()
+    def __init__(self, config, img_size=224, num_classes=1000, patch_size=16, zero_head=False, target_layer=None):
+        super(PrunMixer, self).__init__()
         self.zero_head = zero_head
         self.num_classes = num_classes
         patch_size = _pair(patch_size)
@@ -158,7 +154,7 @@ class PrunMixer(nn.Module):
 
         self.layer = nn.ModuleList()
         for i in range(config.num_blocks):
-            if (target_list is not None) and (i == target_list):
+            if (target_layer is not None) and (i in target_layer):
                 layer = PrunBlock(config)
             else:
                 layer = MixerBlock(config)
