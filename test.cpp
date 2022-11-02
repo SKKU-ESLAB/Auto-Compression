@@ -40,11 +40,7 @@ void test_add_blas(int option) {
 	if (DebugMode())
 		std::cout << "///// Preprocessing ADD BLAS... /////\n";
 
-#ifdef gem5_mode
-	system("sudo m5 checkpoint");
-	system("echo CPU Switched!");
-	blas_init(0);
-#endif
+
 
 	PIMKernel micro_kernel = PIMKernel();
 	pimblasAddPreprocess(&micro_kernel, n, &in0, &in1);
@@ -101,11 +97,7 @@ void test_mul_blas(int option) {
 	if (DebugMode())
 		std::cout << "///// Preprocessing MUL BLAS... /////\n";
 
-#ifdef gem5_mode
-	system("sudo m5 checkpoint");
-	system("echo CPU Switched!");
-	blas_init(0);
-#endif
+
 
 	PIMKernel micro_kernel = PIMKernel();
 	pimblasMulPreprocess(&micro_kernel, n, &in0, &in1);
@@ -188,11 +180,6 @@ void test_bn_blas(int option) {
 	if (DebugMode())
 		std::cout << "///// Preprocessing BN BLAS... /////\n";
 
-#ifdef gem5_mode
-	system("sudo m5 checkpoint");
-	system("echo CPU Switched!");
-	blas_init(0);
-#endif
 
 	PIMKernel micro_kernel = PIMKernel();
 	pimblasBn1dPreprocess(&micro_kernel, l, f, &w0, &w1);
@@ -258,11 +245,7 @@ void test_gemv_blas(int option) {
 	if (DebugMode())
 		std::cout << "///// Preprocessing GEMV BLAS... /////\n";
 
-#ifdef gem5_mode
-	system("sudo m5 checkpoint");
-	system("echo CPU Switched!");
-	blas_init(0);
-#endif
+
 
 	PIMKernel micro_kernel = PIMKernel();
 	pimblasGemvPreprocess(&micro_kernel, m, n, &w);
@@ -326,12 +309,6 @@ void test_lstm_blas(int option) {
 	if (DebugMode())
 		std::cout << "///// Preprocessing LSTM BLAS... /////\n";
 
-#ifdef gem5_mode
-	system("sudo m5 checkpoint");
-	system("echo CPU Switched!");
-	blas_init(0);
-#endif
-
 	PIMKernel micro_kernel = PIMKernel();
 	pimblasLstmPreprocess(&micro_kernel, m, n, &w, &b);
 
@@ -367,9 +344,7 @@ int main(int argc, char **argv) {
 	std::cout << "option : 1 / 2 / 3\nenter option :";
 	std::cin >> option;
 
-#ifndef gem5_mode
 	blas_init(0);
-#endif
 	
 	if (argc <= 1) {
 		if (DebugMode())
