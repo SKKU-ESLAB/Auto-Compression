@@ -4,7 +4,7 @@ import torch.nn as nn
 import time
 import os
 
-option = input("# words = 32:1, 64:2, 128:3, 256:4, 576:5 \nenter layer to run: ")
+option = input("# words = 1: 64, 2: 256, 3: 576\nenter layer to run: ")
 
 print("option: ", option)
 
@@ -18,20 +18,12 @@ itr=5
 
 # lstm
 if (option == '1'):
-    m = 32
-
-elif (option == '2'):
     m = 64
- 
-elif (option == '3'):
-    m = 128
- 
-elif (option == '4'):
+elif (option == '2'):
     m = 256
- 
-elif (option == '5'):
+elif (option == '3'):
     m = 576
-    
+
 LSTM = torch.load('./weight/lstm.pt').eval()
 
 print("compute: lstm layer")
