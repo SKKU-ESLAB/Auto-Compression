@@ -43,12 +43,17 @@ def train(train_loader, model, criterion, optimizer, lr_scheduler, epoch, monito
 
     end_time = time.time()
     for batch_idx, (inputs, targets) in enumerate(train_loader):
+        if args.init_mode:
+            for n, m in model.named_modules():
+                if hasattr(m, "init_mode"):
+                    m.init_mode = True
+            args.init_mode = False
         inputs = inputs.to(args.device.type)
         targets = targets.to(args.device.type)
 
         outputs = model(inputs)
         loss = criterion(outputs, targets)
-
+        print(loss)
 
         acc1, acc5 = accuracy(outputs.data, targets.data, topk=(1, 5))
         losses.update(loss.item(), inputs.size(0))
@@ -61,6 +66,7 @@ def train(train_loader, model, criterion, optimizer, lr_scheduler, epoch, monito
         optimizer.zero_grad()
 
         masking_loss_list = []
+        '''
         if regularizer:
             for n, m in model.named_modules():
                 if hasattr(m, "soft_mask") and m.soft_mask is not None:
@@ -70,6 +76,7 @@ def train(train_loader, model, criterion, optimizer, lr_scheduler, epoch, monito
             print("{:.8f}".format(masking_loss))
             masking_loss = masking_loss  
             loss += masking_loss * args.lamb
+        '''
         loss.backward()
         optimizer.step()
 

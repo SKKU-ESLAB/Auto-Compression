@@ -8,9 +8,6 @@ import process
 import quan
 import util
 from model import create_model
-from ray import tune
-from ray.tune import CLIReporter
-from ray.tune.schedulers import ASHAScheduler
 import os
 def main():
     script_dir = Path.cwd()

@@ -32,7 +32,9 @@ def create_model(args):
     elif args.arch == 'resnet1202':
         model = resnet1202(pretrained=args.pre_trained)
     
-    if args.arch == 'MobileNetv2' or args.arch == 'mobilenetv2':
+    if args.arch == "mobilnetv2" and args.dataset == "cifar10":
+        model = mobilenetv2_cifar10(pretrained = args.pre_trained)
+    elif args.arch == 'MobileNetv2' or args.arch == 'mobilenetv2':
         model = mobilenetv2_100(pretrained = args.pre_trained)
     elif args.arch == 'mobilenetv2_0.1':
         model = mobilenetv2_01(pretrained=args.pre_trained)
@@ -46,7 +48,7 @@ def create_model(args):
         model = mobilenetv2_75(pretrained=args.pre_trained)
     elif args.arch == 'mobilenetv2_1.0':
         model = mobilenetv2_100(pretrained=args.pre_trained)
-
+    
 
     if model is None:
         logger.error('Model architecture `%s` for `%s` dataset is not supported' % (args.arch, args.dataloader.dataset))
