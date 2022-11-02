@@ -9,10 +9,23 @@ import quan
 import util
 from model import create_model
 import os
+import random
+import numpy as np
+import wandb
+
+def set_seed(seed: int):
+    random.seed(seed)
+    np.random.seed(seed)
+    t.manual_seed(seed)
+    if t.cuda.device_count() > 0:
+        t.cuda.manual_seed_all(seed)
+
+
 def main():
+    set_seed(42)
     script_dir = Path.cwd()
     args = util.get_config(default_file=script_dir / 'config.yaml')
-
+    wandb.init(reinit=True, name = args.name, project="SLSQ")
     output_dir = script_dir / args.output_dir
     output_dir.mkdir(exist_ok=True)
 
@@ -52,11 +65,11 @@ def main():
     # Create the model
 
     model = create_model(args)
+    
     modules_to_replace = quan.find_modules_to_quantize(model, args.quan)
     model = quan.replace_module_by_names(model, modules_to_replace)
     tbmonitor.writer.add_graph(model, input_to_model=train_loader.dataset[0][0].unsqueeze(0))
     logger.info('Inserted quantizers into the original model')
-    
     if args.device.gpu and not args.dataloader.serialized:
         model = t.nn.DataParallel(model, device_ids=args.device.gpu)
     model.to(args.device.type)
@@ -103,7 +116,9 @@ def main():
             t_top1, t_top5, t_loss = process.train(train_loader, model, criterion, optimizer,
                                                    lr_scheduler, epoch, monitors, args)
             v_top1, v_top5, v_loss,sparsity = process.validate(val_loader, model, criterion, epoch, monitors, args)
-
+            log_data = {"t_top1" : t_top1, "t_top5" : t_top5, "t_loss" : t_loss, "v_top1" : v_top1, \
+                        "v_top5" : v_top5, "v_loss" : v_loss, "sparsity" : sparsity}
+            wandb.log(log_data)
             tbmonitor.writer.add_scalars('Train_vs_Validation/Loss', {'train': t_loss, 'val': v_loss}, epoch)
             tbmonitor.writer.add_scalars('Train_vs_Validation/Top1', {'train': t_top1, 'val': v_top1}, epoch)
             tbmonitor.writer.add_scalars('Train_vs_Validation/Top5', {'train': t_top5, 'val': v_top5}, epoch)

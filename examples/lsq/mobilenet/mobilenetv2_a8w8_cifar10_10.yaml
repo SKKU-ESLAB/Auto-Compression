@@ -82,13 +82,13 @@ quan:
 eval: false
 hard_pruning: false
 lamb : 10
-epochs: 100
+epochs: 20
 init_mode: true
 eta: 10
 optimizer:
-  learning_rate: 0.05
+  learning_rate: 0.01
   momentum: 0.9
-  weight_decay: 0.00004
+  weight_decay: 4.0e-05
 
 # Learning rate scheduler
 lr_scheduler:
@@ -107,7 +107,7 @@ lr_scheduler:
 
   # Multi-step decay
   mode: multi_step
-  milestones: [20, 30, 40]
+  milestones: [5, 10, 15]
   gamma: 0.1
 
   # Exponential decay

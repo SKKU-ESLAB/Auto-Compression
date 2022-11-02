@@ -53,7 +53,6 @@ def train(train_loader, model, criterion, optimizer, lr_scheduler, epoch, monito
 
         outputs = model(inputs)
         loss = criterion(outputs, targets)
-        print(loss)
 
         acc1, acc5 = accuracy(outputs.data, targets.data, topk=(1, 5))
         losses.update(loss.item(), inputs.size(0))
@@ -66,17 +65,14 @@ def train(train_loader, model, criterion, optimizer, lr_scheduler, epoch, monito
         optimizer.zero_grad()
 
         masking_loss_list = []
-        '''
         if regularizer:
             for n, m in model.named_modules():
                 if hasattr(m, "soft_mask") and m.soft_mask is not None:
                     masking_loss_list.append(m.soft_mask.mean())
-                    print(m.p)
             masking_loss = t.stack(masking_loss_list).mean()
             print("{:.8f}".format(masking_loss))
             masking_loss = masking_loss  
             loss += masking_loss * args.lamb
-        '''
         loss.backward()
         optimizer.step()
 

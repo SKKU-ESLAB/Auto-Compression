@@ -25,7 +25,6 @@ model_urls = {
     'mobilenetv2_160': 'https://github.com/d-li14/mobilenetv2.pytorch/raw/master/pretrained/mobilenetv2_160x160-64dc7fa1.pth',
     'mobilenetv2_192': 'https://github.com/d-li14/mobilenetv2.pytorch/raw/master/pretrained/mobilenetv2_192x192-e423d99e.pth',
     'mobilenetv2_96' : 'https://github.com/d-li14/mobilenetv2.pytorch/raw/master/pretrained/mobilenetv2_96x96-ff0e83d8.pth',
-    'mobilenetv2_cifar10' : 'https://api.ai.tencent.com/pocketflow/models_mobilenet_v2_at_ilsvrc_12.tar.gz'
 }
 
 
@@ -207,5 +206,3 @@ def mobilenetv2_75(pretrained = True, progress = True, **kwargs):
 def mobilenetv2_100(pretrained = True, progress = True, **kwargs):
     return _mobilenetv2('mobilenetv2_1.0', 1.0,pretrained, progress, **kwargs)
 
-def mobilenetv2_cifar10(pretrained = True, progress = True, **kwargs):
-    return _mobilenetv2('mobilenetv2_cifar10', 1.0, pretrained, progress, num_classes = 10)

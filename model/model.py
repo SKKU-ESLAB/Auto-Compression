@@ -3,7 +3,7 @@ import logging
 from .resnet import *
 from .resnet_cifar import *
 from .mobilenet import *
-
+from .mobilenet_cifar10 import *
 def create_model(args):
     logger = logging.getLogger()
 
@@ -31,8 +31,9 @@ def create_model(args):
         model = resnet152(pretrained=args.pre_trained)
     elif args.arch == 'resnet1202':
         model = resnet1202(pretrained=args.pre_trained)
-    
-    if args.arch == "mobilnetv2" and args.dataset == "cifar10":
+
+    if args.arch == "MobileNetv2" and args.dataloader.dataset == "cifar10":
+        print("hello")
         model = mobilenetv2_cifar10(pretrained = args.pre_trained)
     elif args.arch == 'MobileNetv2' or args.arch == 'mobilenetv2':
         model = mobilenetv2_100(pretrained = args.pre_trained)

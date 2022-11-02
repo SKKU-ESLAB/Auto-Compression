@@ -81,7 +81,7 @@ class SLsqQuan(Quantizer):
         self.thd_pos = 2 ** (bit - 1) - 1
 
         self.per_channel = per_channel
-        self.p= t.nn.Parameter(t.zeros(1))
+        self.p= t.nn.Parameter(t.zeros([]))
         self.c = t.nn.Parameter(t.ones(1))
         self.alpha = t.nn.Parameter(t.zeros(1))
         self.weight_quantizer = weight_quant.apply
@@ -125,8 +125,6 @@ class SLsqQuan(Quantizer):
             s_grad_scale = 1.0 / ((self.thd_pos * x.numel()) ** 0.5)
         c_scale = grad_scale(self.c, s_grad_scale)
         p_scale = grad_scale(self.p, s_grad_scale)
-        #c_scale = self.c
-        #p_scale = self.p
         quant_x = self.weight_quantizer(x, c_scale, p_scale, self.thd_pos)
         if (len(x.shape) == 4):
             mask = self.soft_pruner(x, p_scale)
@@ -153,7 +151,7 @@ class LsqQuan(Quantizer):
                 self.thd_pos = 2 ** (bit - 1) - 1
 
         self.per_channel = per_channel
-        self.s = t.nn.Parameter(t.ones(1))
+        self.s = t.nn.Parameter(t.ones([]))
         self.init_mode = False
     def init_from(self, x, *args, **kwargs):
         if self.per_channel:
