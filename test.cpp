@@ -43,6 +43,7 @@ void test_add_blas(int option) {
 #ifdef gem5_mode
 	system("sudo m5 checkpoint");
 	system("echo CPU Switched!");
+	blas_init(0);
 #endif
 
 	PIMKernel micro_kernel = PIMKernel();
@@ -103,6 +104,7 @@ void test_mul_blas(int option) {
 #ifdef gem5_mode
 	system("sudo m5 checkpoint");
 	system("echo CPU Switched!");
+	blas_init(0);
 #endif
 
 	PIMKernel micro_kernel = PIMKernel();
@@ -189,6 +191,7 @@ void test_bn_blas(int option) {
 #ifdef gem5_mode
 	system("sudo m5 checkpoint");
 	system("echo CPU Switched!");
+	blas_init(0);
 #endif
 
 	PIMKernel micro_kernel = PIMKernel();
@@ -258,6 +261,7 @@ void test_gemv_blas(int option) {
 #ifdef gem5_mode
 	system("sudo m5 checkpoint");
 	system("echo CPU Switched!");
+	blas_init(0);
 #endif
 
 	PIMKernel micro_kernel = PIMKernel();
@@ -325,6 +329,7 @@ void test_lstm_blas(int option) {
 #ifdef gem5_mode
 	system("sudo m5 checkpoint");
 	system("echo CPU Switched!");
+	blas_init(0);
 #endif
 
 	PIMKernel micro_kernel = PIMKernel();
@@ -362,8 +367,10 @@ int main(int argc, char **argv) {
 	std::cout << "option : 1 / 2 / 3\nenter option :";
 	std::cin >> option;
 
+#ifndef gem5_mode
 	blas_init(0);
-
+#endif
+	
 	if (argc <= 1) {
 		if (DebugMode())
 			std::cout << "add, mul, mac, bn, gemv, lstm\n";
