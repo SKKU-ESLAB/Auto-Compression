@@ -4,7 +4,7 @@ import torch.nn as nn
 import time
 import os
 
-option = input("5x10:1, 20x40:2, 80x160:3, 320x640:4, 1024x2048:5 \nenter layer to run: ")
+option = input("1: 512x4096, 2: 1024x4096, 3: 2048x4096\nenter layer to run: ")
 
 print("option: ", option)
 
@@ -14,17 +14,14 @@ torch.set_num_threads(4)
 print("\n----lets run!----")
 
 m=0
-if (option == '1'):
-    m = 5
-elif (option == '2'):
-    m = 20
-elif (option == '3'):
-    m = 80
-elif (option == '4'):
-    m = 320
-elif (option == '5'):
-    m = 1024
+n=4096
 itr=5
+if (option == '1'):
+    m = 512
+elif (option == '2'):
+    m = 1024
+elif (option == '3'):
+    m = 2048
 
 FC = torch.load('./weight/fc'+option+'.pt').eval()
 avg_time = 0
