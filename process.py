@@ -33,6 +33,8 @@ def train(train_loader, model, criterion, optimizer, lr_scheduler, epoch, monito
     top1 = AverageMeter()
     top5 = AverageMeter()
     batch_time = AverageMeter()
+    masking = AverageMeter()
+
     model.train()
     
     regularizer = not args.hard_pruning
@@ -53,12 +55,11 @@ def train(train_loader, model, criterion, optimizer, lr_scheduler, epoch, monito
 
         outputs = model(inputs)
         loss = criterion(outputs, targets)
-
+        
         acc1, acc5 = accuracy(outputs.data, targets.data, topk=(1, 5))
         losses.update(loss.item(), inputs.size(0))
         top1.update(acc1.item(), inputs.size(0))
         top5.update(acc5.item(), inputs.size(0))
-
         if lr_scheduler is not None:
             lr_scheduler.step(epoch=epoch, batch=batch_idx)
 
@@ -70,9 +71,9 @@ def train(train_loader, model, criterion, optimizer, lr_scheduler, epoch, monito
                 if hasattr(m, "soft_mask") and m.soft_mask is not None:
                     masking_loss_list.append(m.soft_mask.mean())
             masking_loss = t.stack(masking_loss_list).mean()
-            print("{:.8f}".format(masking_loss))
-            masking_loss = masking_loss  
-            loss += masking_loss * args.lamb
+            masking_loss = masking_loss * args.lamb
+            loss += masking_loss
+            masking.update(masking_loss.item(), inputs.size(0))
         loss.backward()
         optimizer.step()
 
@@ -89,7 +90,7 @@ def train(train_loader, model, criterion, optimizer, lr_scheduler, epoch, monito
                 })   
     logger.info('==> Top1: %.3f    Top5: %.3f    Loss: %.3f\n',
                 top1.avg, top5.avg, losses.avg)
-    return top1.avg, top5.avg, losses.avg
+    return top1.avg, top5.avg, losses.avg, masking.avg
 
 
 def validate(data_loader, model, criterion, epoch, monitors, args):
@@ -132,19 +133,17 @@ def validate(data_loader, model, criterion, epoch, monitors, args):
     logger.info('==> Top1: %.3f    Top5: %.3f    Loss: %.3f\n', top1.avg, top5.avg, losses.avg)
     total_zero = 0.
     total_numel = 0.
+    sparsity_log = {}
     for n, m in model.named_modules():
         if hasattr(m, "quan_w_fn"):
-            print(hasattr(m.quan_w_fn, "soft_pruner"))
-            if hasattr(m.quan_w_fn, "soft_pruner"):
-                print(m.quan_w_fn.hard_pruning)
             weight_zero = (m.quan_w_fn(m.weight.detach())==0).sum()
             weight_numel = m.weight.detach().numel()
             sparsity = weight_zero / weight_numel
-            print(n, sparsity)
             total_zero += weight_zero
             total_numel += weight_numel
+            sparsity_log[n] = sparsity
+    import wandb; wandb.log(sparsity_log)
     sparsity = total_zero / total_numel
-    print(sparsity)
     return top1.avg, top5.avg, losses.avg, sparsity
 
 

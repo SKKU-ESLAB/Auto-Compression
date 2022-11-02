@@ -20,6 +20,13 @@ def set_seed(seed: int):
     if t.cuda.device_count() > 0:
         t.cuda.manual_seed_all(seed)
 
+def pruning_log(model):
+    pruning_log = {}
+    for n, m in model.named_modules():
+        if hasattr(m,"quan_w_fn") and hasattr(m.quan_w_fn, "p"):
+            pruning_log[n + "pruning_point"] = m.quan_w_fn.p.detach()
+    import wandb;
+    wandb.log(pruning_log)
 
 def main():
     set_seed(42)
@@ -113,12 +120,13 @@ def main():
             perf_scoreboard.update(top1, top5, start_epoch - 1, sparsity)
         for epoch in range(start_epoch, args.epochs):
             logger.info('>>>>>>>> Epoch %3d' % epoch)
-            t_top1, t_top5, t_loss = process.train(train_loader, model, criterion, optimizer,
+            t_top1, t_top5, t_loss, masking_loss = process.train(train_loader, model, criterion, optimizer,
                                                    lr_scheduler, epoch, monitors, args)
             v_top1, v_top5, v_loss,sparsity = process.validate(val_loader, model, criterion, epoch, monitors, args)
             log_data = {"t_top1" : t_top1, "t_top5" : t_top5, "t_loss" : t_loss, "v_top1" : v_top1, \
-                        "v_top5" : v_top5, "v_loss" : v_loss, "sparsity" : sparsity}
+                    "v_top5" : v_top5, "v_loss" : v_loss, "sparsity" : sparsity, "masking_loss" : masking_loss}
             wandb.log(log_data)
+            pruning_log(model)
             tbmonitor.writer.add_scalars('Train_vs_Validation/Loss', {'train': t_loss, 'val': v_loss}, epoch)
             tbmonitor.writer.add_scalars('Train_vs_Validation/Top1', {'train': t_top1, 'val': v_top1}, epoch)
             tbmonitor.writer.add_scalars('Train_vs_Validation/Top5', {'train': t_top5, 'val': v_top5}, epoch)

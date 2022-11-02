@@ -1,5 +1,5 @@
 # Experiment name
-name: MobileNetv2_cifar10_a8w8_20
+name: MobileNetv2_cifar10_a8w8_20_epoch40
 
 # Dataset loader
 dataloader:
@@ -82,7 +82,7 @@ quan:
 eval: false
 hard_pruning: false
 lamb : 20
-epochs: 20
+epochs: 40
 init_mode: true
 eta: 10
 optimizer:
@@ -107,7 +107,7 @@ lr_scheduler:
 
   # Multi-step decay
   mode: multi_step
-  milestones: [5, 10, 15]
+  milestones: [10, 20, 30]
   gamma: 0.1
 
   # Exponential decay
