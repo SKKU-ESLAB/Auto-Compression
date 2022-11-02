@@ -101,25 +101,29 @@ void* CPIMKernel_getInstance() {
 	return (void*)c_micro_kernel;
 }
 
-bool DebugMode()
-{
+bool DebugMode() {
 #ifdef debug_mode
 	return true;
 #endif
 	return false;
 }
 
-bool FpgaMode()
-{
+bool FpgaMode() {
 #ifdef fpga_mode
 	return true;
 #endif
 	return false;
 }
 
-bool ComputeMode()
-{
+bool ComputeMode() {
 #ifdef compute_mode
+	return true;
+#endif
+	return false;
+}
+
+bool MemTraceMode() {
+#ifdef memtrace_mode
 	return true;
 #endif
 	return false;

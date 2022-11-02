@@ -22,16 +22,6 @@ bool C_pim_add(int len, uint8_t *in0, uint8_t *in1, uint8_t *out) {
 	return pim_add(micro_kernel, len, in0, in1, out);	
 }
 
-bool pimblasAddPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in0, uint8_t **in1) {
-	PIM_OP pim_op = PIM_OP::ADD;
-	PIM_OP_ATTRS add_attrs = PIM_OP_ATTRS();
-	add_attrs.ADD(len);
-	*micro_kernel = GetMicrokernelCode(pim_op, add_attrs);
-	*in0 = MapMemory(*in0, len * UNIT_SIZE);
-	*in1 = MapMemory(*in1, len * UNIT_SIZE);
-	return true;
-}
-
 bool C_pimblasMulPreprocess(int len, uint8_t **in0, uint8_t **in1) {
 	*in0 = MapMemory(*in0, len * UNIT_SIZE);
 	*in1 = MapMemory(*in1, len * UNIT_SIZE);
@@ -73,6 +63,20 @@ bool C_pim_gemv(int len_in, int len_out, uint8_t *in, uint8_t *w, uint8_t *out) 
 	return pim_gemv(micro_kernel, len_in, len_out, in, w, out);
 }
 
+bool pimblasAddPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in0, uint8_t **in1) {
+	PIM_OP pim_op = PIM_OP::ADD;
+	PIM_OP_ATTRS add_attrs = PIM_OP_ATTRS();
+	add_attrs.ADD(len);
+	*micro_kernel = GetMicrokernelCode(pim_op, add_attrs);
+	*in0 = MapMemory(*in0, len * UNIT_SIZE);
+	*in1 = MapMemory(*in1, len * UNIT_SIZE);
+
+	if (MemTraceMode())
+		WriteMemTraceFlag();
+
+	return true;
+}
+
 bool pimblasMulPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in0, uint8_t **in1) {
 	PIM_OP pim_op = PIM_OP::MUL;
 	PIM_OP_ATTRS mul_attrs = PIM_OP_ATTRS();
@@ -80,6 +84,8 @@ bool pimblasMulPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in0, uint8
 	*micro_kernel = GetMicrokernelCode(pim_op, mul_attrs);
 	*in0 = MapMemory(*in0, len * UNIT_SIZE);
 	*in1 = MapMemory(*in1, len * UNIT_SIZE);
+	if (MemTraceMode())
+		WriteMemTraceFlag();
 	return true;
 }
 
@@ -96,6 +102,8 @@ bool pimblasBn1dPreprocess(PIMKernel *micro_kernel, int len_batch, int len_featu
 	*w_mul = MapMemory(*w_mul, len_batch * len_feature * UNIT_SIZE);
 	*w_add = MapMemory(*w_add, len_batch * len_feature * UNIT_SIZE);
 
+	if (MemTraceMode())
+		WriteMemTraceFlag();
 	return true;
 }
 
@@ -118,6 +126,10 @@ bool pimblasGemvPreprocess(PIMKernel *micro_kernel, int len_in, int len_out, uin
 	// w [4096, 8], [4096, 8]
 
 	*w = MapMemory(*w, len_in_ * len_out_ * UNIT_SIZE);
+
+	if (MemTraceMode())
+		WriteMemTraceFlag();
+
 	return true;
 }
 
@@ -141,6 +153,9 @@ bool pimblasLstmPreprocess(PIMKernel *micro_kernel, int len_in, int len_out, uin
 
 	*w = MapMemory(*w, len_in_ * len_out_ * UNIT_SIZE);
 	*b = MapMemory(*b, len_out_ * UNIT_SIZE);
+
+	if (MemTraceMode())
+		WriteMemTraceFlag();
 
 	return true;
 }
@@ -182,8 +197,10 @@ bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 				std::cout << " PIM_BLAS\t Code0 Finished!\n";
 		}
 #ifdef fpga_mode
-		if (bank == 0)
+		if (bank == 0) {
 			SetFpgaData();
+			break;
+		}
 #endif
 		if (DebugMode())
 			std::cout << " PIM_BLAS\t Code Finished!\n";
@@ -354,14 +371,12 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 	int in_idx = 0, w_idx = 0, out_idx = 0;
 	int bank = 0;
 	uint8_t *zeros = (uint8_t *)calloc(8 * NUM_UNIT_PER_WORD, UNIT_SIZE);
-	for (int i = 0; i < gemv_attrs.code_iter; i++)
-	{
+	for (int i = 0; i < gemv_attrs.code_iter; i++) {
 		if (DebugMode())
 			std::cout << " PIM_BLAS\t Code Start!\n";
 		WriteReg(PIM_REG::CRF, (uint8_t *)micro_kernel.code0, WORD_SIZE);
 
-		for (int j = 0; j < gemv_attrs.code0_iter; j++)
-		{
+		for (int j = 0; j < gemv_attrs.code0_iter; j++)	{
 			if (DebugMode())
 				std::cout << " PIM_BLAS\t Code0 Start!\n";
 			WriteReg(PIM_REG::SRF_M, in + in_idx, WORD_SIZE);
@@ -385,8 +400,7 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 				std::cout << " PIM_BLAS\t Code0 Finished!\n";
 		}
 		WriteReg(PIM_REG::CRF, (uint8_t *)micro_kernel.code1, WORD_SIZE);
-		for (int j = 0; j < gemv_attrs.code1_iter; j++)
-		{
+		for (int j = 0; j < gemv_attrs.code1_iter; j++)	{
 			if (DebugMode())
 				std::cout << " PIM_BLAS\t Code1 Start!\n";
 #ifdef fpga_mode

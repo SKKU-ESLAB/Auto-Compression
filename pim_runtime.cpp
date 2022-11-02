@@ -39,6 +39,7 @@ static void *TryThreadGroupAddTransaction(void *input_);
 static void *TryThreadAddTransaction(void *input_);
 
 FILE *fp = fopen("output.txt", "w");
+FILE *fm = fopen("memtrace.txt", "w");
 int fd;
 uint64_t pim_base;
 int clock_ = 0;
@@ -624,9 +625,14 @@ void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write) {
 			PushFpgaData((uint32_t*)data);
 			// AddDebugTime(hex_addr, tmp_time);
 		}
-	} else if (ComputeMode())
+	} else if (ComputeMode()) {
 		pim_func_sim->AddTransaction((uint64_t)(pim_addr - pim_base), data, is_write);
-	else {
+	} else if (MemTraceMode()) {
+		if (is_write)
+			fprintf(fm, "1 %llu\n", (uint64_t)(pim_addr - pim_base));
+		else
+			fprintf(fm, "0 %llu\n", (uint64_t)(pim_addr - pim_base));
+	} else {
 		if (is_write)
 			std::memcpy(pim_addr, data, burstSize_);
 		else
@@ -750,8 +756,7 @@ void PushFpgaAddr(uint64_t addr)
 	num_fpga_addr++;
 }
 
-void SetFpgaAddr()
-{
+void SetFpgaAddr() {
 	int num_col = (num_fpga_addr + 8 - 1) / 8;
 	if (DebugMode())
 		std::cout << "num_fpga_addr : " << num_fpga_addr << std::endl;
@@ -765,17 +770,15 @@ void InitFpgaData(int op_num) {
 	num_fpga_data = num_fpga_data + 1;
 }
 
-void PushFpgaData(uint32_t* data)
-{
-	// std::cout << "[Push Data 32B]\n";
+void PushFpgaData(uint32_t* data) {
+	std::cout << "[Push Data 32B] " << num_fpga_data << std::endl;
 	for (int i=0; i<8; i++) {
 		fpga_data_queue[num_fpga_data] = data[i];
 		num_fpga_data++;
 	}
 }
 
-void SetFpgaData()
-{
+void SetFpgaData() {
 	std::cout << "\nFPGA Debug Start\n";
 	std::cout << fpga_data_queue[0] << std::endl;
 
@@ -847,4 +850,8 @@ void AddDebugTime(uint64_t hex_addr, uint64_t time_ns)
 		SRF_time_ns = SRF_time_ns + time_ns;
 	else if (row == MAP_ADDR)
 		ADDR_time_ns = ADDR_time_ns + time_ns;
+}
+
+void WriteMemTraceFlag() {
+	fprintf(fm, "2 77777\n");
 }
