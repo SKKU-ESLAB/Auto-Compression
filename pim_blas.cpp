@@ -256,7 +256,7 @@ bool pim_bn1d(PIMKernel micro_kernel, int len_batch, int len_feature, uint8_t *i
 			  uint8_t *w_add, uint8_t *out) {
 #ifdef fpga_mode
 	InitFpgaTime();
-	InitFpgaData(1);
+	InitFpgaData(2);
 #endif
 	if (DebugMode())
 		std::cout << " PIM_BLAS\t pim_bn!\n";
@@ -340,7 +340,7 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 {
 #ifdef fpga_mode
 	InitFpgaTime();
-	InitFpgaData(2);
+	InitFpgaData(3);
 #endif
 	if (DebugMode())
 		std::cout << " PIM_BLAS\t pim_gemv!\n";
@@ -431,7 +431,7 @@ bool pim_lstm(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 			  uint8_t *out) {
 #ifdef fpga_mode
 	InitFpgaTime();
-	InitFpgaData(2);
+	InitFpgaData(4);
 #endif
 	if (DebugMode())
 		std::cout << " PIM_BLAS\t pim_lstm!\n";

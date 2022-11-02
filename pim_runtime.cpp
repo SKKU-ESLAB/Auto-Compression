@@ -39,6 +39,7 @@ static void *TryThreadGroupAddTransaction(void *input_);
 static void *TryThreadAddTransaction(void *input_);
 
 FILE *fp = fopen("output.txt", "w");
+int fd;
 uint64_t pim_base;
 int clock_ = 0;
 
@@ -62,18 +63,25 @@ union uint64_change {
 	uint64_t change_body;
 };
 
+void runtime_init(uint64_t num) {
+#ifdef real_mode
+	fd = open("/dev/PIM", O_RDWR|O_SYNC);
+	if (fd < 0)
+		std::cout << "Open /dev/PIM failed...\n";
+	else
+		std::cout << "Opened /dev/PIM !\n";
 
-void runtime_init(uint64_t num)
-{
+	pim_mem = (uint8_t*)mmap(NULL, LEN_PIM, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+#else
 	pim_mem = (uint8_t *)calloc(LEN_PIM, 1); // Just for a while
+#endif
 	pim_base = (uint64_t)pim_mem;
 	if (FpgaMode()) {
 		fpga_addr_queue = (uint32_t *)calloc(64, sizeof(uint32_t));
-		fpga_data_queue = (uint32_t *)calloc(5000, sizeof(uint32_t));
+		fpga_data_queue = (uint32_t *)calloc(8000, sizeof(uint32_t));
 	}
 
-	if (ComputeMode())
-	{
+	if (ComputeMode()) {
 		pim_func_sim = new PimFuncSim();
 		pim_func_sim->init(pim_mem, LEN_PIM, WORD_SIZE);
 	}
@@ -83,16 +91,14 @@ void runtime_init(uint64_t num)
 }
 
 // PIM Preprocessor
-bool isSuitableOps(PIM_OP op, int len0, int len1)
-{
+bool isSuitableOps(PIM_OP op, int len0, int len1) {
 	if (DebugMode())
 		std::cout << "  PIM_RUNTIME\t isSuitableOps!\n";
 	// For now, just return True
 	return true;
 }
 
-PIMKernel GetMicrokernelCode(PIM_OP op, PIM_OP_ATTRS op_attrs)
-{
+PIMKernel GetMicrokernelCode(PIM_OP op, PIM_OP_ATTRS op_attrs) {
 	if (DebugMode())
 		std::cout << "  PIM_RUNTIME\t GetMicrokernelCode!\n";
 	PIMKernel new_kernel = PIMKernel();
@@ -102,8 +108,7 @@ PIMKernel GetMicrokernelCode(PIM_OP op, PIM_OP_ATTRS op_attrs)
 	return new_kernel;
 }
 
-uint8_t *MapMemory(uint8_t *data, size_t size)
-{
+uint8_t *MapMemory(uint8_t *data, size_t size) {
 	if (DebugMode())
 		std::cout << "  PIM_RUNTIME\t MapMemory!\n";
 	uint64_t addr = next_addr;
@@ -413,32 +418,24 @@ void ExecuteKernel_1COL(uint8_t *pim_target, bool is_write, int bank)
 	}
 }
 
-void ExecuteKernel_8COL(uint8_t *pim_target, bool is_write, int bank)
-{
-	for (int ch = 0; ch < NUM_CHANNEL; ch++)
-	{
+void ExecuteKernel_8COL(uint8_t *pim_target, bool is_write, int bank) {
+	for (int ch = 0; ch < NUM_CHANNEL; ch++) {
 		uint64_t hex_addr = GetAddress(ch, 0, 0, bank, 0, 0);
 		uint64_t step = GetAddress(0, 0, 0, 0, 0, 1);
-#if 0 // with multi-thread
+#ifdef thread_mode // with multi-thread
 				thr_grp_param[ch].ch = ch;
 				thr_grp_param[ch].pim_addr = pim_target + hex_addr;  // 512 : 2 << co_pos << shift_bits
 				thr_grp_param[ch].data = data_temp_;
 				thr_grp_param[ch].is_write = is_write;
 				pthread_create(&(thr_grp[ch]), NULL, TryThreadGroupAddTransaction, (void*)&thr_grp_param[ch]);
 #else // without multi-thread
-		if (ComputeMode())
-		{
+		if (ComputeMode()) {
 			for (int co_i = 0; co_i < 8; co_i++)
-			{
-				pim_func_sim->AddTransaction((uint64_t)((pim_target + hex_addr + co_i * step) - pim_mem), data_temp_, is_write);
-			}
-		}
-		else
-		{
+				pim_func_sim->AddTransaction((uint64_t)((pim_target + hex_addr + co_i * step) - pim_mem), data_temp_,
+											 is_write);
+		} else {
 			for (int co_i = 0; co_i < 8; co_i++)
-			{
 				TryAddTransaction(pim_target + hex_addr + co_i * step, data_temp_, is_write);
-			}
 		}
 #endif
 	}
@@ -611,10 +608,8 @@ uint32_t change(uint64_t tmp)
 	}
 }
 
-void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write)
-{
-	if (FpgaMode())
-	{
+void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write) {
+	if (FpgaMode()) {
 		uint64_t hex_addr = (uint64_t)pim_addr - pim_base;
 		Address addr = AddressMapping(hex_addr);
 		int CH = addr.channel;
@@ -625,16 +620,13 @@ void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write)
 		tc.change_body = hex_addr;
 		uint32_t tmp = tc.byte_0;
 		uint64_t tmp_time = 0;
-		if (CH == 0 && (BA == 0 || BA == 1))
-		{
+		if (CH == 0 && (BA == 0 || BA == 1)) {
 			PushFpgaData((uint32_t*)data);
 			// AddDebugTime(hex_addr, tmp_time);
 		}
-	}
-	else if (ComputeMode())
+	} else if (ComputeMode())
 		pim_func_sim->AddTransaction((uint64_t)(pim_addr - pim_base), data, is_write);
-	else
-	{
+	else {
 		if (is_write)
 			std::memcpy(pim_addr, data, burstSize_);
 		else
@@ -642,7 +634,7 @@ void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write)
 	}
 	int tmp = (is_write) ? 1 : 0;
 	// std::cout << ">> " << clock_ << "\t" << tmp << "\t addr: " << (uint64_t)(pim_addr - pim_base) << "\n";
-	fprintf(fp, ">> %d\t%d\t addr: %llu\n", clock_, tmp, (uint64_t)(pim_addr - pim_base));
+	// fprintf(fp, ">> %d\t%d\t addr: %llu\n", clock_, tmp, (uint64_t)(pim_addr - pim_base));
 	clock_++;
 }
 

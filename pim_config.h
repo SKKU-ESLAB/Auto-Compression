@@ -48,9 +48,11 @@ typedef uint16_t unit_t;
 #define MAP_ADDR   0x3ff9
 #define MAP_PACKET 0x3ff8
 // options //
+#define real_mode
 // #define fpga_mode
-#define debug_mode
-#define compute_mode
+// #define compute_mode
+// #define thread_mode
+// #define debug_mode
 
 int LogBase2(int power_of_two);
 
