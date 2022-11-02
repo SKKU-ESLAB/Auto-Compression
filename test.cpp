@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+#include <stdlib.h>
 #include "pim_blas.h"
 using half_float::half;
 typedef unsigned short uint16;
@@ -44,7 +45,17 @@ void test_add_blas(int option) {
 
 	if (DebugMode())
 		std::cout << "///// Testing ADD BLAS... /////\n";
+	
+#ifdef gem5_mode
+	system("sudo m5 checkpoint");
+	system("echo CPU Switched!");
+	
+	system("sudo m5 dumpstats");
 	pim_add(micro_kernel, n, in0, in1, out);
+	system("sudo m5 dumpstats");
+#else
+	pim_add(micro_kernel, n, in0, in1, out);
+#endif
 
 	if (DebugMode())
 		std::cout << "///// Test ADD BLAS Ended!! /////\n";
@@ -92,7 +103,18 @@ void test_mul_blas(int option) {
 
 	if (DebugMode())
 		std::cout << "///// Testing MUL BLAS... /////\n";
+
+	
+#ifdef gem5_mode
+	system("sudo m5 checkpoint");
+	system("echo CPU Switched!");
+	
+	system("sudo m5 dumpstats");
 	pim_mul(micro_kernel, n, in0, in1, out);
+	system("sudo m5 dumpstats");
+#else
+	pim_mul(micro_kernel, n, in0, in1, out);
+#endif
 
 	if (DebugMode())
 		std::cout << "///// Test MUL BLAS Ended!! /////\n";
@@ -139,9 +161,7 @@ void test_bn_blas(int option) {
 		l = 576;
 	else
 		std::cout << "choose option in [1, 2, 3]\n";
-
-
-
+	
 	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t) * l * f);
 	uint8_t *w0 = (uint8_t *)malloc(sizeof(uint16_t) * f);
 	uint8_t *w1 = (uint8_t *)malloc(sizeof(uint16_t) * f);
@@ -167,7 +187,18 @@ void test_bn_blas(int option) {
 
 	if (DebugMode())
 		std::cout << "///// Testing BN BLAS... /////\n";
+
+	
+#ifdef gem5_mode
+	system("sudo m5 checkpoint");
+	system("echo CPU Switched!");
+	
+	system("sudo m5 dumpstats");
 	pim_bn1d(micro_kernel, l, f, in, w0, w1, out);
+	system("sudo m5 dumpstats");
+#else
+	pim_bn1d(micro_kernel, l, f, in, w0, w1, out);
+#endif
 
 	if (DebugMode())
 		std::cout << "///// Test BN BLAS Ended!! /////\n";
@@ -223,7 +254,17 @@ void test_gemv_blas(int option) {
 
 	if (DebugMode())
 		std::cout << "///// Testing GEMV BLAS... /////\n";
+	
+#ifdef gem5_mode
+	system("sudo m5 checkpoint");
+	system("echo CPU Switched!");
+	
+	system("sudo m5 dumpstats");
 	pim_gemv(micro_kernel, m, n, in, w, out);
+	system("sudo m5 dumpstats");
+#else
+	pim_gemv(micro_kernel, m, n, in, w, out);
+#endif
 
 	if (DebugMode())
 		std::cout << "///// Test GEMV BLAS Ended!! /////\n";
@@ -278,7 +319,17 @@ void test_lstm_blas(int option) {
 
 	if (DebugMode())
 		std::cout << "///// Testing LSTM BLAS... /////\n";
+	
+#ifdef gem5_mode
+	system("sudo m5 checkpoint");
+	system("echo CPU Switched!");
+	
+	system("sudo m5 dumpstats");
 	pim_lstm(micro_kernel, m, n, in, w, b, out);
+	system("sudo m5 dumpstats");
+#else
+	pim_lstm(micro_kernel, m, n, in, w, b, out);
+#endif
 
 	if (DebugMode())
 		std::cout << "///// Test LSTM BLAS Ended!! /////\n";

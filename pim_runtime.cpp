@@ -64,7 +64,7 @@ union uint64_change {
 };
 
 void runtime_init(uint64_t num) {
-#ifdef real_mode
+#ifdef gem5_mode
 	fd = open("/dev/PIM", O_RDWR|O_SYNC);
 	if (fd < 0)
 		std::cout << "Open /dev/PIM failed...\n";
