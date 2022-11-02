@@ -78,7 +78,7 @@ void runtime_init(uint64_t num) {
 	pim_base = (uint64_t)pim_mem;
 	if (FpgaMode()) {
 		fpga_addr_queue = (uint32_t *)calloc(64, sizeof(uint32_t));
-		fpga_data_queue = (uint32_t *)calloc(8000, sizeof(uint32_t));
+		fpga_data_queue = (uint32_t *)calloc(5000, sizeof(uint32_t));
 	}
 
 	if (ComputeMode()) {
