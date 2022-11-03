@@ -1,9 +1,13 @@
 #include <iostream>
 #include <cstring>
 #include <stdlib.h>
+#include <chrono>
 #include "pim_blas.h"
 using half_float::half;
 typedef unsigned short uint16;
+typedef std::chrono::high_resolution_clock Time;
+typedef std::chrono::milliseconds ms;
+typedef std::chrono::duration<float> fsec;
 
 #define ABS(x) ((x < 0) ? (-x) : (x))
 
@@ -51,9 +55,15 @@ void test_add_blas(int option) {
 #ifdef gem5_mode
 	system("m5 checkpoint");
 	system("echo CPU Switched!");
+	auto start = Time::now();
+
 	system("sudo m5 dumpstats");
 	pim_add(micro_kernel, n, in0, in1, out);
 	system("sudo m5 dumpstats");
+	auto end = Time::now();
+	fsec time = end - start;
+	std::cout << time.count() << "s\n";
+
 #else
 	pim_add(micro_kernel, n, in0, in1, out);
 #endif
@@ -111,9 +121,14 @@ void test_mul_blas(int option) {
 #ifdef gem5_mode
 	system("m5 checkpoint");
 	system("echo CPU Switched!");
+	auto start = Time::now();
+
 	system("sudo m5 dumpstats");
 	pim_mul(micro_kernel, n, in0, in1, out);
 	system("sudo m5 dumpstats");
+	auto end = Time::now();
+	fsec time = end - start;
+	std::cout << time.count() << "s\n";
 #else
 	pim_mul(micro_kernel, n, in0, in1, out);
 #endif
@@ -195,10 +210,14 @@ void test_bn_blas(int option) {
 #ifdef gem5_mode
 	system("m5 checkpoint");
 	system("echo CPU Switched!");
+	auto start = Time::now();
 
 	system("sudo m5 dumpstats");
 	pim_bn1d(micro_kernel, l, f, in, w0, w1, out);
 	system("sudo m5 dumpstats");
+	auto end = Time::now();
+	fsec time = end - start;
+	std::cout << time.count() << "s\n";
 #else
 	pim_bn1d(micro_kernel, l, f, in, w0, w1, out);
 #endif
@@ -263,10 +282,14 @@ void test_gemv_blas(int option) {
 #ifdef gem5_mode
 	system("m5 checkpoint");
 	system("echo CPU Switched!");
+	auto start = Time::now();
 
 	system("sudo m5 dumpstats");
 	pim_gemv(micro_kernel, m, n, in, w, out);
 	system("sudo m5 dumpstats");
+	auto end = Time::now();
+	fsec time = end - start;
+	std::cout << time.count() << "s\n";
 #else
 	pim_gemv(micro_kernel, m, n, in, w, out);
 #endif
@@ -328,10 +351,14 @@ void test_lstm_blas(int option) {
 #ifdef gem5_mode
 	system("m5 checkpoint");
 	system("echo CPU Switched!");
+	auto start = Time::now();
 
 	system("sudo m5 dumpstats");
 	pim_lstm(micro_kernel, m, n, in, w, b, out);
 	system("sudo m5 dumpstats");
+	auto end = Time::now();
+	fsec time = end - start;
+	std::cout << time.count() << "s\n";
 #else
 	pim_lstm(micro_kernel, m, n, in, w, b, out);
 #endif
