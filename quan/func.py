@@ -1,6 +1,5 @@
 import torch as t
 
-
 class QuanConv2d(t.nn.Conv2d):
     def __init__(self, m: t.nn.Conv2d, quan_w_fn=None, quan_a_fn=None):
         assert type(m) == t.nn.Conv2d

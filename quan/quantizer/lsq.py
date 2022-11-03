@@ -79,15 +79,12 @@ class SLsqQuan(Quantizer):
         
         self.thd_neg = -2 ** (bit - 1) + 1
         self.thd_pos = 2 ** (bit - 1) - 1
-
         self.per_channel = per_channel
         self.p= t.nn.Parameter(t.zeros([]))
         self.c = t.nn.Parameter(t.ones(1))
-        self.alpha = t.nn.Parameter(t.zeros(1))
         self.weight_quantizer = weight_quant.apply
         self.soft_mask = None
         self.block_size = block_size
-        self.mask_mean = 0.
         self.hard_pruning = hard_pruning
         self.temperature = temperature
 
@@ -126,13 +123,13 @@ class SLsqQuan(Quantizer):
         c_scale = grad_scale(self.c, s_grad_scale)
         p_scale = grad_scale(self.p, s_grad_scale)
         quant_x = self.weight_quantizer(x, c_scale, p_scale, self.thd_pos)
-        if (len(x.shape) == 4):
+        if (len(x.shape) == 4 and x.shape[1] != 1):
             mask = self.soft_pruner(x, p_scale)
             quant_x = quant_x * mask
         return quant_x
 
-class LsqQuan(Quantizer):
-    def __init__(self, bit, all_positive=False, symmetric=False, per_channel=True):
+class pqQuan(Quantizer):
+    def __init__(self, bit, all_positive=False, symmetric=True, per_channel=False, quant_mode = False, pruning_mode = False, block_size = 4, temperature = 1e-3, hard_pruning = False):
         super().__init__(bit)
 
         if all_positive:
@@ -153,6 +150,89 @@ class LsqQuan(Quantizer):
         self.per_channel = per_channel
         self.s = t.nn.Parameter(t.ones([]))
         self.init_mode = False
+        self.quant_mode = quant_mode
+        self.pruning_mode = pruning_mode
+
+        self.p= t.nn.Parameter(t.zeros([]))
+        self.soft_mask = None
+        self.block_size = block_size
+        self.hard_pruning = hard_pruning
+        self.temperature = temperature
+
+    def init_from(self, x, *args, **kwargs):
+        if self.per_channel:
+            self.s = t.nn.Parameter(
+                x.detach().abs().mean(dim=list(range(1, x.dim())), keepdim=True) * 2 / (self.thd_pos ** 0.5))
+            self.s = t.nn.Parameter(t.zeros_like(self.s))
+        else:
+            self.s = t.nn.Parameter(x.detach().abs().mean() * 2 / (self.thd_pos ** 0.5))
+            self.p = t.nn.Parameter(t.zeros_like(self.s))
+
+    def soft_pruner(self, x, p):
+
+        co, ci, kh, kw = x.shape
+        x_reshape = x.reshape(co // self.block_size, self.block_size, ci, kh, kw)
+
+        score = x_reshape.abs().mean(dim = 1,keepdim = True).detach() - p
+        if not self.hard_pruning:
+            _soft_mask = t.nn.functional.sigmoid(score/ self.temperature)
+            self.soft_mask = _soft_mask
+            self.soft_mask = self.soft_mask.repeat(1, self.block_size, 1, 1, 1).reshape(co,ci,kh,kw)
+            return self.soft_mask
+        
+        hard_mask = (score > 0).float()
+        hard_mask = hard_mask.repeat(1, self.block_size, 1, 1, 1).reshape(co,ci,kh,kw)
+        return hard_mask
+
+    def forward(self, x):
+        self.p.data.clamp_(min = 0.)
+        x_r = x
+        if self.pruning_mode:
+            if (len(x.shape) == 4 and x.shape[1] != 1):
+                mask = self.soft_pruner(x, self.p)
+                x_r = x_r * mask
+        if self.quant_mode:
+            if self.init_mode:
+                self.init_from(x)
+                self.init_mode = False
+
+            if self.per_channel:
+                s_grad_scale = 1.0 / ((self.thd_pos * x.numel()) ** 0.5)
+            else:
+                s_grad_scale = 1.0 / ((self.thd_pos * x.numel()) ** 0.5)
+
+            s_scale = grad_scale(self.s, s_grad_scale)
+
+            x_r = x_r / s_scale
+            x_r = t.clamp(x_r, self.thd_neg, self.thd_pos)
+            x_r = round_pass(x_r)
+            x_r = x_r * s_scale
+        return x_r
+
+
+class LsqQuan(Quantizer):
+    def __init__(self, bit, all_positive=False, symmetric=True, per_channel=False):
+        super().__init__(bit)
+
+        if all_positive:
+            assert not symmetric, "Positive quantization cannot be symmetric"
+            # unsigned activation is quantized to [0, 2^b-1]
+            self.thd_neg = 0
+            self.thd_pos = 2 ** bit - 1
+        else:
+            if symmetric:
+                # signed weight/activation is quantized to [-2^(b-1)+1, 2^(b-1)-1]
+                self.thd_neg = - 2 ** (bit - 1) + 1
+                self.thd_pos = 2 ** (bit - 1) - 1
+            else:
+                # signed weight/activation is quantized to [-2^(b-1), 2^(b-1)-1]
+                self.thd_neg = - 2 ** (bit - 1)
+                self.thd_pos = 2 ** (bit - 1) - 1
+
+        self.per_channel = per_channel
+        self.s = t.nn.Parameter(t.ones([]))
+        self.init_mode = False
+
     def init_from(self, x, *args, **kwargs):
         if self.per_channel:
             self.s = t.nn.Parameter(

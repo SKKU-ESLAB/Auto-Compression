@@ -32,7 +32,7 @@ def main():
     set_seed(42)
     script_dir = Path.cwd()
     args = util.get_config(default_file=script_dir / 'config.yaml')
-    wandb.init(reinit=True, name = args.name, project="SLSQ")
+    wandb.init(reinit=True, name = args.name, project="pqlsq")
     output_dir = script_dir / args.output_dir
     output_dir.mkdir(exist_ok=True)
 
@@ -80,7 +80,7 @@ def main():
     if args.device.gpu and not args.dataloader.serialized:
         model = t.nn.DataParallel(model, device_ids=args.device.gpu)
     model.to(args.device.type)
-    print(model)
+
     start_epoch = 0
     if args.hard_pruning:
         resume_path = os.path.join(script_dir, args.resume.path)
@@ -134,17 +134,38 @@ def main():
             perf_scoreboard.update(v_top1, v_top5, epoch, sparsity)
             is_best = perf_scoreboard.is_best(epoch)
             util.save_checkpoint(epoch, args.arch, model, {'top1': v_top1, 'top5': v_top5}, is_best, args.name, log_dir)
-            if is_best and args.hard_pruning:
-                output_dir = script_dir / 'hard_pruned_model' 
+            if is_best and args.hard_pruning and not args.quant:
+                output_dir = script_dir / 'first_hard_pruned_model' 
                 output_dir.mkdir(exist_ok=True)
                 save_dir = os.path.join(output_dir)
                 util.save_checkpoint(epoch, args.arch, model, {'top1': v_top1, 'top5': v_top5}, True, args.name,  save_dir)
-
+            elif is_best and args.hard_pruning and args.quant:
+                output_dir = script_dir / 'second_hard_pruned_quant__model' 
+                output_dir.mkdir(exist_ok=True)
+                save_dir = os.path.join(output_dir)
+                util.save_checkpoint(epoch, args.arch, model, {'top1': v_top1, 'top5': v_top5}, True, args.name,  save_dir)
+            with t.no_grad():
+                hard_sparsity = 0.
+                total_zero =0.
+                total_numel = 0.
+                for n, m in model.named_modules():
+                    if hasattr(m, "quan_w_fn"):
+                        if hasattr(m.quan_w_fn, "hard_pruning"):
+                            m.quan_w_fn.hard_pruning = True
+                        weight_zero = (m.quan_w_fn(m.weight.detach()) == 0).sum()
+                        weight_numel = m.weight.detach().numel()
+                        total_zero += weight_zero
+                        total_numel += weight_numel
+                        if hasattr(m.quan_w_fn, "hard_pruning"):
+                            m.quan_w_fn.hard_pruning = False
+                hard_sparsity = total_zero / total_numel
+                print(hard_sparsity)
+                wandb.log({"hard_pruning_sparsity": hard_sparsity})
         logger.info('>>>>>>>> Epoch -1 (final model evaluation)')
         process.validate(test_loader, model, criterion, -1, monitors, args)
 
     if not args.hard_pruning :
-        output_dir = script_dir / 'pruned_model' 
+        output_dir = script_dir / 'first_pruned_model' 
         output_dir.mkdir(exist_ok=True)
         save_dir = os.path.join(output_dir)
         util.save_checkpoint(epoch, args.arch, model, {}, False, args.name,  save_dir)

@@ -16,6 +16,8 @@ def quantizer(default_cfg, this_cfg=None):
         q = LsqQuan
     elif target_cfg['mode'] == 'slsq':
         q = SLsqQuan
+    elif target_cfg['mode'] == 'pqlsq':
+        q = pqQuan
     else:
         raise ValueError('Cannot find quantizer `%s`', target_cfg['mode'])
 
