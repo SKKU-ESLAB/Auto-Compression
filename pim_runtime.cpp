@@ -327,7 +327,7 @@ size_t WriteReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 		{
 			uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_GRF, 0);
 			for (int co = 0; co < 8; co++)
-				TryAddTransaction(pim_mem + hex_addr + co * step, data + co * step, true);
+				TryAddTransaction(pim_mem + hex_addr + co * step, data + co * WORD_SIZE, true);
 		}
 		break;
 	case (PIM_REG::GRF_B):
@@ -338,7 +338,7 @@ size_t WriteReg(PIM_REG pim_reg, uint8_t *data, size_t size)
 		{
 			uint64_t hex_addr = GetAddress(ch, 0, 0, 0, MAP_GRF, 8);
 			for (int co = 0; co < 8; co++)
-				TryAddTransaction(pim_mem + hex_addr + co * step, data + co * step, true);
+				TryAddTransaction(pim_mem + hex_addr + co * step, data + co * WORD_SIZE, true);
 		}
 		break;
 	case (PIM_REG::CRF):
@@ -746,8 +746,7 @@ bool GetFpgaAddr(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_cmd
 	return 1;
 }
 
-void PushFpgaAddr(uint64_t addr)
-{
+void PushFpgaAddr(uint64_t addr) {
 	uint64_change tc;
 	tc.change_body = addr;
 	uint32_t tmp = tc.byte_0;
@@ -771,7 +770,7 @@ void InitFpgaData(int op_num) {
 }
 
 void PushFpgaData(uint32_t* data) {
-	std::cout << "[Push Data 32B] " << num_fpga_data << std::endl;
+	std::cout << "      [Push Data 32B] " << num_fpga_data << std::endl;
 	for (int i=0; i<8; i++) {
 		fpga_data_queue[num_fpga_data] = data[i];
 		num_fpga_data++;

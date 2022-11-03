@@ -75,7 +75,7 @@ void test_add_blas(int option) {
 	for (int i = 0; i < n; i++)
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	
-	if (DebugMode())
+	if (DebugMode() && ComputeMode())
 		std::cout << "\n\nERROR: " << error << std::endl;
 
 	return;
@@ -142,7 +142,7 @@ void test_mul_blas(int option) {
 		// std::cout << ((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
-	if (DebugMode())
+	if (DebugMode() && ComputeMode())
 		std::cout << "\n\nERROR: " << error << std::endl;
 	return;
 }
@@ -230,7 +230,7 @@ void test_bn_blas(int option) {
 		for (int fi = 0; fi < f; fi++)
 			error = error + ABS(((uint16_t *)out)[li*f + fi] - ((uint16_t *)ans)[li*f + fi]);
 	
-	if (DebugMode())
+	if (DebugMode() && ComputeMode())
 		std::cout << "\n\nERROR: " << error << std::endl;
 	return;
 }
@@ -305,7 +305,7 @@ void test_gemv_blas(int option) {
 		// std::cout << (int)((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
-	if (DebugMode())
+	if (DebugMode() && ComputeMode())
 		std::cout << "ERROR: " << error << std::endl;
 	return;
 }
@@ -374,7 +374,7 @@ void test_lstm_blas(int option) {
 		// std::cout << (int)((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
-	if (DebugMode())
+	if (DebugMode() && ComputeMode())
 		std::cout << "ERROR: " << error << std::endl;
 	return;
 }

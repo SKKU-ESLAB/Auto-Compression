@@ -370,7 +370,7 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 
 	int in_idx = 0, w_idx = 0, out_idx = 0;
 	int bank = 0;
-	uint8_t *zeros = (uint8_t *)calloc(8 * NUM_UNIT_PER_WORD, UNIT_SIZE);
+	uint8_t *zeros = (uint8_t *)calloc(2 * 8 * NUM_UNIT_PER_WORD, UNIT_SIZE); // 2 is for GRF_A, GRF_B
 	for (int i = 0; i < gemv_attrs.code_iter; i++) {
 		if (DebugMode())
 			std::cout << " PIM_BLAS\t Code Start!\n";
