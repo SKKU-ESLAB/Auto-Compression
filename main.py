@@ -59,8 +59,8 @@ def main():
         t.cuda.set_device(args.device.gpu[0])
         # Enable the cudnn built-in auto-tuner to accelerating training, but it
         # will introduce some fluctuations in a narrow range.
-        t.backends.cudnn.benchmark = True
-        t.backends.cudnn.deterministic = False
+    t.backends.cudnn.benchmark = True
+    t.backends.cudnn.deterministic = False
 
     # Initialize data loader
     train_loader, val_loader, test_loader = util.load_data(args.dataloader)
