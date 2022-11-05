@@ -25,6 +25,7 @@ public:
    PIM_OPERATION PIM_OP;
    PIM_OP_TYPE pim_op_type;
    bool is_aam;
+   bool is_relu;
 
    PIM_OPERAND dst;
    PIM_OPERAND src0;
@@ -77,6 +78,7 @@ public:
    unit_t *GRF_B_;
    unit_t *SRF_A_;
    unit_t *SRF_M_;
+   unit_t *RELU_BUFFER;
 
    unit_t *dst;
    unit_t *src0;

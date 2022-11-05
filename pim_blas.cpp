@@ -89,6 +89,17 @@ bool pimblasMulPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in0, uint8
 	return true;
 }
 
+bool pimblasReluPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in) {
+	PIM_OP pim_op = PIM_OP::RELU;
+	PIM_OP_ATTRS relu_attrs = PIM_OP_ATTRS();
+	relu_attrs.RELU(len);
+	*micro_kernel = GetMicrokernelCode(pim_op, relu_attrs);
+	*in = MapMemory(*in, len * UNIT_SIZE);
+	if (MemTraceMode())
+		WriteMemTraceFlag();
+	return true;
+}
+
 bool pimblasBn1dPreprocess(PIMKernel *micro_kernel, int len_batch, int len_feature, uint8_t **w_mul,
 						  uint8_t **w_add) {
 	PIM_OP pim_op = PIM_OP::BN;
@@ -269,6 +280,43 @@ bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 	return 1;
 }
 
+bool pim_relu(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *out) {
+	if (DebugMode())
+		std::cout << " PIM_BLAS\t pim_relu!\n";
+	uint8_t *pim_out = AllocMem(out, len * UNIT_SIZE);
+
+	PIM_OP_ATTRS relu_attrs = micro_kernel.pim_op_attrs;
+	ReadReg(PIM_REG::ABMR, null_ptr, WORD_SIZE);
+
+	int idx = 0;
+	int bank = 0;
+	WriteReg(PIM_REG::CRF, (uint8_t *)(micro_kernel.code0), 4 * WORD_SIZE);
+	
+	for (int i = 0; i < relu_attrs.code_iter; i++) {
+		if (DebugMode())
+			std::cout << " PIM_BLAS\t Code Start!\n";
+		for (int j = 0; j < relu_attrs.code0_iter; j++) {
+			if (DebugMode())
+				std::cout << " PIM_BLAS\t Code0 Start!\n";
+			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
+			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
+				bool ret = ExecuteKernel(in0 + idx, in0 + idx, pim_out + idx, micro_kernel.code0_cmd[k], bank);
+			idx += WORD_SIZE * 8 * NUM_BANK;
+			if (DebugMode())
+				std::cout << " PIM_BLAS\t Code0 Finished!\n";
+		}
+		idx = 0;
+		bank = 1 - bank;
+		if (DebugMode())
+			std::cout << " PIM_BLAS\t Code Finished!\n";
+	}
+	ReadReg(PIM_REG::SBMR, null_ptr, 1);
+
+	ReadMem(pim_out, out, len * UNIT_SIZE);
+
+	return 1;
+}
+
 bool pim_bn1d(PIMKernel micro_kernel, int len_batch, int len_feature, uint8_t *in, uint8_t *w_mul,
 			  uint8_t *w_add, uint8_t *out) {
 #ifdef fpga_mode
@@ -353,8 +401,7 @@ bool pim_bn1d(PIMKernel micro_kernel, int len_batch, int len_feature, uint8_t *i
 	return 1;
 }
 
-bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint8_t *weight, uint8_t *out)
-{
+bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint8_t *weight, uint8_t *out) {
 #ifdef fpga_mode
 	InitFpgaTime();
 	InitFpgaData(3);

@@ -54,6 +54,18 @@ void PIM_OP_ATTRS::MUL(int len) {
 	code1_iter = 0;
 }
 
+void PIM_OP_ATTRS::RELU(int len) {
+	if (DebugMode())
+		std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::RELU!\n";
+	// 256 elements for each ukernel
+	// total 128 PUs = NUM_BANK / 2
+	pim_op = PIM_OP::RELU;
+	len_in = len;
+	code_iter = 2;
+	code0_iter = (len + 32768 - 1) / 32768; // 32768 = 8 x UNITS_PER_WORD x NUM_BANK
+	code1_iter = 0;
+}
+
 void PIM_OP_ATTRS::BN(int len_batch_, int len_feature_) {
 	if (DebugMode())
 		std::cout << "  PIM_RUNTIME\t PIM_OP_ATTRS::BN!\n";

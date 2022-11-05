@@ -147,6 +147,69 @@ void test_mul_blas(int option) {
 	return;
 }
 
+
+void test_relu_blas(int option) {
+	if (DebugMode())
+		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
+
+	int n;
+	if (option == 1)
+		n = 4096;
+	else if (option == 2)
+		n = 8192;
+	else if (option == 3)
+		n = 16384;
+	else
+		std::cout << "choose option in [1, 2, 3]\n";
+
+	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t) * n);
+	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
+	uint8_t *ans = (uint8_t *)malloc(sizeof(uint16_t) * n);
+
+	for (int i = 0; i < n; i++)	{
+		((uint16_t *)in)[i] = rand();
+		((uint16_t *)ans)[i] = ReLU((uint16_t *)in)[i];
+	}
+
+	if (DebugMode()) 
+		std::cout << "///// Preprocessing RELU BLAS... /////\n";
+
+	PIMKernel micro_kernel = PIMKernel();
+	pimblasReluPreprocess(&micro_kernel, n, &in);
+
+	if (DebugMode())
+		std::cout << "///// Testing RELU BLAS... /////\n";
+	
+#ifdef gem5_mode
+	system("m5 checkpoint");
+	system("echo CPU Switched!");
+	auto start = Time::now();
+
+	system("sudo m5 dumpstats");
+	pim_relu(micro_kernel, n, in, out);
+	system("sudo m5 dumpstats");
+	auto end = Time::now();
+	fsec time = end - start;
+	std::cout << time.count() << "s\n";
+#else
+	pim_relu(micro_kernel, n, in, out);
+#endif
+
+	if (DebugMode())
+		std::cout << "///// Test RELU BLAS Ended!! /////\n";
+
+	int error = 0;
+	for (int i = 0; i < n; i++)	{
+		//std::cout << ((uint16_t *)ans)[i] << " " << ((uint16_t *)out)[i] << std::endl;;
+		std::cout << ((uint16_t *)out)[i] << " ";
+		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
+	}
+	if (DebugMode() && ComputeMode())
+		std::cout << "\n\nERROR: " << error << std::endl;
+	return;
+}
+
+
 void test_mac_blas(int option) {
 	if (DebugMode())
 		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
@@ -398,6 +461,8 @@ int main(int argc, char **argv) {
 		test_mul_blas(option);
 	else if (std::string(argv[1]) == "mac")
 		test_mac_blas(option);
+	else if (std::string(argv[1]) == "relu")
+		test_relu_blas(option);
 	else if (std::string(argv[1]) == "bn")
 		test_bn_blas(option);
 	else if (std::string(argv[1]) == "gemv")

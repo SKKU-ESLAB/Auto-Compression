@@ -49,8 +49,8 @@ typedef uint16_t unit_t;
 #define MAP_PACKET 0x3ff8
 // options //
 // #define gem5_mode
-#define fpga_mode
-// #define compute_mode
+// #define fpga_mode
+#define compute_mode
 // #define thread_mode
 // #define memtrace_mode
 #define debug_mode
@@ -113,10 +113,10 @@ enum class PIM_OP
 {
 	ADD = 0,
 	MUL,
+	RELU,
 	BN,
 	GEMV,
 	LSTM,
-	RELU,
 };
 
 enum class PIM_REG
@@ -164,6 +164,7 @@ public:
 
 	void ADD(int len);
 	void MUL(int len);
+	void RELU(int len);
 	void BN(int len_batch_, int len_feature_);
 	void GEMV(int len0, int len1);
 	void LSTM(int len0, int len1);
@@ -202,8 +203,7 @@ public:
 	{
 		pim_op_attrs = op_attrs;
 		pim_op = op;
-		if (op == (PIM_OP::ADD))
-		{
+		if (op == (PIM_OP::ADD)) {
 			code0[0] = 0b01000010000000001000000000000000; // MOV(A)  GRF_A[A0]  BANK
 			code0[1] = 0b00010000000001000000100000000111; // JUMP    -1         7
 			code0[2] = 0b10000010000010001000000000000000; // ADD(A)  GRF_A[A0]  BANK      GRF_A[A0]
@@ -219,8 +219,7 @@ public:
 			code0_cmd[1] = PIM_CMD::READ_WEIGHT_8COL;
 			code0_cmd[2] = PIM_CMD::WRITE_OUTPUT_8COL;
 		}
-		else if (op == (PIM_OP::MUL))
-		{
+		else if (op == (PIM_OP::MUL)) {
 			code0[0] = 0b01000010000000001000000000000000; // MOV(A)  GRF_A[A0]  BANK
 			code0[1] = 0b00010000000001000000100000000111; // JUMP    -1         7
 			code0[2] = 0b10010010000010001000000000000000; // MUL(A)  GRF_A[A0]  BANK      GRF_A[A0]
@@ -235,6 +234,19 @@ public:
 			code0_cmd[0] = PIM_CMD::READ_INPUT_8COL;
 			code0_cmd[1] = PIM_CMD::READ_WEIGHT_8COL;
 			code0_cmd[2] = PIM_CMD::WRITE_OUTPUT_8COL;
+		}
+		else if (op == (PIM_OP::RELU)) {
+			code0[0] = 0b01000010000000001001000000000000; // MOV(AR)  GRF_A[A0]  BANK
+			code0[1] = 0b00010000000001000000100000000111; // JUMP    -1         7
+			code0[2] = 0b01000000010000001000000000000000; // MOV(A)  BANK       GRF_A[A0]
+			code0[3] = 0b00010000000001000000100000000111; // JUMP    -1         7
+			code0[4] = 0b00100000000000000000000000000000; // EXIT
+			layout = 0;
+
+			code0_num_cmds = 2;
+			code0_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code0_num_cmds);
+			code0_cmd[0] = PIM_CMD::READ_INPUT_8COL;
+			code0_cmd[1] = PIM_CMD::WRITE_OUTPUT_8COL;
 		}
 		else if (op == (PIM_OP::BN))
 		{
