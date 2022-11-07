@@ -17,7 +17,7 @@ from models.mlp_mixer import MlpMixer, CONFIGS
 from models import configs
 from utils.infer import Inference
 from utils.train import Trainer
-from admm import AdmmTrainer
+from utils.admm import AdmmTrainer
 
 def set_seed(args):
     random.seed(args.seed)
@@ -53,6 +53,8 @@ def main():
                         help="Batch size for Testing")
     parser.add_argument("--seed", default=77, type=int,
                     help="Random seed for initialization")
+    parser.add_argument("--device-idx", default='0', type=str,
+                        help="Index of GPU")
     
     # CONFIGS of training
     parser.add_argument("--train-type", choices=["original", "tt_format", "pruning", "admm"],
@@ -81,10 +83,6 @@ def main():
                         help="Number of epochs for ADMM training")
     parser.add_argument('--rho', type=float, default=1e-1,
                         help='cardinality weight (default: 1e-2)')
-    parser.add_argument('--alpha', type=float, default=5e-4, metavar='L',
-                    help='l2 norm weight (default: 5e-4)')
-    parser.add_argument('--l2', default=False, action='store_true',
-                        help='apply l2 regularization')
     parser.add_argument("--tt-ranks", default=[16, 16], type=list,
                         help="TT-ranks for TT-decomposition")
     parser.add_argument("--hidden-tt-shape", default=[8, 8, 12], type=list,
@@ -99,12 +97,16 @@ def main():
                         default="original", help="Defining training type")
     args = parser.parse_args()
     
-    os.environ["CUDA_VISIBLE_DEVICES"] = '1'
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.device_idx
     
-    args.name = args.model_type + '_' + args.dataset
+    args.name = args.model_type + '_' + args.dataset + '_' + args.train_type
     args.n_gpu = torch.cuda.device_count()
     args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     args.img_size = 224
+    if args.dataset == "cifar_10":
+        args.num_classes = 10
+    elif args.dataset == "cifar_100":
+        args.num_classes = 100
 
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
@@ -115,6 +117,7 @@ def main():
     
     if args.inference_only:
         infer = Inference(args)
+        exit()
     
     if args.train_type != "admm":
         train = Trainer(args)
