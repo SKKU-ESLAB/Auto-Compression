@@ -80,7 +80,6 @@ def main():
     if args.device.gpu and not args.dataloader.serialized:
         model = t.nn.DataParallel(model, device_ids=args.device.gpu)
     model.to(args.device.type)
-    print(model)
     start_epoch = 0
     if args.hard_pruning:
         resume_path = os.path.join(script_dir, args.resume.path)
@@ -101,6 +100,7 @@ def main():
                             lr=args.optimizer.learning_rate,
                             momentum=args.optimizer.momentum,
                             weight_decay=args.optimizer.weight_decay)
+    print(args.lr_scheduler)
     lr_scheduler = util.lr_scheduler(optimizer,
                                      batch_size=train_loader.batch_size,
                                      num_samples=len(train_loader.sampler),
@@ -139,6 +139,24 @@ def main():
                 output_dir.mkdir(exist_ok=True)
                 save_dir = os.path.join(output_dir)
                 util.save_checkpoint(epoch, args.arch, model, {'top1': v_top1, 'top5': v_top5}, True, args.name,  save_dir)
+
+            with t.no_grad():
+                hard_sparsity = 0.
+                total_zero = 0.
+                total_numel = 0.
+                for n,m in model.named_modules():
+                    if hasattr(m, "quan_w_fn"):
+                        if hasattr(m.quan_w_fn, "hard_pruning"):
+                            m.quan_w_fn.hard_pruning = True
+                        weight_zero = (m.quan_w_fn(m.weight.detach()) == 0).sum()
+                        weight_numel = m.weight.detach().numel()
+                        total_zero += weight_zero
+                        total_numel += weight_numel
+                        if hasattr(m.quan_w_fn, "hard_pruning"):
+                            m.quan_w_fn.hard_pruning = args.hard_pruning
+                hard_sparsity = total_zero / total_numel
+                print(hard_sparsity)
+                wandb.log({"hard_pruning_sparsity": hard_sparsity})
 
         logger.info('>>>>>>>> Epoch -1 (final model evaluation)')
         process.validate(test_loader, model, criterion, -1, monitors, args)

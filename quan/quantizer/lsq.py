@@ -117,9 +117,11 @@ class SLsqQuan(Quantizer):
     def forward(self, x):
         self.p.data.clamp_(0.,self.c.data)
         if self.per_channel:
-            s_grad_scale = 1.0 / ((self.thd_pos * x.numel()) ** 0.5)
+            #s_grad_scale = 1.0 / ((self.thd_pos * x.numel()) ** 0.5)
+            s_grad_scale = (x.abs().mean().detach() / (self.thd_pos * x.numel())) ** 0.5
         else:
-            s_grad_scale = 1.0 / ((self.thd_pos * x.numel()) ** 0.5)
+            #s_grad_scale = 1.0 / ((self.thd_pos * x.numel()) ** 0.5)
+            s_grad_scale = (x.abs().mean().detach() / (self.thd_pos * x.numel())) ** 0.5
         c_scale = grad_scale(self.c, s_grad_scale)
         p_scale = grad_scale(self.p, s_grad_scale)
         quant_x = self.weight_quantizer(x, c_scale, p_scale, self.thd_pos)
@@ -219,6 +221,7 @@ class LsqQuan(Quantizer):
             # unsigned activation is quantized to [0, 2^b-1]
             self.thd_neg = 0
             self.thd_pos = 2 ** bit - 1
+            print(self.thd_pos)
         else:
             if symmetric:
                 # signed weight/activation is quantized to [-2^(b-1)+1, 2^(b-1)-1]
@@ -243,6 +246,7 @@ class LsqQuan(Quantizer):
     def forward(self, x):
         if self.init_mode:
             self.init_from(x)
+            print(self.s)
             self.init_mode = False
         if self.per_channel:
             s_grad_scale = 1.0 / ((self.thd_pos * x.numel()) ** 0.5)

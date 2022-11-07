@@ -49,6 +49,7 @@ def train(train_loader, model, criterion, optimizer, lr_scheduler, epoch, monito
             for n, m in model.named_modules():
                 if hasattr(m, "init_mode"):
                     m.init_mode = True
+                    print(m)
             args.init_mode = False
         inputs = inputs.to(args.device.type)
         targets = targets.to(args.device.type)
@@ -61,7 +62,7 @@ def train(train_loader, model, criterion, optimizer, lr_scheduler, epoch, monito
         top1.update(acc1.item(), inputs.size(0))
         top5.update(acc5.item(), inputs.size(0))
         if lr_scheduler is not None:
-            lr_scheduler.step(epoch=epoch, batch=batch_idx)
+            lr_scheduler.step(epoch, batch_idx)
 
         optimizer.zero_grad()
 

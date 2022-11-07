@@ -5,7 +5,7 @@ def lr_scheduler(optimizer, mode, batch_size=None, num_samples=None, update_per_
     # variables batch_size & num_samples are only used when the learning rate updated every epoch
     if update_per_batch:
         assert isinstance(batch_size, int) and isinstance(num_samples, int)
-
+    print(mode)
     if mode == 'fixed':
         scheduler = FixedLr
     elif mode == 'step':
