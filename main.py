@@ -11,33 +11,16 @@ import wandb
 import torch
 import torch.nn as nn
 
-from utils.data_utils import get_loader
-
-from models.mlp_mixer import MlpMixer, CONFIGS
-from models import configs
-from utils.infer import Inference
+from models.mlp_mixer import MlpMixer
+#from utils.infer import Inference
 from utils.train import Trainer
-from utils.admm import AdmmTrainer
+from utils.tt_train import TT_Trainer
+#from utils.admm import AdmmTrainer
 
 def set_seed(args):
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
-
-def set_model(args):
-    config = CONFIGS[args.model_type]
-    
-    if args.dataset == "cifar_10":
-        args.num_classes = 10
-    elif args.dataset == "cifar_100":
-        args.num_classes = 100
-        
-    model = MlpMixer(config, args.img_size, num_classes=args.num_classes, patch_size=16, zero_head=False)
-    #model.load_state_dict(torch.load(os.path.join("saved_models/pretrained_models", args.model_type + ".pt")))
-    model.load_state_dict(torch.load(os.path.join("saved_models/warmup_models", args.name + '.pt')))
-    #model.to(args.device)
-    
-    return model, args
 
 def main():
     parser = argparse.ArgumentParser()
@@ -67,12 +50,14 @@ def main():
                         help="Weight decay if we apply some")
     parser.add_argument("--lr-schedular", choices=["cosine", "exp"], default="cosine",
                         help="How to decay the learning rate.")
-    parser.add_argument("--learning-rate", default=5e-2, type=float,
+    parser.add_argument("--learning-rate", default=3e-2, type=float,
                     help="The initial learning rate for optimizer")
     parser.add_argument("--max-grad-norm", default=1.0, type=float,
                         help="Max gradient norm")
     
     # CONFIGS of ADMM training or TT training
+    parser.add_argument("--freeze-weights", default=0, type=int,
+                        help="Freeze the weights of Non-target layers")
     parser.add_argument("--target-layer", default=[0,1,2,3,4,5,6,7,8,9,10,11,12], nargs='+', type=int,
                         help="Indexes of layers that are applied with TT-format or Pruning")
     parser.add_argument("--warmup-training", default=0, type=int,
@@ -83,11 +68,11 @@ def main():
                         help="Number of epochs for ADMM training")
     parser.add_argument('--rho', type=float, default=1e-1,
                         help='cardinality weight (default: 1e-2)')
-    parser.add_argument("--tt-ranks", default=[16, 16], type=list,
+    parser.add_argument("--tt-ranks", default=[32, 32], nargs='+', type=int,
                         help="TT-ranks for TT-decomposition")
-    parser.add_argument("--hidden-tt-shape", default=[8, 8, 12], type=list,
+    parser.add_argument("--hidden-tt-shape", default=[8, 8, 12], nargs='+', type=int,
                         help="Factorized hidden dim shape for TT-format")
-    parser.add_argument("--channels-tt-shape", default=[12, 16, 16], type=list,
+    parser.add_argument("--channels-tt-shape", default=[12, 16, 16], nargs='+', type=int,
                         help="Factorized channel dim shape for TT-format")
 
     # CONFIGS of testing
@@ -103,6 +88,7 @@ def main():
     args.n_gpu = torch.cuda.device_count()
     args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     args.img_size = 224
+    
     if args.dataset == "cifar_10":
         args.num_classes = 10
     elif args.dataset == "cifar_100":
@@ -115,14 +101,22 @@ def main():
     # Set seed
     set_seed(args)
     
+    '''
     if args.inference_only:
         infer = Inference(args)
         exit()
+    '''
     
-    if args.train_type != "admm":
+    if args.train_type == "original":
         train = Trainer(args)
+        train.fit(args)
+    elif args.train_type == "tt_format":
+        train = TT_Trainer(args)
+        train.fit(args)
+    '''
     else:
         train = AdmmTrainer(args)
+    '''
 
 if __name__=="__main__":
     main()

@@ -17,16 +17,16 @@ from tqdm import tqdm
 from utils.tt_format import TensorTrain
 from utils.data_utils import get_loader
 
-from models.tt_mixer import TTMixer, CONFIGS
-from models import configs
+from models.mlp_mixer import MlpMixer, CONFIGS
 
 logger = logging.getLogger(__name__)
 
 class Trainer:
     def __init__(self, args):
-        self.set_model(args)
+        self.model = self._set_model(args)
+        self._set_train_configs(args)
         
-    def set_train_configs(self, args):
+    def _set_train_configs(self, args):
 
         if args.use_adam:
             self.optimizer = optim.Adam(self.model.parameters(),
@@ -35,10 +35,10 @@ class Trainer:
         else:
             self.optimizer = optim.SGD(self.model.parameters(),
                                        lr=args.learning_rate,
-                                       momentum=0.9
+                                       momentum=0.9,
                                        weight_decay=args.weight_decay)
             
-        if args.lr_schedular = "cosine":
+        if args.lr_schedular == "cosine":
             self.lr_schedular = optim.lr_scheduler.CosineAnnealingLR(optimizer=self.optimizer,
                                                                      T_max=args.epochs,
                                                                      eta_min=0.001)
@@ -49,40 +49,54 @@ class Trainer:
         self.epochs = args.epochs
         self.device = args.device
     
-    def set_model(self, args):
+    def _set_target_layer(self, model):
 
-        if args.train_type == "original":
-            config = CONFIGS[args.model_type]
-            self.model = MlpMixer(config,
-                             args.img_size,
-                             num_classes=args.num_classes,
-                             patch_size=16,
-                             zero_head=False)
-            self._load_state_dict(args)
+        target_name = []
+        for layer_idx in self.target_layer:
+            target_name.append("layer.{}.{}.fc0.weight".format(layer_idx, self.block_name))
+            target_name.append("layer.{}.{}.fc1.weight".format(layer_idx, self.block_name))
+        
+        target_list, preserved_list = [], []
+        for name, param in model.named_parameters():
+            if name in target_name:
+                target_list.append(name)
+            else:
+                preserved_list.append(name)
+                
+        return target_list, preserved_list
+    
+    def _set_model(self, args):
 
-        elif args.train_type == "tt_format":
-            config = configs.get_mixer_b16_tt_config(args)
-            self.model = TTMixer(config,
-                                 args.img_size,
-                                 num_classes=args.num_classes,
-                                 patch_size=16,
-                                 zero_head=False,
-                                 target_layer=args.target_layer)
+        config = CONFIGS[args.model_type]
+        model = MlpMixer(config,
+                         args.img_size,
+                         num_classes=args.num_classes,
+                         patch_size=16,
+                         zero_head=False)
+        model = self._load_state_dict(model, args)
+        return model
     
     def _save_model(self, args):
         model_path = os.path.join("saved_models/original_models", args.name + '.pt')
-        torch.save(self.model.state_dice(), model_path)
+        torch.save(self.model.state_dict(), model_path)
         
         logger.info("Saving Model checkpoint in [DIR: {}]".format(model_path))
     
-    def _load_state_dict(self, args):
-        pretrained_path = os.path.join("saved_models/pretrained_models", args.name + '.pt')
-        self.model.load_state_dict(torch.load(pretrained_path))
+    def _load_state_dict(self, model, args):
+        if os.path.exists(os.path.join("saved_models/original_models", 'Mixer-B_16_cifar_10_original.pt')):
+            pretrained_path = os.path.join("saved_models/original_models", "Mixer-B_16_cifar_10_original.pt")
+            logger.info("Loading Model checkpoint in [DIR: {}]".format(pretrained_path))
+        else:
+            pretrained_path = os.path.join("saved_models/pretrained_models/Mixer-B_16.pt")
+            logger.info("Loading Model checkpoint in [DIR: {}]".format(pretrained_path))
+        model.load_state_dict(torch.load(pretrained_path))
+
+        return model
     
     def simple_accuracy(self, preds, labels):
         return (preds == labels).mean()
     
-    def test(self, test_loader, args):
+    def test(self, test_loader):
         self.model.to(self.device)
         self.model.eval()
         avg_loss = 0
@@ -150,14 +164,13 @@ class Trainer:
                     "Training (%d / %d Epochs) (loss=%2.5f)" % (epoch + 1, args.epochs, loss)
                 )
                 
-            acc = self.test(test_loader, args)
+            acc = self.test(test_loader)
             if self.best_acc < acc:
                 self._save_model(args)
                 self.best_acc = acc
             
-            self.scheduler.step()
+            self.lr_schedular.step()
     
     def fit(self, args):
-        self.set_train_configs(args)
         train_loader, test_loader = get_loader(args)
         self.train(train_loader, test_loader, args)

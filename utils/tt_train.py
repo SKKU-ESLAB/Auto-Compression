@@ -18,7 +18,6 @@ from utils.tt_format import TensorTrain
 from utils.train import Trainer
 
 from models.tt_mixer import TTMixer, CONFIGS
-from models.mlp_mixer import MlpMixer
 from models import configs
 
 logger = logging.getLogger(__name__)
@@ -50,26 +49,21 @@ class TT_Trainer(Trainer):
         
         self.epochs = args.epochs
         self.device = args.device
-    
-    def _set_target_layer(self, model):
 
-        for name, param in model.named_parameters():
-            name_list = name.split('.')
-            if name_list[0] == "layer" and name_list[-1] == "weight":
-                if name_list[2] == self.block_name:
-                    if int(name_list[1]) not in self.target_layer:
-                        self.preserved_list.append(name)
-                    else:
-                        self.target_list.append(name) 
+    def _save_model(self, args):
+        model_path = os.path.join("saved_models/tt_models", args.name + '.pt')
+        torch.save(self.model.state_dict(), model_path)
+        
+        logger.info("Saving Model checkpoint in [DIR: {}]".format(model_path))
                         
     def _load_preserved_weights(self, model, args):
 
         for name in self.preserved_list:
             preserved_param = model.get_parameter(name)
             param = self.model.get_parameter(name)
-            if args.freeze_weights:
-                preserved_param.requires_grad = False
             param.data = preserved_param
+            if args.freeze_weights:
+                param.requires_grad = False
             
     def _load_target_weights(self, model, args):
         
@@ -79,26 +73,28 @@ class TT_Trainer(Trainer):
                                  self.dict_shape[target_param.shape[1]],
                                  self.dict_shape[target_param.shape[0]],
                                  tt_ranks=args.tt_ranks)
+            decomp.fit()
+            decomp.analyze_diff()
             name = '.'.join(name.split('.')[:-1])
             for i in range(decomp.tt_dims):
                 tt_core = name + '.tt_cores.{}'.format(i)
                 param = self.model.get_parameter(tt_core)
                 param.data = decomp.tt_cores[i]
     
-    def _load_state_dict(self, args):
-        super().set_model(args)
+    def _tt_load_state_dict(self, args):
+        model = super()._set_model(args).cpu()
         
         self.target_layer = args.target_layer
         self.block_name = "channel_mlp_block"
 
-        self.preserved_list = []
+        self.preserved_list, self.target_list = self._set_target_layer(model)
         self.target_list = []
         self.dict_shape = {768: args.hidden_tt_shape, 3072: args.channels_tt_shape}
         
-        self._set_target_layer(super().model)
+        self._set_target_layer(model)
         
-        self._load_preserved_weights(super().model, args)
-        self._load_target_weights(super().model, args)
+        self._load_preserved_weights(model, args)
+        self._load_target_weights(model, args)
         
     
     def _set_model(self, args):
@@ -109,6 +105,6 @@ class TT_Trainer(Trainer):
                             num_classes=args.num_classes,
                             patch_size=16,
                             zero_head=False,
-                            target_layer=args.target_layer)
-        self._load_state_dict(args)
+                            target_layer=args.target_layer).cpu()
+        self._tt_load_state_dict(args)
         

@@ -53,9 +53,9 @@ class TTLinear(nn.Module):
         x = x.view(-1, *self.in_shapes)
 
         '''
-        multiply inputs & tt_core 0 ###
-            input shape [batch_size x row_size, in_shape[1], ... , in_shape[-1], in_shape[0]]
-            weight shape [in_shape[0], out_shape[0] * rank[1]]
+        Multiply inputs & tt_cores
+            input shape [batch_size x row_size, in_shape[0], ... , in_shape[-1]]
+            weight shape [rank[i] x in_shape[i], out_shape[i] x rank[i + 1]]
         '''
         
         weight = self.tt_cores[0]
