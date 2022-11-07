@@ -118,10 +118,10 @@ class SLsqQuan(Quantizer):
         self.p.data.clamp_(0.,self.c.data)
         if self.per_channel:
             #s_grad_scale = 1.0 / ((self.thd_pos * x.numel()) ** 0.5)
-            s_grad_scale = (x.abs().mean().detach() / (self.thd_pos * x.numel())) ** 0.5
+            s_grad_scale = (x.abs().max().detach() / (self.thd_pos * x.numel())) ** 0.5
         else:
             #s_grad_scale = 1.0 / ((self.thd_pos * x.numel()) ** 0.5)
-            s_grad_scale = (x.abs().mean().detach() / (self.thd_pos * x.numel())) ** 0.5
+            s_grad_scale = (x.abs().max().detach() / (self.thd_pos * x.numel())) ** 0.5
         c_scale = grad_scale(self.c, s_grad_scale)
         p_scale = grad_scale(self.p, s_grad_scale)
         quant_x = self.weight_quantizer(x, c_scale, p_scale, self.thd_pos)

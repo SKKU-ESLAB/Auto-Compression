@@ -1,9 +1,6 @@
 # Experiment name
-name: MobileNetv2_imagenet_a8w8_hard_pruning_30_epoch80
+name: MobileNetv2_imagenet_a8w8_25_epoch80
 
-device:
-  type: cuda
-  gpu: [0]
 # Dataset loader
 dataloader:
   # Dataset to train/validate (choices: imagenet, cifar10)
@@ -13,15 +10,15 @@ dataloader:
   # Path to dataset directory
   path: /data/imagenet
   # Size of mini-batch
-  batch_size: 256
+  batch_size: 128
   # Portion of training dataset to set aside for validation (range: [0, 1))
   val_split: 0.
 
 resume:
   # Path to a checkpoint to be loaded. Leave blank to skip
-  path: pruned_model/MobileNetv2_imagenet_a8w8_30_epoch80_checkpoint.pth.tar
+  path:
   # Resume model parameters only
-  lean: true
+  lean: false
 
 #============================ Model ============================================
 
@@ -34,7 +31,7 @@ resume:
 arch: MobileNetv2
 
 # Use pre-trained model
-pre_trained: false
+pre_trained: true
 
 #============================ Quantization =====================================
 
@@ -61,8 +58,9 @@ quan:
     symmetric: true
     # Whether to quantize all the numbers to non-negative
     all_positive: false
-    hard_pruning: true
-    
+    hard_pruning: false
+    block_size: 4
+    temperature: 0.001
   excepts:
     # Specify quantized bit width for some layers, like this:
     features.0.0:
@@ -82,9 +80,11 @@ quan:
 # Evaluate the model without training
 # If this field is true, all the bellowing options will be ignored
 eval: false
-hard_pruning: true
+hard_pruning: false
+lamb : 25
 epochs: 80
-init_mode: false
+init_mode: true
+eta: 10
 optimizer:
   learning_rate: 0.005
   momentum: 0.9
@@ -106,9 +106,9 @@ lr_scheduler:
   # gamma: 0.1
 
   # Multi-step decay
-  #mode: multi_step
-  #milestones: [30, 60, 70]
-  #gamma: 0.1
+  # mode: multi_step
+  # milestones: [30, 60, 70]
+  #  gamma: 0.1
 
   # Exponential decay
   # mode: exp
@@ -116,8 +116,8 @@ lr_scheduler:
 
   # Cosine annealing
   # mode: cos
-  # lr_min: 0
-  # cycle: 0.95
+  #lr_min: 0
+  #cycle: 0.95
 
   # Cosine annealing with warm restarts
   mode: cos_warm_restarts
