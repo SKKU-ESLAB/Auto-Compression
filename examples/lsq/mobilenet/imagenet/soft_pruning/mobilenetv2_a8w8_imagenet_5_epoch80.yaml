@@ -40,7 +40,7 @@ quan:
     # Quantizer type (choices: lsq)
     mode: lsq
     # Bit width of quantized activation
-    bit: 8
+    bit: 7
     # Each output channel uses its own scaling factor
     per_channel: false
     # Whether to use symmetric quantization
@@ -86,10 +86,13 @@ epochs: 80
 init_mode: true
 eta: 10
 optimizer:
-  learning_rate: 0.01
+  learning_rate: 0.005
   momentum: 0.9
   weight_decay: 4.0e-05
 
+sigmoid:
+  mile_stone: [10, 20, 30, 40, 50, 60]
+  gamma: 0.5
 # Learning rate scheduler
 lr_scheduler:
   # Update learning rate per batch or epoch
@@ -107,7 +110,7 @@ lr_scheduler:
 
   # Multi-step decay
   mode: multi_step
-  milestones: [30, 60, 70]
+  milestones: [20, 40, 60]
   gamma: 0.1
 
   # Exponential decay

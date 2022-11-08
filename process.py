@@ -42,7 +42,13 @@ def train(train_loader, model, criterion, optimizer, lr_scheduler, epoch, monito
     batch_size = train_loader.batch_size
     steps_per_epoch = math.ceil(total_sample / batch_size)
     logger.info('Training: %d samples (%d per mini-batch)', total_sample, batch_size)
-
+    '''
+    if epoch in args.sigmoid.mile_stone:
+        for n, m in model.named_modules():
+            if hasattr(m, "temperature"):
+                m.temperature = m.temperature * args.sigmoid.gamma
+                print(m.temperature)
+    '''
     end_time = time.time()
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         if args.init_mode:

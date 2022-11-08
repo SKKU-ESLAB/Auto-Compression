@@ -136,13 +136,14 @@ class MobileNetV2(nn.Module):
         self.conv = conv_1x1_bn(input_channel, output_channel)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.classifier = nn.Linear(output_channel, num_classes)
-        
+        self.dropout = nn.Dropout(p = 0.2)       
         self._initialize_weights()
     def forward(self, x):
         x = self.features(x)
         x = self.conv(x)
         x = self.avgpool(x)
         x = torch.flatten(x, 1)
+        x = self.dropout(x)
         x = self.classifier(x)
         return x
 

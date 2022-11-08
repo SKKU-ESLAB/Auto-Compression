@@ -94,6 +94,7 @@ class SLsqQuan(Quantizer):
         x_reshape = x.reshape(co // self.block_size, self.block_size, ci, kh, kw)
 
         score = x_reshape.abs().mean(dim = 1,keepdim = True).detach() - p
+        score = score / score.max().detach()
         if not self.hard_pruning:
             _soft_mask = t.nn.functional.sigmoid(score/ self.temperature)
             self.soft_mask = _soft_mask
@@ -125,9 +126,19 @@ class SLsqQuan(Quantizer):
         c_scale = grad_scale(self.c, s_grad_scale)
         p_scale = grad_scale(self.p, s_grad_scale)
         quant_x = self.weight_quantizer(x, c_scale, p_scale, self.thd_pos)
+        '''
+        sign = x.sign()
+        distance = c_scale - p_scale + 1e-12
+        s = distance / self.thd_pos
+        quant_x = (x.abs() - p_scale) / s
+        quant_x = t.clamp(quant_x, 0, self.thd_pos) * sign
+        quant_x = (t.round(quant_x) - quant_x).detach() + quant_x
+        quant_x = quant_x * s
+        '''
         if (len(x.shape) == 4 and x.shape[1] != 1):
             mask = self.soft_pruner(x, p_scale)
-            quant_x = quant_x * mask
+            #quant_x = quant_x * mask
+            quant_x = (quant_x * mask - quant_x).detach() + quant_x
         return quant_x
 
 class pqQuan(Quantizer):
@@ -176,6 +187,7 @@ class pqQuan(Quantizer):
         x_reshape = x.reshape(co // self.block_size, self.block_size, ci, kh, kw)
 
         score = x_reshape.abs().mean(dim = 1,keepdim = True).detach() - p
+        score = score / score.abs().max().detach()
         if not self.hard_pruning:
             _soft_mask = t.nn.functional.sigmoid(score/ self.temperature)
             self.soft_mask = _soft_mask
