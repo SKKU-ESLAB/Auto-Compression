@@ -53,7 +53,7 @@ typedef uint16_t unit_t;
 #define compute_mode
 // #define thread_mode
 // #define memtrace_mode
-#define debug_mode
+// #define debug_mode
 
 int LogBase2(int power_of_two);
 

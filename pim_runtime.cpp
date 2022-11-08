@@ -801,6 +801,7 @@ void SetFpgaData() {
 
 	if (DebugMode())
 		std::cout << "Send Data Packet!\n";
+	std::cout << "DEBUG : " << fpga_data_queue[0] << std::endl;
 	uint64_t time = pimExecution(tmp, fpga_data_queue, 1);
 	compute_time_ns = time;
 	std::cout << "Total time for PIM Computation by Data Packet : " << time << " ns\n";

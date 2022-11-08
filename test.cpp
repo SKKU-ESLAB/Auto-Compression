@@ -75,8 +75,7 @@ void test_add_blas(int option) {
 	for (int i = 0; i < n; i++)
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	
-	if (DebugMode() && ComputeMode())
-		std::cout << "\n\nERROR: " << error << std::endl;
+	std::cout << "\n\nERROR: " << error << std::endl;
 
 	return;
 }
@@ -142,8 +141,8 @@ void test_mul_blas(int option) {
 		// std::cout << ((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
-	if (DebugMode() && ComputeMode())
-		std::cout << "\n\nERROR: " << error << std::endl;
+		
+	std::cout << "\n\nERROR: " << error << std::endl;
 	return;
 }
 
@@ -201,11 +200,11 @@ void test_relu_blas(int option) {
 	int error = 0;
 	for (int i = 0; i < n; i++)	{
 		//std::cout << ((uint16_t *)ans)[i] << " " << ((uint16_t *)out)[i] << std::endl;;
-		std::cout << ((uint16_t *)out)[i] << " ";
+		// std::cout << ((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
-	if (DebugMode() && ComputeMode())
-		std::cout << "\n\nERROR: " << error << std::endl;
+		
+	std::cout << "\n\nERROR: " << error << std::endl;
 	return;
 }
 
@@ -293,8 +292,7 @@ void test_bn_blas(int option) {
 		for (int fi = 0; fi < f; fi++)
 			error = error + ABS(((uint16_t *)out)[li*f + fi] - ((uint16_t *)ans)[li*f + fi]);
 	
-	if (DebugMode() && ComputeMode())
-		std::cout << "\n\nERROR: " << error << std::endl;
+	std::cout << "\n\nERROR: " << error << std::endl;
 	return;
 }
 
@@ -368,8 +366,8 @@ void test_gemv_blas(int option) {
 		// std::cout << (int)((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
-	if (DebugMode() && ComputeMode())
-		std::cout << "ERROR: " << error << std::endl;
+		
+	std::cout << "ERROR: " << error << std::endl;
 	return;
 }
 
@@ -437,8 +435,8 @@ void test_lstm_blas(int option) {
 		// std::cout << (int)((uint16_t *)out)[i] << " ";
 		error = error + ABS(((uint16_t *)out)[i] - ((uint16_t *)ans)[i]);
 	}
-	if (DebugMode() && ComputeMode())
-		std::cout << "ERROR: " << error << std::endl;
+		
+	std::cout << "ERROR: " << error << std::endl;
 	return;
 }
 
