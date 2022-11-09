@@ -60,7 +60,7 @@ quan:
     all_positive: false
     hard_pruning: false
     block_size: 4
-    temperature: 0.001
+    temperature: 0.1
   excepts:
     # Specify quantized bit width for some layers, like this:
     features.0.0:

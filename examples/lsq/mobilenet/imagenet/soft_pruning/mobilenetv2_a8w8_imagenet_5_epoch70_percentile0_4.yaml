@@ -1,5 +1,5 @@
 # Experiment name
-name: MobileNetv2_imagenet_a8w8_30_epoch80
+name: MobileNetv2_imagenet_a8w8_5_epoch70_percentile_0_4
 
 # Dataset loader
 dataloader:
@@ -60,7 +60,7 @@ quan:
     all_positive: false
     hard_pruning: false
     block_size: 4
-    temperature: 0.25
+    temperature: 0.4
   excepts:
     # Specify quantized bit width for some layers, like this:
     features.0.0:
@@ -81,7 +81,7 @@ quan:
 # If this field is true, all the bellowing options will be ignored
 eval: false
 hard_pruning: false
-lamb : 30
+lamb : 5
 epochs: 80
 init_mode: true
 eta: 10
@@ -90,6 +90,9 @@ optimizer:
   momentum: 0.9
   weight_decay: 4.0e-05
 
+sigmoid:
+  mile_stone: [10, 20, 30, 40, 50, 60]
+  gamma: 0.5
 # Learning rate scheduler
 lr_scheduler:
   # Update learning rate per batch or epoch
@@ -106,22 +109,22 @@ lr_scheduler:
   # gamma: 0.1
 
   # Multi-step decay
-  mode: multi_step
-  milestones: [20, 40, 60]
-  gamma: 0.1
+  # mode: multi_step
+  # milestones: [20, 40, 60]
+  # gamma: 0.1
 
   # Exponential decay
   # mode: exp
   # gamma: 0.95
 
   # Cosine annealing
-  # mode: cos
+  #mode: cos
   #lr_min: 0
   #cycle: 0.95
 
   # Cosine annealing with warm restarts
-  #mode: cos_warm_restarts
-  #lr_min: 0
-  #cycle: 5
-  #cycle_scale: 2
-  #amp_scale: 0.5
+  mode: cos_warm_restarts
+  lr_min: 0
+  cycle: 10
+  cycle_scale: 2
+  amp_scale: 0.5

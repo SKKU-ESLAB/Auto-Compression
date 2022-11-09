@@ -60,7 +60,7 @@ quan:
     all_positive: false
     hard_pruning: false
     block_size: 4
-    temperature: 0.001
+    temperature: 0.1
   excepts:
     # Specify quantized bit width for some layers, like this:
     features.0.0:
@@ -91,8 +91,8 @@ optimizer:
   weight_decay: 4.0e-05
 
 sigmoid:
-  mile_stone: [10, 20, 30, 40, 50, 60]
-  gamma: 0.5
+  mile_stone: [ 20, 40,  60]
+  gamma: 0.25
 
 # Learning rate scheduler
 lr_scheduler:

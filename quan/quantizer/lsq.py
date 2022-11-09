@@ -50,7 +50,7 @@ class weight_quant(t.autograd.Function):
         s = ctx.s
         thd = ctx.thd
         c_mask =(input.abs() > c).float()
-        i_mask =(input.abs() <= c).float() * (v_q != 0.).float()
+        i_mask =(input.abs() <= c).float() * (input.abs() >= p).float()
         s_mask = (v_q == 0.).float()
         sign = input.sign()
         
@@ -94,9 +94,10 @@ class SLsqQuan(Quantizer):
         x_reshape = x.reshape(co // self.block_size, self.block_size, ci, kh, kw)
 
         score = x_reshape.abs().mean(dim = 1,keepdim = True).detach() - p
-        score = score / score.max().detach()
+        #score = score / (score.max().detach() * 2)
+        temperature = (score.abs().view(-1).sort()[0][int(score.numel()*self.temperature)] * 0.5).detach()
         if not self.hard_pruning:
-            _soft_mask = t.nn.functional.sigmoid(score/ self.temperature)
+            _soft_mask = t.nn.functional.sigmoid(score/temperature)
             self.soft_mask = _soft_mask
             self.soft_mask = self.soft_mask.repeat(1, self.block_size, 1, 1, 1).reshape(co,ci,kh,kw)
             return self.soft_mask
@@ -118,11 +119,11 @@ class SLsqQuan(Quantizer):
     def forward(self, x):
         self.p.data.clamp_(0.,self.c.data)
         if self.per_channel:
-            #s_grad_scale = 1.0 / ((self.thd_pos * x.numel()) ** 0.5)
-            s_grad_scale = (x.abs().max().detach() / (self.thd_pos * x.numel())) ** 0.5
+            s_grad_scale = 1.0 / ((self.thd_pos * x.numel()) ** 0.5)
+            #s_grad_scale = (x.abs().max().detach() / (self.thd_pos * x.numel())) ** 0.5
         else:
-            #s_grad_scale = 1.0 / ((self.thd_pos * x.numel()) ** 0.5)
-            s_grad_scale = (x.abs().max().detach() / (self.thd_pos * x.numel())) ** 0.5
+            s_grad_scale = 1.0 / ((self.thd_pos * x.numel()) ** 0.5)
+            #s_grad_scale = (x.abs().max().detach() / (self.thd_pos * x.numel())) ** 0.5
         c_scale = grad_scale(self.c, s_grad_scale)
         p_scale = grad_scale(self.p, s_grad_scale)
         quant_x = self.weight_quantizer(x, c_scale, p_scale, self.thd_pos)
