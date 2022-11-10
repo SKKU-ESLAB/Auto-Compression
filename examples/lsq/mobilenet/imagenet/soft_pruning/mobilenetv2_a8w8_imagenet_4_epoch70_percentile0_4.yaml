@@ -1,0 +1,130 @@
+# Experiment name
+name: MobileNetv2_imagenet_a8w8_4_epoch70_percentile_0_4
+
+# Dataset loader
+dataloader:
+  # Dataset to train/validate (choices: imagenet, cifar10)
+  dataset: imagenet
+  # Number of categories in the specified dataset (choices: 1000, 10)
+  num_classes: 1000
+  # Path to dataset directory
+  path: /data/imagenet
+  # Size of mini-batch
+  batch_size: 128
+  # Portion of training dataset to set aside for validation (range: [0, 1))
+  val_split: 0.
+
+resume:
+  # Path to a checkpoint to be loaded. Leave blank to skip
+  path:
+  # Resume model parameters only
+  lean: false
+
+#============================ Model ============================================
+
+# Supported model architecture
+# choices:
+#   ImageNet:
+#     resnet18, resnet34, resnet50, resnet101, resnet152
+#   CIFAR10:
+#     resnet20, resnet32, resnet44, resnet56, resnet110, resnet1202
+arch: MobileNetv2
+
+# Use pre-trained model
+pre_trained: true
+
+#============================ Quantization =====================================
+
+quan:
+  act: # (default for all layers)
+    # Quantizer type (choices: lsq)
+    mode: lsq
+    # Bit width of quantized activation
+    bit: 7
+    # Each output channel uses its own scaling factor
+    per_channel: false
+    # Whether to use symmetric quantization
+    symmetric: false
+    # Quantize all the numbers to non-negative
+    all_positive: true
+  weight: # (default for all layers)
+    # Quantizer type (choices: lsq)
+    mode: slsq
+    # Bit width of quantized weight
+    bit: 8
+    # Each output channel uses its own scaling factor
+    per_channel: false
+    # Whether to use symmetric quantization
+    symmetric: true
+    # Whether to quantize all the numbers to non-negative
+    all_positive: false
+    hard_pruning: false
+    block_size: 4
+    temperature: 0.4
+  excepts:
+    # Specify quantized bit width for some layers, like this:
+    features.0.0:
+      act:
+        bit:
+        all_positive: false
+      weight:
+        bit:
+    classifier:
+      act:
+        bit:
+      weight:
+        bit:
+
+#============================ Training / Evaluation ============================
+
+# Evaluate the model without training
+# If this field is true, all the bellowing options will be ignored
+eval: false
+hard_pruning: false
+lamb : 4
+epochs: 70
+init_mode: true
+eta: 10
+optimizer:
+  learning_rate: 0.005
+  momentum: 0.9
+  weight_decay: 4.0e-05
+
+sigmoid:
+  mile_stone: [10, 20, 30, 40, 50, 60]
+  gamma: 0.5
+# Learning rate scheduler
+lr_scheduler:
+  # Update learning rate per batch or epoch
+  update_per_batch: true
+
+  # Uncomment one of bellowing options to activate a learning rate scheduling
+
+  # Fixed learning rate
+  # mode: fixed
+
+  # Step decay
+  # mode: step
+  # step_size: 30
+  # gamma: 0.1
+
+  # Multi-step decay
+  # mode: multi_step
+  # milestones: [20, 40, 60]
+  # gamma: 0.1
+
+  # Exponential decay
+  # mode: exp
+  # gamma: 0.95
+
+  # Cosine annealing
+  #mode: cos
+  #lr_min: 0
+  #cycle: 0.95
+
+  # Cosine annealing with warm restarts
+  mode: cos_warm_restarts
+  lr_min: 0
+  cycle: 10
+  cycle_scale: 2
+  amp_scale: 0.5
