@@ -87,13 +87,20 @@ class SLsqQuan(Quantizer):
         self.block_size = block_size
         self.hard_pruning = hard_pruning
         self.temperature = temperature
+    
+    def calculate_block_sparsity(self,x):
+        co, ci, kh, kw = x.shape
+        x_reshape = x.reshape(co // self.block_size, self.block_size, ci, kh, kw).detach()
+        score = (x_reshape.abs().mean(dim = 1, keepdim = True) - self.p).detach()
+        hard_mask = (score > 0).float().detach()
+        return hard_mask.sum(), hard_mask.numel()
 
     def soft_pruner(self, x, p):
 
         co, ci, kh, kw = x.shape
         x_reshape = x.reshape(co // self.block_size, self.block_size, ci, kh, kw)
 
-        score = x_reshape.abs().mean(dim = 1,keepdim = True).detach() - p
+        score = x_reshape.abs().mean(dim = 1,keepdim = True) - p
         #score = score / (score.max().detach() * 2)
         temperature = (score.abs().view(-1).sort()[0][int(score.numel()*self.temperature)] * 0.5).detach()
         if not self.hard_pruning:

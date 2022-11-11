@@ -32,7 +32,7 @@ def main():
     set_seed(42)
     script_dir = Path.cwd()
     args = util.get_config(default_file=script_dir / 'config.yaml')
-    wandb.init(reinit=True, name = args.name, project="SLSQ")
+    wandb.init(reinit=True, name = args.name, project="SLSQ_real")
     output_dir = script_dir / args.output_dir
     output_dir.mkdir(exist_ok=True)
 
@@ -145,7 +145,7 @@ def main():
                 total_zero = 0.
                 total_numel = 0.
                 for n,m in model.named_modules():
-                    if hasattr(m, "quan_w_fn"):
+                    if hasattr(m, "quan_w_fn") and hasattr(m.quan_w_fn, "p"):
                         if hasattr(m.quan_w_fn, "hard_pruning"):
                             m.quan_w_fn.hard_pruning = True
                         weight_zero = (m.quan_w_fn(m.weight.detach()) == 0).sum()

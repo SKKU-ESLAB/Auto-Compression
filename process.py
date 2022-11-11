@@ -141,14 +141,23 @@ def validate(data_loader, model, criterion, epoch, monitors, args):
     total_zero = 0.
     total_numel = 0.
     sparsity_log = {}
+    block_numel = 0.
+    block_sum = 0.
     for n, m in model.named_modules():
-        if hasattr(m, "quan_w_fn"):
+        if hasattr(m, "quan_w_fn") and hasattr(m.quan_w_fn, "p"):
             weight_zero = (m.quan_w_fn(m.weight.detach())==0).sum()
             weight_numel = m.weight.detach().numel()
             sparsity = weight_zero / weight_numel
             total_zero += weight_zero
             total_numel += weight_numel
             sparsity_log[n] = sparsity
+
+            sum, numel = m.quan_w_fn.calculate_block_sparsity(m.weight)
+            block_sum += sum
+            block_numel += numel
+
+    sparsity_log["block_sparsity"] = 1. - block_sum / block_numel
+    print(block_sum, block_numel)
     import wandb; wandb.log(sparsity_log)
     sparsity = total_zero / total_numel
     return top1.avg, top5.avg, losses.avg, sparsity
