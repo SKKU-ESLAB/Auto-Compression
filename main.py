@@ -140,6 +140,12 @@ def main():
                 save_dir = os.path.join(output_dir)
                 util.save_checkpoint(epoch, args.arch, model, {'top1': v_top1, 'top5': v_top5}, True, args.name,  save_dir)
 
+            if not args.hard_pruning :
+                output_dir = script_dir / 'pruned_model' 
+                output_dir.mkdir(exist_ok=True)
+                pruned_save_dir = os.path.join(output_dir)
+                util.save_checkpoint(epoch, args.arch, model, {}, True, args.name,  pruned_save_dir)
+
             with t.no_grad():
                 hard_sparsity = 0.
                 total_zero = 0.
