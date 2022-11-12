@@ -24,12 +24,13 @@ elif (option == '3'):
     m = 2048
 
 FC = torch.load('./weight/fc'+option+'.pt').eval()
+FC = FC.type(torch.bfloat16)
 avg_time = 0
 
 print("compute: fc layer")
 print("iter\t time")
 for i in range(itr):
-    x = torch.randn(1, m)
+    x = torch.randn(1, m).type(torch.bfloat16)
     
     start = time.time() #####
     os.system('m5 dumpstats')

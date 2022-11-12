@@ -11,8 +11,10 @@ option = input("conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5, all_i
 
 print("option: ", option)
 
-max_iter = 4000
-warm_iter = 5
+torch.set_num_threads(8)
+
+max_iter = 20
+warm_iter = 2
 num_iter = max_iter - warm_iter
 
 # conv12
@@ -57,10 +59,6 @@ elif (option == '5' or option == '6'):
     layerFC = torch.load('./weight/FC')
 hardtanh = nn.Hardtanh(0, 20, inplace=True)
 
-os.system('echo checkpointing...')
-os.system('m5 checkpoint')
-os.system('run from checkpoint')
-torch.set_num_threads(8)
 print("\n----lets run!----")
 
 def run_conv():
@@ -151,7 +149,7 @@ def run_lstm2():
 
 def run_fc():
     print("compute: fc layer")
-
+    
     avg_time = 0
     bn_avg_time = 0
     fc_avg_time = 0
@@ -190,24 +188,35 @@ def run_fc():
 
 def run_full_model():
     print("conpute: full ds2 model")
-
-    avg_time = 0
+    
+    a = time.time()
+    avg_tot = 0
+    avg_conv = 0
+    avg_lstm1 = 0
+    avg_lstm2 = 0
+    avg_fc = 0
     print("iter\t time")
     for i in range(max_iter):
         x = torch.randn((1, 1, 160, 1151))
         start = time.time() #####
+        start_conv = time.time() #####
         x = hardtanh(bn2(conv2(hardtanh(bn1(conv1(x))))))
+        end_conv = time.time()   #####
         sizes = x.size()
         x = x.view(sizes[0], sizes[1]*sizes[2], sizes[3])
         x = x.transpose(1,2).transpose(0,1)
 
+        start_lstm1 = time.time() #####
         x, _ = layerLSTM1(x)
+        end_lstm1 = time.time()   #####
 
+        start_lstm2 = time.time() #####
         sizes = x.size()
         x = x.view(sizes[0]*sizes[1], -1)
         x = layerBN1(x)
         x = x.view(sizes[0], sizes[1], -1)
         x, _ = layerLSTM2(x)
+        end_lstm2 = time.time()   #####
 
         x = x.view(sizes[0]*sizes[1], -1)
         x = layerBN1(x)
@@ -229,18 +238,43 @@ def run_full_model():
         x = x.view(sizes[0], sizes[1], -1)
         x, _ = layerLSTM2(x)
 
+        start_fc = time.time() #####
         x = x.view(sizes[0]*sizes[1], -1)
         x = layerBN2(x)
         x = x.view(sizes[0], sizes[1], -1)
         x = layerFC(x)
+        end_fc = time.time()   #####
         end = time.time()   #####
 
-        print(i, "\t", end-start)
+        time_tot = end - start
+        time_conv = end_conv - start_conv
+        time_lstm1 = end_lstm1 - start_lstm1
+        time_lstm2 = end_lstm2 - start_lstm2
+        time_fc = end_fc - start_fc
         if i >= warm_iter:
-            avg_time = avg_time + end - start
-    avg_time = avg_time / num_iter
-    print("avg_time: ", avg_time)
-    return avg_time
+            print("conv\t", time_conv)
+            print("lstm1\t", time_lstm1)
+            print("lstm2\t", time_lstm2, "x5")
+            print("fc\t", time_fc)
+            print("total\t", time_tot)
+            avg_conv = avg_conv + time_conv
+            avg_lstm1 = avg_lstm1 + time_lstm1
+            avg_lstm2 = avg_lstm2 + time_lstm2
+            avg_fc = avg_fc + time_fc
+            avg_tot = avg_tot + time_tot
+    avg_conv = avg_conv / num_iter
+    avg_lstm1 = avg_lstm1 / num_iter
+    avg_lstm2 = avg_lstm2 / num_iter
+    avg_fc = avg_fc / num_iter
+    avg_tot = avg_tot / num_iter
+
+    print("\niter : ", i)
+    print("avg_conv: ", avg_conv)
+    print("avg_lstm1: ", avg_lstm1)
+    print("avg_lstm2: ", avg_lstm2, "x5")
+    print("avg_fc: ", avg_fc)
+    print("avg_tot: ", avg_tot)
+    return avg_tot
 
 if (option == '1'):
     run_conv()

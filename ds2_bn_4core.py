@@ -24,12 +24,13 @@ elif (option == '3'):
     l = 576
 
 BN1d = torch.load('./weight/bn.pt').eval()
+BN1d = BN1d.type(torch.float16)
 avg_time = 0
 
 print("compute: bn1d layer")
 print("iter\t time")
 for i in range(itr):
-    x = torch.randn(l, f)
+    x = torch.randn(l, f).type(torch.float16)
     
     start = time.time() #####
     os.system('m5 dumpstats')

@@ -6,6 +6,7 @@ import time
 option = input("conv12:1, bi-lstm1:2, bi-lstm23456:3, fc1:4, full_model:5 \nenter layer to run: ")
 
 print("option: ", option)
+torch.set_num_threads(1)
 
 # conv12
 layerCONV = nn.Sequential(
@@ -115,18 +116,24 @@ elif (option == '5'):
     for i in range(110):
         x = torch.randn((1, 1, 160, 1151))
         start = time.time() #####
+        start_conv = time.time() #####
         x = layerCONV(x)
         sizes = x.size()
         x = x.view(sizes[0], sizes[1]*sizes[2], sizes[3])
         x = x.transpose(1,2).transpose(0,1)
+        end_conv = time.time() #####
 
+        start_lstm1 = time.time() #####
         x, _ = layerLSTM1(x)
+        end_lstm1 = time.time() #####
 
+        start_lstm2 = time.time() #####
         sizes = x.size()
         x = x.view(sizes[0]*sizes[1], -1)
         x = layerBN1(x)
         x = x.view(sizes[0], sizes[1], -1)
         x, _ = layerLSTM2(x)
+        end_lstm2 = time.time() #####
 
         x = x.view(sizes[0]*sizes[1], -1)
         x = layerBN1(x)
@@ -148,15 +155,30 @@ elif (option == '5'):
         x = x.view(sizes[0], sizes[1], -1)
         x, _ = layerLSTM2(x)
 
+        start_fc = time.time() #####
         x = x.view(sizes[0]*sizes[1], -1)
         x = layerBN2(x)
         x = x.view(sizes[0], sizes[1], -1)
         x = layerFC(x)
+        end_fc = time.time()   #####
         end = time.time()   #####
 
+        time = end - start
+        time_conv = end_conv - start_conv
+        time_lstm1 = end_lstm1 - start_lstm1
+        time_lstm2 = end_lstm2 - start_lstm2
+        time_fc = end_fc - start_fc
         if i >= 10:
-            print(end-start)
-            avg_time = avg_time + end - start
-    avg_time = avg_time / 100
+            print("conv\t", time_conv)
+            print("lstm1\t", time_lstm1))
+            print("lstm2\t", time_lstm2, "x5")
+            print("fc\t", time_fc)
+            print(time)
+            avg_conv = avg_conv + end - start
+            avg_lstm1 = avg_lstm1 + end - start
+            avg_lstm2 = avg_lstm2 + end - start
+            avg_fc = avg_fc + end - start
+            avg_tot = avg_tot + end - start
+    avg_tot = avg_tot / itr
     print("avg_time: ", avg_time)
 

@@ -30,6 +30,9 @@ print("iter\t time")
 for i in range(itr):
     in0 = torch.randn(1, m)
     in1 = torch.randn(1, m)
+
+    in0 = in0.type(torch.bfloat16)
+    in1 = in1.type(torch.bfloat16)
     
     start = time.time() #####
     os.system('m5 dumpstats')
