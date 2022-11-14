@@ -70,12 +70,12 @@ void trace_and_send() {
 			// std::memcpy(buffer, pim_mem + hex_addr, burstSize);
 			std::cout << "read\n";
 			for (int i=0; i<burstSize; i++)
-				buffer[i] = (pim_mem + hex_addr)[i];
+				buffer[i] = ((uint8_t*)(pim_mem + hex_addr))[i];
 		} else if (is_write == 1) {  // write
 			// std::memcpy(pim_mem + hex_addr, buffer, burstSize);
 			std::cout << "write\n";
 			for (int i=0; i<burstSize; i++)
-				(pim_mem + hex_addr)[i] = buffer[i];
+				((uint8_t*)(pim_mem + hex_addr))[i] = 1;
 		} else if (is_write == 2) {  // preprocess end
 			start = Time::now();
 			system("sudo m5 dumpstats");
