@@ -50,7 +50,7 @@ void trace_and_send() {
 	typedef std::chrono::milliseconds ms;
 	typedef std::chrono::duration<float> fsec;
 
-	buffer = (uint8_t*)calloc(64, sizeof(uint8_t));
+	buffer = (uint8_t*)calloc(128, sizeof(uint8_t));
 	
 	auto start = Time::now();
 	while(std::getline(fm, line)) {
@@ -62,10 +62,12 @@ void trace_and_send() {
 
 		if (is_write == 0) {  // read
 			// std::memcpy(buffer, pim_mem + hex_addr, burstSize);
+			std::cout << "read\n";
 			for (int i=0; i<burstSize; i++)
 				buffer[i] = (pim_mem + hex_addr)[i];
 		} else if (is_write == 1) {  // write
 			// std::memcpy(pim_mem + hex_addr, buffer, burstSize);
+			std::cout << "write\n";
 			for (int i=0; i<burstSize; i++)
 				(pim_mem + hex_addr)[i] = buffer[i];
 		} else if (is_write == 2) {  // preprocess end
