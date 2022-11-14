@@ -46,20 +46,26 @@ void set_normal_device() {
 void trace_and_send() {
 	std::cout << " > trace and send\n";
 
-	// typedef std::chrono::high_resolution_clock Time;
-	// typedef std::chrono::milliseconds ms;
-	// typedef std::chrono::duration<float> fsec;
+	typedef std::chrono::high_resolution_clock Time;
+	typedef std::chrono::milliseconds ms;
+	typedef std::chrono::duration<float> fsec;
 
+	std::cout << " >> DEBUG 1\n";
 	buffer = (uint8_t*)calloc(128, sizeof(uint8_t));
+	std::cout << " >> DEBUG 2\n";
 	
-	// auto start = Time::now();
+	auto start = Time::now();
+	std::cout << " >> DEBUG 3\n";
 	while(std::getline(fm, line)) {
+		std::cout << " >> DEBUG 4\n";
 		std::stringstream linestream(line);
 		int is_write;
 		uint64_t hex_addr;
 
+		std::cout << " >> DEBUG 5\n";
 		linestream >> is_write >> hex_addr;
 
+		std::cout << " >> DEBUG 6\n";
 		if (is_write == 0) {  // read
 			// std::memcpy(buffer, pim_mem + hex_addr, burstSize);
 			std::cout << "read\n";
@@ -71,18 +77,19 @@ void trace_and_send() {
 			for (int i=0; i<burstSize; i++)
 				(pim_mem + hex_addr)[i] = buffer[i];
 		} else if (is_write == 2) {  // preprocess end
-			// start = Time::now();
+			start = Time::now();
 			system("sudo m5 dumpstats");
 		} else {
 			std::cout << "This should not be done... Somethings wrong\n";
 		}
+		std::cout << " >> DEBUG 7\n";
 	}
 	system("sudo m5 dumpstats");
 	
-	// auto end = Time::now();
-	// std::cout << "All trace ended\n";
-	// fsec time = end - start;
-	// std::cout << time.count() << "s\n";
+	auto end = Time::now();
+	std::cout << "All trace ended\n";
+	fsec time = end - start;
+	std::cout << time.count() << "s\n";
 }
 
 int main(int argc, char **argv) {
