@@ -54,9 +54,13 @@ void trace_and_send() {
 		linestream >> is_write >> hex_addr;
 
 		if (is_write == 0) {  // read
-			std::memcpy(buffer, pim_mem + hex_addr, burstSize);
+			// std::memcpy(buffer, pim_mem + hex_addr, burstSize);
+			for (int i=0; i<burstSize; i++)
+				buffer[i] = (pim_mem + hex_addr)[i];
 		} else if (is_write == 1) {  // write
-			std::memcpy(pim_mem + hex_addr, buffer, burstSize);
+			// std::memcpy(pim_mem + hex_addr, buffer, burstSize);
+			for (int i=0; i<burstSize; i++)
+				(pim_mem + hex_addr)[i] = buffer[i];
 		} else if (is_write == 2) {  // preprocess end
 			start = Time::now();
 			system("sudo m5 dumpstats");
@@ -64,6 +68,8 @@ void trace_and_send() {
 			std::cout << "This should not be done... Somethings wrong\n";
 		}
 	}
+	system("sudo m5 dumpstats");
+	
 	auto end = Time::now();
 	std::cout << "All trace ended\n";
 	fsec time = end - start;
@@ -88,8 +94,6 @@ int main(int argc, char **argv) {
 	set_pim_device();
 
 	trace_and_send();
-
-	system("sudo m5 dumpstats");
 
 	return 0;
 }

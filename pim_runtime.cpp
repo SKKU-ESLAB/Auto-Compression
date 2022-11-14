@@ -581,10 +581,15 @@ static void *TryThreadAddTransaction(void *input_)
 	uint8_t *data = input->data;
 	bool is_write = input->is_write;
 
-	if (is_write)
-		std::memcpy(pim_addr, data, burstSize_);
-	else
-		std::memcpy(data, pim_addr, burstSize_);
+	if (is_write) {
+		// std::memcpy(pim_addr, data, burstSize_);
+		for (int i=0; i<burstSize_; i++)
+			pim_addr[i] = data[i];
+	} else {
+		// std::memcpy(data, pim_addr, burstSize_);
+		for (int i=0; i<burstSize_; i++)
+			data[i] = pim_addr[i];
+	}
 
 	pthread_mutex_lock(&print_mutex);
 	int tmp = (is_write) ? 1 : 0;
@@ -633,10 +638,15 @@ void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write) {
 		else
 			fprintf(fm, "0 %llu\n", (uint64_t)(pim_addr - pim_base));
 	} else {
-		if (is_write)
-			std::memcpy(pim_addr, data, burstSize_);
-		else
-			std::memcpy(data, pim_addr, burstSize_);
+		if (is_write) {
+			// std::memcpy(pim_addr, data, burstSize_);
+			for (int i=0; i<burstSize_; i++)
+				pim_addr[i] = data[i];
+		} else {
+			// std::memcpy(data, pim_addr, burstSize_);
+			for (int i=0; i<burstSize_; i++)
+				data[i] = pim_addr[i];
+		}
 	}
 	int tmp = (is_write) ? 1 : 0;
 	// std::cout << ">> " << clock_ << "\t" << tmp << "\t addr: " << (uint64_t)(pim_addr - pim_base) << "\n";
