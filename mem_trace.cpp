@@ -33,6 +33,8 @@ void set_pim_device() {
 		std::cout << "Opened /dev/PIM !\n";
 
 	pim_mem = (uint8_t*)mmap(NULL, LEN_PIM, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+	for (int i=0; i<LEN_PIM; i++)
+		pim_mem[i] = 0;
 	pim_base = (uint64_t)pim_mem;
 }
 
@@ -95,11 +97,11 @@ int main(int argc, char **argv) {
 
 	set_trace_file(argv, option);
 
-	system("sudo m5 checkpoint");
-	system("echo CPU Switched!");
-
 	set_pim_device();
 	// set_normal_device();
+	
+	system("sudo m5 checkpoint");
+    system("echo CPU Switched!");
 
 	trace_and_send();
 

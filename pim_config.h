@@ -218,8 +218,7 @@ public:
 			code0_cmd[0] = PIM_CMD::READ_INPUT_8COL;
 			code0_cmd[1] = PIM_CMD::READ_WEIGHT_8COL;
 			code0_cmd[2] = PIM_CMD::WRITE_OUTPUT_8COL;
-		}
-		else if (op == (PIM_OP::MUL)) {
+		} else if (op == (PIM_OP::MUL)) {
 			code0[0] = 0b01000010000000001000000000000000; // MOV(A)  GRF_A[A0]  BANK
 			code0[1] = 0b00010000000001000000100000000111; // JUMP    -1         7
 			code0[2] = 0b10010010000010001000000000000000; // MUL(A)  GRF_A[A0]  BANK      GRF_A[A0]
@@ -234,8 +233,7 @@ public:
 			code0_cmd[0] = PIM_CMD::READ_INPUT_8COL;
 			code0_cmd[1] = PIM_CMD::READ_WEIGHT_8COL;
 			code0_cmd[2] = PIM_CMD::WRITE_OUTPUT_8COL;
-		}
-		else if (op == (PIM_OP::RELU)) {
+		} else if (op == (PIM_OP::RELU)) {
 			code0[0] = 0b01000010000000001001000000000000; // MOV(AR)  GRF_A[A0]  BANK
 			code0[1] = 0b00010000000001000000100000000111; // JUMP    -1         7
 			code0[2] = 0b01000000010000001000000000000000; // MOV(A)  BANK       GRF_A[A0]
@@ -247,9 +245,7 @@ public:
 			code0_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code0_num_cmds);
 			code0_cmd[0] = PIM_CMD::READ_INPUT_8COL;
 			code0_cmd[1] = PIM_CMD::WRITE_OUTPUT_8COL;
-		}
-		else if (op == (PIM_OP::BN))
-		{
+		} else if (op == (PIM_OP::BN)) {
 			code0[0] = 0b01000010000000001000000000000000;	// MOV(A)  GRF_A[A0] BANK
 			code0[1] = 0b00010000000001000000100000000111;	// JUMP    -1        7
 			code0[2] = 0b10010010000010001000000000000000;	// MUL(A)  GRF_A[A0] BANK      GRF_A[A0]
@@ -267,9 +263,7 @@ public:
 			code0_cmd[1] = PIM_CMD::READ_WEIGHT_8COL;
 			code0_cmd[2] = PIM_CMD::READ_WEIGHT_8COL;
 			code0_cmd[3] = PIM_CMD::WRITE_OUTPUT_8COL;
-		}
-		else if (op == (PIM_OP::GEMV))
-		{
+		} else if (op == (PIM_OP::GEMV)) {
 			code0[0] = 0b10100100001000001000100000000000; // MAC(A)  GRF_B[A0]  BANK      SRF_M[A0]
 			code0[1] = 0b00010000000001000000100000000111; // JUMP    -1         7
 			code0[2] = 0b00100000000000000000000000000000; // EXIT
@@ -285,9 +279,7 @@ public:
 			code1_num_cmds = 1;
 			code1_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code1_num_cmds);
 			code1_cmd[0] = PIM_CMD::WRITE_OUTPUT_1COL;
-		}
-		else if (op == (PIM_OP::LSTM))
-		{
+		} else if (op == (PIM_OP::LSTM)) {
 			code0[0] = 0b10100100001000001000100000000000; // MAC(AAM)   GRF_B[0]  BANK  SRF_M
 			code0[1] = 0b00010000000001000000100000000111; // JUMP       -1        7
 			code0[2] = 0b00100000000000000000000000000000; // EXIT
