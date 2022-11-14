@@ -39,20 +39,20 @@ void set_pim_device() {
 void set_normal_device() {
 	std::cout << " > set normal device\n";
 	
-	pim_mem = (uint8_t*)calloc(LEN_PIM, 1);
+	pim_mem = (uint8_t*)calloc(LEN_PIM, sizeof(uint8_t));
 	pim_base = (uint64_t)pim_mem;
 }
 
 void trace_and_send() {
 	std::cout << " > trace and send\n";
 
-	typedef std::chrono::high_resolution_clock Time;
-	typedef std::chrono::milliseconds ms;
-	typedef std::chrono::duration<float> fsec;
+	// typedef std::chrono::high_resolution_clock Time;
+	// typedef std::chrono::milliseconds ms;
+	// typedef std::chrono::duration<float> fsec;
 
 	buffer = (uint8_t*)calloc(128, sizeof(uint8_t));
 	
-	auto start = Time::now();
+	// auto start = Time::now();
 	while(std::getline(fm, line)) {
 		std::stringstream linestream(line);
 		int is_write;
@@ -71,7 +71,7 @@ void trace_and_send() {
 			for (int i=0; i<burstSize; i++)
 				(pim_mem + hex_addr)[i] = buffer[i];
 		} else if (is_write == 2) {  // preprocess end
-			start = Time::now();
+			// start = Time::now();
 			system("sudo m5 dumpstats");
 		} else {
 			std::cout << "This should not be done... Somethings wrong\n";
@@ -79,10 +79,10 @@ void trace_and_send() {
 	}
 	system("sudo m5 dumpstats");
 	
-	auto end = Time::now();
-	std::cout << "All trace ended\n";
-	fsec time = end - start;
-	std::cout << time.count() << "s\n";
+	// auto end = Time::now();
+	// std::cout << "All trace ended\n";
+	// fsec time = end - start;
+	// std::cout << time.count() << "s\n";
 }
 
 int main(int argc, char **argv) {
