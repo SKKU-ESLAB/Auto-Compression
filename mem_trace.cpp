@@ -36,6 +36,13 @@ void set_pim_device() {
 	pim_base = (uint64_t)pim_mem;
 }
 
+void set_normal_device() {
+	std::cout << " > set normal device\n";
+	
+	pim_mem = (uint8_t*)calloc(LEN_PIM, 1);
+	pim_base = (uint64_t)pim_mem;
+}
+
 void trace_and_send() {
 	std::cout << " > trace and send\n";
 
@@ -92,6 +99,7 @@ int main(int argc, char **argv) {
 	system("echo CPU Switched!");
 
 	set_pim_device();
+	// set_normal_device();
 
 	trace_and_send();
 
