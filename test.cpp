@@ -34,8 +34,7 @@ void test_add_blas(int option) {
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint16_t) * n);
 	uint8_t *ans = (uint8_t *)malloc(sizeof(uint16_t) * n);
 
-	for (int i = 0; i < n; i++)
-	{
+	for (int i = 0; i < n; i++)	{
 		((uint16_t *)in0)[i] = rand();
 		((uint16_t *)in1)[i] = rand();
 		((uint16_t *)ans)[i] = ((uint16_t *)in0)[i] + ((uint16_t *)in1)[i];
