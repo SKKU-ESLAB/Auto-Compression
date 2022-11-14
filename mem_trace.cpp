@@ -32,7 +32,7 @@ void set_pim_device() {
 	else
 		std::cout << "Opened /dev/PIM !\n";
 
-	pim_mem = (uint8_t*)mmap(NULL, LEN_PIM, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	pim_mem = (uint8_t*)mmap(NULL, LEN_PIM, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 	pim_base = (uint64_t)pim_mem;
 }
 
@@ -50,30 +50,22 @@ void trace_and_send() {
 	typedef std::chrono::milliseconds ms;
 	typedef std::chrono::duration<float> fsec;
 
-	std::cout << " >> DEBUG 1\n";
 	buffer = (uint8_t*)calloc(128, sizeof(uint8_t));
-	std::cout << " >> DEBUG 2\n";
 	
 	auto start = Time::now();
-	std::cout << " >> DEBUG 3\n";
 	while(std::getline(fm, line)) {
-		std::cout << " >> DEBUG 4\n";
 		std::stringstream linestream(line);
 		int is_write;
 		uint64_t hex_addr;
 
-		std::cout << " >> DEBUG 5\n";
 		linestream >> is_write >> hex_addr;
 
-		std::cout << " >> DEBUG 6\n";
 		if (is_write == 0) {  // read
 			// std::memcpy(buffer, pim_mem + hex_addr, burstSize);
-			std::cout << "read\n";
 			for (int i=0; i<burstSize; i++)
 				buffer[i] = ((uint8_t*)(pim_mem + hex_addr))[i];
 		} else if (is_write == 1) {  // write
 			// std::memcpy(pim_mem + hex_addr, buffer, burstSize);
-			std::cout << "write\n";
 			for (int i=0; i<burstSize; i++)
 				((uint8_t*)(pim_mem + hex_addr))[i] = 1;
 		} else if (is_write == 2) {  // preprocess end
@@ -82,7 +74,6 @@ void trace_and_send() {
 		} else {
 			std::cout << "This should not be done... Somethings wrong\n";
 		}
-		std::cout << " >> DEBUG 7\n";
 	}
 	system("sudo m5 dumpstats");
 	

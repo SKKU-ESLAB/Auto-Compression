@@ -72,7 +72,7 @@ void runtime_init(uint64_t num) {
 	else
 		std::cout << "Opened /dev/PIM !\n";
 
-	pim_mem = (uint8_t*)mmap(NULL, LEN_PIM, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	pim_mem = (uint8_t*)mmap(NULL, LEN_PIM, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 #else
 	pim_mem = (uint8_t *)calloc(LEN_PIM, 1); // Just for a while
 #endif
