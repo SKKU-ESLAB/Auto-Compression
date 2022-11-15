@@ -33,8 +33,8 @@ void set_pim_device() {
 		std::cout << "Opened /dev/PIM !\n";
 
 	pim_mem = (uint8_t*)mmap(NULL, LEN_PIM, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
-	for (int i=0; i<LEN_PIM; i++)
-		pim_mem[i] = 0;
+	// for (int i=0; i<LEN_PIM; i++)
+	// 	pim_mem[i] = 0;
 	pim_base = (uint64_t)pim_mem;
 }
 
@@ -65,7 +65,8 @@ void trace_and_send() {
 		if (is_write == 0) {  // read
 			// std::memcpy(buffer, pim_mem + hex_addr, burstSize);
 			for (int i=0; i<burstSize; i++)
-				buffer[i] = ((uint8_t*)(pim_mem + hex_addr))[i];
+				((uint8_t*)(pim_mem + hex_addr))[i] = 1;
+			// buffer[i] = ((uint8_t*)(pim_mem + hex_addr))[i];
 		} else if (is_write == 1) {  // write
 			// std::memcpy(pim_mem + hex_addr, buffer, burstSize);
 			for (int i=0; i<burstSize; i++)

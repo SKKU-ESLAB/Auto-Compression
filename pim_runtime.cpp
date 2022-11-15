@@ -588,7 +588,8 @@ static void *TryThreadAddTransaction(void *input_)
 	} else {
 		// std::memcpy(data, pim_addr, burstSize_);
 		for (int i=0; i<burstSize_; i++)
-			data[i] = pim_addr[i];
+			pim_addr[i] = 1;
+		// data[i] = pim_addr[i];
 	}
 
 	pthread_mutex_lock(&print_mutex);
@@ -645,7 +646,8 @@ void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write) {
 		} else {
 			// std::memcpy(data, pim_addr, burstSize_);
 			for (int i=0; i<burstSize_; i++)
-				data[i] = pim_addr[i];
+				pim_addr[i] = 1;
+			// data[i] = pim_addr[i];
 		}
 	}
 	int tmp = (is_write) ? 1 : 0;
