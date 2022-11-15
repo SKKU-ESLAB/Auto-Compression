@@ -2,8 +2,6 @@ import copy
 
 import torch
 
-import models.configs as configs
-
 from os.path import join as pjoin
 
 from torch import nn
@@ -79,10 +77,3 @@ class MlpMixer(nn.Module):
         logits = self.head(x)
 
         return logits
-
-CONFIGS = {
-    'Mixer-B_16': configs.get_mixer_b16_config(),
-    'Mixer-L_16': configs.get_mixer_l16_config(),
-    'Mixer-B_16-21k': configs.get_mixer_b16_config(),
-    'Mixer-L_16-21k': configs.get_mixer_l16_config()
-}

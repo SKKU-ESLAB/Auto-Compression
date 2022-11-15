@@ -39,14 +39,9 @@ def get_mixer_b16_tt_config(args):
     config.channels_mlp_shape = args.channels_tt_shape
     config.tt_ranks = args.tt_ranks
     return config
-    
-def get_mixer_l16_config():
-    """Returns Mixer-L/16 configuration."""
-    config = ml_collections.ConfigDict()
-    config.name = 'Mixer-L_16'
-    config.patches = ml_collections.ConfigDict({'size': (16, 16)})
-    config.hidden_dim = 1024
-    config.num_blocks = 24
-    config.tokens_mlp_dim = 512
-    config.channels_mlp_dim = 4096
-    return config
+
+
+CONFIGS = {
+    'Mixer-B_16': get_mixer_b16_config(),
+    'TT-Mixer-B_16': get_mixer_b16_config(),
+}

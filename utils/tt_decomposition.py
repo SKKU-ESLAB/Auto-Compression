@@ -80,11 +80,10 @@ class TensorTrain:
         
         norm_weights = self.weights.norm()
         norm_tt_weights = self.tt_weights.norm()
-        dist_diff = (self.weights - self.tt_weights).norm() / torch.max(norm_weights, norm_tt_weights)
+        dis_diff = torch.sqrt(torch.sum((self.weights - self.tt_weights).square()))
         direct_diff = torch.dot(self.weights.flatten(), self.tt_weights.flatten()) / (norm_tt_weights * norm_weights)
-        #direct_diff = torch.rad2deg(torch.acos(direct_diff))
         
-        print("Normalized Distance difference: {} & Direction difference: {}".format(dist_diff, direct_diff))
+        print("Distance difference: {} & Direction difference: {}".format(dis_diff, direct_diff))
 
            
         
