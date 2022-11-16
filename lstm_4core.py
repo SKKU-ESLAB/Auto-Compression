@@ -18,7 +18,9 @@ m=0
 itr=5
 
 # lstm
-if (option == '1'):
+if (option == '0'):
+    m = 1
+elif (option == '1'):
     m = 64
 elif (option == '2'):
     m = 256
