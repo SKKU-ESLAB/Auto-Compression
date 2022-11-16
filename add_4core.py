@@ -3,50 +3,51 @@ import torch
 import torch.nn as nn
 import time
 import os
+import flush_cpp as fl
 
-option = input("# words = 1: 64, 2: 256, 3: 576\nenter layer to run: ")
+option = input("1: 65536 (65K), 2: 131072 (131K), 3: 4194304 (4M)\nenter layer to run: ")
 
 print("option: ", option)
 
-torch.set_num_threads(1)
+os.system('m5 checkpoint')
+os.system('echo CPU Switched!')
+torch.set_num_threads(4)
 print("\n----lets run!----")
 
 m=0
-itr=50
-
-# lstm
+itr=5
 if (option == '1'):
-    m = 64
+    m = 65536
 elif (option == '2'):
-    m = 256
+    m = 131072
 elif (option == '3'):
-    m = 576
+    m = 4194304
 
-LSTM = torch.load('./weight/lstm.pt').eval()
-#LSTM = LSTM.type(torch.int16)
-
-print("compute: lstm layer")
-
+FC_F = torch.load('./weight/flush.pt').eval()
 avg_time = 0
+
+print("compute: add")
 print("iter\t time")
 for i in range(itr):
-    x = torch.randn(1, m, 1024)
-    h0 = torch.randn(2, m, 512)
-    c0 = torch.randn(2, m, 512)
-    #x = torch.randn(1, m, 1024).type(torch.int16)
-    #h0 = torch.randn(2, 64, 512).type(torch.int16)
-    #c0 = torch.randn(2, 64, 512).type(torch.int16)
+    in0 = torch.randn(1, m)
+    in1 = torch.randn(1, m)
 
     start = time.time() #####
-    FC_F = torch.load('./weight/flush.pt').eval()
+    os.system('m5 dumpstats')
+    """
     in_F = torch.randn(2048)
     out_F = FC_F(in_F)
+    """
+    fl.flush(in0, m*4)
+    fl.flush(in1, m*4)
+    os.system('m5 dumpstats')
     end = time.time()   #####
     print("flush\t", end-start)
 
     start = time.time() #####
-    x, (h, c) = LSTM(x, (h0, c0))
-    #x = LSTM(x)
+    os.system('m5 dumpstats')
+    out = in0 + in1;
+    os.system('m5 dumpstats')
     end = time.time()   #####
     print(i, "\t", end-start)
     avg_time = avg_time + end - start

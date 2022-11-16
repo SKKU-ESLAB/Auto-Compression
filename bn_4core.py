@@ -3,8 +3,9 @@ import torch
 import torch.nn as nn
 import time
 import os
+import flush_cpp as fl
 
-option = input("1: 65536 (65K), 2: 131072 (131K), 3: 4194304 (4M)\nenter layer to run: ")
+option = input("1: 64-1024, 2: 256-1024, 3: 576-1024\nenter layer to run: ")
 
 print("option: ", option)
 
@@ -13,38 +14,40 @@ os.system('echo CPU Switched!')
 torch.set_num_threads(4)
 print("\n----lets run!----")
 
-m=0
+l=0
+f=1024
 itr=5
 if (option == '1'):
-    m = 65536
+    l = 64
 elif (option == '2'):
-    m = 131072
+    l = 256
 elif (option == '3'):
-    m = 4194304
+    l = 576
+
+BN1d = torch.load('./weight/bn.pt').eval()
 
 FC_F = torch.load('./weight/flush.pt').eval()
 avg_time = 0
 
-print("compute: add")
+print("compute: bn1d layer")
 print("iter\t time")
 for i in range(itr):
-    in0 = torch.randn(1, m)
-    in1 = torch.randn(1, m)
+    x = torch.randn(l, f)
 
-    in0 = in0.type(torch.bfloat16)
-    in1 = in1.type(torch.bfloat16)
-    
     start = time.time() #####
     os.system('m5 dumpstats')
+    """
     in_F = torch.randn(2048)
     out_F = FC_F(in_F)
+    """
+    fl.flush(x, l*f*4)
     os.system('m5 dumpstats')
     end = time.time()   #####
     print("flush\t", end-start)
 
     start = time.time() #####
     os.system('m5 dumpstats')
-    out = in0 + in1;
+    x = BN1d(x)
     os.system('m5 dumpstats')
     end = time.time()   #####
     print(i, "\t", end-start)
