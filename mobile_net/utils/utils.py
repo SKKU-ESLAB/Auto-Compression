@@ -366,7 +366,7 @@ def replace_module_by_names(model, replaced_modules, pruning_layers):
             else:
                 helper(child)
     helper(model)
-    return model
+    return model, replaced_modules
 
 def change_threshold(m):
     if hasattr(m, "threshold"):

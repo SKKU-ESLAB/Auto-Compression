@@ -9,7 +9,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 from torch.nn import init
 import math
-from utils import MyModule, build_activation, get_same_padding, SEModule, ShuffleLayer
+from utils.utils import MyModule, build_activation, get_same_padding, SEModule, ShuffleLayer
 from binarizer import MagnitudeBinarizer, ThresholdBinarizer, TopKBinarizer
 
 

@@ -5,7 +5,7 @@
 import torch
 import torch.nn as nn
 from layers import MyModule, ZeroLayer, set_layer_from_config
-from utils import MyNetwork
+from utils.utils import MyNetwork
 
 
 class MobileInvertedResidualBlock(MyModule):
