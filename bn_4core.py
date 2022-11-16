@@ -26,7 +26,7 @@ elif (option == '3'):
 
 BN1d = torch.load('./weight/bn.pt').eval()
 
-FC_F = torch.load('./weight/flush.pt').eval()
+# FC_F = torch.load('./weight/flush.pt').eval()
 avg_time = 0
 
 print("compute: bn1d layer")

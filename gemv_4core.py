@@ -26,7 +26,7 @@ elif (option == '3'):
 
 FC = torch.load('./weight/fc'+option+'.pt').eval()
 
-FC_F = torch.load('./weight/flush.pt').eval()
+# FC_F = torch.load('./weight/flush.pt').eval()
 avg_time = 0
 
 print("compute: fc layer")

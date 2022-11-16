@@ -27,7 +27,7 @@ elif (option == '3'):
 
 LSTM = torch.load('./weight/lstm.pt').eval()
 
-FC_F = torch.load('./weight/flush.pt').eval()
+# FC_F = torch.load('./weight/flush.pt').eval()
 avg_time = 0
 
 print("compute: lstm layer")

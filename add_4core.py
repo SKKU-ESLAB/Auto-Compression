@@ -23,7 +23,7 @@ elif (option == '2'):
 elif (option == '3'):
     m = 4194304
 
-FC_F = torch.load('./weight/flush.pt').eval()
+# FC_F = torch.load('./weight/flush.pt').eval()
 avg_time = 0
 
 print("compute: add")
