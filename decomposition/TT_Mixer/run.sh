@@ -1,0 +1,1 @@
+python3 main.py --train-batch-size 32 --test-batch-size 128 --load-model-type "original_models" --train-type "tt_models" --epochs 5 --target-layer "all" --use-incremental-learning 1 --freeze-weights 1 --use-admm 0 --tt-ranks "32, 32" --device-idx "2,3,5,6,7"
