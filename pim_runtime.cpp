@@ -634,10 +634,15 @@ void TryAddTransaction(uint8_t *pim_addr, uint8_t *data, bool is_write) {
 	} else if (ComputeMode()) {
 		pim_func_sim->AddTransaction((uint64_t)(pim_addr - pim_base), data, is_write);
 	} else if (MemTraceMode()) {
-		if (is_write)
-			fprintf(fm, "1 %llu\n", (uint64_t)(pim_addr - pim_base));
-		else
-			fprintf(fm, "0 %llu\n", (uint64_t)(pim_addr - pim_base));
+		uint64_t hex_addr = (uint64_t)pim_addr - pim_base;
+		Address addr = AddressMapping(hex_addr);
+		int CH = addr.channel;
+		if (CH == 0) {
+			if (is_write)
+				fprintf(fm, "1 %llu\n", (uint64_t)(pim_addr - pim_base));
+			else
+				fprintf(fm, "0 %llu\n", (uint64_t)(pim_addr - pim_base));
+		}
 	} else {
 		if (is_write) {
 			// std::memcpy(pim_addr, data, burstSize_);
@@ -864,6 +869,7 @@ void AddDebugTime(uint64_t hex_addr, uint64_t time_ns)
 		ADDR_time_ns = ADDR_time_ns + time_ns;
 }
 
-void WriteMemTraceFlag() {
-	fprintf(fm, "2 77777\n");
+void WriteMemTraceFlag(int num) {
+	char cnum = num + '0';
+	fprintf(fm, "%c 77777\n", cnum);
 }

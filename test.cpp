@@ -27,7 +27,6 @@ void test_add_blas(int option) {
 	else if (option == 3)
 		n = 4194304;
 	else
-		n = option;
 		std::cout << "choose option in [1, 2, 3]\n";
 
 	uint8_t *in0 = (uint8_t *)malloc(sizeof(uint16_t) * n);
@@ -43,8 +42,6 @@ void test_add_blas(int option) {
 
 	if (DebugMode())
 		std::cout << "///// Preprocessing ADD BLAS... /////\n";
-
-
 
 	PIMKernel micro_kernel = PIMKernel();
 	pimblasAddPreprocess(&micro_kernel, n, &in0, &in1);

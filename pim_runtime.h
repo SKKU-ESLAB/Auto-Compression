@@ -49,7 +49,7 @@ void InitFpgaTime();
 void PrintFpgaTime();
 void AddDebugTime(uint64_t hex_addr, uint64_t time_ns);
 		
-void WriteMemTraceFlag();
+void WriteMemTraceFlag(int num);
 
 #ifdef __cplusplus
 }

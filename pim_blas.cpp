@@ -72,7 +72,7 @@ bool pimblasAddPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in0, uint8
 	*in1 = MapMemory(*in1, len * UNIT_SIZE);
 
 	if (MemTraceMode())
-		WriteMemTraceFlag();
+		WriteMemTraceFlag(2);
 
 	return true;
 }
@@ -85,7 +85,7 @@ bool pimblasMulPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in0, uint8
 	*in0 = MapMemory(*in0, len * UNIT_SIZE);
 	*in1 = MapMemory(*in1, len * UNIT_SIZE);
 	if (MemTraceMode())
-		WriteMemTraceFlag();
+		WriteMemTraceFlag(2);
 	return true;
 }
 
@@ -96,7 +96,7 @@ bool pimblasReluPreprocess(PIMKernel *micro_kernel, int len, uint8_t **in) {
 	*micro_kernel = GetMicrokernelCode(pim_op, relu_attrs);
 	*in = MapMemory(*in, len * UNIT_SIZE);
 	if (MemTraceMode())
-		WriteMemTraceFlag();
+		WriteMemTraceFlag(2);
 	return true;
 }
 
@@ -114,7 +114,7 @@ bool pimblasBn1dPreprocess(PIMKernel *micro_kernel, int len_batch, int len_featu
 	*w_add = MapMemory(*w_add, len_batch * len_feature * UNIT_SIZE);
 
 	if (MemTraceMode())
-		WriteMemTraceFlag();
+		WriteMemTraceFlag(2);
 	return true;
 }
 
@@ -139,7 +139,7 @@ bool pimblasGemvPreprocess(PIMKernel *micro_kernel, int len_in, int len_out, uin
 	*w = MapMemory(*w, len_in_ * len_out_ * UNIT_SIZE);
 
 	if (MemTraceMode())
-		WriteMemTraceFlag();
+		WriteMemTraceFlag(2);
 
 	return true;
 }
@@ -166,7 +166,7 @@ bool pimblasLstmPreprocess(PIMKernel *micro_kernel, int len_in, int len_out, uin
 	*b = MapMemory(*b, len_out_ * UNIT_SIZE);
 
 	if (MemTraceMode())
-		WriteMemTraceFlag();
+		WriteMemTraceFlag(2);
 
 	return true;
 }
@@ -221,6 +221,9 @@ bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 	}
 	ReadReg(PIM_REG::SBMR, null_ptr, 1);
 
+	if (MemTraceMode())
+		WriteMemTraceFlag(3);
+
 	ReadMem(pim_out, out, len * UNIT_SIZE);
 
 	if (DebugMode() && FpgaMode())
@@ -272,6 +275,9 @@ bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 #endif
 	ReadReg(PIM_REG::SBMR, null_ptr, 1);
 
+	if (MemTraceMode())
+		WriteMemTraceFlag(3);
+	
 	ReadMem(pim_out, out, len * UNIT_SIZE);
 
 	if (DebugMode() && FpgaMode())
@@ -312,6 +318,9 @@ bool pim_relu(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *out) {
 	}
 	ReadReg(PIM_REG::SBMR, null_ptr, 1);
 
+	if (MemTraceMode())
+		WriteMemTraceFlag(3);
+	
 	ReadMem(pim_out, out, len * UNIT_SIZE);
 
 	return 1;
@@ -393,6 +402,9 @@ bool pim_bn1d(PIMKernel micro_kernel, int len_batch, int len_feature, uint8_t *i
 #endif
 	ReadReg(PIM_REG::SBMR, null_ptr, 1);
 
+	if (MemTraceMode())
+		WriteMemTraceFlag(3);
+	
 	ReadMem(pim_out, out, len_batch * len_feature * UNIT_SIZE);
 
 	if (DebugMode() && FpgaMode())
@@ -480,6 +492,9 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 
 	ReadReg(PIM_REG::SBMR, null_ptr, WORD_SIZE);
 
+	if (MemTraceMode())
+		WriteMemTraceFlag(3);
+	
 	ReadMem(pim_out, out, len_out * UNIT_SIZE);
 
 	if (DebugMode() && FpgaMode())
@@ -570,6 +585,9 @@ bool pim_lstm(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 	}
 	ReadReg(PIM_REG::SBMR, null_ptr, WORD_SIZE);
 
+	if (MemTraceMode())
+		WriteMemTraceFlag(3);
+	
 	ReadMem(pim_out, out, len_out * UNIT_SIZE);
 
 	if (DebugMode() && FpgaMode())
