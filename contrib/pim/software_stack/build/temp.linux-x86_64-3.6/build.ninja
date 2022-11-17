@@ -1,0 +1,27 @@
+ninja_required_version = 1.3
+cxx = c++
+
+cflags = -pthread -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -I/home/kkm0411/.local/lib/python3.6/site-packages/torch/include -I/home/kkm0411/.local/lib/python3.6/site-packages/torch/include/torch/csrc/api/include -I/home/kkm0411/.local/lib/python3.6/site-packages/torch/include/TH -I/home/kkm0411/.local/lib/python3.6/site-packages/torch/include/THC -I/usr/include/python3.6m -c
+post_cflags = -DTORCH_API_INCLUDE_EXTENSION_H '-DPYBIND11_COMPILER_TYPE="_gcc"' '-DPYBIND11_STDLIB="_libstdcpp"' '-DPYBIND11_BUILD_ABI="_cxxabi1011"' -DTORCH_EXTENSION_NAME=pim_cpp -D_GLIBCXX_USE_CXX11_ABI=0 -std=c++14
+ldflags = 
+
+rule compile
+  command = $cxx -MMD -MF $out.d $cflags -c $in -o $out $post_cflags
+  depfile = $out.d
+  deps = gcc
+
+
+
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/pim.o: compile /home/kkm0411/PIM_SoftwareStack/pim.cpp
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/pim_blas.o: compile /home/kkm0411/PIM_SoftwareStack/pim_blas.cpp
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/pim_runtime.o: compile /home/kkm0411/PIM_SoftwareStack/pim_runtime.cpp
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/pim_config.o: compile /home/kkm0411/PIM_SoftwareStack/pim_config.cpp
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/pim_func_sim/pim_func_sim.o: compile /home/kkm0411/PIM_SoftwareStack/pim_func_sim/pim_func_sim.cc
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/pim_func_sim/pim_unit.o: compile /home/kkm0411/PIM_SoftwareStack/pim_func_sim/pim_unit.cc
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/pim_func_sim/pim_utils.o: compile /home/kkm0411/PIM_SoftwareStack/pim_func_sim/pim_utils.cc
+build /home/kkm0411/PIM_SoftwareStack/build/temp.linux-x86_64-3.6/../fpga_pim.o: compile /home/kkm0411/fpga_pim.c
+
+
+
+
+
