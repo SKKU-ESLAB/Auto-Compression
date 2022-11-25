@@ -1,0 +1,74 @@
+#model Arch config
+model: models.gp_mobilenet_v2
+width_mult: 1.00
+#density_list : [1.0, 0.3, 0.2, 0.1]
+density_list : [1.0, 0.975, 0.950, 0.925, 0.900, 0.875, 0.850, 0.825, 0.800, 0.775, 0.750, 0.725, 0.700, 0.675, 0.650, 0.625, 0.600, 0.575, 0.550, 0.525, 0.500, 0.475, 0.450, 0.425, 0.400, 0.375, 0.350, 0.325, 0.300, 0.275, 0.250, 0.225, 0.200, 0.175, 0.150, 0.125, 0.100]
+#density_list : [1.0, 0.400, 0.375, 0.350, 0.325, 0.300, 0.275, 0.250, 0.225, 0.200, 0.175, 0.150]
+density_mult: 1.00
+DL: 0.1
+DH: 1.0
+BS_R: 2
+BS_C: 1
+
+#seed
+random_seed: 0
+
+gradient_accum: 1
+# data info - dataset
+dataset: imagenet1k_basic
+data_transforms: imagenet1k_mobile
+data_loader: imagenet1k_basic
+dataset_dir: /data/imagenet
+image_size: 224
+num_classes: 1000
+reset_parameters: True
+# data norm - recepi
+normalize: True
+mean: [0.507, 0.4865, 0.4409]
+std: [0.2673, 0.2564, 0.2761]
+
+#data info - dataloader (batch size / )
+batch_size: 2048
+drop_last: True
+data_loader_workers: 8
+
+#optimizer
+optimizer: sgd
+lr: 2.0
+lr_scheduler: cosine_decaying
+lr_warmup: False
+momentum: 0.9
+nesterov: True
+weight_decay: 4.0e-5
+lr_warmup_epochs: 0
+num_epochs: 350
+
+# phase
+calibrate_bn: False
+test_only: False
+
+# Wrapper
+dataparallel: True
+distributed: False
+
+# model pre-trained
+#pretrained: gp_resnet_DH1.0_07_19_DL1.0_W0.5_local_1x2
+pretrained_model_remap_keys: False
+
+#profiling
+profiling: False
+profiling_only: False
+profiling_verbose: False
+
+# Training
+IPKD: True
+num_samples_training: 4
+pruner: global_normal
+DST_TRAIN: True
+DENSE_TEACHER: True
+
+# no batch norm calibration
+track_running_stats: False
+cumulative_bn_stats: False
+bn_cal_batch_num: 390
+

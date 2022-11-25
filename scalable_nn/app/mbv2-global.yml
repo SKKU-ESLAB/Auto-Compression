@@ -1,0 +1,75 @@
+#model Arch config
+model: models.gp_mobilenet_v2
+width_mult: 1.0
+density_list : [1.0, 0.5, 0.45, 0.4, 0.35, 0.3, 0.25]
+density_mult: 1.0
+DL: 0.25
+DH: 1.0
+BS_R: 1
+BS_C: 2
+
+#seed
+random_seed: 0
+
+# data info - dataset
+dataset: CIFAR100
+data_transforms: cifar
+data_loader: cifar
+dataset_dir: /home/hayun/data
+image_size: 32
+num_classes: 100
+
+# data norm - recepi
+normalize: True
+mean: [0.507, 0.4865, 0.4409]
+std: [0.2673, 0.2564, 0.2761]
+
+#data info - dataloader (batch size / )
+batch_size: 256
+drop_last: True
+data_loader_workers: 4
+
+#optimizer
+optimizer: sgd
+lr: 0.1
+lr_scheduler: cosine_decaying
+lr_warmup: False
+momentum: 0.9
+nesterov: True
+weight_decay: 0.0005
+lr_warmup_epochs: 0
+num_epochs: 200
+
+# phase
+<<<<<<< HEAD
+calibrate_bn: True
+=======
+calibrate_bn: False
+>>>>>>> db5c362e0cd0ff9844f9661674f5679681b5ee06
+test_only: True
+
+# Wrapper
+dataparallel: False
+distributed: False
+
+# model pre-trained
+pretrained: False
+pretrained_model_remap_keys: False
+
+#profiling
+profiling: False
+profiling_only: False
+profiling_verbose: False
+
+# Training
+IPKD: True
+num_samples_training: 4
+pruner: global
+DST_TRAIN: True
+DENSE_TEACHER: True
+
+# no batch norm calibration
+track_running_stats: True
+cumulative_bn_stats: True
+bn_cal_batch_num: 200
+
