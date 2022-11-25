@@ -1,0 +1,12 @@
+Model: foo
+width_mult: 1.0
+BS_R: 1
+BS_C: 2
+density_list: [1.0, 0.7, 0.8, 0.9]
+DL: 0.9
+DH: 1.0
+pruner: local
+DENSE_TEACHER: true
+track_running_stats: false
+cumulative_bn_stats: true
+
