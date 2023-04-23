@@ -13,6 +13,7 @@ import torch.optim
 import torch.multiprocessing as mp
 import torch.utils.data
 import torchvision.models as models
+import numpy as np
 
 from models.mobilenet_v1 import MobileNetV1
 import math
