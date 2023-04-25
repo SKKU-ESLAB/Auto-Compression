@@ -121,6 +121,20 @@ def cosine_warmup_adjust_learning_rate(args, optimizer, T_total, nBatch, epoch, 
 
 def main():
     args = parser.parse_args()
+    groups = f"{args.arch}_{args.width_mult}_ts{args.target_sparsity}_admm{args.admm_epochs}_ft{args.ft_epochs}_v{args.vector_size}"
+    if args.unaligned:
+        groups = groups + "_u"
+    else:
+        groups = groups + "_a"
+    if args.cp:
+        groups = groups + "_cp"
+    if args.repeat:
+        groups = groups + "_repeat"
+    if args.cp_ft:
+        groups = groups + "_cpft"
+    args.name = groups
+    wandb.init(project="UVP", name=groups)
+    wandb.config.update(args)
 
     if args.seed is not None:
         random.seed(args.seed)
