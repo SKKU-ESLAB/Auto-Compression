@@ -59,7 +59,7 @@ parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
                     help='evaluate model on validation set')
 parser.add_argument('--pretrained', dest='pretrained', action='store_true',
                     help='use pre-trained model')
-parser.add_argument('--seed', default=None, type=int,
+parser.add_argument('--seed', default=42, type=int,
                     help='seed for initializing training. ')
 parser.add_argument('--gpu', default=None, type=int,
                     help='GPU id to use.')
@@ -124,14 +124,14 @@ def main():
     wandb.config.update(args)
 
     if args.seed is not None:
+        np.random.seed(args.seed)
         random.seed(args.seed)
         torch.manual_seed(args.seed)
+        torch.cuda.manual_seed(args.seed)
+        torch.cuda.manual_seed_all(args.seed)
         cudnn.deterministic = True
-        warnings.warn('You have chosen to seed training. '
-                      'This will turn on the CUDNN deterministic setting, '
-                      'which can slow down your training considerably! '
-                      'You may see unexpected behavior when restarting '
-                      'from checkpoints.')
+        cudnn.benchmark = False
+        os.environ["PYTHONHASHSEED"] = str(args.seed)
 
     if args.gpu is not None:
         warnings.warn('You have chosen a specific GPU. This will completely '
