@@ -149,7 +149,12 @@ def main():
         elif args.dataset == "cifar10":
             num_classes = 10
             input_size = 32
-        model = MobileNetV1(num_classes=num_classes, input_size=input_size, width_mult=args.width_mult)
+        elif args.dataset == "cifar100":
+            num_classes = 100
+            input_size = 32
+        model = MobileNetV1(num_classes=num_classes,
+                            input_size=input_size,
+                            width_mult=args.width_mult)
     else:
         if args.pretrained:
             print("=> using pre-trained model '{}'".format(args.arch))
