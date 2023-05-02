@@ -155,6 +155,9 @@ def main():
         model = MobileNetV1(num_classes=num_classes,
                             input_size=input_size,
                             width_mult=args.width_mult)
+
+    elif args.arch == "mobilenet_v2":
+        model = models.mobilenet_v2(width_mult=args.width_mult, dropout=0.0)
     else:
         if args.pretrained:
             print("=> using pre-trained model '{}'".format(args.arch))
@@ -177,11 +180,12 @@ def main():
             model = torch.nn.DataParallel(model).cuda()
 
     # define loss function (criterion) and optimizer
-    criterion = nn.CrossEntropyLoss().cuda(args.gpu)
+    criterion = nn.CrossEntropyLoss(label_smoothing=0.1).cuda(args.gpu)
 
     optimizer = torch.optim.SGD(model.parameters(), args.lr,
                                 momentum=args.momentum,
-                                weight_decay=args.weight_decay)
+                                weight_decay=args.weight_decay,
+                                nesterov=True)
 
     mask = None
     if args.pretrained_load:
