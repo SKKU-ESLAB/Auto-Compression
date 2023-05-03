@@ -234,74 +234,7 @@ def main():
 
     cudnn.benchmark = True
 
-    # Data loading code
-    if args.dataset == "imagenet":
-        traindir = os.path.join(args.data, 'train')
-        valdir = os.path.join(args.data, 'val')
-        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225])
-
-        train_dataset = datasets.ImageFolder(
-                traindir,
-                transforms.Compose([
-                    transforms.RandomResizedCrop(224),
-                    transforms.RandomHorizontalFlip(),
-                    transforms.ToTensor(),
-                    normalize,
-                    ]))
-
-        if args.distributed:
-            train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
-        else:
-            train_sampler = None
-
-        train_loader = torch.utils.data.DataLoader(
-                train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
-                num_workers=args.workers, pin_memory=True, sampler=train_sampler)
-
-        val_loader = torch.utils.data.DataLoader(
-                datasets.ImageFolder(valdir, transforms.Compose([
-                    transforms.Resize(256),
-                    transforms.CenterCrop(224),
-                    transforms.ToTensor(),
-                    normalize,
-                    ])),
-                batch_size=args.batch_size, shuffle=False,
-                num_workers=args.workers, pin_memory=True)
-    elif args.dataset == "cifar10":
-        normalize = transforms.Normalize(mean=[0.4914, 0.4822, 0.4465],
-                std=[0.2470, 0.2435, 0.2612])
-
-        train_dataset = datasets.CIFAR10(
-                args.data,
-                train=True,
-                transform=transforms.Compose([
-                    transforms.RandomCrop(32, padding=4),
-                    transforms.RandomHorizontalFlip(),
-                    transforms.ToTensor(),
-                    normalize,
-                    ]))
-
-        val_dataset = datasets.CIFAR10(
-                args.data,
-                train=False,
-                transform=transforms.Compose([
-                    transforms.ToTensor(),
-                    normalize,
-                    ]))
-
-        if args.distributed:
-            train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
-        else:
-            train_sampler = None
-
-        train_loader = torch.utils.data.DataLoader(
-                train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
-                num_workers=args.workers, pin_memory=True, sampler=train_sampler)
-
-        val_loader = torch.utils.data.DataLoader(
-                val_dataset, batch_size=args.batch_size, shuffle=False,
-                num_workers=args.workers, pin_memory=True)
+    train_loader, val_loader = get_dataset(args)
 
     if args.evaluate:
         validate(val_loader, model, criterion, args)
@@ -321,10 +254,11 @@ def main():
     for epoch in range(admm_epoch, args.admm_epochs):
         # train for one epoch
         train_log = admm_train(train_loader, model, criterion, optimizer, epoch, args, Z, U, scaler)
-        X = update_X(model)
-        Z = update_Z_l1(X, U, args) if args.admm_l1 else update_Z(X, U, args)
+        X = update_X(model, args)
+        Z, score_diff_dict = update_Z(X, U, args, perm_list, args.repeat)
         U = update_U(U, X, Z)
-        print_convergence(model, X, Z)
+        if args.repeat:
+            print(score_diff_dict)
 
         # evaluate on validation set
         acc1 = validate(val_loader, model, criterion, args)
