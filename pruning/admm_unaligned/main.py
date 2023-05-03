@@ -307,8 +307,14 @@ def main():
         validate(val_loader, model, criterion, args)
         return
 
-    if args.admm:
-        Z, U = initialize_Z_and_U(model, args)
+    if perm_list is None:
+        perm_list = initialize_perm_list(model, args)
+
+    Z, U = initialize_Z_and_U(model, args)
+    X = update_X(model, args)
+    Z, score_diff_dict = update_Z(X, U, args, perm_list, args.cp)
+    U = update_U(U, X, Z)
+    print(score_diff_dict)
 
     for epoch in range(args.start_epoch, args.epochs):
 
