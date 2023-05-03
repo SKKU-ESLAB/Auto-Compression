@@ -187,21 +187,26 @@ def main():
                                 weight_decay=args.weight_decay,
                                 nesterov=True)
 
+    if args.pretrained:
+        pretrained_model = f"{args.arch}_{args.width_mult}.pth.tar"
+        if not os.path.isfile(pretrained_model):
+            get_pretrained_model(args.arch, args.width_mult)
+        print("=> loading checkpoint '{}'".format(pretrained_model))
+        if args.gpu is None:
+            checkpoint = torch.load(pretrained_model)
+        else:
+            # Map model to be loaded to specified single gpu.
+            loc = 'cuda:{}'.format(args.gpu)
+            checkpoint = torch.load(pretrained_model, map_location=loc)
+        model.load_state_dict(checkpoint['state_dict'])
+
+    if not os.path.isdir(args.name):
+        os.makedirs(args.name)
+
+    admm_epoch = 0
+    ft_epoch = 0
+    perm_list = None
     mask = None
-    if args.pretrained_load:
-        if os.path.isfile(args.pretrained_load):
-            print("=> loading checkpoint '{}'".format(args.pretrained_load))
-            if args.gpu is None:
-                checkpoint = torch.load(args.pretrained_load)
-            else:
-                # Map model to be loaded to specified single gpu.
-                loc = 'cuda:{}'.format(args.gpu)
-                checkpoint = torch.load(args.pretrained_load, map_location=loc)
-            model.load_state_dict(checkpoint['state_dict'])
-
-            if args.finetune:
-                mask = checkpoint['mask']
-
     # optionally resume from a checkpoint
     if args.resume:
         if os.path.isfile(args.resume):
@@ -212,15 +217,18 @@ def main():
                 # Map model to be loaded to specified single gpu.
                 loc = 'cuda:{}'.format(args.gpu)
                 checkpoint = torch.load(args.resume, map_location=loc)
-            args.start_epoch = checkpoint['epoch']
+            admm_epoch = checkpoint['admm_epoch']
+            ft_epoch = checkpoint['ft_epoch']
             best_acc1 = checkpoint['best_acc1']
+            perm_list = checkpoint['perm_list']
+            mask = checkpoint['mask']
             if args.gpu is not None:
                 # best_acc1 may be from a checkpoint from a different GPU
                 best_acc1 = best_acc1.to(args.gpu)
             model.load_state_dict(checkpoint['state_dict'])
             optimizer.load_state_dict(checkpoint['optimizer'])
             print("=> loaded checkpoint '{}' (epoch {})"
-                    .format(args.resume, checkpoint['epoch']))
+                  .format(args.resume, checkpoint['epoch']))
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
 
