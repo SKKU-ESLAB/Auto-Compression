@@ -316,19 +316,15 @@ def main():
     U = update_U(U, X, Z)
     print(score_diff_dict)
 
-    for epoch in range(args.start_epoch, args.epochs):
+    scaler = torch.cuda.amp.GradScaler()
 
+    for epoch in range(admm_epoch, args.admm_epochs):
         # train for one epoch
-        if args.finetune:
-            finetune(train_loader, model, criterion, optimizer, epoch, args, mask)
-        elif args.admm:
-            admm_train(train_loader, model, criterion, optimizer, epoch, args, Z, U)
-            X = update_X(model)
-            Z = update_Z_l1(X, U, args) if args.admm_l1 else update_Z(X, U, args)
-            U = update_U(U, X, Z)
-            print_convergence(model, X, Z)
-        else:
-            train(train_loader, model, criterion, optimizer, epoch, args)
+        train_log = admm_train(train_loader, model, criterion, optimizer, epoch, args, Z, U, scaler)
+        X = update_X(model)
+        Z = update_Z_l1(X, U, args) if args.admm_l1 else update_Z(X, U, args)
+        U = update_U(U, X, Z)
+        print_convergence(model, X, Z)
 
         # evaluate on validation set
         acc1 = validate(val_loader, model, criterion, args)
@@ -422,8 +418,9 @@ def admm_train(train_loader, model, criterion, optimizer, epoch, args, Z, U):
 
         # compute gradient and do SGD step
         optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
 
         # measure elapsed time
         batch_time.update(time.time() - end)
@@ -433,7 +430,8 @@ def admm_train(train_loader, model, criterion, optimizer, epoch, args, Z, U):
             progress.display(i)
 
 
-def finetune(train_loader, model, criterion, optimizer, epoch, args, mask):
+
+def finetune(train_loader, model, criterion, optimizer, epoch, args, mask, scaler):
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
@@ -480,9 +478,9 @@ def finetune(train_loader, model, criterion, optimizer, epoch, args, mask):
 
         # compute gradient and do SGD step
         optimizer.zero_grad()
-        loss.backward()
-        prune_with_mask(model, mask)
-        optimizer.step()
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
 
         # measure elapsed time
         batch_time.update(time.time() - end)
@@ -491,7 +489,7 @@ def finetune(train_loader, model, criterion, optimizer, epoch, args, mask):
         if i % args.print_freq == 0:
             progress.display(i)
 
-def train(train_loader, model, criterion, optimizer, epoch, args):
+def train(train_loader, model, criterion, optimizer, epoch, args, scaler):
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
@@ -538,8 +536,9 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
 
         # compute gradient and do SGD step
         optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
 
         # measure elapsed time
         batch_time.update(time.time() - end)
