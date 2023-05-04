@@ -261,6 +261,24 @@ def main():
             print(score_diff_dict)
 
         # evaluate on validation set
+        acc1, val_log = validate(val_loader, model, criterion, args)
+
+        wandb.log({**train_log, **val_log, **score_diff_dict}, step=epoch+1)
+
+        save_checkpoint({
+            'admm_epoch': epoch + 1,
+            'ft_epoch': 0,
+            'arch': args.arch,
+            'state_dict': model.state_dict(),
+            'best_acc1': best_acc1,
+            'optimizer': optimizer.state_dict(),
+            'perm_list': perm_list,
+            'mask': None,
+        }, False, dirs=args.name, filename="admm.pth.tar")
+
+    if mask is None:
+        mask = apply_prune(model, args, perm_list)
+        print_prune(model, args)
         acc1 = validate(val_loader, model, criterion, args)
 
         # remember best acc@1 and save checkpoint
