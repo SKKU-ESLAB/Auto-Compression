@@ -319,15 +319,17 @@ def main():
         }, is_best, dirs=args.name, filename='finetune.pth.tar')
         print("Best accuracy: {:.3f}".format(best_acc1.item()))
 
-def admm_train(train_loader, model, criterion, optimizer, epoch, args, Z, U):
+def admm_train(train_loader, model, criterion, optimizer, epoch, args, Z, U, scaler):
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
+    cls_losses = AverageMeter('cls_Loss', ':.4e')
+    admm_losses = AverageMeter('admm_Loss', ':.4e')
     top1 = AverageMeter('Acc@1', ':6.2f')
     top5 = AverageMeter('Acc@5', ':6.2f')
     progress = ProgressMeter(
         len(train_loader),
-        [batch_time, data_time, losses, top1, top5],
+        [batch_time, data_time, losses, cls_losses, admm_losses, top1, top5],
         prefix="Epoch: [{}]".format(epoch))
 
     # switch to train mode
@@ -355,13 +357,17 @@ def admm_train(train_loader, model, criterion, optimizer, epoch, args, Z, U):
             target = target.cuda(args.gpu, non_blocking=True)
 
         # compute output
-        output = model(images)
-        #loss = criterion(output, target)
-        loss = admm_loss(args, criterion, model, Z, U, output, target)
+        with torch.cuda.amp.autocast():
+            output = model(images)
+            cls_loss = criterion(output, target)
+            admm_loss = get_admm_loss(args, model, Z, U)
+            loss = cls_loss + admm_loss
 
         # measure accuracy and record loss
         acc1, acc5 = accuracy(output, target, topk=(1, 5))
         losses.update(loss.item(), images.size(0))
+        cls_losses.update(cls_loss.item(), images.size(0))
+        admm_losses.update(admm_loss.item(), images.size(0))
         top1.update(acc1[0], images.size(0))
         top5.update(acc5[0], images.size(0))
 
