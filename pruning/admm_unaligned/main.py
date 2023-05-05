@@ -281,46 +281,43 @@ def main():
         print_prune(model, args)
         acc1 = validate(val_loader, model, criterion, args)
 
+        save_checkpoint({
+            'admm_epoch': args.admm_epochs,
+            'ft_epoch': 0,
+            'arch': args.arch,
+            'state_dict': model.state_dict(),
+            'best_acc1': best_acc1,
+            'optimizer': optimizer.state_dict(),
+            'perm_list': perm_list,
+            'mask': mask,
+        }, False, dirs=args.name, filename="post_admm.pth.tar")
+
+    # finetuning stage
+    best_acc1 = 0
+    optimizer.param_groups[0]['weight_decay'] = 0.
+    for epoch in range(ft_epoch, args.ft_epochs):
+        # train for one epoch
+        train_log = finetune(train_loader, model, criterion, optimizer, epoch, args, mask, scaler)
+
+        # evaluate on validation set
+        acc1, val_log = validate(val_loader, model, criterion, args)
+
         # remember best acc@1 and save checkpoint
         is_best = acc1 > best_acc1
         best_acc1 = max(acc1, best_acc1)
 
-        if not args.multiprocessing_distributed or (args.multiprocessing_distributed
-                and args.rank % ngpus_per_node == 0):
-            if args.finetune:
-                save_checkpoint({
-                    'epoch': epoch + 1,
-                    'arch': args.arch,
-                    'state_dict': model.state_dict(),
-                    'best_acc1': best_acc1,
-                    'optimizer' : optimizer.state_dict(),
-                    'mask': mask,
-                }, is_best, filename='postfinetune.pth.tar')
-            else:
-                save_checkpoint({
-                    'epoch': epoch + 1,
-                    'arch': args.arch,
-                    'state_dict': model.state_dict(),
-                    'best_acc1': best_acc1,
-                    'optimizer' : optimizer.state_dict(),
-                }, is_best)
 
-    if args.admm:
-        mask = apply_prune(model, args)
-        print_prune(model)
-        acc1 = validate(val_loader, model, criterion, args)
-
-        if not args.multiprocessing_distributed or (args.multiprocessing_distributed
-                and args.rank % ngpus_per_node == 0):
-            save_checkpoint({
-                'epoch': epoch + 1,
-                'arch': args.arch,
-                'state_dict': model.state_dict(),
-                'best_acc1': best_acc1,
-                'optimizer' : optimizer.state_dict(),
-                'mask': mask,
-            }, False, filename="postadmm.pth.tar")
-
+        save_checkpoint({
+            'admm_epoch': args.admm_epochs,
+            'ft_epoch': epoch + 1,
+            'arch': args.arch,
+            'state_dict': model.state_dict(),
+            'best_acc1': best_acc1,
+            'optimizer': optimizer.state_dict(),
+            'perm_list': perm_list,
+            'mask': mask,
+        }, is_best, dirs=args.name, filename='finetune.pth.tar')
+        print("Best accuracy: {:.3f}".format(best_acc1.item()))
 
 def admm_train(train_loader, model, criterion, optimizer, epoch, args, Z, U):
     batch_time = AverageMeter('Time', ':6.3f')
