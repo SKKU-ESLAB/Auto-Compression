@@ -337,16 +337,6 @@ def admm_train(train_loader, model, criterion, optimizer, epoch, args, Z, U, sca
 
     end = time.time()
     for i, (images, target) in enumerate(train_loader):
-        if args.lr_scheduler == 'cosine':
-            nBatch = len(train_loader)
-            if epoch < args.warmup_epochs:
-                new_lr = cosine_warmup_adjust_learning_rate(
-                    args, optimizer, args.warmup_epochs * nBatch, nBatch, epoch, i, args.warmup_lr
-                )
-            else:
-                new_lr = cosine_adjust_learning_rate(
-                    args, optimizer, epoch - args.warmup_epochs, i, nBatch
-                )
 
         # measure data loading time
         data_time.update(time.time() - end)
