@@ -306,6 +306,7 @@ def main():
         is_best = acc1 > best_acc1
         best_acc1 = max(acc1, best_acc1)
 
+        wandb.log({**train_log, **val_log}, step=args.admm_epochs+epoch+1)
 
         save_checkpoint({
             'admm_epoch': args.admm_epochs,
@@ -374,6 +375,15 @@ def admm_train(train_loader, model, criterion, optimizer, epoch, args, Z, U, sca
         if i % args.print_freq == 0:
             progress.display(i)
 
+    log_dict = {
+        "lr": optimizer.param_groups[0]['lr'],
+        "train_loss": losses.avg,
+        "admm_cls_loss": cls_losses.avg,
+        "admm_admm_loss": admm_losses.avg,
+        "train_top1": top1.avg,
+        "train_top5": top5.avg,
+    }
+    return log_dict
 
 
 def finetune(train_loader, model, criterion, optimizer, epoch, args, mask, scaler):
@@ -434,6 +444,15 @@ def finetune(train_loader, model, criterion, optimizer, epoch, args, mask, scale
         if i % args.print_freq == 0:
             progress.display(i)
 
+    log_dict = {
+        "lr": optimizer.param_groups[0]['lr'],
+        "train_loss": losses.avg,
+        "train_top1": top1.avg,
+        "train_top5": top5.avg,
+    }
+    return log_dict
+
+
 def train(train_loader, model, criterion, optimizer, epoch, args, scaler):
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
@@ -492,6 +511,14 @@ def train(train_loader, model, criterion, optimizer, epoch, args, scaler):
         if i % args.print_freq == 0:
             progress.display(i)
 
+    log_dict = {
+        "lr": optimizer.param_groups[0]['lr'],
+        "train_loss": losses.avg,
+        "train_top1": top1.avg,
+        "train_top5": top5.avg,
+    }
+    return log_dict
+
 
 def validate(val_loader, model, criterion, args):
     batch_time = AverageMeter('Time', ':6.3f')
@@ -535,7 +562,13 @@ def validate(val_loader, model, criterion, args):
         print(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'
               .format(top1=top1, top5=top5))
 
-    return top1.avg
+    log_dict = {
+        "val_loss": losses.avg,
+        "val_top1": top1.avg,
+        "val_top5": top5.avg,
+    }
+
+    return top1.avg, log_dict
 
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
