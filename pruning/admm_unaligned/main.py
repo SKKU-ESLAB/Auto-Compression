@@ -86,19 +86,22 @@ parser.add_argument('--rho', default=1e-2, type=float)
 best_acc1 = 0
 
 
-def cosine_calc_learning_rate(args, epoch, batch=0, nBatch=None):
-    T_total = args.epochs * nBatch
+def cosine_calc_learning_rate(args, total_epochs, epoch, batch=0, nBatch=None):
+    T_total = total_epochs * nBatch
     T_cur = epoch * nBatch + batch
     lr = 0.5 * args.lr * (1 + math.cos(math.pi * T_cur / T_total))
     return lr
 
-def cosine_adjust_learning_rate(args, optimizer, epoch, batch=0, nBatch=None):
-    new_lr = cosine_calc_learning_rate(args, epoch, batch, nBatch)
+
+def cosine_adjust_learning_rate(args, optimizer, total_epochs, epoch, batch=0, nBatch=None):
+    new_lr = cosine_calc_learning_rate(args, total_epochs, epoch, batch, nBatch)
     for param_group in optimizer.param_groups:
         param_group['lr'] = new_lr
     return new_lr
 
-def cosine_warmup_adjust_learning_rate(args, optimizer, T_total, nBatch, epoch, batch=0, warmup_lr=0):
+
+def cosine_warmup_adjust_learning_rate(args, optimizer, T_total, nBatch, epoch,
+                                       batch=0, warmup_lr=0):
     T_cur = epoch * nBatch + batch + 1
     new_lr = T_cur / T_total * (args.lr - warmup_lr) + warmup_lr
     for param_group in optimizer.param_groups:
@@ -405,13 +408,12 @@ def finetune(train_loader, model, criterion, optimizer, epoch, args, mask, scale
         if args.lr_scheduler == 'cosine':
             nBatch = len(train_loader)
             if epoch < args.warmup_epochs:
-                new_lr = cosine_warmup_adjust_learning_rate(
-                    args, optimizer, args.warmup_epochs * nBatch, nBatch, epoch, i, args.warmup_lr
-                )
+                cosine_warmup_adjust_learning_rate(
+                    args, optimizer, args.warmup_epochs * nBatch, nBatch,
+                    epoch, i, args.warmup_lr)
             else:
-                new_lr = cosine_adjust_learning_rate(
-                    args, optimizer, epoch - args.warmup_epochs, i, nBatch
-                )
+                cosine_adjust_learning_rate(
+                    args, optimizer, args.ft_epochs, epoch - args.warmup_epochs, i, nBatch)
 
         # measure data loading time
         data_time.update(time.time() - end)
@@ -472,13 +474,12 @@ def train(train_loader, model, criterion, optimizer, epoch, args, scaler):
         if args.lr_scheduler == 'cosine':
             nBatch = len(train_loader)
             if epoch < args.warmup_epochs:
-                new_lr = cosine_warmup_adjust_learning_rate(
-                    args, optimizer, args.warmup_epochs * nBatch, nBatch, epoch, i, args.warmup_lr
-                )
+                cosine_warmup_adjust_learning_rate(
+                    args, optimizer, args.warmup_epochs * nBatch,
+                    nBatch, epoch, i, args.warmup_lr)
             else:
-                new_lr = cosine_adjust_learning_rate(
-                    args, optimizer, epoch - args.warmup_epochs, i, nBatch
-                )
+                cosine_adjust_learning_rate(
+                    args, optimizer, args.ft_epochs, epoch - args.warmup_epochs, i, nBatch)
 
         # measure data loading time
         data_time.update(time.time() - end)
@@ -620,7 +621,7 @@ class ProgressMeter(object):
 
 def adjust_learning_rate(optimizer, epoch, args):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
-    lr = args.lr * (0.1 ** (epoch // 30))
+    lr = args.lr
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 
