@@ -77,6 +77,17 @@ parser.add_argument('--target-sparsity', default=0.8, type=float)
 parser.add_argument('--rho', default=0.001, type=float)
 parser.add_argument('--group-norm', default='l1', choices=['l1', 'l2'])
 
+parser.add_argument('--cp-alpha', default=0.1, type=float)
+parser.add_argument('--cp-beta', default=0.8, type=float)
+
+parser.add_argument('--name', default="mobilenet_v1", type=str)
+parser.add_argument('--admm-epochs', default=100, type=int)
+parser.add_argument('--ft-epochs', default=100, type=int)
+parser.add_argument('--cp', dest='cp', action='store_true')
+parser.add_argument('--repeat', dest='repeat', action='store_true')
+
+parser.add_argument('--cp-ft', dest='cp_ft', action='store_true')
+
 
 best_acc1 = 0
 
