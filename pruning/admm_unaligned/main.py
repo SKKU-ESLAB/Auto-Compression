@@ -68,19 +68,14 @@ parser.add_argument('--gpu', default=None, type=int,
 parser.add_argument('--dataset', default='imagenet', type=str)
 parser.add_argument('--lr-scheduler', default='multistep', type=str)
 parser.add_argument('--warmup-epochs', default=0, type=int)
-parser.add_argument('--warmup-lr', default=0, type=int)
-parser.add_argument('--pretrained-load', default='', type=str, metavar='PATH')
-parser.add_argument('--block-size', default=1, type=int)
+parser.add_argument('--warmup-lr', default=0, type=float)
+parser.add_argument('--vector-size', default=1, type=int)
 parser.add_argument('--unaligned', dest='unaligned', action='store_true')
-parser.add_argument('--admm', dest='admm', action='store_true')
-parser.add_argument('--finetune', dest='finetune', action='store_true')
 parser.add_argument('--width-mult', default=1.0, type=float)
-parser.add_argument('--min-sparsity', default=0.7, type=float)
 parser.add_argument('--sparsity-method', default='gt', choices=['gt', 'uniform'])
 parser.add_argument('--target-sparsity', default=0.8, type=float)
-parser.add_argument('--unaligned-score', dest='unaligned_score', action='store_true')
-parser.add_argument('--admm-l1', dest='admm_l1', action='store_true')
-parser.add_argument('--rho', default=1e-2, type=float)
+parser.add_argument('--rho', default=0.001, type=float)
+parser.add_argument('--group-norm', default='l1', choices=['l1', 'l2'])
 
 
 best_acc1 = 0
