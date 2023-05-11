@@ -71,3 +71,37 @@ def get_dataset(args):
         val_loader = torch.utils.data.DataLoader(
                 val_dataset, batch_size=args.batch_size, shuffle=False,
                 num_workers=args.workers, pin_memory=True)
+    elif args.dataset == "cifar100":
+        normalize = transforms.Normalize(mean=[0.5071, 0.4865, 0.4409],
+                                         std=[0.2673, 0.2564, 0.2762])
+
+        train_dataset = datasets.CIFAR100(
+                args.data,
+                train=True,
+                download=True,
+                transform=transforms.Compose([
+                    transforms.RandomCrop(32, padding=4),
+                    transforms.RandomHorizontalFlip(),
+                    #AutoAugment(),
+                    #Cutout(),
+                    transforms.ToTensor(),
+                    normalize,
+                    ]))
+
+        val_dataset = datasets.CIFAR100(
+                args.data,
+                train=False,
+                transform=transforms.Compose([
+                    transforms.ToTensor(),
+                    normalize,
+                    ]))
+
+        train_loader = torch.utils.data.DataLoader(
+                train_dataset, batch_size=args.batch_size, shuffle=True,
+                num_workers=args.workers, pin_memory=True)
+
+        val_loader = torch.utils.data.DataLoader(
+                val_dataset, batch_size=args.batch_size, shuffle=False,
+                num_workers=args.workers, pin_memory=True)
+
+    return train_loader, val_loader
