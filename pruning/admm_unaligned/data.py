@@ -6,6 +6,12 @@ from auto_augment import AutoAugment, Cutout
 import numpy as np
 import random
 
+
+def seed_worker(worker_id):
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
+
 def get_dataset(args):
     # Data loading code
     if args.dataset == "imagenet":
