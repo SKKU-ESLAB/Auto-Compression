@@ -5,3 +5,37 @@ import torchvision.datasets as datasets
 from auto_augment import AutoAugment, Cutout
 import numpy as np
 import random
+
+def get_dataset(args):
+    # Data loading code
+    if args.dataset == "imagenet":
+        traindir = os.path.join(args.data, 'train')
+        valdir = os.path.join(args.data, 'val')
+        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                         std=[0.229, 0.224, 0.225])
+
+        train_dataset = datasets.ImageFolder(
+                traindir,
+                transforms.Compose([
+                    transforms.RandomResizedCrop(224),
+                    transforms.RandomHorizontalFlip(),
+                    #AutoAugment(),
+                    #Cutout(),
+                    transforms.ToTensor(),
+                    normalize,
+                    ]))
+
+        train_loader = torch.utils.data.DataLoader(
+                train_dataset, batch_size=args.batch_size, shuffle=True,
+                num_workers=args.workers, pin_memory=True, persistent_workers=True,
+                worker_init_fn=seed_worker)
+
+        val_loader = torch.utils.data.DataLoader(
+                datasets.ImageFolder(valdir, transforms.Compose([
+                    transforms.Resize(256),
+                    transforms.CenterCrop(224),
+                    transforms.ToTensor(),
+                    normalize,
+                    ])),
+                batch_size=args.batch_size, shuffle=False,
+                num_workers=args.workers, pin_memory=True, persistent_workers=True)
