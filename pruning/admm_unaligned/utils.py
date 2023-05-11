@@ -1,12 +1,12 @@
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
+import torch.nn as nn
 import numpy as np
+import copy
 
-def param_check(name, param):
+def param_check(name, param, args):
     if (name.split('.')[-1] == "weight"
             and param.dim() == 4
-            and param.size(1) > 1
             and param.size(2) == 1
             and param.size(3) == 1):
         return True
@@ -44,7 +44,7 @@ def calc_unaligned_score(W, GS=(4, 1), norm_policy='l2', threshold=None, min_spa
     boundary_check = np.where((np.arange(len(g_w)) % R) <= (R - GR), 1, 0)
     # If g_w value contain boundary -> zero value
     g_w = g_w * boundary_check
-    
+
     # Optimal solution (sum of weights, column indices)
     M = N // GR
     T = np.zeros(M+1)
@@ -98,7 +98,7 @@ def get_unaligned_mask(W, GS=(4, 1), norm_policy='l2', threshold=None, target_M=
     boundary_check = np.where((np.arange(len(g_w)) % R) <= (R - GR), 1, 0)
     # If g_w value contain boundary -> zero value
     g_w = g_w * boundary_check
-    
+
     # Optimal solution (sum of weights, column indices)
     M = N // GR
     T = np.zeros(M+1)
@@ -177,7 +177,7 @@ def calc_unaligned_greedy(W, GS=(4, 1), norm_policy='l2', threshold=None, min_sp
     boundary_check = np.where((np.arange(len(g_w)) % R) <= (R - GR), False, True)
     # If g_w value contain boundary -> zero value
     g_w[boundary_check] = small_val
-    
+
     # Optimal solution (sum of weights, column indices)
     M = N // GR
     g = GR
@@ -313,7 +313,7 @@ def update_Z(X, U, args):
         z.data[under_threshold] = 0
         new_Z += (z,)
         idx += 1
-                
+
     return new_Z
 
 
