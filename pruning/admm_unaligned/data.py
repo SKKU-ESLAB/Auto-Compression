@@ -39,3 +39,35 @@ def get_dataset(args):
                     ])),
                 batch_size=args.batch_size, shuffle=False,
                 num_workers=args.workers, pin_memory=True, persistent_workers=True)
+    elif args.dataset == "cifar10":
+        normalize = transforms.Normalize(mean=[0.4914, 0.4822, 0.4465],
+                                         std=[0.2470, 0.2435, 0.2612])
+
+        train_dataset = datasets.CIFAR10(
+                args.data,
+                train=True,
+                download=True,
+                transform=transforms.Compose([
+                    transforms.RandomCrop(32, padding=4),
+                    transforms.RandomHorizontalFlip(),
+                    #AutoAugment(),
+                    #Cutout(),
+                    transforms.ToTensor(),
+                    normalize,
+                    ]))
+
+        val_dataset = datasets.CIFAR10(
+                args.data,
+                train=False,
+                transform=transforms.Compose([
+                    transforms.ToTensor(),
+                    normalize,
+                    ]))
+
+        train_loader = torch.utils.data.DataLoader(
+                train_dataset, batch_size=args.batch_size, shuffle=True,
+                num_workers=args.workers, pin_memory=True)
+
+        val_loader = torch.utils.data.DataLoader(
+                val_dataset, batch_size=args.batch_size, shuffle=False,
+                num_workers=args.workers, pin_memory=True)
