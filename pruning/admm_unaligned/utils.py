@@ -48,7 +48,10 @@ def get_unaligned_mask(W, GS=(4, 1), norm_policy='l2', threshold=None, target_M=
     # Optimal solution (sum of weights, column indices)
     M = N // GR
     T = np.zeros(M+1)
-    T[1:] = -np.sum(np.power(W, 2))
+    if norm_policy == 'l1':
+        T[1:] = -np.sum(np.abs(W))
+    elif norm_ploicy == 'l2':
+        T[1:] = -np.sum(np.power(W, 2))
 
     g = GR
     G = np.zeros((g-1, int(np.ceil(N/(g-1))) + (M-2)))
@@ -119,7 +122,10 @@ def calc_unaligned_greedy(W, GS=(4, 1), norm_policy='l2', threshold=None, min_sp
                 cg_w, shape=(N-GR+1, GR), strides=(cg_w.itemsize, cg_w.itemsize)
             ), axis=1)
 
-    small_val = -np.sum(np.power(W, 2))
+    if norm_policy == 'l1':
+        small_val = -np.sum(np.abs(W))
+    elif norm_policy == 'l2':
+        small_val = -np.sum(np.power(W, 2))
     boundary_check = np.where((np.arange(len(g_w)) % R) <= (R - GR), False, True)
     # If g_w value contain boundary -> zero value
     g_w[boundary_check] = small_val
