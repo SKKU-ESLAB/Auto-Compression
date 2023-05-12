@@ -170,6 +170,24 @@ def calc_unaligned_greedy(W, GS=(4, 1), norm_policy='l2', threshold=None, min_sp
 
 
 
+def search_aligned(input, GS, target_M, balanced=False):
+    R, C = input.shape
+    GR, GC = GS
+    abs_I = np.abs(input)
+    reshaped_I = abs_I.reshape(R//GR, GR, C//GC, GC)
+    g_I = np.sum(reshaped_I, axis=(1, 3))
+
+    if balanced:
+        nnz_per_row = target_M // (R // GR)
+        if target_M > nnz_per_row * (R // GR):
+            nnz_per_row += 1
+        g_I = np.where(g_I >= np.sort(g_I)[:, -nnz_per_row][:, np.newaxis], g_I, 0)
+    mask = g_I < np.sort(g_I.flatten())[-target_M]
+    mask = np.repeat(mask, GR, axis=0)
+    mask = np.repeat(mask, GC, axis=1)
+    score = abs_I[~mask].sum()
+    return [score], mask
+
 def admm_loss(args, criterion, model, Z, U, output, target):
     idx = 0
     loss = criterion(output, target)
