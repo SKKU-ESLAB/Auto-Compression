@@ -19,60 +19,6 @@ def param_check(name, param, args):
 #   10010001
 #   10110111
 #   00100110
-def calc_unaligned_score(W, GS=(4, 1), norm_policy='l2', threshold=None, min_sparsity=0.5):
-    R, C = W.shape
-    GR, GC = GS
-    w = W.reshape(R, C//GC, GC)
-
-    if norm_policy == 'l1':
-        w = np.sum(np.abs(w), axis=2)
-    elif norm_policy == 'l2':
-        w = np.sum(np.power(w, 2), axis=2)
-    else:
-        raise ValueError('norm_policy must be l1 or l2')
-
-    # cg_w: column grouped w -> len(cg_w) = R * C // GC = N
-    cg_w = w.transpose(1, 0).flatten()
-    N = len(cg_w)
-
-    # Grouped weight matrix for all range(N)
-    g_w = np.sum(
-            np.lib.stride_tricks.as_strided(
-                cg_w, shape=(N-GR+1, GR), strides=(cg_w.itemsize, cg_w.itemsize)
-            ), axis=1)
-
-    boundary_check = np.where((np.arange(len(g_w)) % R) <= (R - GR), 1, 0)
-    # If g_w value contain boundary -> zero value
-    g_w = g_w * boundary_check
-
-    # Optimal solution (sum of weights, column indices)
-    M = N // GR
-    T = np.zeros(M+1)
-    T[1:] = -np.sum(np.power(W, 2))
-
-    g = GR
-    G = np.zeros((g-1, int(np.ceil(N/(g-1))) + (M-2)))
-    for i in range(len(g_w)):
-        G[i%(g-1), int(np.floor(i/(g-1)))] = g_w[i]
-
-    max_M = int(M * (1 - min_sparsity))
-
-    for i in range(1, N-g+1 + 1):
-        k1 = (i-1) % (g-1)
-        k2 = int(np.floor((i-1)/(g-1)))
-
-        adaptive_M = min(i, max_M, M - int(np.ceil((i-M)/(g-1))))
-        T[1:adaptive_M+1] = np.maximum(T[1:adaptive_M+1], T[0:adaptive_M] + G[k1, k2:k2+adaptive_M])
-
-    T[max_M+1:] = T[max_M]
-
-    return T
-
-# Assume that W is a 2-dimensional numpy tensor
-# Unaligned pattern
-#   10010001
-#   10110111
-#   00100110
 def get_unaligned_mask(W, GS=(4, 1), norm_policy='l2', threshold=None, target_M=1):
     R, C = W.shape
     GR, GC = GS
