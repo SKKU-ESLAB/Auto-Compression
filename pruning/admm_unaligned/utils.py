@@ -168,15 +168,6 @@ def calc_unaligned_greedy(W, GS=(4, 1), norm_policy='l2', threshold=None, min_sp
     return score_list, mask
 
 
-def regularized_nll_loss(args, model, output, target):
-    index = 0
-    loss = F.nll_loss(output, target)
-    if args.l2:
-        for name, param in model.named_parameters():
-            if name.split('.')[-1] == "weight":
-                loss += args.alpha * param.norm()
-                index += 1
-    return loss
 
 
 def admm_loss(args, criterion, model, Z, U, output, target):
