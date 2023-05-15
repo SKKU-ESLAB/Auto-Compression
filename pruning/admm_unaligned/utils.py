@@ -167,6 +167,10 @@ def calc_unaligned_greedy(W, GS=(4, 1), norm_policy='l2', threshold=None, min_sp
 
     return score_list, mask
 
+# assume that input is absolute matrix
+def greedy_search_unaligned_v2(input, GS, target_M, balanced=False):
+    I = np.abs(input.transpose(1, 0))
+    GS = tuple(reversed(GS))
 
 
 
