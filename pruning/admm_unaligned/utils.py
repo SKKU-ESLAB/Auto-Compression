@@ -218,6 +218,27 @@ def greedy_search_unaligned_v2(input, GS, target_M, balanced=False):
 
                 new_nnz_per_col = _get_new_nnz_per_col(r, c)
 
+            nnz_per_col = new_nnz_per_col
+            selected_index_list[r] = np.sort(np.concatenate([selected_index_list[r], index_list[r][c:c+GC]]))
+
+        score_list[i + 1] = score_list[i] + block_list[r][c]
+
+        mask[r*GR:(r+1)*GR, index_list[r][c:c+GC]] = False
+
+        if len(value_list[r]) > GC:
+            #value_list[r][c:c+GC]
+            value_list[r] = np.concatenate([value_list[r][:c], value_list[r][c+GC:]])
+            #index_list[r][c:c+GC]
+            index_list[r] = np.concatenate([index_list[r][:c], index_list[r][c+GC:]])
+            block_list[r] = np.sum(np.lib.stride_tricks.sliding_window_view(value_list[r], GC, axis=0), axis=1)
+            argmax_idx_list[r] = np.argmax(block_list[r])
+            amax_list[r] = block_list[r][argmax_idx_list[r]]
+        else:
+            amax_list[r] = 0
+
+    mask = mask.transpose(1, 0)
+
+    return score_list, mask
 
 def search_aligned(input, GS, target_M, balanced=False):
     R, C = input.shape
