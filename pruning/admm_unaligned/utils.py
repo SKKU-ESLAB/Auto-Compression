@@ -172,6 +172,51 @@ def greedy_search_unaligned_v2(input, GS, target_M, balanced=False):
     I = np.abs(input.transpose(1, 0))
     GS = tuple(reversed(GS))
 
+    R, C = I.shape
+    GR, GC = GS
+
+    rg_I = I.reshape(R // GR, GR, C)
+    rg_I = np.sum(rg_I, axis=1)
+    small_val = 0
+
+    max_nnz_per_col = np.ceil(target_M / (C - GC + 1))
+    nnz_per_col = np.zeros(C - GC + 1)
+    selected_index_list = [np.array([]).astype("int") for r in range(R)]
+
+    value_list = [rg_I[r] for r in range(R)]
+    index_list = [np.arange(C) for r in range(R)]
+    block_list = [np.sum(np.lib.stride_tricks.sliding_window_view(value_list[r], GC, axis=0), axis=1) for r in range(R)]
+
+    score_list = np.zeros((target_M + 1,), dtype=np.float32)
+    argmax_idx_list = np.array([np.argmax(block_list[r]) for r in range(R)])
+    amax_list = np.array([block_list[r][argmax_idx_list[r]] for r in range(R)])
+
+    mask = np.ones((R, C), dtype=bool)
+    for i in range(target_M):
+        r = np.argmax(amax_list)
+        c = argmax_idx_list[r]
+
+        def _get_new_nnz_per_col(r, c):
+            tmp_nnz_per_col = copy.copy(nnz_per_col)
+            start_index_list = selected_index_list[r].reshape(-1, GC)[:, 0]
+            tmp_nnz_per_col[start_index_list] -= 1
+
+            new_selected_index_list = np.sort(np.concatenate([selected_index_list[r], index_list[r][c:c+GC]]))
+            new_start_index_list = new_selected_index_list.reshape(-1, GC)[:, 0]
+            tmp_nnz_per_col[new_start_index_list] += 1
+
+            return tmp_nnz_per_col
+
+        if balanced:
+            new_nnz_per_col = _get_new_nnz_per_col(r, c)
+            while max(new_nnz_per_col) > max_nnz_per_col:
+                block_list[r][c] = 0
+                argmax_idx_list[r] = np.argmax(block_list[r])
+                amax_list[r] = block_list[r][argmax_idx_list[r]]
+                r = np.argmax(amax_list)
+                c = argmax_idx_list[r]
+
+                new_nnz_per_col = _get_new_nnz_per_col(r, c)
 
 
 def search_aligned(input, GS, target_M, balanced=False):
