@@ -258,11 +258,11 @@ def search_aligned(input, GS, target_M, balanced=False):
     score = abs_I[~mask].sum()
     return [score], mask
 
-def admm_loss(args, criterion, model, Z, U, output, target):
+def get_admm_loss(args, model, Z, U):
     idx = 0
     loss = criterion(output, target)
     for name, param in model.named_parameters():
-        if param_check(name, param):
+        if param_check(name, param, args):
             u = U[idx].to(param.device)
             z = Z[idx].to(param.device)
             loss += args.rho / 2 * (param - z + u).norm()
@@ -281,7 +281,7 @@ def initialize_Z_and_U(model, args):
     U = ()
     num_nnz_block_list = []
     for name, param in model.named_parameters():
-        if param_check(name, param):
+        if param_check(name, param, args):
             Z += (param.detach().cpu().clone(),)
             U += (torch.zeros_like(param).cpu(),)
             if args.sparsity_method == "gt":
@@ -291,10 +291,10 @@ def initialize_Z_and_U(model, args):
     return Z, U
 
 
-def update_X(model):
+def update_X(model, args):
     X = ()
     for name, param in model.named_parameters():
-        if param_check(name, param):
+        if param_check(name, param, args):
             X += (param.detach().cpu().clone(),)
     return X
 
@@ -457,10 +457,10 @@ def print_convergence(model, X, Z):
             idx += 1
 
 
-def print_prune(model):
+def print_prune(model, args):
     prune_param, total_param = 0, 0
     for name, param in model.named_parameters():
-        if param_check(name, param):
+        if param_check(name, param, args):
             print("[at weight {}]".format(name))
             print("percentage of pruned: {:.4f}%".format(100 * (abs(param) == 0).sum().item() / param.numel()))
             print("nonzero parameters after pruning: {} / {}\n".format((param != 0).sum().item(), param.numel()))
