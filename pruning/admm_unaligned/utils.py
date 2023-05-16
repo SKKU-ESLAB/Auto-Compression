@@ -269,6 +269,12 @@ def admm_loss(args, criterion, model, Z, U, output, target):
             idx += 1
     return loss
 
+def initialize_perm_list(model, args):
+    perm_list = []
+    for name, param in model.named_parameters():
+        if param_check(name, param, args):
+            perm_list.append(np.arange(param.shape[0]))
+    return perm_list
 
 def initialize_Z_and_U(model, args):
     Z = ()
