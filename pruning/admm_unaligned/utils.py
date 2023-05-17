@@ -260,13 +260,14 @@ def search_aligned(input, GS, target_M, balanced=False):
 
 def get_admm_loss(args, model, Z, U):
     idx = 0
-    loss = criterion(output, target)
+    loss = 0
     for name, param in model.named_parameters():
         if param_check(name, param, args):
             u = U[idx].to(param.device)
             z = Z[idx].to(param.device)
-            loss += args.rho / 2 * (param - z + u).norm()
+            loss += (param - z + u).pow(2).sum()
             idx += 1
+    loss = loss * args.rho / 2
     return loss
 
 def initialize_perm_list(model, args):
