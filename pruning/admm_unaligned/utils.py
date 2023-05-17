@@ -300,7 +300,7 @@ def update_X(model, args):
     return X
 
 
-def update_Z(X, U, args):
+def update_Z(X, U, args, perm_list, channel_permute):
     new_Z = ()
 
     if args.sparsity_method == "gt":
@@ -308,25 +308,19 @@ def update_Z(X, U, args):
         for x, u in zip(X, U):
             z = x + u
             co, ci, kh, kw = z.shape
-            if args.unaligned and args.unaligned_score:
-                z_np = z.numpy().reshape(co, ci)
-                #accumulated_score = calc_unaligned_score(z_np, GS=(args.block_size, 1), norm_policy='l2', min_sparsity=args.min_sparsity)
-                accumulated_score, _ = calc_unaligned_greedy(z_np, GS=(args.block_size, 1), norm_policy='l2', min_sparsity=args.min_sparsity)
-                score = accumulated_score[1:] - accumulated_score[:-1]
-                score_list.append(score)
-            else:
-                m = z.reshape(co // args.block_size, args.block_size, ci, kh, kw).pow(2).sum(1)
-                pcen = np.percentile(m, 100*args.min_sparsity)
-                m[m < pcen] = 0.
-                score_list.append(m.flatten())
+            if args.group_norm == 'l1':
+                m = z.reshape(co // args.vector_size, args.vector_size, ci, kh, kw).abs().sum(1)
+            elif args.group_norm == 'l2':
+                m = z.reshape(co // args.vector_size, args.vector_size, ci, kh, kw).pow(2).sum(1)
+            score_list.append(m.flatten())
         scores = np.concatenate(score_list)
         global_threshold = np.percentile(scores, 100*args.target_sparsity)
 
         for i, score in enumerate(score_list):
             args.num_nnz_block_list[i] = int(np.sum(np.where(score < global_threshold, 0, 1)))
-            print(args.num_nnz_block_list[i], args.num_nnz_block_list[i]/len(score))
 
     idx = 0
+    score_diff_dict = {}
     for x, u in zip(X, U):
         z = x + u
         co, ci, kh, kw = z.shape
@@ -352,23 +346,7 @@ def update_Z(X, U, args):
         new_Z += (z,)
         idx += 1
 
-    return new_Z
-
-
-def update_Z_l1(X, U, args):
-    new_Z = ()
-    delta = args.alpha / args.rho
-    for x, u in zip(X, U):
-        z = x + u
-        new_z = z.clone()
-        if (z > delta).sum() != 0:
-            new_z[z > delta] = z[z > delta] - delta
-        if (z < -delta).sum() != 0:
-            new_z[z < -delta] = z[z < -delta] + delta
-        if (abs(z) <= delta).sum() != 0:
-            new_z[abs(z) <= delta] = 0
-        new_Z += (new_z,)
-    return new_Z
+    return new_Z, score_diff_dict
 
 
 def update_U(U, X, Z):
@@ -379,7 +357,7 @@ def update_U(U, X, Z):
     return new_U
 
 
-def prune_weight(weight, args, idx):
+def prune_weight(weight, args, idx, perm):
     # to work with admm, we calculate percentile based on all elements instead of nonzero elements.
     weight_numpy = weight.detach().cpu().numpy()
     co, ci, kh, kw = weight.shape
