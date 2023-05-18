@@ -361,15 +361,24 @@ def prune_weight(weight, args, idx, perm):
     # to work with admm, we calculate percentile based on all elements instead of nonzero elements.
     weight_numpy = weight.detach().cpu().numpy()
     co, ci, kh, kw = weight.shape
-    if args.unaligned:
-        if args.sparsity_method == "uniform":
-            target_num_block = int(co * ci * kh * kw / args.block_size * (1 - args.target_sparsity))
-        elif args.sparsity_method == "gt":
-            target_num_block = args.num_nnz_block_list[idx]
-        w = weight_numpy.reshape(co, ci)
-        #m = get_unaligned_mask(w, GS=(args.block_size, 1), norm_policy='l2', target_M=target_num_block)
-        _, m = calc_unaligned_greedy(w, GS=(args.block_size, 1), norm_policy='l2', target_M=target_num_block)
-        under_threshold = m.reshape(weight.shape)
+
+    if args.sparsity_method == "uniform":
+        target_num_block = int(co * ci * kh * kw / args.vector_size * (1 - args.target_sparsity))
+    elif args.sparsity_method == "gt":
+        target_num_block = args.num_nnz_block_list[idx]
+    w = weight_numpy.reshape(co, ci)
+
+    if args.cp_ft:
+        _, element_level_mask = search_aligned(w, GS=(1, 1), target_M=target_num_block*args.vector_size)
+        perm = search_perm(w, element_level_mask, args.vector_size, args)
+
+    if args.cp:
+        if args.unaligned:
+            #_, permed_m = calc_unaligned_greedy(w[perm], GS=(args.vector_size, 1), norm_policy=args.group_norm, target_M=target_num_block)
+            _, permed_m = greedy_search_unaligned_v2(w[perm], GS=(args.vector_size, 1), target_M=target_num_block)
+        else:
+            _, permed_m = search_aligned(w[perm], GS=(args.vector_size, 1), target_M=target_num_block)
+        m = permed_m[np.argsort(perm)]
     else:
         m = weight.reshape(co // args.block_size, args.block_size, ci, kh, kw).pow(2).sum(1).detach().cpu().numpy()
         if args.sparsity_method == "uniform":
