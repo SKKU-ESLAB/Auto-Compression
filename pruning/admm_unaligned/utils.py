@@ -380,14 +380,13 @@ def prune_weight(weight, args, idx, perm):
             _, permed_m = search_aligned(w[perm], GS=(args.vector_size, 1), target_M=target_num_block)
         m = permed_m[np.argsort(perm)]
     else:
-        m = weight.reshape(co // args.block_size, args.block_size, ci, kh, kw).pow(2).sum(1).detach().cpu().numpy()
-        if args.sparsity_method == "uniform":
-            target_sparsity = args.target_sparsity
-        elif args.sparsity_method == "gt":
-            target_sparsity = 1. - args.num_nnz_block_list[idx] / (co * ci * kh * kw / args.block_size)
-        pcen = np.percentile(abs(m), 100*target_sparsity)
-        under_threshold = abs(m) < pcen
-        under_threshold = under_threshold.repeat(args.block_size, axis=0)
+        if args.unaligned:
+            #_, m = calc_unaligned_greedy(w, GS=(args.vector_size, 1), norm_policy=args.group_norm, target_M=target_num_block)
+            _, m = greedy_search_unaligned_v2(w, GS=(args.vector_size, 1), target_M=target_num_block)
+        else:
+            _, m = search_aligned(w, GS=(args.vector_size, 1), target_M=target_num_block)
+    under_threshold = m.reshape(weight.shape)
+
     weight_numpy[under_threshold] = 0
     mask = torch.Tensor(1 - under_threshold).to(weight.device)
     return mask
