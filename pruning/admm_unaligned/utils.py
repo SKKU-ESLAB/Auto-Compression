@@ -324,6 +324,15 @@ def update_Z(X, U, args, perm_list, channel_permute):
     for x, u in zip(X, U):
         z = x + u
         co, ci, kh, kw = z.shape
+
+        num_zones = 1
+        if not args.unaligned:
+            num_zones = co // args.vector_size
+
+        if args.sparsity_method == "uniform":
+            target_num_block = int(co * ci * kh * kw / args.vector_size * (1 - args.target_sparsity))
+        elif args.sparsity_method == "gt":
+            target_num_block = args.num_nnz_block_list[idx]
         if args.unaligned:
             if args.sparsity_method == "uniform":
                 target_num_block = int(co * ci * kh * kw / args.block_size * (1 - args.target_sparsity))
