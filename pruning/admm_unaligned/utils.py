@@ -384,56 +384,24 @@ def prune_weight(weight, args, idx, perm):
     return mask
 
 
-def prune_l1_weight(weight, device, delta):
-    weight_numpy = weight.detach().cpu().numpy()
-    under_threshold = abs(weight_numpy) < delta
-    weight_numpy[under_threshold] = 0
-    mask = torch.Tensor(abs(weight_numpy) >= delta).to(device)
-    return mask
+def apply_masked_weight(mod, input):
+    mod.weight.data.mul_(mod.mask)
 
 
-def apply_prune(model, args):
+def apply_prune(model, args, perm_list):
     # returns dictionary of non_zero_values' indices
     print("Apply Pruning based on percentile")
-    dict_mask = {}
     idx = 0
-    for name, param in model.named_parameters():
-        if param_check(name, param):
-            mask = prune_weight(param, args, idx)
-            param.data.mul_(mask)
-            # param.data = torch.Tensor(weight_pruned).to(device)
-            dict_mask[name] = mask
-            idx += 1
-    return dict_mask
-
-def prune_with_mask(model, dict_mask):
-    for name, param in model.named_parameters():
-        if param_check(name, param):
-            mask = dict_mask[name]
-            param.data.mul_(mask)
-
-def apply_l1_prune(model, device, args):
-    delta = args.alpha / args.rho
-    print("Apply Pruning based on percentile")
-    dict_mask = {}
-    idx = 0
-    for name, param in model.named_parameters():
-        if name.split('.')[-1] == "weight":
-            mask = prune_l1_weight(param, device, delta)
-            param.data.mul_(mask)
-            dict_mask[name] = mask
-            idx += 1
-    return dict_mask
-
-
-def print_convergence(model, X, Z):
-    idx = 0
-    print("normalized norm of (weight - projection)")
-    for name, param in model.named_parameters():
-        if param_check(name, param):
-            x, z = X[idx], Z[idx]
-            print("({}): {:.4f}".format(name, (x-z).norm().item() / x.norm().item()))
-            idx += 1
+    for name, module in model.named_modules():
+        if isinstance(module, nn.Conv2d):
+            param = module.weight
+            if param_check('.weight', param, args):
+                mask = prune_weight(param, args, idx, perm_list[idx])
+                param.data.mul_(mask)
+                module.register_buffer("mask", mask)
+                module.register_forward_pre_hook(
+                    lambda mod, input: apply_masked_weight(mod, input))
+                idx += 1
 
 
 def print_prune(model, args):
