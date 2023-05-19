@@ -333,15 +333,38 @@ def update_Z(X, U, args, perm_list, channel_permute):
             target_num_block = int(co * ci * kh * kw / args.vector_size * (1 - args.target_sparsity))
         elif args.sparsity_method == "gt":
             target_num_block = args.num_nnz_block_list[idx]
-        if args.unaligned:
-            if args.sparsity_method == "uniform":
-                target_num_block = int(co * ci * kh * kw / args.block_size * (1 - args.target_sparsity))
-            elif args.sparsity_method == "gt":
-                target_num_block = args.num_nnz_block_list[idx]
-            z_np = z.numpy().reshape(co, ci)
-            #mask = get_unaligned_mask(z_np, GS=(args.block_size, 1), norm_policy='l2', target_M=target_num_block)
-            _, mask = calc_unaligned_greedy(z_np, GS=(args.block_size, 1), norm_policy='l2', target_M=target_num_block)
-            under_threshold = torch.BoolTensor(mask.reshape(z.shape))
+        z_np = z.numpy().reshape(co, ci)
+
+        original_z_np = z_np
+
+        if args.cp:
+            # get original mask without new channel permutation
+            if args.unaligned:
+                #score_list, permed_mask = calc_unaligned_greedy(z_np[perm_list[idx]], GS=(args.vector_size, 1), norm_policy=args.group_norm, target_M=target_num_block)
+                score_list, permed_mask = greedy_search_unaligned_v2(z_np[perm_list[idx]], GS=(args.vector_size, 1), target_M=target_num_block)
+            else:
+                score_list, permed_mask = search_aligned(z_np[perm_list[idx]], GS=(args.vector_size, 1), target_M=target_num_block)
+            mask = permed_mask[np.argsort(perm_list[idx])]
+            score = score_list[-1]
+
+            if channel_permute:
+                # get element-level mask and do channel permutation search algorithm
+                _, element_level_mask = search_aligned(z_np, GS=(1, 1), target_M=target_num_block*args.vector_size)
+                cp_perm = search_perm(original_z_np, element_level_mask, args.vector_size, args)
+
+                # get cp_mask and cp_score
+                if args.unaligned:
+                    #score_list, permed_mask = calc_unaligned_greedy(z_np[cp_perm], GS=(args.vector_size, 1), norm_policy=args.group_norm, target_M=target_num_block)
+                    score_list, permed_mask = greedy_search_unaligned_v2(z_np[cp_perm], GS=(args.vector_size, 1), target_M=target_num_block)
+                else:
+                    score_list, permed_mask = search_aligned(z_np[cp_perm], GS=(args.vector_size, 1), target_M=target_num_block)
+                cp_mask = permed_mask[np.argsort(cp_perm)]
+                cp_score = score_list[-1]
+
+                score_diff_dict[f"score_diff_L{idx}"] = cp_score - score
+
+                mask = cp_mask
+                perm_list[idx] = cp_perm
         else:
             m = z.reshape(co // args.block_size, args.block_size, ci, kh, kw).pow(2).sum(1)
             if args.sparsity_method == "uniform":
