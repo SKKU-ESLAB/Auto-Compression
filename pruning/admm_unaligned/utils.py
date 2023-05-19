@@ -366,14 +366,13 @@ def update_Z(X, U, args, perm_list, channel_permute):
                 mask = cp_mask
                 perm_list[idx] = cp_perm
         else:
-            m = z.reshape(co // args.block_size, args.block_size, ci, kh, kw).pow(2).sum(1)
-            if args.sparsity_method == "uniform":
-                target_sparsity = args.target_sparsity
-            elif args.sparsity_method == "gt":
-                target_sparsity = 1. - args.num_nnz_block_list[idx] / (co * ci * kh * kw / args.block_size)
-            pcen = np.percentile(abs(m), 100*target_sparsity)
-            under_threshold = abs(m) < pcen
-            under_threshold = under_threshold.repeat_interleave(args.block_size, dim=0)
+            if args.unaligned:
+                #_, mask = calc_unaligned_greedy(z_np, GS=(args.vector_size, 1), norm_policy=args.group_norm, target_M=target_num_block)
+                _, mask = greedy_search_unaligned_v2(z_np, GS=(args.vector_size, 1), target_M=target_num_block)
+            else:
+                _, mask = search_aligned(z_np, GS=(args.vector_size, 1), target_M=target_num_block)
+        under_threshold = torch.BoolTensor(mask.reshape(z.shape))
+
         z.data[under_threshold] = 0
         new_Z += (z,)
         idx += 1
