@@ -275,6 +275,12 @@ def search_perm(weight, mask, vs, args):
     masked_weight = mask * weight
     cs = cosine_similarity(masked_weight, masked_weight)
     #coef = (1 + np.arange(vs - 1)).reshape(-1, 1)
+    if args.unaligned:
+        if vs > 2:
+            coef = 1 - (1-args.cp_alpha) * (np.arange(vs - 1).reshape(-1, 1) / (vs - 2)) ** args.cp_beta
+        else:
+            coef = (1 + np.arange(vs - 1)).reshape(-1, 1)
+
 def get_admm_loss(args, model, Z, U):
     idx = 0
     loss = 0
