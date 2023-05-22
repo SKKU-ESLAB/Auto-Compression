@@ -258,6 +258,13 @@ def search_aligned(input, GS, target_M, balanced=False):
     score = abs_I[~mask].sum()
     return [score], mask
 
+def cosine_similarity(A, B):
+    dp = np.dot(A, B.T)
+    p1 = np.sqrt(np.sum(A**2, axis=1))[:, np.newaxis] + 1e-9
+    p2 = np.sqrt(np.sum(B**2, axis=1))[np.newaxis, :] + 1e-9
+    return dp / (p1 * p2)
+
+
 def search_perm(weight, mask, vs, args):
     R = weight.shape[0]
     mask = ~mask
