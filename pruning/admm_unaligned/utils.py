@@ -288,6 +288,19 @@ def search_perm(weight, mask, vs, args):
                 l = min(vs - 1, len(best_perm))
                 best_i = np.argmax(np.sum(cs[best_perm[::-1][:l]][:, remained_perm] * coef[:l], axis=0))
             best_perm.append(remained_perm.pop(best_i))
+    else:
+        for r in range(R):
+            if r == 0:
+                best_i = 0
+            elif r % vs == 0:
+                best_i = np.argmin(cs[best_perm[-1], remained_perm])
+            else:
+                l = min(vs - 1, len(best_perm) % vs)
+                best_i = np.argmax(np.sum(cs[best_perm[-l:]][:, remained_perm], axis=0))
+            best_perm.append(remained_perm.pop(best_i))
+
+    return np.array(best_perm)
+
 def get_admm_loss(args, model, Z, U):
     idx = 0
     loss = 0
