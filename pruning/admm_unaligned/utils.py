@@ -258,6 +258,12 @@ def search_aligned(input, GS, target_M, balanced=False):
     score = abs_I[~mask].sum()
     return [score], mask
 
+def search_perm(weight, mask, vs, args):
+    R = weight.shape[0]
+    mask = ~mask
+    weight = np.abs(weight)
+    best_perm = []
+    remained_perm = [r for r in range(R)]
 def get_admm_loss(args, model, Z, U):
     idx = 0
     loss = 0
