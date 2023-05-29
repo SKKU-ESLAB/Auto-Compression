@@ -20,3 +20,19 @@ def get_pretrained_model(arch, width_mult):
     # download and load the pre-trained model
     mxnet_model = gluoncv.model_zoo.get_model(model_name, pretrained=True)
     #print(mxnet_model)
+
+    param_list = [param._reduce().asnumpy() for name, param in mxnet_model.collect_params().items()]
+
+    for m in torch_model.modules():
+        if isinstance(m, nn.Conv2d):
+            m.weight.data = torch.from_numpy(param_list.pop(0))
+            if m.bias is not None:
+                m.bias.data = torch.from_numpy(param_list.pop(0))
+        elif isinstance(m, nn.Linear):
+            if arch == "mobilenet_v2":
+                m.weight.data = torch.from_numpy(param_list.pop(0).squeeze())
+                m.bias.data.fill_(0)
+            else:
+                m.weight.data = torch.from_numpy(param_list.pop(0))
+                if m.bias is not None:
+                    m.bias.data = torch.from_numpy(param_list.pop(0))
