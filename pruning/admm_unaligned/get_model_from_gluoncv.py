@@ -36,3 +36,12 @@ def get_pretrained_model(arch, width_mult):
                 m.weight.data = torch.from_numpy(param_list.pop(0))
                 if m.bias is not None:
                     m.bias.data = torch.from_numpy(param_list.pop(0))
+        elif isinstance(m, nn.BatchNorm2d):
+            if m.affine:
+                m.weight.data = torch.from_numpy(param_list.pop(0))
+                m.bias.data = torch.from_numpy(param_list.pop(0))
+            if m.track_running_stats:
+                m.running_mean.data = torch.from_numpy(param_list.pop(0))
+                m.running_var.data = torch.from_numpy(param_list.pop(0))
+
+
