@@ -50,3 +50,5 @@ def get_pretrained_model(arch, width_mult):
         if is_best:
             shutil.copyfile(filename, 'model_best.pth.tar')
 
+if __name__ == "__main__":
+    get_pretrained_model("mobilenet_v2", 1.0)
