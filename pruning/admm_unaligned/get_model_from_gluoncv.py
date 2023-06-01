@@ -50,5 +50,18 @@ def get_pretrained_model(arch, width_mult):
         if is_best:
             shutil.copyfile(filename, 'model_best.pth.tar')
 
+    torch_model = torch.nn.DataParallel(torch_model).cuda()
+    save_checkpoint({
+        'admm_epoch': 0,
+        'ft_epoch': 0,
+        'arch': arch,
+        'state_dict': torch_model.state_dict(),
+        'best_acc1': 0.,
+        'optimizer': None,
+        'perm_list': None,
+        'mask': None,
+    }, False, filename=f'{arch}_{width_mult}.pth.tar')
+
+
 if __name__ == "__main__":
     get_pretrained_model("mobilenet_v2", 1.0)
