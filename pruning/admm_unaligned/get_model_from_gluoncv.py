@@ -45,3 +45,8 @@ def get_pretrained_model(arch, width_mult):
                 m.running_var.data = torch.from_numpy(param_list.pop(0))
 
 
+    def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
+        torch.save(state, filename)
+        if is_best:
+            shutil.copyfile(filename, 'model_best.pth.tar')
+
