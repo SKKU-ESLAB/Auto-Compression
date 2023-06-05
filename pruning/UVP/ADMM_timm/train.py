@@ -394,3 +394,22 @@ def _parse_args():
     return args, args_text
 
 
+def main():
+    utils.setup_default_logging()
+    args, args_text = _parse_args()
+
+    if torch.cuda.is_available():
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.benchmark = True
+
+    args.prefetcher = not args.no_prefetcher
+    args.grad_accum_steps = max(1, args.grad_accum_steps)
+    device = utils.init_distributed_device(args)
+    if args.distributed:
+        _logger.info(
+            'Training in distributed mode with multiple processes, 1 device per process.'
+            f'Process {args.rank}, total {args.world_size}, device {args.device}.')
+    else:
+        _logger.info(f'Training with a single process on 1 device ({args.device}).')
+    assert args.rank >= 0
+
