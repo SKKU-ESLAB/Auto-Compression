@@ -360,3 +360,17 @@ group.add_argument('--use-multi-epochs-loader', action='store_true', default=Fal
                    help='use the multi-epochs-loader to save time at the beginning of every epoch')
 group.add_argument('--log-wandb', action='store_true', default=False,
                    help='log training and validation metrics to wandb')
+
+# UVP
+group.add_argument('--vector-size', default=1, type=int)
+group.add_argument('--unaligned', action='store_true', default=False)
+group.add_argument('--target-sparsity', default=0.8, type=float)
+group.add_argument('--sparsity-method', default='uniform', choices=['uniform', 'gt'])
+group.add_argument('--group-norm', default='l1', choices=['l1', 'l2'])
+group.add_argument('--admm-epochs', default=100, type=int)
+group.add_argument('--ft-epochs', default=100, type=int)
+group.add_argument('--cp', action='store_true', default=False)
+group.add_argument('--repeat', action='store_true', default=False)
+group.add_argument('--rho', default=0.001, type=float)
+parser.add_argument('--cp-alpha', default=0.1, type=float)
+parser.add_argument('--cp-beta', default=0.8, type=float)
