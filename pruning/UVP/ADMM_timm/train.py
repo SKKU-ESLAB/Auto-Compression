@@ -413,3 +413,31 @@ def main():
         _logger.info(f'Training with a single process on 1 device ({args.device}).')
     assert args.rank >= 0
 
+    # resolve AMP arguments based on PyTorch / Apex availability
+    use_amp = None
+    amp_dtype = torch.float16
+    if args.amp:
+        if args.amp_impl == 'apex':
+            assert has_apex, 'AMP impl specified as APEX but APEX is not installed.'
+            use_amp = 'apex'
+            assert args.amp_dtype == 'float16'
+        else:
+            assert has_native_amp, 'Please update PyTorch to a version with native AMP (or use APEX).'
+            use_amp = 'native'
+            assert args.amp_dtype in ('float16', 'bfloat16')
+        if args.amp_dtype == 'bfloat16':
+            amp_dtype = torch.bfloat16
+
+    utils.random_seed(args.seed, args.rank)
+
+    if args.fuser:
+        utils.set_jit_fuser(args.fuser)
+    if args.fast_norm:
+        set_fast_norm()
+
+    in_chans = 3
+    if args.in_chans is not None:
+        in_chans = args.in_chans
+    elif args.input_size is not None:
+        in_chans = args.input_size[0]
+
