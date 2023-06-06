@@ -496,3 +496,13 @@ def main():
         assert args.aug_splits > 1, 'A split of 1 makes no sense'
         num_aug_splits = args.aug_splits
 
+    # enable split bn (separate bn stats per batch-portion)
+    if args.split_bn:
+        assert num_aug_splits > 1 or args.resplit
+        model = convert_splitbn_model(model, max(num_aug_splits, 2))
+
+    # move model to GPU, enable channels last layout if set
+    model.to(device=device)
+    if args.channels_last:
+        model.to(memory_format=torch.channels_last)
+
