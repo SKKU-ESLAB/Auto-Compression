@@ -441,3 +441,38 @@ def main():
     elif args.input_size is not None:
         in_chans = args.input_size[0]
 
+    if args.model == "mobilenet_v1":
+        model = MobileNetV1(num_classes=1000,
+                            input_size=224,
+                            width_mult=1.0)
+        if  args.pretrained:
+            pretrained_model = f"{args.model}_1.0.pth.tar"
+            print("=> loading checkpoint '{}'".format(pretrained_model))
+            checkpoint = torch.load(pretrained_model)
+            new_state_dict = OrderedDict()
+            for k, v in checkpoint['state_dict'].items():
+                name = k[7:]
+                new_state_dict[name] = v
+            model.load_state_dict(new_state_dict)
+    else:
+        model = create_model(
+            args.model,
+            pretrained=args.pretrained,
+            in_chans=in_chans,
+            num_classes=args.num_classes,
+            drop_rate=args.drop,
+            drop_path_rate=args.drop_path,
+            drop_block_rate=args.drop_block,
+            global_pool=args.gp,
+            bn_momentum=args.bn_momentum,
+            bn_eps=args.bn_eps,
+            scriptable=args.torchscript,
+            checkpoint_path=args.initial_checkpoint,
+            **args.model_kwargs,
+        )
+    if args.head_init_scale is not None:
+        with torch.no_grad():
+            model.get_classifier().weight.mul_(args.head_init_scale)
+            model.get_classifier().bias.mul_(args.head_init_scale)
+    if args.head_init_bias is not None:
+        nn.init.constant_(model.get_classifier().bias, args.head_init_bias)
