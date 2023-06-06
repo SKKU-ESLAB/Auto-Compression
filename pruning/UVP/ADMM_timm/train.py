@@ -527,3 +527,17 @@ def main():
         assert not args.sync_bn, 'Cannot use SyncBatchNorm with torchscripted model'
         model = torch.jit.script(model)
 
+    if not args.lr:
+        global_batch_size = args.batch_size * args.world_size * args.grad_accum_steps
+        batch_ratio = global_batch_size / args.lr_base_size
+        if not args.lr_base_scale:
+            on = args.opt.lower()
+            args.lr_base_scale = 'sqrt' if any([o in on for o in ('ada', 'lamb')]) else 'linear'
+        if args.lr_base_scale == 'sqrt':
+            batch_ratio = batch_ratio ** 0.5
+        args.lr = args.lr_base * batch_ratio
+        if utils.is_primary(args):
+            _logger.info(
+                f'Learning rate ({args.lr}) calculated from base learning rate ({args.lr_base}) '
+                f'and effective global batch size ({global_batch_size}) with {args.lr_base_scale} scaling.')
+
