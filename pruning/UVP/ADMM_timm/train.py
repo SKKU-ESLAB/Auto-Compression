@@ -476,3 +476,23 @@ def main():
             model.get_classifier().bias.mul_(args.head_init_scale)
     if args.head_init_bias is not None:
         nn.init.constant_(model.get_classifier().bias, args.head_init_bias)
+
+    if args.num_classes is None:
+        assert hasattr(model, 'num_classes'), 'Model must have `num_classes` attr if not set on cmd line/config.'
+        args.num_classes = model.num_classes  # FIXME handle model default vs config num_classes more elegantly
+
+    if args.grad_checkpointing:
+        model.set_grad_checkpointing(enable=True)
+
+    if utils.is_primary(args):
+        _logger.info(
+            f'Model {safe_model_name(args.model)} created, param count:{sum([m.numel() for m in model.parameters()])}')
+
+    data_config = resolve_data_config(vars(args), model=model, verbose=utils.is_primary(args))
+
+    # setup augmentation batch splits for contrastive loss or split bn
+    num_aug_splits = 0
+    if args.aug_splits > 0:
+        assert args.aug_splits > 1, 'A split of 1 makes no sense'
+        num_aug_splits = args.aug_splits
+
