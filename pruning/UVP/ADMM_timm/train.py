@@ -506,3 +506,24 @@ def main():
     if args.channels_last:
         model.to(memory_format=torch.channels_last)
 
+    # setup synchronized BatchNorm for distributed training
+    if args.distributed and args.sync_bn:
+        args.dist_bn = ''  # disable dist_bn when sync BN active
+        assert not args.split_bn
+        if has_apex and use_amp == 'apex':
+            # Apex SyncBN used with Apex AMP
+            # WARNING this won't currently work with models using BatchNormAct2d
+            model = convert_syncbn_model(model)
+        else:
+            model = convert_sync_batchnorm(model)
+        if utils.is_primary(args):
+            _logger.info(
+                'Converted model to use Synchronized BatchNorm. WARNING: You may have issues if using '
+                'zero initialized BN layers (enabled by default for ResNets) while sync-bn enabled.')
+
+    if args.torchscript:
+        assert not args.torchcompile
+        assert not use_amp == 'apex', 'Cannot use APEX AMP with torchscripted model'
+        assert not args.sync_bn, 'Cannot use SyncBatchNorm with torchscripted model'
+        model = torch.jit.script(model)
+
