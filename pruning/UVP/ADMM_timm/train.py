@@ -589,3 +589,25 @@ def main():
             log_info=utils.is_primary(args),
         )
 
+    # setup exponential moving average of model weights, SWA could be used here too
+    model_ema = None
+    if args.model_ema:
+        # Important to create EMA model after cuda(), DP wrapper, and AMP but before DDP wrapper
+        model_ema = utils.ModelEmaV2(
+            model, decay=args.model_ema_decay, device='cpu' if args.model_ema_force_cpu else None)
+        if args.resume:
+            load_checkpoint(model_ema.module, args.resume, use_ema=True)
+
+    # setup distributed training
+    if args.distributed:
+        if has_apex and use_amp == 'apex':
+            # Apex DDP preferred unless native amp is activated
+            if utils.is_primary(args):
+                _logger.info("Using NVIDIA APEX DistributedDataParallel.")
+            model = ApexDDP(model, delay_allreduce=True)
+        else:
+            if utils.is_primary(args):
+                _logger.info("Using native Torch DistributedDataParallel.")
+            model = NativeDDP(model, device_ids=[device], broadcast_buffers=not args.no_ddp_bb)
+        # NOTE: EMA model does not need to be wrapped by DDP
+
