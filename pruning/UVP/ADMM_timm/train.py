@@ -553,3 +553,28 @@ def main():
         **args.opt_kwargs,
     )
 
+    # setup automatic mixed-precision (AMP) loss scaling and op casting
+    amp_autocast = suppress  # do nothing
+    loss_scaler = None
+    if use_amp == 'apex':
+        assert device.type == 'cuda'
+        model, optimizer = amp.initialize(model, optimizer, opt_level='O1')
+        loss_scaler = ApexScaler()
+        if utils.is_primary(args):
+            _logger.info('Using NVIDIA APEX AMP. Training in mixed precision.')
+    elif use_amp == 'native':
+        try:
+            amp_autocast = partial(torch.autocast, device_type=device.type, dtype=amp_dtype)
+        except (AttributeError, TypeError):
+            # fallback to CUDA only AMP for PyTorch < 1.10
+            assert device.type == 'cuda'
+            amp_autocast = torch.cuda.amp.autocast
+        if device.type == 'cuda' and amp_dtype == torch.float16:
+            # loss scaler only used for float16 (half) dtype, bfloat16 does not need it
+            loss_scaler = NativeScaler()
+        if utils.is_primary(args):
+            _logger.info('Using native Torch AMP. Training in mixed precision.')
+    else:
+        if utils.is_primary(args):
+            _logger.info('AMP not enabled. Training in float32.')
+
