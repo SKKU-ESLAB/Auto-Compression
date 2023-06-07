@@ -578,3 +578,14 @@ def main():
         if utils.is_primary(args):
             _logger.info('AMP not enabled. Training in float32.')
 
+    # optionally resume from a checkpoint
+    resume_epoch = None
+    if args.resume:
+        resume_epoch = resume_checkpoint(
+            model,
+            args.resume,
+            optimizer=None if args.no_resume_opt else optimizer,
+            loss_scaler=None if args.no_resume_opt else loss_scaler,
+            log_info=utils.is_primary(args),
+        )
+
