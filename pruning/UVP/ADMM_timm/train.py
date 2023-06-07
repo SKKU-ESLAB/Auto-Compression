@@ -541,3 +541,15 @@ def main():
                 f'Learning rate ({args.lr}) calculated from base learning rate ({args.lr_base}) '
                 f'and effective global batch size ({global_batch_size}) with {args.lr_base_scale} scaling.')
 
+    # ADMM-FT adaptation
+    args.warmup_lr = args.lr
+    args.warmup_epochs = args.admm_epochs
+    args.warmup_prefix = True
+    args.epochs = args.ft_epochs
+
+    optimizer = create_optimizer_v2(
+        model,
+        **optimizer_kwargs(cfg=args),
+        **args.opt_kwargs,
+    )
+
