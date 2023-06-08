@@ -611,3 +611,33 @@ def main():
             model = NativeDDP(model, device_ids=[device], broadcast_buffers=not args.no_ddp_bb)
         # NOTE: EMA model does not need to be wrapped by DDP
 
+    if args.torchcompile:
+        # torch compile should be done after DDP
+        assert has_compile, 'A version of torch w/ torch.compile() is required for --compile, possibly a nightly.'
+        model = torch.compile(model, backend=args.torchcompile)
+
+    # create the train and eval datasets
+    if args.data and not args.data_dir:
+        args.data_dir = args.data
+    dataset_train = create_dataset(
+        args.dataset,
+        root=args.data_dir,
+        split=args.train_split,
+        is_training=True,
+        class_map=args.class_map,
+        download=args.dataset_download,
+        batch_size=args.batch_size,
+        seed=args.seed,
+        repeats=args.epoch_repeats,
+    )
+
+    dataset_eval = create_dataset(
+        args.dataset,
+        root=args.data_dir,
+        split=args.val_split,
+        is_training=False,
+        class_map=args.class_map,
+        download=args.dataset_download,
+        batch_size=args.batch_size,
+    )
+
