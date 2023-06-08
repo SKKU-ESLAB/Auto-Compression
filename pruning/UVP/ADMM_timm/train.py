@@ -701,3 +701,23 @@ def main():
         worker_seeding=args.worker_seeding,
     )
 
+    eval_workers = args.workers
+    if args.distributed and ('tfds' in args.dataset or 'wds' in args.dataset):
+        # FIXME reduces validation padding issues when using TFDS, WDS w/ workers and distributed training
+        eval_workers = min(2, args.workers)
+    loader_eval = create_loader(
+        dataset_eval,
+        input_size=data_config['input_size'],
+        batch_size=args.validation_batch_size or args.batch_size,
+        is_training=False,
+        use_prefetcher=args.prefetcher,
+        interpolation=data_config['interpolation'],
+        mean=data_config['mean'],
+        std=data_config['std'],
+        num_workers=eval_workers,
+        distributed=args.distributed,
+        crop_pct=data_config['crop_pct'],
+        pin_memory=args.pin_mem,
+        device=device,
+    )
+
