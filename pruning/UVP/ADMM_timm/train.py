@@ -741,3 +741,17 @@ def main():
     train_loss_fn = train_loss_fn.to(device=device)
     validate_loss_fn = nn.CrossEntropyLoss().to(device=device)
 
+    # runs name
+    if args.model == "mobilenetv2_100.ra_in1k":
+        arch = "mbv2_1.0"
+    elif args.model == "mobilenet_v1":
+        arch = "mbv1_1.0"
+    else:
+        raise ValueError
+    runs_name = f"{arch}_ts{args.target_sparsity}_lr{args.lr}_admm{args.admm_epochs}_ft{args.ft_epochs}_v{args.vector_size}"
+    runs_name = runs_name + ("_u" if args.unaligned else "_a")
+    runs_name = runs_name + ("_cp" if args.cp else "")
+    runs_name = runs_name + ("_repeat" if args.repeat else "")
+    if args.mixup > 0.0:
+        runs_name = runs_name + f"mixup{args.mixup}"
+
