@@ -787,3 +787,19 @@ def main():
         with open(os.path.join(output_dir, 'args.yaml'), 'w') as f:
             f.write(args_text)
 
+    if utils.is_primary(args) and args.log_wandb:
+        if has_wandb:
+            #wandb.init(project=args.experiment, config=args)
+            wandb.init(project=args.experiment, name=runs_name, config=args)
+        else:
+            _logger.warning(
+                "You've requested to log metrics to wandb but package not found. "
+                "Metrics not being logged to wandb, try `pip install wandb`")
+
+    # setup learning rate schedule and starting epoch
+    updates_per_epoch = (len(loader_train) + args.grad_accum_steps - 1) // args.grad_accum_steps
+    lr_scheduler, num_epochs = create_scheduler_v2(
+        optimizer,
+        **scheduler_kwargs(args),
+        updates_per_epoch=updates_per_epoch,
+    )
