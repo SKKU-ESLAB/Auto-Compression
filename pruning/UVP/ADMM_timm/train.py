@@ -803,3 +803,20 @@ def main():
         **scheduler_kwargs(args),
         updates_per_epoch=updates_per_epoch,
     )
+    start_epoch = 0
+    if args.start_epoch is not None:
+        # a specified start_epoch will always override the resume epoch
+        start_epoch = args.start_epoch
+    elif resume_epoch is not None:
+        start_epoch = resume_epoch
+    if lr_scheduler is not None and start_epoch > 0:
+        if args.sched_on_updates:
+            lr_scheduler.step_update(start_epoch * updates_per_epoch)
+        else:
+            lr_scheduler.step(start_epoch)
+
+    if utils.is_primary(args):
+        _logger.info(
+            f'Scheduled epochs: {num_epochs}. LR stepped per {"epoch" if lr_scheduler.t_in_epochs else "update"}.')
+
+
