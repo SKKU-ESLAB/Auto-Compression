@@ -755,3 +755,35 @@ def main():
     if args.mixup > 0.0:
         runs_name = runs_name + f"mixup{args.mixup}"
 
+    # setup checkpoint saver and eval metric tracking
+    eval_metric = args.eval_metric
+    best_metric = None
+    best_epoch = None
+    saver = None
+    output_dir = None
+    if utils.is_primary(args):
+        if args.experiment:
+            exp_name = args.experiment
+        else:
+            exp_name = '-'.join([
+                datetime.now().strftime("%Y%m%d-%H%M%S"),
+                safe_model_name(args.model),
+                str(data_config['input_size'][-1])
+            ])
+        #output_dir = utils.get_outdir(args.output if args.output else './output/train', exp_name)
+        output_dir = utils.get_outdir(args.output if args.output else './output/train', runs_name)
+        decreasing = True if eval_metric == 'loss' else False
+        saver = utils.CheckpointSaver(
+            model=model,
+            optimizer=optimizer,
+            args=args,
+            model_ema=model_ema,
+            amp_scaler=loss_scaler,
+            checkpoint_dir=output_dir,
+            recovery_dir=output_dir,
+            decreasing=decreasing,
+            max_history=args.checkpoint_hist
+        )
+        with open(os.path.join(output_dir, 'args.yaml'), 'w') as f:
+            f.write(args_text)
+
