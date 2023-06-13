@@ -829,3 +829,41 @@ def main():
     if utils.is_primary(args):
         print(score_diff_dict)
 
+    try:
+        # ADMM Phase
+        for epoch in range(start_epoch, args.admm_epochs):
+            if hasattr(dataset_train, 'set_epoch'):
+                dataset_train.set_epoch(epoch)
+            elif args.distributed and hasattr(loader_train.sampler, 'set_epoch'):
+                loader_train.sampler.set_epoch(epoch)
+
+            train_metrics = train_one_epoch(
+                epoch,
+                model,
+                loader_train,
+                optimizer,
+                train_loss_fn,
+                args,
+                lr_scheduler=lr_scheduler,
+                saver=saver,
+                output_dir=output_dir,
+                amp_autocast=amp_autocast,
+                loss_scaler=loss_scaler,
+                model_ema=model_ema,
+                mixup_fn=mixup_fn,
+                Z=Z,
+                U=U,
+            )
+
+            if args.distributed and args.dist_bn in ('broadcast', 'reduce'):
+                if utils.is_primary(args):
+                    _logger.info("Distributing BatchNorm running means and vars")
+                utils.distribute_bn(model, args.world_size, args.dist_bn == 'reduce')
+
+            X = update_X(model, args)
+            Z, score_diff_dict = update_Z(X, U, args, perm_list, args.repeat)
+            U = update_U(U, X, Z)
+            if utils.is_primary(args):
+                if args.repeat:
+                    print(score_diff_dict)
+
