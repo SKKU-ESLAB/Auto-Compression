@@ -820,3 +820,12 @@ def main():
             f'Scheduled epochs: {num_epochs}. LR stepped per {"epoch" if lr_scheduler.t_in_epochs else "update"}.')
 
 
+    # ADMM Initialization
+    perm_list = initialize_perm_list(model, args)
+    Z, U = initialize_Z_and_U(model, args)
+    X = update_X(model, args)
+    Z, score_diff_dict = update_Z(X, U, args, perm_list, args.cp)
+    U = update_U(U, X, Z)
+    if utils.is_primary(args):
+        print(score_diff_dict)
+
