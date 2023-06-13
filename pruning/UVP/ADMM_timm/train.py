@@ -867,3 +867,25 @@ def main():
                 if args.repeat:
                     print(score_diff_dict)
 
+            eval_metrics = validate(
+                model,
+                loader_eval,
+                validate_loss_fn,
+                args,
+                amp_autocast=amp_autocast,
+            )
+
+            if model_ema is not None and not args.model_ema_force_cpu:
+                if args.distributed and args.dist_bn in ('broadcast', 'reduce'):
+                    utils.distribute_bn(model_ema, args.world_size, args.dist_bn == 'reduce')
+
+                ema_eval_metrics = validate(
+                    model_ema.module,
+                    loader_eval,
+                    validate_loss_fn,
+                    args,
+                    amp_autocast=amp_autocast,
+                    log_suffix=' (EMA)',
+                )
+                eval_metrics = ema_eval_metrics
+
