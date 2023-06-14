@@ -912,3 +912,9 @@ def main():
                 # step LR for next epoch
                 lr_scheduler.step(epoch + 1, eval_metrics[eval_metric])
 
+        # Pruning Step
+        mask = apply_prune(model, args, perm_list)
+        if utils.is_primary(args):
+            print_prune(model, args)
+        optimizer.param_groups[1]['weight_decay'] = 0.0
+
