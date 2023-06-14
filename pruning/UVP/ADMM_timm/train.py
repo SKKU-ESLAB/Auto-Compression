@@ -918,3 +918,31 @@ def main():
             print_prune(model, args)
         optimizer.param_groups[1]['weight_decay'] = 0.0
 
+        # Fine-tune Phase
+        for epoch in range(max(start_epoch, args.admm_epochs), args.admm_epochs + args.ft_epochs):
+            if hasattr(dataset_train, 'set_epoch'):
+                dataset_train.set_epoch(epoch)
+            elif args.distributed and hasattr(loader_train.sampler, 'set_epoch'):
+                loader_train.sampler.set_epoch(epoch)
+
+            train_metrics = train_one_epoch(
+                epoch,
+                model,
+                loader_train,
+                optimizer,
+                train_loss_fn,
+                args,
+                lr_scheduler=lr_scheduler,
+                saver=saver,
+                output_dir=output_dir,
+                amp_autocast=amp_autocast,
+                loss_scaler=loss_scaler,
+                model_ema=model_ema,
+                mixup_fn=mixup_fn,
+            )
+
+            if args.distributed and args.dist_bn in ('broadcast', 'reduce'):
+                if utils.is_primary(args):
+                    _logger.info("Distributing BatchNorm running means and vars")
+                utils.distribute_bn(model, args.world_size, args.dist_bn == 'reduce')
+
