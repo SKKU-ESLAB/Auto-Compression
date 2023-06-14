@@ -968,3 +968,31 @@ def main():
                 )
                 eval_metrics = ema_eval_metrics
 
+            if output_dir is not None:
+                lrs = [param_group['lr'] for param_group in optimizer.param_groups]
+                utils.update_summary(
+                    epoch,
+                    train_metrics,
+                    eval_metrics,
+                    filename=os.path.join(output_dir, 'summary.csv'),
+                    lr=sum(lrs) / len(lrs),
+                    write_header=best_metric is None,
+                    log_wandb=args.log_wandb and has_wandb,
+                )
+
+            if saver is not None:
+                # save proper checkpoint with eval metric
+                save_metric = eval_metrics[eval_metric]
+                best_metric, best_epoch = saver.save_checkpoint(epoch, metric=save_metric)
+
+            if lr_scheduler is not None:
+                # step LR for next epoch
+                lr_scheduler.step(epoch + 1, eval_metrics[eval_metric])
+
+    except KeyboardInterrupt:
+        pass
+
+    if best_metric is not None:
+        _logger.info('*** Best metric: {0} (epoch {1})'.format(best_metric, best_epoch))
+
+
