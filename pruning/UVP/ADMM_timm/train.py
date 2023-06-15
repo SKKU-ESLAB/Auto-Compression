@@ -1035,3 +1035,33 @@ def train_one_epoch(
     last_batch_idx = len(loader) - 1
     last_batch_idx_to_accum = len(loader) - last_accum_steps
 
+    data_start_time = update_start_time = time.time()
+    optimizer.zero_grad()
+    update_sample_count = 0
+    for batch_idx, (input, target) in enumerate(loader):
+        last_batch = batch_idx == last_batch_idx
+        need_update = last_batch or (batch_idx + 1) % accum_steps == 0
+        update_idx = batch_idx // accum_steps
+        if batch_idx >= last_batch_idx_to_accum:
+            accum_steps = last_accum_steps
+
+        if not args.prefetcher:
+            input, target = input.to(device), target.to(device)
+            if mixup_fn is not None:
+                input, target = mixup_fn(input, target)
+        if args.channels_last:
+            input = input.contiguous(memory_format=torch.channels_last)
+
+        # multiply by accum steps to get equivalent for full update
+        data_time_m.update(accum_steps * (time.time() - data_start_time))
+
+        def _forward():
+            with amp_autocast():
+                output = model(input)
+                loss = loss_fn(output, target)
+                if Z is not None and U is not None:
+                    loss += get_admm_loss(args, model, Z, U)
+            if accum_steps > 1:
+                loss /= accum_steps
+            return loss
+
