@@ -1114,3 +1114,48 @@ def train_one_epoch(
         update_time_m.update(time.time() - update_start_time)
         update_start_time = time_now
 
+        if update_idx % args.log_interval == 0:
+            lrl = [param_group['lr'] for param_group in optimizer.param_groups]
+            lr = sum(lrl) / len(lrl)
+
+            if args.distributed:
+                reduced_loss = utils.reduce_tensor(loss.data, args.world_size)
+                losses_m.update(reduced_loss.item() * accum_steps, input.size(0))
+                update_sample_count *= args.world_size
+
+            if utils.is_primary(args):
+                _logger.info(
+                    f'Train: {epoch} [{update_idx:>4d}/{updates_per_epoch} '
+                    f'({100. * update_idx / (updates_per_epoch - 1):>3.0f}%)]  '
+                    f'Loss: {losses_m.val:#.3g} ({losses_m.avg:#.3g})  '
+                    f'Time: {update_time_m.val:.3f}s, {update_sample_count / update_time_m.val:>7.2f}/s  '
+                    f'({update_time_m.avg:.3f}s, {update_sample_count / update_time_m.avg:>7.2f}/s)  '
+                    f'LR: {lr:.3e}  '
+                    f'Data: {data_time_m.val:.3f} ({data_time_m.avg:.3f})'
+                )
+
+                if args.save_images and output_dir:
+                    torchvision.utils.save_image(
+                        input,
+                        os.path.join(output_dir, 'train-batch-%d.jpg' % batch_idx),
+                        padding=0,
+                        normalize=True
+                    )
+
+        if saver is not None and args.recovery_interval and (
+                (update_idx + 1) % args.recovery_interval == 0):
+            saver.save_recovery(epoch, batch_idx=update_idx)
+
+        if lr_scheduler is not None:
+            lr_scheduler.step_update(num_updates=num_updates, metric=losses_m.avg)
+
+        update_sample_count = 0
+        data_start_time = time.time()
+        # end for
+
+    if hasattr(optimizer, 'sync_lookahead'):
+        optimizer.sync_lookahead()
+
+    return OrderedDict([('loss', losses_m.avg)])
+
+
