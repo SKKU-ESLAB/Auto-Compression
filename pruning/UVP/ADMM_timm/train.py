@@ -996,3 +996,42 @@ def main():
         _logger.info('*** Best metric: {0} (epoch {1})'.format(best_metric, best_epoch))
 
 
+def train_one_epoch(
+        epoch,
+        model,
+        loader,
+        optimizer,
+        loss_fn,
+        args,
+        device=torch.device('cuda'),
+        lr_scheduler=None,
+        saver=None,
+        output_dir=None,
+        amp_autocast=suppress,
+        loss_scaler=None,
+        model_ema=None,
+        mixup_fn=None,
+        Z=None,
+        U=None,
+):
+    if args.mixup_off_epoch and epoch >= args.mixup_off_epoch:
+        if args.prefetcher and loader.mixup_enabled:
+            loader.mixup_enabled = False
+        elif mixup_fn is not None:
+            mixup_fn.mixup_enabled = False
+
+    second_order = hasattr(optimizer, 'is_second_order') and optimizer.is_second_order
+    has_no_sync = hasattr(model, "no_sync")
+    update_time_m = utils.AverageMeter()
+    data_time_m = utils.AverageMeter()
+    losses_m = utils.AverageMeter()
+
+    model.train()
+
+    accum_steps = args.grad_accum_steps
+    last_accum_steps = len(loader) % accum_steps
+    updates_per_epoch = (len(loader) + accum_steps - 1) // accum_steps
+    num_updates = epoch * updates_per_epoch
+    last_batch_idx = len(loader) - 1
+    last_batch_idx_to_accum = len(loader) - last_accum_steps
+
