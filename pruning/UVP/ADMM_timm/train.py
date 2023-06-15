@@ -1087,3 +1087,30 @@ def train_one_epoch(
                         )
                     optimizer.step()
 
+        if has_no_sync and not need_update:
+            with model.no_sync():
+                loss = _forward()
+                _backward(loss)
+        else:
+            loss = _forward()
+            _backward(loss)
+
+        if not args.distributed:
+            losses_m.update(loss.item() * accum_steps, input.size(0))
+        update_sample_count += input.size(0)
+
+        if not need_update:
+            data_start_time = time.time()
+            continue
+
+        num_updates += 1
+        optimizer.zero_grad()
+        if model_ema is not None:
+            model_ema.update(model)
+
+        if args.synchronize_step and device.type == 'cuda':
+            torch.cuda.synchronize()
+        time_now = time.time()
+        update_time_m.update(time.time() - update_start_time)
+        update_start_time = time_now
+
