@@ -1159,3 +1159,21 @@ def train_one_epoch(
     return OrderedDict([('loss', losses_m.avg)])
 
 
+def validate(
+        model,
+        loader,
+        loss_fn,
+        args,
+        device=torch.device('cuda'),
+        amp_autocast=suppress,
+        log_suffix=''
+):
+    batch_time_m = utils.AverageMeter()
+    losses_m = utils.AverageMeter()
+    top1_m = utils.AverageMeter()
+    top5_m = utils.AverageMeter()
+
+    model.eval()
+
+    end = time.time()
+    last_idx = len(loader) - 1
