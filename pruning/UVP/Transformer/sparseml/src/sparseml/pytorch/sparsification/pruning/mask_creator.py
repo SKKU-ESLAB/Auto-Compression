@@ -706,6 +706,52 @@ class UVPruningMaskCreator(PruningMaskCreator):
         self._first_cp = True
         self._perm_list = []
 
+    def _search_unaligned(
+        self,
+        tensor: Tensor,
+        sparsity: float,
+    ) -> Tensor:
+        target_nnz = int((tensor.numel() - round(sparsity * tensor.numel())) // self._V)
+
+        #tensor_np = tensor.detach().abs().permute(1, 0).cpu().numpy()
+        tensor_np = tensor.detach().permute(1, 0).cpu().numpy()
+
+        R, C = tensor_np.shape
+
+        nnz_per_row = np.zeros(C - self._V + 1)
+        selected_index_list = [np.array([]).astype("int") for r in range(R)]
+
+        value_list = [tensor_np[r] for r in range(R)]
+        index_list = [np.arange(C) for r in range(R)]
+        vector_list = [np.sum(np.lib.stride_tricks.sliding_window_view(value_list[r], self._V, axis=0), axis=1) for r in range(R)]
+
+        score = 0
+        argmax_idx_list = np.array([np.argmax(vector_list[r]) for r in range(R)])
+        amax_list = np.array([vector_list[r][argmax_idx_list[r]] for r in range(R)])
+
+        mask = np.zeros((R, C), dtype=bool)
+        for i in range(target_nnz):
+            r = np.argmax(amax_list)
+            c = argmax_idx_list[r]
+
+            score = score + vector_list[r][c]
+            mask[r, index_list[r][c:c+self._V]] = True
+
+            if len(value_list[r]) >= 2 * self._V:
+                value_list[r] = np.concatenate([value_list[r][:c], value_list[r][c+self._V:]])
+                index_list[r] = np.concatenate([index_list[r][:c], index_list[r][c+self._V:]])
+                vector_list[r] = np.sum(np.lib.stride_tricks.sliding_window_view(value_list[r], self._V, axis=0), axis=1)
+
+                argmax_idx_list[r] = np.argmax(vector_list[r])
+                amax_list[r] = vector_list[r][argmax_idx_list[r]]
+            else:
+                amax_list[r] = 0
+
+        mask = mask.transpose(1, 0)
+        mask_tensor = torch.Tensor(mask).type(tensor.type()).to(tensor.device)
+
+        return score, mask_tensor
+
 def get_mask_creator_default(mask_type: Union[str, List[int]]) -> PruningMaskCreator:
     """
     :param mask_type: type of mask creator to use, can be 'unstructured', for
