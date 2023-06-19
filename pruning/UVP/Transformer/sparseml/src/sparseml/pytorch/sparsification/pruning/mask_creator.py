@@ -28,6 +28,8 @@ from torch import Tensor
 
 from sparseml.pytorch.utils import memory_aware_threshold
 
+import numpy as np
+
 
 __all__ = [
     "PruningMaskCreator",
@@ -36,6 +38,7 @@ __all__ = [
     "FourBlockMaskCreator",
     "BlockMaskCreator",
     "NMPruningMaskCreator",
+    "UVPruningMaskCreator",
 ]
 
 
@@ -678,6 +681,18 @@ class NMPruningMaskCreator(PruningMaskCreator):
                 raise NotImplementedError("Only support layers of dimension 2 or 4")
         return masks
 
+
+class UVPruningMaskCreator(PruningMaskCreator):
+    """
+    semi-structured sparsity mask creator that groups sparsity blocks in groups of four
+    along the input-channel dimension (assumed to be dimension 1 for pytorch)
+
+    Equivalent to BlockPruningMaskCreator([1, 4]) without restrictions on number
+    of dimensions, or divisibility
+
+    :param grouping_fn_name: The name of the torch grouping function to reduce
+        dimensions by
+    """
 
 def get_mask_creator_default(mask_type: Union[str, List[int]]) -> PruningMaskCreator:
     """
