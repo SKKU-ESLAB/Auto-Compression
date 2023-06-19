@@ -354,7 +354,7 @@ class OBSPruningModifier(BaseGradualPruningModifier):
         if isinstance(self._damp, str):  # to support 'damp: 1e-7' in the recipe
             self._damp = float(self._damp)
 
-        if self._mask_type not in self._supported_masks:
+        if self._mask_type not in self._supported_masks and "uvp" not in self._mask_type:
             raise ValueError(f"{self._mask_type} mask_type not supported")
 
         if self._mask_type == "block4" and self._fisher_block_size % 4 != 0:
@@ -431,7 +431,7 @@ class OBSPruningParamsScorer(PruningParamsGradScorer):
 
         if self._is_main_proc:
             for i, finv in enumerate(self._finvs):
-                if self._mask_type == "unstructured":
+                if self._mask_type == "unstructured" or "uvp" in self._mask_type:
                     scores[i] = (
                         (self._params[i].data.reshape(-1) ** 2).to(self._devices[i])
                         / (2.0 * finv.diag() + self._eps)
@@ -507,7 +507,7 @@ class OBSPruningParamsScorer(PruningParamsGradScorer):
         obs_updates = [None] * len(self._params)
         if self._is_main_proc:
             for i, param in enumerate(self._params):
-                if self._mask_type == "unstructured":
+                if self._mask_type == "unstructured" or "uvp" in self._mask_type:
                     obs_updates[i] = (
                         self._finvs[i]
                         .mul(
