@@ -694,6 +694,18 @@ class UVPruningMaskCreator(PruningMaskCreator):
         dimensions by
     """
 
+    def __init__(
+        self,
+        V: int = 2,
+        unaligned: bool = True,
+        channel_permute: bool = True,
+    ):
+        self._V = V
+        self._unaligned = unaligned
+        self._channel_permute = channel_permute
+        self._first_cp = True
+        self._perm_list = []
+
 def get_mask_creator_default(mask_type: Union[str, List[int]]) -> PruningMaskCreator:
     """
     :param mask_type: type of mask creator to use, can be 'unstructured', for
