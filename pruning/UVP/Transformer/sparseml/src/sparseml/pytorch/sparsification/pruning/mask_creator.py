@@ -752,6 +752,52 @@ class UVPruningMaskCreator(PruningMaskCreator):
 
         return score, mask_tensor
 
+    def _search_unaligned_global(
+        self,
+        tensors: List,
+        sparsity: float,
+    ) -> Tensor:
+        num_elements = sum([tensor.numel() for tensor in tensors])
+        target_nnz = int((num_elements - round(sparsity * num_elements)) // self._V)
+
+        tensors_np = [tensor.detach().permute(1, 0).cpu().numpy() for tensor in tensors]
+
+        nnz_per_row = []
+        selected_index_list = []
+        value_list = []
+        index_list = []
+        vector_list = []
+
+        score = 0
+        masks = []
+
+        argmax_idx_list = []
+        amax_list = []
+        top_amax_list = []
+        r_list = []
+        c_list = []
+
+        for i, tensor_np in enumerate(tensors_np):
+            R, C = tensor_np.shape
+
+            nnz_per_row.append(np.zeros(C - self._V + 1))
+            selected_index_list.append(np.array([]).astype("int") for r in range(R))
+
+            value_list.append([tensor_np[r] for r in range(R)])
+            index_list.append([np.arange(C) for _ in range(R)])
+            vector_list.append([np.sum(np.lib.stride_tricks.sliding_window_view(value_list[i][r], self._V, axis=0), axis=1) for r in range(R)])
+
+            argmax_idx_list.append(np.argmax(vector_list[i], axis=1))
+            amax_list.append(np.array([vector_list[i][r][argmax_idx_list[i][r]] for r in range(R)]))
+
+            masks.append(np.zeros((R, C), dtype=bool))
+
+            r = np.argmax(amax_list[i])
+            c = argmax_idx_list[i][r]
+            r_list.append(r)
+            c_list.append(c)
+            top_amax_list.append(vector_list[i][r][c])
+
 def get_mask_creator_default(mask_type: Union[str, List[int]]) -> PruningMaskCreator:
     """
     :param mask_type: type of mask creator to use, can be 'unstructured', for
