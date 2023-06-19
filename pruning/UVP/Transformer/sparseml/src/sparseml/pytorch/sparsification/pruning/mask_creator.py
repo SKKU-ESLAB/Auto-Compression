@@ -798,6 +798,36 @@ class UVPruningMaskCreator(PruningMaskCreator):
             c_list.append(c)
             top_amax_list.append(vector_list[i][r][c])
 
+        for _ in range(target_nnz):
+            i = np.argmax(top_amax_list)
+            r = r_list[i]
+            c = c_list[i]
+
+            score = score + vector_list[i][r][c]
+            masks[i][r, index_list[i][r][c:c+self._V]] = True
+
+            if len(value_list[i][r]) >= 2 * self._V:
+                value_list[i][r] = np.concatenate([value_list[i][r][:c], value_list[i][r][c+self._V:]])
+                index_list[i][r] = np.concatenate([index_list[i][r][:c], index_list[i][r][c+self._V:]])
+                vector_list[i][r] = np.sum(np.lib.stride_tricks.sliding_window_view(value_list[i][r], self._V, axis=0), axis=1)
+
+                argmax_idx_list[i][r] = np.argmax(vector_list[i][r])
+                amax_list[i][r] = vector_list[i][r][argmax_idx_list[i][r]]
+            else:
+                amax_list[i][r] = 0
+
+            r = np.argmax(amax_list[i])
+            c = argmax_idx_list[i][r]
+            r_list[i] = r
+            c_list[i] = c
+            top_amax_list[i] = vector_list[i][r][c]
+
+        mask_tensors = []
+        for i, mask in enumerate(masks):
+            mask_tensors.append(torch.Tensor(mask.transpose(1, 0)).type(tensors[i].type()).to(tensors[i].device))
+
+        return score, mask_tensors
+
 def get_mask_creator_default(mask_type: Union[str, List[int]]) -> PruningMaskCreator:
     """
     :param mask_type: type of mask creator to use, can be 'unstructured', for
