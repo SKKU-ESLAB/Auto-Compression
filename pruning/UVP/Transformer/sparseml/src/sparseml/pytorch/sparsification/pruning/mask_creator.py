@@ -868,6 +868,31 @@ class UVPruningMaskCreator(PruningMaskCreator):
         cp_alpha = 0.1
         cp_beta = 0.8
 
+        if self._unaligned:
+            if self._V > 2:
+                coef = 1 - (1 - cp_alpha) * (np.arange(self._V - 1).reshape(-1, 1) / (self._V - 2)) ** cp_beta
+            else:
+                coef = (1 + np.arange(self._V - 1)).reshape(-1, 1)
+            for r in range(R):
+                if r == 0:
+                    best_i = 0
+                else:
+                    l = min(self._V - 1, len(best_perm))
+                    best_i = np.argmax(np.sum(cs[best_perm[::-1][:l]][:, remained_perm] * coef[:l], axis=0))
+                best_perm.append(remained_perm.pop(best_i))
+        else:
+            for r in range(R):
+                if r == 0:
+                    best_i = 0
+                elif r % self._V == 0:
+                    best_i = np.argmin(cs[best_perm[-1], remained_perm])
+                else:
+                    l = min(self._V - 1, len(best_perm) % self._V)
+                    best_i = np.argmax(np.sum(cs[best_perm[-l:]][:, remained_perm], axis=0))
+                best_perm.append(remained_perm.pop(best_i))
+
+        return torch.LongTensor(best_perm).to(tensor.device)
+
 def get_mask_creator_default(mask_type: Union[str, List[int]]) -> PruningMaskCreator:
     """
     :param mask_type: type of mask creator to use, can be 'unstructured', for
