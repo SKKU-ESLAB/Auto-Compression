@@ -909,6 +909,26 @@ class UVPruningMaskCreator(PruningMaskCreator):
 
         return global_tensor
 
+    def _unstack_flattened_tensors(
+        self, stacked_tensor: Tensor, original_tensors: List[Tensor]
+    ) -> List[Tensor]:
+        unstacked_tensors = []
+        global_idx = 0
+        for tensor in original_tensors:
+            # unpack global tensor into masks matching original tensor shapes
+            unstacked_tensor = (
+                tensor.new_empty(tensor.numel()).detach().requires_grad_(False)
+            )
+            unstacked_tensor.copy_(
+                stacked_tensor[global_idx : global_idx + tensor.numel()]
+            ).type(tensor.type())
+            unstacked_tensor = unstacked_tensor.reshape(tensor.shape)
+
+            unstacked_tensors.append(unstacked_tensor)
+            global_idx += tensor.numel()
+
+        return unstacked_tensors
+
 def get_mask_creator_default(mask_type: Union[str, List[int]]) -> PruningMaskCreator:
     """
     :param mask_type: type of mask creator to use, can be 'unstructured', for
