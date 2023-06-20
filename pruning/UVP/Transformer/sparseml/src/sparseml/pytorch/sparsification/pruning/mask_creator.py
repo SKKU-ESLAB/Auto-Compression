@@ -842,6 +842,32 @@ class UVPruningMaskCreator(PruningMaskCreator):
         return block_mask
 
 
+    def _search_perm(
+        self,
+        tensor: Tensor,
+        #sparsity: float,
+        mask: Tensor,
+    ) -> Tensor:
+        #threshold = self._threshold_from_sparsity(tensor, sparsity)
+        #mask = tensor > threshold
+
+        masked_weight = tensor * mask
+        masked_weight = masked_weight.cpu().detach().numpy()
+
+        R = masked_weight.shape[0]
+        best_perm = []
+        remained_perm = [r for r in range(R)]
+
+        def cosine_similarity(A, B):
+            dp = np.dot(A, B.T)
+            p1 = np.sqrt(np.sum(A**2, axis=1))[:, np.newaxis] + 1e-9
+            p2 = np.sqrt(np.sum(B**2, axis=1))[np.newaxis, :] + 1e-9
+            return dp / (p1 * p2)
+
+        cs = cosine_similarity(masked_weight, masked_weight)
+        cp_alpha = 0.1
+        cp_beta = 0.8
+
 def get_mask_creator_default(mask_type: Union[str, List[int]]) -> PruningMaskCreator:
     """
     :param mask_type: type of mask creator to use, can be 'unstructured', for
