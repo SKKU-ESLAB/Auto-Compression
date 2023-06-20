@@ -828,6 +828,20 @@ class UVPruningMaskCreator(PruningMaskCreator):
 
         return score, mask_tensors
 
+    def _search_aligned(
+        self,
+        tensor: Tensor,
+        sparsity: float,
+    ) -> Tensor:
+        grouped_tensor = torch.mean(tensor.reshape(tensor.shape[0] // self._V, self._V, -1), dim=1, keepdim=True)
+        threshold = self._threshold_from_sparsity(grouped_tensor, sparsity)
+        grouped_mask = grouped_tensor > threshold
+        block_mask = grouped_mask.expand(-1, self._V, -1).contiguous()
+        block_mask = block_mask.reshape(tensor.shape)
+
+        return block_mask
+
+
 def get_mask_creator_default(mask_type: Union[str, List[int]]) -> PruningMaskCreator:
     """
     :param mask_type: type of mask creator to use, can be 'unstructured', for
