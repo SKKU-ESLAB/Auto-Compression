@@ -893,6 +893,22 @@ class UVPruningMaskCreator(PruningMaskCreator):
 
         return torch.LongTensor(best_perm).to(tensor.device)
 
+    def _flatten_and_stack_tensors(self, tensors: List[Tensor]) -> Tensor:
+        total_elements = sum(tensor.numel() for tensor in tensors)
+
+        global_tensor = (
+            tensors[0].new_zeros(total_elements).detach().requires_grad_(False)
+        )
+
+        curr_element = 0
+        for idx, tensor in enumerate(tensors):
+            global_tensor[
+                curr_element : curr_element + tensor.numel()
+            ] = tensor.reshape(-1)
+            curr_element += tensor.numel()
+
+        return global_tensor
+
 def get_mask_creator_default(mask_type: Union[str, List[int]]) -> PruningMaskCreator:
     """
     :param mask_type: type of mask creator to use, can be 'unstructured', for
