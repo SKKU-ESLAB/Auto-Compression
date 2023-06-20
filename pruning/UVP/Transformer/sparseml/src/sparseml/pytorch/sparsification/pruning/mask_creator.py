@@ -929,6 +929,27 @@ class UVPruningMaskCreator(PruningMaskCreator):
 
         return unstacked_tensors
 
+    def _threshold_from_sparsity(self, tensor: Tensor, sparsity: float) -> Tensor:
+        """
+        :param tensor: the tensor to find a value in for which setting
+            all values < that value will give desired sparsity
+        :param sparsity: the desired sparsity to reach within the mask
+            (decimal fraction of zeros) can also be a list where each element is a
+            sparsity for a tensor in the same position in the tensor list
+        :return: the threshold to get to the desired sparsity or an empty tensor
+            if it was not possible given the inputs
+        """
+        if tensor.numel() < 1 or sparsity <= 0.0 or sparsity > 1.0:
+            return tensor.new_tensor([])
+
+        lookup_index = round(sparsity * tensor.numel()) - 1
+        if lookup_index < 0:
+            lookup_index = 0
+        elif lookup_index > tensor.numel():
+            lookup_index = tensor.numel()
+
+        return memory_aware_threshold(tensor, lookup_index)
+
 def get_mask_creator_default(mask_type: Union[str, List[int]]) -> PruningMaskCreator:
     """
     :param mask_type: type of mask creator to use, can be 'unstructured', for
