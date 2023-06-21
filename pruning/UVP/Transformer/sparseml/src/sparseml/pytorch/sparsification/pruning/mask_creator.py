@@ -986,6 +986,27 @@ class UVPruningMaskCreator(PruningMaskCreator):
             del unstructured_masks
         self._first_cp = False
 
+        if global_sparsity:
+            if self._channel_permute:
+                permed_tensors = [tensor[perm] for tensor, perm in zip(tensors, self._perm_list)]
+                if self._unaligned:
+                    score, masks = self._search_unaligned_global(permed_tensors, sparsity[0])
+                else:
+                    permed_tensors = [permed_tensor.permute(1, 0) for permed_tensor in permed_tensors]
+                    stacked_tensor = self._flatten_and_stack_tensors(permed_tensors)
+                    global_mask = self._search_aligned(stacked_tensor, sparsity[0])
+                    masks = self._unstack_flattened_tensors(global_mask, permed_tensors)
+                    masks = [mask.permute(1, 0) for mask in masks]
+                masks = [mask[torch.argsort(perm)] for mask, perm in zip(masks, self._perm_list)]
+            else:
+                if self._unaligned:
+                    score, masks = self._search_unaligned_global(tensors, sparsity[0])
+                else:
+                    t_tensors = [tensor.permute(1, 0) for tensor in tensors]
+                    stacked_tensor = self._flatten_and_stack_tensors(t_tensors)
+                    global_mask = self._search_aligned(stacked_tensor, sparsity[0])
+                    masks = self._unstack_flattened_tensors(global_mask, t_tensors)
+                    masks = [mask.permute(1, 0) for mask in masks]
 def get_mask_creator_default(mask_type: Union[str, List[int]]) -> PruningMaskCreator:
     """
     :param mask_type: type of mask creator to use, can be 'unstructured', for
