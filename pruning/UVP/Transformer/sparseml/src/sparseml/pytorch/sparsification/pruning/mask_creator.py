@@ -1007,6 +1007,26 @@ class UVPruningMaskCreator(PruningMaskCreator):
                     global_mask = self._search_aligned(stacked_tensor, sparsity[0])
                     masks = self._unstack_flattened_tensors(global_mask, t_tensors)
                     masks = [mask.permute(1, 0) for mask in masks]
+        else:
+            masks = []
+            for i, (tensor, sparsity_target) in enumerate(zip(tensors, sparsity)):
+                if self._channel_permute:
+                    perm = self._perm_list[i]
+                    if self._unaligned:
+                        score, mask = self._search_unaligned(tensor[perm], sparsity_target)
+                    else:
+                        mask = self._search_aligned(tensor[perm], sparsity_target)
+                    mask = mask[torch.argsort(perm)]
+                else:
+                    if self._unaligned:
+                        score, mask = self._search_unaligned(tensor, sparsity_target)
+                    else:
+                        mask = self._search_aligned(tensor, sparsity_target)
+                masks.append(mask)
+
+        return masks
+
+
 def get_mask_creator_default(mask_type: Union[str, List[int]]) -> PruningMaskCreator:
     """
     :param mask_type: type of mask creator to use, can be 'unstructured', for
