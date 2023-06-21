@@ -950,6 +950,42 @@ class UVPruningMaskCreator(PruningMaskCreator):
 
         return memory_aware_threshold(tensor, lookup_index)
 
+    def create_sparsity_masks(
+        self,
+        tensors: List[Tensor],
+        target: Union[float, List[float]],
+        global_sparsity: bool = False,
+    ) -> List[Tensor]:
+        sparsity = target
+
+        if isinstance(sparsity, float):
+            sparsity = [sparsity] * len(tensors)
+        if len(sparsity) != len(tensors):
+            raise ValueError(
+                "a sparsity target must be defined for every given Tensor. Received"
+                f"{len(sparsity)} targets for {len(tensors)} Tensors."
+            )
+
+        if self._channel_permute and self._first_cp:
+            if global_sparsity:
+                stacked_tensor = self._flatten_and_stack_tensors(tensors)
+                threshold = self._threshold_from_sparsity(stacked_tensor, sparsity[0])
+                global_mask = stacked_tensor > threshold
+                unstructured_masks = self._unstack_flattened_tensors(global_mask, tensors)
+                del global_mask
+            else:
+                unstructured_masks = []
+                for tensor, sparsity_target in zip(tensors, sparsity):
+                    threshold = self._threshold_from_sparsity(tensor, sparsity_target)
+                    mask = tensor > threshold
+                    unstructured_masks.append(mask)
+
+            for tensor, unstructured_mask in zip(tensors, unstructured_masks):
+                perm = self._search_perm(tensor, unstructured_mask)
+                self._perm_list.append(perm)
+            del unstructured_masks
+        self._first_cp = False
+
 def get_mask_creator_default(mask_type: Union[str, List[int]]) -> PruningMaskCreator:
     """
     :param mask_type: type of mask creator to use, can be 'unstructured', for
