@@ -1061,6 +1061,19 @@ def get_mask_creator_default(mask_type: Union[str, List[int]]) -> PruningMaskCre
                 f"got list with length {len(mask_type)}, mask_type={mask_type}"
             )
         return BlockMaskCreator(mask_type)
+    elif "uvp" in mask_type:
+        V = int(mask_type[len("uvp")])
+        if mask_type[len("uvp")+1] == "a":
+            unaligned = False
+        elif mask_type[len("uvp")+1] == "u":
+            unaligned = True
+        else:
+            raise ValueError("UVP only support 'a' or 'u'")
+        if "cp" in mask_type:
+            channel_permute = True
+        else:
+            channel_permute = False
+        return UVPruningMaskCreator(V, unaligned, channel_permute)
     else:
         raise ValueError(
             f"Unknown mask_type {mask_type}. Supported mask types include "
