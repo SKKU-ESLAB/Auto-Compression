@@ -302,3 +302,62 @@ class DataTrainingArguments:
                 ], "`test_file` should be a csv or a json file."
 
 
+@record
+def main(**kwargs):
+    # See all possible arguments in
+    # src/sparseml/transformers/sparsification/training_args.py
+    # or by passing the --help flag to this script.
+    # We now keep distinct sets of args, for a cleaner separation of concerns.
+
+    parser = HfArgumentParser(
+        (ModelArguments, DataTrainingArguments, TrainingArguments)
+    )
+    if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
+        # If we pass only one argument to the script and it's the path to a json file,
+        # let's parse it to get our arguments.
+        model_args, data_args, training_args = parser.parse_json_file(
+            json_file=os.path.abspath(sys.argv[1])
+        )
+    elif not kwargs:
+        model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+    else:
+        model_args, data_args, training_args = parser.parse_dict(kwargs)
+    # Setup logging
+    log_level = training_args.get_process_log_level()
+    _LOGGER.setLevel(log_level)
+    datasets.utils.logging.set_verbosity(log_level)
+    transformers.utils.logging.set_verbosity(log_level)
+    transformers.utils.logging.enable_default_handler()
+    transformers.utils.logging.enable_explicit_format()
+
+    # Log on each process the small summary:
+    _LOGGER.warning(
+        f"Process rank: {training_args.local_rank}, device: {training_args.device}, "
+        f"n_gpu: {training_args.n_gpu}, "
+        f"distributed training: {bool(training_args.local_rank != -1)}, "
+        f"16-bits training: {training_args.fp16}"
+    )
+    _LOGGER.info(f"Training/evaluation parameters {training_args}")
+
+    # Detecting last checkpoint.
+    last_checkpoint = None
+    if (
+        os.path.isdir(training_args.output_dir)
+        and training_args.do_train
+        and not training_args.overwrite_output_dir
+    ):
+        last_checkpoint = get_last_checkpoint(training_args.output_dir)
+        if last_checkpoint is None and len(os.listdir(training_args.output_dir)) > 0:
+            raise ValueError(
+                f"Output directory ({training_args.output_dir}) already exists and is "
+                "not empty. Use --overwrite_output_dir to overcome."
+            )
+        elif (
+            last_checkpoint is not None and training_args.resume_from_checkpoint is None
+        ):
+            _LOGGER.info(
+                f"Checkpoint detected, resuming training at {last_checkpoint}. "
+                "To avoid this behavior, change the `--output_dir` or add "
+                "`--overwrite_output_dir` to train from scratch."
+            )
+
