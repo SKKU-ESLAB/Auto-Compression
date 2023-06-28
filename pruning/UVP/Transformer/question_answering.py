@@ -415,3 +415,96 @@ def main(**kwargs):
             "find the model types that meet this requirement"
         )
 
+    raw_datasets = _get_raw_dataset(data_args=data_args, cache_dir=model_args.cache_dir)
+    make_eval_dataset = training_args.do_eval or data_args.num_export_samples > 0
+    tokenized_datasets, examples = _get_tokenized_datasets_and_examples(
+        data_args=data_args,
+        raw_datasets=raw_datasets,
+        tokenizer=tokenizer,
+        make_eval_dataset=make_eval_dataset,
+        do_train=training_args.do_train,
+        do_predict=training_args.do_predict,
+        main_process_func=training_args.main_process_first,
+    )
+
+    train_dataset = tokenized_datasets.get("train")
+    eval_dataset, eval_examples = tokenized_datasets.get("validation"), examples.get(
+        "validation"
+    )
+    predict_dataset, predict_examples = tokenized_datasets.get("test"), examples.get(
+        "test"
+    )
+
+    # Data collator
+    # We have already padded to max length if the corresponding flag is True,
+    # otherwise we need to pad in the data collator.
+    data_collator = (
+        default_data_collator
+        if data_args.pad_to_max_length
+        else DataCollatorWithPadding(
+            tokenizer, pad_to_multiple_of=8 if training_args.fp16 else None
+        )
+    )
+    column_names = _get_column_names(
+        raw_datasets=raw_datasets,
+        make_eval_dataset=make_eval_dataset,
+        do_train=training_args.do_train,
+    )
+    answer_column_name = "answers" if "answers" in column_names else column_names[2]
+
+    # Post-processing:
+    def post_processing_function(examples, features, predictions, stage="eval"):
+        # Post-processing: we match the start logits and end
+        # logits to answers in the original context.
+        predictions = postprocess_qa_predictions(
+            examples=examples,
+            features=features,
+            predictions=predictions,
+            version_2_with_negative=data_args.version_2_with_negative,
+            n_best_size=data_args.n_best_size,
+            max_answer_length=data_args.max_answer_length,
+            null_score_diff_threshold=data_args.null_score_diff_threshold,
+            output_dir=training_args.output_dir,
+            log_level=log_level,
+            prefix=stage,
+        )
+        # Format the result to the format the metric expects.
+        if data_args.version_2_with_negative:
+            formatted_predictions = [
+                {"id": k, "prediction_text": v, "no_answer_probability": 0.0}
+                for k, v in predictions.items()
+            ]
+        else:
+            formatted_predictions = [
+                {"id": k, "prediction_text": v} for k, v in predictions.items()
+            ]
+
+        references = [
+            {"id": ex["id"], "answers": ex[answer_column_name]} for ex in examples
+        ]
+        return EvalPrediction(predictions=formatted_predictions, label_ids=references)
+
+    metric = load_metric("squad_v2" if data_args.version_2_with_negative else "squad")
+
+    def compute_metrics(p: EvalPrediction):
+        return metric.compute(predictions=p.predictions, references=p.label_ids)
+
+    # Initialize our Trainer
+    trainer = QuestionAnsweringTrainer(
+        model=model,
+        model_state_path=model_args.model_name_or_path,
+        recipe=training_args.recipe,
+        recipe_args=training_args.recipe_args,
+        metadata_args=metadata_args,
+        teacher=teacher,
+        args=training_args,
+        data_args=data_args,
+        train_dataset=train_dataset if training_args.do_train else None,
+        eval_dataset=eval_dataset if make_eval_dataset else None,
+        eval_examples=eval_examples if training_args.do_eval else None,
+        tokenizer=tokenizer,
+        data_collator=data_collator,
+        post_process_function=post_processing_function,
+        compute_metrics=compute_metrics,
+    )
+
