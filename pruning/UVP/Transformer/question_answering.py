@@ -361,3 +361,57 @@ def main(**kwargs):
                 "`--overwrite_output_dir` to train from scratch."
             )
 
+    # Set seed before initializing model.
+    set_seed(training_args.seed)
+
+    # Load pretrained model and tokenizer
+    #
+    # Distributed training:
+    # The .from_pretrained methods guarantee that only one local process can
+    # concurrently download model & vocab.
+    config = AutoConfig.from_pretrained(
+        model_args.config_name
+        if model_args.config_name
+        else model_args.model_name_or_path,
+        cache_dir=model_args.cache_dir,
+        revision=model_args.model_revision,
+        use_auth_token=True if model_args.use_auth_token else None,
+    )
+
+    model, teacher = SparseAutoModel.question_answering_from_pretrained_distil(
+        model_name_or_path=model_args.model_name_or_path,
+        model_kwargs={
+            "config": config,
+            "cache_dir": model_args.cache_dir,
+            "revision": model_args.model_revision,
+            "use_auth_token": True if model_args.use_auth_token else None,
+        },
+        teacher_name_or_path=training_args.distill_teacher,
+        teacher_kwargs={
+            "cache_dir": model_args.cache_dir,
+            "use_auth_token": True if model_args.use_auth_token else None,
+        },
+    )
+
+    tokenizer_src = (
+        model_args.tokenizer_name
+        if model_args.tokenizer_name
+        else get_shared_tokenizer_src(model, teacher)
+    )
+    tokenizer = AutoTokenizer.from_pretrained(
+        tokenizer_src,
+        cache_dir=model_args.cache_dir,
+        use_fast=True,
+        revision=model_args.model_revision,
+        use_auth_token=True if model_args.use_auth_token else None,
+    )
+
+    # Tokenizer check: this script requires a fast tokenizer.
+    if not isinstance(tokenizer, PreTrainedTokenizerFast):
+        raise ValueError(
+            "This example script only works for models that have a fast tokenizer. "
+            "Checkout the big table of models at "
+            "https://huggingface.co/transformers/index.html#supported-frameworks to "
+            "find the model types that meet this requirement"
+        )
+
