@@ -575,3 +575,34 @@ def main(**kwargs):
         else:
             kwargs["dataset"] = data_args.dataset_name
 
+    # Exporting Samples
+
+    if data_args.num_export_samples > 0:
+        trainer.save_sample_inputs_outputs(
+            num_samples_to_export=data_args.num_export_samples
+        )
+
+
+def get_tokenized_qa_dataset(
+    data_args: DataTrainingArguments,
+    tokenizer: transformers.PreTrainedTokenizerBase,
+    cache_dir: Optional[str] = None,
+):
+    """
+    Utility method to get tokenized question answering dataset given at-least
+    the tokenizer, and data_arguments
+    :param data_args: Arguments pertaining to what data we are going to input
+        our model for training and eval
+    :param tokenizer: The tokenizer to use for tokenizing raw dataset
+    :param cache_dir: Local path to store the pretrained data from huggingface.co
+    """
+    raw_datasets = _get_raw_dataset(data_args=data_args, cache_dir=cache_dir)
+    tokenized_datasets, _ = _get_tokenized_datasets_and_examples(
+        data_args=data_args,
+        raw_datasets=raw_datasets,
+        tokenizer=tokenizer,
+        make_eval_dataset=True,
+    )
+    return tokenized_datasets
+
+
