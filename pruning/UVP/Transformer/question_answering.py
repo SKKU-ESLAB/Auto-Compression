@@ -545,3 +545,33 @@ def main(**kwargs):
         trainer.log_metrics("eval", metrics)
         trainer.save_metrics("eval", metrics)
 
+    # Prediction
+    if training_args.do_predict and not trainer.one_shot:
+        _LOGGER.info("*** Predict ***")
+        results = trainer.predict(predict_dataset, predict_examples)
+        metrics = results.metrics
+
+        max_predict_samples = (
+            data_args.max_predict_samples
+            if data_args.max_predict_samples is not None
+            else len(predict_dataset)
+        )
+        metrics["predict_samples"] = min(max_predict_samples, len(predict_dataset))
+
+        trainer.log_metrics("predict", metrics)
+        trainer.save_metrics("predict", metrics)
+
+    kwargs = {
+        "finetuned_from": model_args.model_name_or_path,
+        "tasks": "question-answering",
+    }
+    if data_args.dataset_name is not None:
+        kwargs["dataset_tags"] = data_args.dataset_name
+        if data_args.dataset_config_name is not None:
+            kwargs["dataset_args"] = data_args.dataset_config_name
+            kwargs[
+                "dataset"
+            ] = f"{data_args.dataset_name} {data_args.dataset_config_name}"
+        else:
+            kwargs["dataset"] = data_args.dataset_name
+
