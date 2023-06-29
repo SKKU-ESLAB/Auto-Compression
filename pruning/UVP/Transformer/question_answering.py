@@ -530,3 +530,18 @@ def main(**kwargs):
         trainer.save_state()
         trainer.save_optimizer_and_scheduler(training_args.output_dir)
 
+    # Evaluation
+    if training_args.do_eval and not trainer.one_shot:
+        _LOGGER.info("*** Evaluate ***")
+        metrics = trainer.evaluate()
+
+        max_eval_samples = (
+            data_args.max_eval_samples
+            if data_args.max_eval_samples is not None
+            else len(eval_dataset)
+        )
+        metrics["eval_samples"] = min(max_eval_samples, len(eval_dataset))
+
+        trainer.log_metrics("eval", metrics)
+        trainer.save_metrics("eval", metrics)
+
