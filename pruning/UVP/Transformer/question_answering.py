@@ -811,3 +811,63 @@ def _get_tokenized_datasets_and_examples(
 
         return tokenized_examples
 
+    eval_examples = None
+    if make_eval_dataset:
+        if "validation" not in raw_datasets:
+            raise ValueError("--do_eval requires a validation dataset")
+        eval_examples = raw_datasets["validation"]
+        if data_args.max_eval_samples is not None:
+            # We will select sample from whole data
+            eval_examples = eval_examples.select(range(data_args.max_eval_samples))
+        # Validation Feature Creation
+        with main_process_func(desc="validation dataset map pre-processing"):
+            eval_dataset = eval_examples.map(
+                prepare_validation_features,
+                batched=True,
+                num_proc=data_args.preprocessing_num_workers,
+                remove_columns=column_names,
+                load_from_cache_file=not data_args.overwrite_cache,
+                desc="Running tokenizer on validation dataset",
+            )
+        if data_args.max_eval_samples is not None:
+            # During Feature creation dataset samples might increase, we will select
+            # required samples again
+            eval_dataset = eval_dataset.select(range(data_args.max_eval_samples))
+
+    predict_examples = None
+    if do_predict:
+        if "test" not in raw_datasets:
+            raise ValueError("--do_predict requires a test dataset")
+        predict_examples = raw_datasets["test"]
+        if data_args.max_predict_samples is not None:
+            # We will select sample from whole data
+            predict_examples = predict_examples.select(
+                range(data_args.max_predict_samples)
+            )
+        # Predict Feature Creation
+        with main_process_func(desc="prediction dataset map pre-processing"):
+            predict_dataset = predict_examples.map(
+                prepare_validation_features,
+                batched=True,
+                num_proc=data_args.preprocessing_num_workers,
+                remove_columns=column_names,
+                load_from_cache_file=not data_args.overwrite_cache,
+                desc="Running tokenizer on prediction dataset",
+            )
+        if data_args.max_predict_samples is not None:
+            # During Feature creation dataset samples might increase,
+            # we will select required samples again
+            predict_dataset = predict_dataset.select(
+                range(data_args.max_predict_samples)
+            )
+
+    tokenized_datasets = {
+        "train": train_dataset,
+        "validation": eval_dataset,
+        "test": predict_dataset,
+    }
+
+    examples = {"train": None, "validation": eval_examples, "test": predict_examples}
+    return tokenized_datasets, examples
+
+
