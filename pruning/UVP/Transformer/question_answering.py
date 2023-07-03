@@ -883,3 +883,63 @@ def _get_column_names(
     return column_names
 
 
+def _get_raw_dataset(data_args, cache_dir: Optional[str] = None):
+    # Get the datasets: you can either provide your own CSV/JSON/TXT training and
+    # evaluation files (see below)or just provide the name of one of the public
+    # datasets available on the hub at https://huggingface.co/datasets/
+    # (the dataset will be downloaded automatically from the datasets Hub).
+    #
+    # For CSV/JSON files, this script will use the column called 'text' or the
+    # first column if no column called
+    # 'text' is found. You can easily tweak this behavior (see below).
+    #
+    # In distributed training, the load_dataset function guarantee that
+    # only one local process can concurrently download the dataset.
+    if data_args.dataset_name is not None:
+        # Downloading and loading a dataset from the hub.
+        raw_datasets = load_dataset(
+            data_args.dataset_name,
+            data_args.dataset_config_name,
+            cache_dir=cache_dir,
+        )
+    else:
+        data_files = {}
+        if data_args.train_file is not None:
+            data_files["train"] = data_args.train_file
+            extension = data_args.train_file.split(".")[-1]
+
+        if data_args.validation_file is not None:
+            data_files["validation"] = data_args.validation_file
+            extension = data_args.validation_file.split(".")[-1]
+        if data_args.test_file is not None:
+            data_files["test"] = data_args.test_file
+            extension = data_args.test_file.split(".")[-1]
+
+        try:
+            raw_datasets = load_dataset(
+                extension,
+                data_files=data_files,
+                field="data",
+                cache_dir=cache_dir,
+            )
+        except (json.JSONDecodeError, datasets.builder.DatasetGenerationError):
+            # run without `field="data"` - JSONL files will not always have each
+            # line nested under a top level field
+            raw_datasets = load_dataset(
+                extension,
+                data_files=data_files,
+                cache_dir=cache_dir,
+            )
+    # See more about loading any type of standard or custom dataset
+    # (from files, python dict, pandas DataFrame, etc) at
+    # https://huggingface.co/docs/datasets/loading_datasets.html.
+    return raw_datasets
+
+
+def _mp_fn(index):
+    # For xla_spawn (TPUs)
+    main()
+
+
+if __name__ == "__main__":
+    main()
