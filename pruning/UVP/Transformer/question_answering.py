@@ -871,3 +871,15 @@ def _get_tokenized_datasets_and_examples(
     return tokenized_datasets, examples
 
 
+def _get_column_names(
+    raw_datasets, do_train: bool = False, make_eval_dataset: bool = False
+):
+    if do_train:
+        column_names = raw_datasets["train"].column_names
+    elif make_eval_dataset:
+        column_names = raw_datasets["validation"].column_names
+    else:
+        column_names = raw_datasets["test"].column_names
+    return column_names
+
+
