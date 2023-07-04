@@ -355,3 +355,57 @@ def main(**kwargs):
                 "`--overwrite_output_dir` to train from scratch."
             )
 
+    # Set seed before initializing model.
+    set_seed(training_args.seed)
+
+    raw_datasets = _get_raw_dataset(
+        data_args, cache_dir=model_args.cache_dir, do_predict=training_args.do_predict
+    )
+
+    # Labels
+    (
+        is_regression,
+        label_column,
+        label_list,
+        num_labels,
+        is_multi_label_classification,
+    ) = _get_label_info(data_args, raw_datasets)
+
+    # Load pretrained model and tokenizer
+    #
+    # In distributed training, the .from_pretrained methods guarantee that only one
+    # local process can concurrently download model & vocab.
+    config_kwargs = {}
+    if is_multi_label_classification:
+        config_kwargs["problem_type"] = "multi_label_classification"
+    config = AutoConfig.from_pretrained(
+        model_args.config_name
+        if model_args.config_name
+        else model_args.model_name_or_path,
+        num_labels=num_labels,
+        finetuning_task=data_args.task_name,
+        cache_dir=model_args.cache_dir,
+        revision=model_args.model_revision,
+        use_auth_token=True if model_args.use_auth_token else None,
+        **config_kwargs,
+    )
+
+    model, teacher = SparseAutoModel.text_classification_from_pretrained_distil(
+        model_name_or_path=(
+            model_args.tokenizer_name
+            if model_args.tokenizer_name
+            else model_args.model_name_or_path
+        ),
+        model_kwargs={
+            "config": config,
+            "cache_dir": model_args.cache_dir,
+            "revision": model_args.model_revision,
+            "use_auth_token": True if model_args.use_auth_token else None,
+        },
+        teacher_name_or_path=training_args.distill_teacher,
+        teacher_kwargs={
+            "cache_dir": model_args.cache_dir,
+            "use_auth_token": True if model_args.use_auth_token else None,
+        },
+    )
+
