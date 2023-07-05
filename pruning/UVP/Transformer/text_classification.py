@@ -556,3 +556,38 @@ def main(**kwargs):
         trainer.save_state()
         trainer.save_optimizer_and_scheduler(training_args.output_dir)
 
+    # Evaluation
+    if training_args.do_eval and not trainer.one_shot:
+        _LOGGER.info("*** Evaluate ***")
+
+        # Loop to handle MNLI double evaluation (matched, mis-matched)
+        tasks = (
+            [data_args.task_name]
+            if data_args.task_name is not None
+            else [data_args.dataset_name]
+        )
+        eval_datasets = [eval_dataset]
+        if data_args.task_name == "mnli":
+            tasks.append("mnli-mm")
+            eval_datasets.append(raw_datasets["validation_mismatched"])
+            combined = {}
+
+        for eval_dataset, task in zip(eval_datasets, tasks):
+            metrics = trainer.evaluate(eval_dataset=eval_dataset)
+
+            max_eval_samples = (
+                data_args.max_eval_samples
+                if data_args.max_eval_samples is not None
+                else len(eval_dataset)
+            )
+            metrics["eval_samples"] = min(max_eval_samples, len(eval_dataset))
+            if task == "mnli-mm":
+                metrics = {k + "_mm": v for k, v in metrics.items()}
+            if task is not None and "mnli" in task:
+                combined.update(metrics)
+                trainer.save_metrics("eval", combined)
+            else:
+                trainer.save_metrics("eval", metrics)
+
+            trainer.log_metrics("eval", metrics)
+
