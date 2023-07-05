@@ -506,3 +506,29 @@ def main(**kwargs):
                 "accuracy": (preds == p.label_ids).astype(np.float32).mean().item(),
             }
 
+    # Data collator will default to DataCollatorWithPadding when the tokenizer is
+    # passed to Trainer, so we change it if we already did the padding.
+    if data_args.pad_to_max_length:
+        data_collator = default_data_collator
+    elif training_args.fp16:
+        data_collator = DataCollatorWithPadding(tokenizer, pad_to_multiple_of=8)
+    else:
+        data_collator = None
+
+    # Initialize our Trainer
+    trainer = Trainer(
+        model=model,
+        model_state_path=model_args.model_name_or_path,
+        recipe=training_args.recipe,
+        metadata_args=metadata_args,
+        recipe_args=training_args.recipe_args,
+        teacher=teacher,
+        args=training_args,
+        data_args=data_args,
+        train_dataset=train_dataset if training_args.do_train else None,
+        eval_dataset=eval_dataset if make_eval_dataset else None,
+        tokenizer=tokenizer,
+        data_collator=data_collator,
+        compute_metrics=compute_metrics,
+    )
+
