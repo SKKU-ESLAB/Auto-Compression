@@ -409,3 +409,53 @@ def main(**kwargs):
         },
     )
 
+    teacher_tokenizer = None
+    tokenizer_kwargs = dict(
+        cache_dir=model_args.cache_dir,
+        use_fast=model_args.use_fast_tokenizer,
+        revision=model_args.model_revision,
+        use_auth_token=True if model_args.use_auth_token else None,
+    )
+    if not model_args.use_teacher_tokenizer:
+        tokenizer_src = (
+            model_args.tokenizer_name
+            if model_args.tokenizer_name
+            else get_shared_tokenizer_src(model, teacher)
+        )
+    else:
+        tokenizer_src = (
+            model_args.tokenizer_name
+            if model_args.tokenizer_name
+            else model.config._name_or_path
+        )
+        teacher_tokenizer = AutoTokenizer.from_pretrained(
+            teacher.config._name_or_path,
+            **tokenizer_kwargs,
+        )
+    tokenizer = AutoTokenizer.from_pretrained(
+        tokenizer_src,
+        **tokenizer_kwargs,
+    )
+    make_eval_dataset = training_args.do_eval or data_args.num_export_samples > 0
+    tokenized_datasets, raw_datasets = _get_tokenized_and_preprocessed_raw_datasets(
+        config=config,
+        data_args=data_args,
+        model=model,
+        raw_datasets=raw_datasets,
+        tokenizer=tokenizer,
+        teacher_tokenizer=teacher_tokenizer,
+        make_eval_dataset=make_eval_dataset,
+        main_process_func=training_args.main_process_first,
+        do_train=training_args.do_train,
+        do_predict=training_args.do_predict,
+    )
+
+    train_dataset = tokenized_datasets.get("train")
+    eval_dataset = tokenized_datasets.get("validation")
+    predict_dataset = tokenized_datasets.get("test")
+
+    # Log a few random samples from the training set:
+    if training_args.do_train:
+        for index in random.sample(range(len(train_dataset)), 3):
+            _LOGGER.info(f"Sample {index} of training set: {train_dataset[index]}.")
+
