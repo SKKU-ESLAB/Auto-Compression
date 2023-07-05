@@ -532,3 +532,27 @@ def main(**kwargs):
         compute_metrics=compute_metrics,
     )
 
+    # Training
+    if training_args.do_train:
+        checkpoint = None
+        if training_args.resume_from_checkpoint is not None:
+            checkpoint = training_args.resume_from_checkpoint
+        elif last_checkpoint is not None:
+            checkpoint = last_checkpoint
+
+        train_result = trainer.train(resume_from_checkpoint=checkpoint)
+        if not trainer.one_shot:
+            metrics = train_result.metrics
+            max_train_samples = (
+                data_args.max_train_samples
+                if data_args.max_train_samples is not None
+                else len(train_dataset)
+            )
+            metrics["train_samples"] = min(max_train_samples, len(train_dataset))
+            trainer.log_metrics("train", metrics)
+            trainer.save_metrics("train", metrics)
+
+        trainer.save_model()  # Saves the tokenizer too for easy upload
+        trainer.save_state()
+        trainer.save_optimizer_and_scheduler(training_args.output_dir)
+
