@@ -591,3 +591,58 @@ def main(**kwargs):
 
             trainer.log_metrics("eval", metrics)
 
+    if training_args.do_predict and not trainer.one_shot:
+        _LOGGER.info("*** Predict ***")
+
+        # Loop to handle MNLI double evaluation (matched, mis-matched)
+        tasks = [data_args.task_name]
+        predict_datasets = [predict_dataset]
+        if data_args.task_name == "mnli":
+            tasks.append("mnli-mm")
+            predict_datasets.append(raw_datasets["test_mismatched"])
+
+        for predict_dataset, task in zip(predict_datasets, tasks):
+            # Removing the `label` columns because it contains -1 and Trainer will
+            # not like that
+            predict_dataset = predict_dataset.remove_columns(label_column)
+            predictions = trainer.predict(
+                predict_dataset, metric_key_prefix="predict"
+            ).predictions
+            predictions = (
+                np.squeeze(predictions)
+                if is_regression
+                else np.argmax(predictions, axis=1)
+            )
+
+            output_predict_file = os.path.join(
+                training_args.output_dir, f"predict_results_{task}.txt"
+            )
+            if trainer.is_world_process_zero():
+                with open(output_predict_file, "w") as writer:
+                    _LOGGER.info(f"***** Predict results {task} *****")
+                    writer.write("index\tprediction\n")
+                    for index, item in enumerate(predictions):
+                        if is_regression:
+                            writer.write(f"{index}\t{item:3.3f}\n")
+                        else:
+                            item = label_list[item]
+                            writer.write(f"{index}\t{item}\n")
+
+    kwargs = {
+        "finetuned_from": model_args.model_name_or_path,
+        "tasks": "text-classification",
+    }
+    if data_args.task_name is not None:
+        kwargs["language"] = "en"
+        kwargs["dataset_tags"] = "glue"
+        kwargs["dataset_args"] = data_args.task_name
+        kwargs["dataset"] = f"GLUE {data_args.task_name.upper()}"
+
+    # Exporting Samples
+
+    if data_args.num_export_samples > 0:
+        trainer.save_sample_inputs_outputs(
+            num_samples_to_export=data_args.num_export_samples
+        )
+
+
