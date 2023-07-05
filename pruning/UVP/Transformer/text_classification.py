@@ -459,3 +459,50 @@ def main(**kwargs):
         for index in random.sample(range(len(train_dataset)), 3):
             _LOGGER.info(f"Sample {index} of training set: {train_dataset[index]}.")
 
+    # Get the metric function
+    if data_args.task_name is not None:
+        metric = load_metric("glue", data_args.task_name)
+    else:
+        metric = load_metric("accuracy")
+
+    # You can define your custom compute_metrics function. It takes an `EvalPrediction`
+    # object (a namedtuple with a predictions and label_ids field) and has to return a
+    # dictionary string to float.
+    def compute_metrics(p: EvalPrediction):
+        preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
+        if is_regression:
+            preds = np.squeeze(preds)
+        elif not is_multi_label_classification:
+            # do not run argmax for multi label classification
+            preds = np.argmax(preds, axis=1)
+        if data_args.task_name is not None:
+            result = metric.compute(predictions=preds, references=p.label_ids)
+            if len(result) > 1:
+                result["combined_score"] = np.mean(list(result.values())).item()
+            return result
+        elif is_regression:
+            return {"mse": ((preds - p.label_ids) ** 2).mean().item()}
+        elif is_multi_label_classification:
+            threshold = 0.3  # from go_emotions paper - potentially move to arg/config
+            preds_sigmoid = 1 / (1 + np.exp(-preds))
+            multi_label_preds = (preds_sigmoid > threshold).astype(np.float32)
+            label_to_id = _get_label_to_id(
+                data_args=data_args,
+                is_regression=is_regression,
+                label_list=label_list,
+                model=model,
+                num_labels=num_labels,
+                config=config,
+            )
+            id_to_label = {id_: label for label, id_ in label_to_id.items()}
+
+            return multi_label_precision_recall_f1(
+                predictions=multi_label_preds,
+                targets=p.label_ids,
+                id_to_label=id_to_label,
+            )
+        else:
+            return {
+                "accuracy": (preds == p.label_ids).astype(np.float32).mean().item(),
+            }
+
