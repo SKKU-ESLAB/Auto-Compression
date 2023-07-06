@@ -739,3 +739,33 @@ def _get_tokenized_and_preprocessed_raw_datasets(
             else:
                 sentence1_key, sentence2_key = non_label_column_names[0], None
 
+    # Padding strategy
+    if data_args.pad_to_max_length:
+        padding = "max_length"
+    else:
+        # We will pad later, dynamically at batch creation, to the max sequence
+        # length in each batch
+        padding = False
+
+    # Some models have set the order of the labels to use, so let's make sure
+    # we do use it
+    label_to_id = _get_label_to_id(
+        data_args, is_regression, label_list, model, num_labels, config=config
+    )
+
+    if label_to_id is not None:
+        config.label2id = label_to_id
+        config.id2label = {id: label for label, id in config.label2id.items()}
+    elif data_args.task_name is not None and not is_regression:
+        config.label2id = {l: i for i, l in enumerate(label_list)}
+        config.id2label = {id: label for label, id in config.label2id.items()}
+
+    max_seq_length = data_args.max_seq_length
+    if max_seq_length > tokenizer.model_max_length:
+        _LOGGER.warning(
+            f"The max_seq_length passed ({max_seq_length}) is larger than "
+            f"the maximum length for the model ({tokenizer.model_max_length}). "
+            f"Using max_seq_length={tokenizer.model_max_length}."
+        )
+    max_seq_length = min(data_args.max_seq_length, tokenizer.model_max_length)
+
