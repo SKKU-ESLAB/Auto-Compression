@@ -769,3 +769,52 @@ def _get_tokenized_and_preprocessed_raw_datasets(
         )
     max_seq_length = min(data_args.max_seq_length, tokenizer.model_max_length)
 
+    def one_hot_labels(target_labels):
+        # use 1 - 1e-9 for now as workaround target, values get cast to int somewhere
+        # when encoded as 1.0/0.0. must be float for compatibility w/ BCE logits loss
+        return [
+            1 - 1e-9 if label in target_labels else 0.0 for label in range(num_labels)
+        ]
+
+    def map_labels_to_ids(examples, tokenizer_result):
+        # Map labels to IDs (not necessary for GLUE tasks)
+        if label_to_id is not None and label_column in examples:
+            if is_multi_label_classification:
+                tokenizer_result[label_column] = [
+                    one_hot_labels(target_labels)
+                    for target_labels in examples[label_column]
+                ]
+            else:
+                tokenizer_result[label_column] = [
+                    (label_to_id[label] if label != -1 else -1)
+                    for label in examples[label_column]
+                ]
+        return tokenizer_result
+
+    def preprocess_function(examples):
+        # Tokenize the texts
+        args = (
+            (examples[sentence1_key],)
+            if sentence2_key is None
+            else (examples[sentence1_key], examples[sentence2_key])
+        )
+        result = tokenizer(
+            *args, padding=padding, max_length=max_seq_length, truncation=True
+        )
+        result = map_labels_to_ids(examples, result)
+
+        if teacher_tokenizer is not None:
+            teacher_result = teacher_tokenizer(
+                *args, padding=padding, max_length=max_seq_length, truncation=True
+            )
+            teacher_result = map_labels_to_ids(examples, teacher_result)
+
+            # add results from teacher_tokenizer to results with 'distill_teacher:' id
+            teacher_result = {
+                f"distill_teacher:{tokenizer_key}": value
+                for tokenizer_key, value in teacher_result.items()
+            }
+            result.update(teacher_result)
+
+        return result
+
