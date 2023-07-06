@@ -680,3 +680,62 @@ def _get_label_info(data_args, raw_datasets):
     )
 
 
+def _get_tokenized_and_preprocessed_raw_datasets(
+    config,
+    data_args: DataTrainingArguments,
+    model: Optional[Module],
+    raw_datasets,
+    tokenizer: transformers.PreTrainedTokenizerBase,
+    teacher_tokenizer=None,
+    make_eval_dataset: bool = False,
+    do_predict: bool = False,
+    do_train: bool = False,
+    main_process_func=None,
+):
+    (
+        is_regression,
+        label_column,
+        label_list,
+        num_labels,
+        is_multi_label_classification,
+    ) = _get_label_info(data_args, raw_datasets)
+
+    train_dataset = predict_dataset = eval_dataset = None
+    config = model.config if model else config
+    if not main_process_func:
+        main_process_func = lambda desc: nullcontext(desc)  # noqa: E731
+
+    # Preprocessing the datasets
+    if data_args.input_column_names is not None:
+        if "," in data_args.input_column_names:
+            # two input columns
+            columns = data_args.input_column_names.split(",")
+            if len(columns) != 2:
+                raise ValueError(
+                    "input_column_names may only specify up to two columns "
+                    f"{len(columns)} provided: {columns}"
+                )
+            sentence1_key, sentence2_key = columns
+        else:
+            # one input column
+            sentence1_key = data_args.input_column_names
+            sentence2_key = None
+    elif data_args.task_name is not None:
+        sentence1_key, sentence2_key = _TASK_TO_KEYS[data_args.task_name]
+    else:
+        # Again, we try to have some nice defaults but don't hesitate to tweak to your
+        # use case
+        non_label_column_names = [
+            name for name in raw_datasets["train"].column_names if name != label_column
+        ]
+        if (
+            "sentence1" in non_label_column_names
+            and "sentence2" in non_label_column_names
+        ):
+            sentence1_key, sentence2_key = "sentence1", "sentence2"
+        else:
+            if len(non_label_column_names) >= 2:
+                sentence1_key, sentence2_key = non_label_column_names[:2]
+            else:
+                sentence1_key, sentence2_key = non_label_column_names[0], None
+
