@@ -818,3 +818,23 @@ def _get_tokenized_and_preprocessed_raw_datasets(
 
         return result
 
+    with main_process_func(desc="dataset map pre-processing"):
+        raw_datasets = raw_datasets.map(
+            preprocess_function,
+            batched=True,
+            num_proc=data_args.preprocessing_num_workers,
+            load_from_cache_file=not data_args.overwrite_cache,
+            desc="Running tokenizer on dataset",
+        )
+    train_dataset, eval_dataset, predict_dataset = _make_dataset_splits(
+        raw_datasets, data_args, do_train, make_eval_dataset, do_predict
+    )
+
+    tokenized_datasets = {
+        "train": train_dataset,
+        "validation": eval_dataset,
+        "test": predict_dataset,
+    }
+    return tokenized_datasets, raw_datasets
+
+
