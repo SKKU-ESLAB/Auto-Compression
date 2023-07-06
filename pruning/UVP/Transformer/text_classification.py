@@ -646,3 +646,37 @@ def main(**kwargs):
         )
 
 
+def _get_label_info(data_args, raw_datasets):
+    label_column = data_args.label_column_name
+    if data_args.task_name is not None:
+        is_regression = data_args.task_name == "stsb"
+        is_multi_label_classification = False
+        if not is_regression:
+            label_list = raw_datasets["train"].features[label_column].names
+            num_labels = len(label_list)
+        else:
+            num_labels = 1
+    else:
+        # Trying to have good defaults here, don't hesitate to tweak to your needs.
+        label_type = raw_datasets["train"].features[label_column].dtype
+        is_regression = label_type in ["float32", "float64"]
+        is_multi_label_classification = label_type == "list"
+
+        if is_regression:
+            num_labels = 1
+        elif is_multi_label_classification:
+            label_list = raw_datasets["train"].features[label_column].feature.names
+            num_labels = len(label_list)
+        else:
+            label_list = raw_datasets["train"].unique(label_column)
+            label_list.sort()  # Let's sort it for determinism
+            num_labels = len(label_list)
+    return (
+        is_regression,
+        label_column,
+        label_list,
+        num_labels,
+        is_multi_label_classification,
+    )
+
+
