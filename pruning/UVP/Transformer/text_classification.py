@@ -935,3 +935,23 @@ def _get_raw_dataset(
     return raw_datasets
 
 
+def _split_train_val(train_dataset, val_ratio):
+    # Fixed random seed to make split consistent across runs with the same ratio
+    seed = 42
+    try:
+        ds = train_dataset.train_test_split(
+            test_size=val_ratio, stratify_by_column="label", seed=seed
+        )
+        train_ds = ds.pop("train")
+        val_ds = ds.pop("test")
+    except TypeError:
+        X = list(range(len(train_dataset)))
+        y = train_dataset["label"]
+        sss = StratifiedShuffleSplit(n_splits=1, test_size=val_ratio, random_state=seed)
+        for train_indices, test_indices in sss.split(X, y):
+            train_ds = train_dataset.select(train_indices)
+            val_ds = train_dataset.select(test_indices)
+
+    return train_ds, val_ds
+
+
