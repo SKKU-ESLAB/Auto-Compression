@@ -955,3 +955,79 @@ def _split_train_val(train_dataset, val_ratio):
     return train_ds, val_ds
 
 
+def _make_dataset_splits(
+    raw_datasets, data_args, do_train, make_eval_dataset, do_predict
+):
+    """
+    Make and return train, eval and predict splits. The eval split could
+    come from either an explicit validation set, part of the training set,
+    or the test set.
+    """
+    train_split = eval_split = predict_split = None
+    if do_train:
+        if "train" not in raw_datasets:
+            raise ValueError("--do_train requires a train dataset")
+        train_split = raw_datasets["train"]
+        if (
+            data_args.max_train_samples is not None
+            and len(train_split) > data_args.max_train_samples
+        ):
+            train_split = train_split.select(range(data_args.max_train_samples))
+
+    if make_eval_dataset:
+        if (
+            "validation" not in raw_datasets
+            and "validation_matched" not in raw_datasets
+            and data_args.validation_ratio is None
+            and data_args.eval_on_test is False
+        ):
+            raise ValueError(
+                "--do_eval requires an explicit validation dataset, "
+                "specified validation ratio, or eval_on_test"
+            )
+        if data_args.task_name == "mnli":
+            eval_split = raw_datasets["validation_matched"]
+        elif "validation" in raw_datasets:
+            if data_args.validation_ratio is not None:
+                raise ValueError(
+                    "validation_ratio cannot be specified when validation set exists"
+                )
+            if data_args.eval_on_test is True:
+                if "test" not in raw_datasets:
+                    raise ValueError("test split not found but eval_on_test is on")
+                _LOGGER.info("eval_on_test: Evaluation on the test set")
+                eval_split = raw_datasets["test"]
+            else:
+                eval_split = raw_datasets["validation"]
+        elif data_args.validation_ratio is not None:
+            if data_args.eval_on_test is True:
+                raise ValueError(
+                    "eval_on_test cannot be specified when validation_ratio is set"
+                )
+            train_split = raw_datasets["train"] if train_split is None else train_split
+            train_split, eval_split = _split_train_val(
+                train_split, data_args.validation_ratio
+            )
+        elif data_args.eval_on_test:
+            if "test" not in raw_datasets:
+                raise ValueError("test split not found but eval_on_test is on")
+            eval_split = raw_datasets["test"]
+
+        if (
+            data_args.max_eval_samples is not None
+            and len(eval_split) > data_args.max_eval_samples
+        ):
+            eval_split = eval_split.select(range(data_args.max_eval_samples))
+
+    if do_predict:
+        if "test" not in raw_datasets and "test_matched" not in raw_datasets:
+            raise ValueError("--do_predict requires a test dataset")
+        predict_split = raw_datasets[
+            "test_matched" if data_args.task_name == "mnli" else "test"
+        ]
+        if data_args.max_predict_samples is not None:
+            predict_split = predict_split.select(range(data_args.max_predict_samples))
+
+    return train_split, eval_split, predict_split
+
+
