@@ -1031,3 +1031,44 @@ def _make_dataset_splits(
     return train_split, eval_split, predict_split
 
 
+def get_tokenized_text_classification_dataset(
+    data_args: DataTrainingArguments,
+    tokenizer: transformers.PreTrainedTokenizerBase,
+    model: Module,
+    config,
+    cache_dir: Optional[str] = None,
+):
+    """
+    Utility method to get tokenized text classification dataset given at-least
+    the tokenizer, model, and data_arguments
+
+    :param data_args: Arguments pertaining to what data we are going to input
+        our model for training and eval
+    :param tokenizer: The tokenizer to use for tokenizing raw dataset
+    :param config: The pretrained config used to load this model
+    :param cache_dir: Local path to store the pretrained data from huggingface.co
+    :returns: A dictionary containing tokenized_datasets
+    """
+
+    raw_datasets = _get_raw_dataset(data_args, cache_dir=cache_dir, do_predict=True)
+
+    tokenized_datasets, _ = _get_tokenized_and_preprocessed_raw_datasets(
+        config=config,
+        data_args=data_args,
+        model=model,
+        raw_datasets=raw_datasets,
+        tokenizer=tokenizer,
+        teacher_tokenizer=None,
+        make_eval_dataset=True,
+    )
+
+    return tokenized_datasets
+
+
+def _mp_fn(index):
+    # For xla_spawn (TPUs)
+    main()
+
+
+if __name__ == "__main__":
+    main()
