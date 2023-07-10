@@ -1,0 +1,91 @@
+training_modifiers:
+  - !EpochRangeModifier
+    start_epoch: 0.0
+    end_epoch: 30.0
+
+  - !TrainableParamsModifier
+    params:
+    - mobilebert.embeddings.word_embeddings.weight
+    - mobilebert.embeddings.position_embeddings.weight
+    - mobilebert.embeddings.token_type_embeddings.weight
+    trainable: False
+    params_strict: True
+    start_epoch: 0.0
+    end_epoch: 30.0
+
+  - !LearningRateFunctionModifier
+    start_epoch: 0.0
+    end_epoch: 2.0
+    lr_func: linear
+    init_lr: 1e-4
+    final_lr: 1e-6
+
+  - !LearningRateFunctionModifier
+    start_epoch: 2.0
+    end_epoch: 28.0
+    lr_func: cyclic_linear
+    cycle_epochs: 2.0
+    init_lr: 1e-4
+    final_lr: 5e-5
+
+  - !LearningRateFunctionModifier
+    start_epoch: 28.0
+    end_epoch: 30.0
+    lr_func: linear
+    init_lr: 1e-4
+    final_lr: 1e-6
+
+pruning_modifiers:
+  - !LayerPruningModifier
+    start_epoch: 0.0
+    end_epoch: 30.0
+    layers: [
+        'mobilebert.encoder.layer.14',
+        'mobilebert.encoder.layer.15',
+        'mobilebert.encoder.layer.16',
+        'mobilebert.encoder.layer.17',
+        'mobilebert.encoder.layer.18',
+        'mobilebert.encoder.layer.19',
+        'mobilebert.encoder.layer.20',
+        'mobilebert.encoder.layer.21',
+        'mobilebert.encoder.layer.22',
+        'mobilebert.encoder.layer.23',
+    ]
+
+  - !OBSPruningModifier
+    params: [
+      "re:mobilebert.encoder.layer.*.attention.self.query.weight",
+      "re:mobilebert.encoder.layer.*.attention.self.key.weight",
+      "re:mobilebert.encoder.layer.*.attention.self.value.weight",
+      "re:mobilebert.encoder.layer.*.attention.output.dense.weight",
+      "re:mobilebert.encoder.layer.*.intermediate.dense.weight",
+      "re:mobilebert.encoder.layer.*.output.dense.weight",
+      "re:mobilebert.encoder.layer.*.output.bottleneck.dense.weight",
+      "re:mobilebert.encoder.layer.*.bottleneck.input.dense.weight",
+      "re:mobilebert.encoder.layer.*.bottleneck.attention.dense.weight",
+      "re:mobilebert.encoder.layer.*.ffn.0.intermediate.dense.weight",
+      "re:mobilebert.encoder.layer.*.ffn.0.output.dense.weight",
+      "re:mobilebert.encoder.layer.*.ffn.1.intermediate.dense.weight",
+      "re:mobilebert.encoder.layer.*.ffn.1.output.dense.weight",
+      "re:mobilebert.encoder.layer.*.ffn.2.intermediate.dense.weight",
+      "re:mobilebert.encoder.layer.*.ffn.2.output.dense.weight",
+    ]
+    init_sparsity: 0.25
+    final_sparsity: 0.50
+    start_epoch: 2.0
+    end_epoch: 28.0
+    update_frequency: 2.0
+    inter_func: cubic
+    global_sparsity: True
+    mask_type: uvp2a_cp
+    num_grads: 512
+    damp: 1e-8
+    fisher_block_size: 4
+    grad_sampler_kwargs:
+      batch_size: 8
+
+distillation_modifiers:
+  - !DistillationModifier
+    hardness: 1.0
+    temperature: 5.5
+    distill_output_keys: [start_logits, end_logits]
