@@ -1,0 +1,1 @@
+python -m torch.distributed.launch --master-port 2223 --nproc_per_node=4 --use_env main.py --model deit_small_patch16_224 --batch-size 256 --data-path /data/imagenet --output_dir deit_small --dist-eval
