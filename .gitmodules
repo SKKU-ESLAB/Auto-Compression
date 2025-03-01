@@ -2,7 +2,7 @@
 	path = SDPE/extern/onnx
 	url = https://github.com/onnx/onnx.git
 [submodule "SDPE/extern/protobuf"]
-	path = extern/protobuf
+	path = SDPE/extern/protobuf
 	url = https://github.com/protocolbuffers/protobuf.git
 [submodule "SDPE/extern/torch2timeloop"]
 	path = SDPE/extern/torch2timeloop
