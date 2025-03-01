@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7"  python -u -m torch.distributed.launch --nproc_per_node=8 --use_env main_l2_vit_3keep_senet_mlerp.py --output_dir logs/3keep_senet_mlerp --arch deit_small --input-size 224 --batch-size 128 --data-path /data/imagenet --epochs 60 --dist-eval --distill --base_rate 0.65

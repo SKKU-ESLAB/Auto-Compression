@@ -1,0 +1,15 @@
+[submodule "SDPE/extern/onnx"]
+	path = SDPE/extern/onnx
+	url = https://github.com/onnx/onnx.git
+[submodule "SDPE/extern/protobuf"]
+	path = SDPE/extern/protobuf
+	url = https://github.com/protocolbuffers/protobuf.git
+[submodule "SDPE/extern/torch2timeloop"]
+	path = SDPE/extern/torch2timeloop
+	url = https://github.com/Accelergy-Project/pytorch2timeloop-converter.git
+[submodule "SDPE/extern/booksim"]
+	path = SDPE/extern/booksim
+	url = https://github.com/PSAL-POSTECH/booksim.git
+[submodule "SDPE/extern/ramulator2"]
+	path = SDPE/extern/ramulator2
+	url = https://github.com/PSAL-POSTECH/ramulator2.git
