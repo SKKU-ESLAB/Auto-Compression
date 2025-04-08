@@ -81,7 +81,7 @@ CUDA_VISIBLE_DEVICES="0,1,2,3"  python3 -u -m torch.distributed.launch --nproc_p
 ### Inference
 
 ```
-python infer.py --data-path /home/imagenet --model deit_small --model-path checkpoint_best.pth --base_rate 0.7 
+python infer.py --data-path /home/imagenet --model deit_small_mlerp --model-path checkpoint_best.pth --base_rate 0.7 
 ```
 
 
